@@ -15,13 +15,15 @@ and you are done.
 
 Other possible targets include:
 
-: make install [prefix=/usr]  # install into prefix
-: make diet                   # compile with diet libc
-: make test                   # compile and run the tests
-: make doc                    # generate the API documentation (will be put in the doc folder)
-: make help                   # display the possible targets
+: make install PREFIX=/usr	# install into PREFIX
+: make install DESTDIR=/tmp/t	# install into DESTDIR
+: make diet			# compile with diet libc
+: make test			# compile and run the tests
+: make doc			# generate the API documentation using doxygen
+				# (will be put in the doc folder)
+: make help			# display the possible targets
 
 On BSD try this:
 
-: sudo gmake install prefix=/usr/local
+: sudo gmake install PREFIX=/usr/local
 
