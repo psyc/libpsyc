@@ -1,3 +1,5 @@
+export LD_LIBRARY_PATH = ../lib
+
 OPT = -O2
 DEBUG = 2
 
