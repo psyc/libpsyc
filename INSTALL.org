@@ -15,7 +15,8 @@ and you are done.
 
 Other possible targets include:
 
-: make install DESTDIR=/usr	# install into DESTDIR
+: make install PREFIX=/usr	# install into PREFIX
+: make install DESTDIR=/tmp/t	# install into DESTDIR
 : make diet			# compile with diet libc
 : make test			# compile and run the tests
 : make doc			# generate the API documentation using doxygen
@@ -24,5 +25,5 @@ Other possible targets include:
 
 On BSD try this:
 
-: sudo gmake install DESTDIR=/usr/local
+: sudo gmake install PREFIX=/usr/local
 

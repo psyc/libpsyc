@@ -1,6 +1,8 @@
 .PHONY: doc test bench
 .NOTPARALLEL: clean
 
+export PREFIX="$(DESTDIR)/usr"
+
 indent_args = -nbad -bap -bbo -nbc -br -brs -ncdb -cdw -ce -ci4 -cli0 -cs -d0 -di1 \
 -nfc1 -nfca -hnl -i4 -ip0 -l80 -lp -npcs -nprs -npsl -saf -sai -saw -nsc -nsob -nss
 
@@ -10,15 +12,18 @@ all:
 it: all
 
 destdir:
-	@if test "foo$(DESTDIR)" = "foo" ; then \
-            echo "libpsyc install: You must provide a DESTDIR=/usr or such." ;\
-	    exit 2 ;\
-	else true; fi
-	-@if [ ! -w "$(DESTDIR)" ]; then \
+	-@if test "foo$(DESTDIR)" != "foo" ; then \
 	    mkdir "$(DESTDIR)" ;\
 	fi
-	@if [ ! -w "$(DESTDIR)" ]; then \
-            echo "libpsyc install: You must provide a writable DESTDIR." ;\
+	@if test "foo$(PREFIX)" = "foo" ; then \
+            echo "libpsyc install: You must provide a PREFIX=/usr or such." ;\
+	    exit 2 ;\
+	else true; fi
+	-@if [ ! -w "$(PREFIX)" ]; then \
+	    mkdir "$(PREFIX)" ;\
+	fi
+	@if [ ! -w "$(PREFIX)" ]; then \
+            echo "libpsyc install: You must provide a writable PREFIX." ;\
 	    exit 2 ;\
 	else true; fi
 
