@@ -2,7 +2,8 @@
 # packets that 'nc' is passing to it. this is a bug in the testing suite,
 # not in the library.		--lynX 2016
 
-export LD_LIBRARY_PATH = ../lib
+# depending on where the pwd is, one of the two should work:
+export LD_LIBRARY_PATH = ../lib:lib
 
 OPT = -O2
 DEBUG = 2
