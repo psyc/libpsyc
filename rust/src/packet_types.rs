@@ -70,27 +70,6 @@ pub struct PsycElem {
 }
 
 #[repr(C)]
-pub struct PsycDictKey {
-    pub value: PsycString,
-    pub length: usize,
-    pub flag: PsycElemFlag
-}
-
-#[repr(C)]
-pub struct PsycDictElem {
-    pub value: PsycElem,
-    pub key: PsycDictKey
-}
-
-#[repr(C)]
-pub struct RawPsycDict {
-    dict_type: PsycString,
-    elems: *const PsycDictElem,
-    num_elems: usize,
-    pub length: usize
-}
-
-#[repr(C)]
 pub struct RawPsycList {
     list_type: PsycString,
     elems: *const PsycElem,
@@ -137,6 +116,3 @@ pub enum PsycRenderRC {
     /// Packet is rendered successfully in the buffer.
     PSYC_RENDER_SUCCESS = 0,
 }
-
-
-

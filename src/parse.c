@@ -119,7 +119,7 @@ psyc_parse_remaining_buffer (PsycParseState *state);
  *
  * @return PARSE_ERROR or PARSE_SUCCESS
  */
-static inline ParseRC
+inline ParseRC
 parse_keyword (ParseState *state, PsycString *name)
 {
     name->data = state->buffer.data + state->cursor;
@@ -138,7 +138,7 @@ parse_keyword (ParseState *state, PsycString *name)
  *
  * @return PARSE_SUCCESS, PARSE_ERROR or PARSE_INSUFFICIENT
  */
-static inline ParseRC
+inline ParseRC
 parse_length (ParseState *state, size_t *len)
 {
     ParseRC ret = PARSE_ERROR;
@@ -165,7 +165,7 @@ parse_length (ParseState *state, size_t *len)
  *
  * @return PARSE_SUCCESS or PARSE_INCOMPLETE
  */
-static inline ParseRC
+inline ParseRC
 parse_binary (ParseState *state, size_t length, PsycString *value, size_t *parsed)
 {
     size_t remaining = length - *parsed;
@@ -197,7 +197,7 @@ parse_binary (ParseState *state, size_t length, PsycString *value, size_t *parse
  *
  * @return PARSE_SUCCESS or PARSE_INSUFFICIENT
  */
-static inline ParseRC
+inline ParseRC
 parse_until (ParseState *state, const char end, PsycString *value)
 {
     value->data = state->buffer.data + state->cursor;
@@ -215,7 +215,7 @@ parse_until (ParseState *state, const char end, PsycString *value)
  * @return PARSE_ERROR or PARSE_SUCCESS
  */
 #ifdef __INLINE_PSYC_PARSE
-extern inline
+inline
 #endif
 ParseRC
 psyc_parse_modifier (PsycParseState *state, char *oper,
@@ -282,7 +282,7 @@ psyc_parse_modifier (PsycParseState *state, char *oper,
 
 /** Parse PSYC packets. */
 #ifdef __INLINE_PSYC_PARSE
-static inline
+inline
 #endif
 PsycParseRC
 psyc_parse (PsycParseState *state, char *oper,
@@ -566,7 +566,7 @@ psyc_parse (PsycParseState *state, char *oper,
  * list-value	= %x00-7B / %x7D-FF	; any byte except "|"
  */
 #ifdef __INLINE_PSYC_PARSE
-extern inline
+inline
 #endif
 PsycParseListRC
 psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem)
@@ -683,12 +683,14 @@ psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem)
 	    switch (parse_binary((ParseState*)state, state->elemlen, elem,
 				 &state->elem_parsed)) {
 	    case PARSE_SUCCESS:
+                state->part = PSYC_LIST_PART_ELEM_START;
 		if (elem->length == state->elem_parsed)
 		    ret = PSYC_PARSE_LIST_ELEM;
 		else
 		    ret = PSYC_PARSE_LIST_ELEM_END;
 		break;
 	    case PARSE_INCOMPLETE:
+                state->part = PSYC_LIST_PART_ELEM;
 		if (elem->length == state->elem_parsed)
 		    ret = PSYC_PARSE_LIST_ELEM_START;
 		else
@@ -700,16 +702,17 @@ psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem)
 	} else {
 	    switch (parse_until((ParseState*)state, '|', elem)) {
 	    case PARSE_SUCCESS:
+                state->part = PSYC_LIST_PART_ELEM_START;
 		ret = PSYC_PARSE_LIST_ELEM;
 		break;
 	    case PARSE_INSUFFICIENT:
+                state->cursor = state->buffer.length;
 		return PSYC_PARSE_LIST_ELEM_LAST;
 	    default: // should not be reached
 		return PSYC_PARSE_LIST_ERROR;
 	    }
 	}
 
-	state->part = PSYC_LIST_PART_ELEM_START;
 	state->startc = state->cursor;
 	return ret;
     }
@@ -727,7 +730,7 @@ psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem)
  * dict-value	= %x00-7A / %x7C-FF	; any byte except "}"
  */
 #ifdef __INLINE_PSYC_PARSE
-extern inline
+inline
 #endif
 PsycParseDictRC
 psyc_parse_dict (PsycParseDictState *state, PsycString *type, PsycString *elem)
@@ -951,7 +954,7 @@ psyc_parse_dict (PsycParseDictState *state, PsycString *type, PsycString *elem)
 }
 
 #ifdef __INLINE_PSYC_PARSE
-extern inline
+inline
 #endif
 PsycParseIndexRC
 psyc_parse_index (PsycParseIndexState *state, PsycString *idx)
@@ -1079,7 +1082,7 @@ psyc_parse_index (PsycParseIndexState *state, PsycString *idx)
 }
 
 #ifdef __INLINE_PSYC_PARSE
-extern inline
+inline
 #endif
 PsycParseUpdateRC
 psyc_parse_update (PsycParseUpdateState *state, char *oper, PsycString *value)

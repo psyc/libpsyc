@@ -43,6 +43,9 @@ psyc_text_buffer_set (PsycTextState *state, char *buffer, size_t length);
 extern inline size_t
 psyc_text_bytes_written (PsycTextState *state);
 
+extern inline const char *
+psyc_template (PsycMethod mc, size_t *len);
+
 PsycTextRC
 psyc_text (PsycTextState *state, PsycTextCB get_value, void *get_value_cls)
 {

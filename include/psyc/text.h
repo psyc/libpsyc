@@ -172,7 +172,7 @@ psyc_text (PsycTextState *state, PsycTextCB get_value, void *get_value_cls);
 
 extern const PsycTemplates psyc_templates;
 
-static inline const char *
+inline const char *
 psyc_template (PsycMethod mc, size_t *len) {
     PsycString t = psyc_templates.a[mc];
     if (len)

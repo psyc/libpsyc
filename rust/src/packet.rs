@@ -1,5 +1,7 @@
 use types::*;
 use packet_types::*;
+use packet_id::*;
+use util;
 use std::mem;
 use std::ptr;
 use std::os::raw::c_char;
@@ -18,14 +20,11 @@ extern "C" {
 
     fn psyc_elem_length_check(value: *const PsycString, end: c_char) -> PsycElemFlag;
     fn psyc_elem_length(elem: *const PsycElem) -> usize;
-    fn psyc_dict_key_length(elem: *const PsycDictKey) -> usize;
     fn psyc_list_length_set(list: *mut RawPsycList) -> usize;
-    fn psyc_dict_length_set(dict: *mut RawPsycDict) -> usize;
     fn psyc_modifier_length(m: *const RawPsycModifier) -> usize;
     fn psyc_packet_length_check(p: *const RawPsycPacket) -> PsycPacketFlag;
     fn psyc_packet_length_set(p: *mut RawPsycPacket) -> usize;
     fn psyc_list_init(list: *mut RawPsycList, elems: *const PsycElem, num_elems: usize);
-    fn psyc_dict_init(dict: *mut RawPsycDict, elems: *const PsycDictElem, num_elems: usize);
     fn psyc_packet_init(packet: *mut RawPsycPacket,
                         routing: *const RawPsycModifier,
                         routinglen: usize,
@@ -44,35 +43,15 @@ extern "C" {
                             content: *const c_char,
                             contentlen: usize,
                             flag: PsycPacketFlag);
-
-    fn psyc_packet_id(list: *mut RawPsycList,
-                      elems: *mut PsycElem,
-                      context: *const c_char,
-                      contextlen: usize,
-                      source: *const c_char,
-                      sourcelen: usize,
-                      target: *const c_char,
-                      targetlen: usize,
-                      counter: *const c_char,
-                      counterlen: usize,
-                      fragment: *const c_char,
-                      fragmentlen: usize);
-    
+   
     /// functions from render.h
     fn psyc_render(packet: *const RawPsycPacket, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
     fn psyc_render_modifier(modifier: *const RawPsycModifier, buffer: *mut c_char) -> usize;
     fn psyc_render_elem(elem: *const PsycElem, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
-    fn psyc_render_dict_key(elem: *const PsycDictKey, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
-    fn psyc_render_list(list: *const RawPsycList, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
-    fn psyc_render_dict(dict: *const RawPsycDict, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
 }
 
 pub struct PsycList {
     rendered_list: Vec<u8>
-}
-
-pub struct PsycDict {
-    rendered_dict: Vec<u8>
 }
 
 pub struct PsycModifier<'a> {
@@ -104,17 +83,14 @@ impl PsycList {
     pub fn new(list: &[&[u8]]) -> Self {
         let mut psyc_list: RawPsycList;
         let elements: Vec<PsycElem>;
-        let mut buffer: Vec<u8>;
+        let buffer: Vec<u8>;
         unsafe {
             psyc_list = mem::uninitialized();
             let psyc_list_ptr = &mut psyc_list as *mut RawPsycList;
             elements = list.iter().map(|e| make_psyc_elem(&e)).collect();
             let elements_ptr = elements.as_ptr() as *const PsycElem;
             psyc_list_init(psyc_list_ptr, elements_ptr, list.len());
-            buffer = Vec::with_capacity(psyc_list.length);
-            buffer.set_len(psyc_list.length);
-            let buffer_ptr = buffer.as_ptr() as *mut c_char;
-            let _ = psyc_render_list(psyc_list_ptr, buffer_ptr, psyc_list.length);
+            buffer = util::render_list(&psyc_list)
         }
         PsycList {
             rendered_list: buffer
@@ -125,39 +101,6 @@ impl PsycList {
     pub fn from_strings(list: &[&str]) -> Self {
         let list_slices: Vec<&[u8]> = list.iter().map(|e| e.as_bytes()).collect();
         Self::new(&list_slices)
-    }
-}
-
-impl PsycDict {
-    /// Construct a PsycDict from a list of key value pairs
-    pub fn new(dict: &[(&[u8], &[u8])]) -> Self {
-        let mut psyc_dict: RawPsycDict;
-        let elements: Vec<PsycDictElem>;
-        let mut buffer: Vec<u8>;
-        unsafe {
-            psyc_dict = mem::uninitialized();
-            let psyc_dict_ptr = &mut psyc_dict as *mut RawPsycDict;
-            elements = dict.iter().map(|e| make_psyc_dict_elem(e)).collect();
-            let elements_ptr = elements.as_ptr() as *const PsycDictElem;
-            psyc_dict_init(psyc_dict_ptr, elements_ptr, dict.len());
-            buffer = Vec::with_capacity(psyc_dict.length);
-            buffer.set_len(psyc_dict.length);
-            let buffer_ptr = buffer.as_ptr() as *mut c_char;
-            let _ = psyc_render_dict(psyc_dict_ptr, buffer_ptr, psyc_dict.length);
-        }
-        PsycDict{
-            rendered_dict: buffer
-        }
-    }
-
-    /// Construct a PsycDict from a list of key / value string pairs (comfort
-    /// function)
-    pub fn from_strings(dict: &[(&str, &str)]) -> Self {
-        let kv_list_slices: Vec<(&[u8], &[u8])> = dict.iter().map(|e| {
-            let &(k, v) = e;
-            (k.as_bytes(), v.as_bytes())
-        }).collect();
-        Self::new(&kv_list_slices)
     }
 }
 
@@ -190,20 +133,6 @@ impl<'a> PsycModifier<'a> {
             operator: operator
         }
     }
-
-    /// construct a PsycModifier with a dictionary value (comfort function)
-    pub fn with_dict_value(operator: PsycOperator,
-                           name: &'a str,
-                           value: &'a PsycDict)
-                           -> Self {
-        PsycModifier {
-            name: name,
-            value: &value.rendered_dict,
-            operator: operator
-        }
-    }
-
-
 }
 
 impl<'a> PsycPacket<'a> {
@@ -297,6 +226,29 @@ impl<'a> PsycPacket<'a> {
         }
     }
 
+    /// get the packet id
+    pub fn packet_id(&self) -> PacketId<'a> {
+        let get_value = |modifier: Option<&PsycModifier<'a>>| {
+            match modifier {
+                None => None,
+                Some(m) => Some(m.value)
+            }
+        };
+
+        let context = self.routing_modifiers.iter().find(|&r| r.name == "_context");
+        let source = self.routing_modifiers.iter().find(|&r| r.name == "_source");
+        let target = self.routing_modifiers.iter().find(|&r| r.name == "_target");
+        let counter = self.routing_modifiers.iter().find(|&r| r.name == "_counter");
+
+        PacketId {
+            context: get_value(context),
+            source: get_value(source),
+            target: get_value(target),
+            counter: get_value(counter),
+            fragment: None
+        }
+    }
+
     fn make_raw_modifier(modifier: &'a PsycModifier,
                          flag: PsycModifierFlag)
                          -> RawPsycModifier {
@@ -325,23 +277,5 @@ unsafe fn make_psyc_elem(list_element: &[u8]) -> PsycElem {
         value: PsycString {length: list_element.len(), data: list_element_ptr},
         length: 0,
         flag: PsycElemFlag::PSYC_ELEM_CHECK_LENGTH
-    }
-}
-
-unsafe fn make_psyc_dict_elem(dict_element: &(&[u8], &[u8])) -> PsycDictElem {
-    let &(key, value) = dict_element;
-    let key_ptr = key.as_ptr() as *const c_char;
-    let psyc_dict_elem_value = make_psyc_elem(value);
-    let psyc_dict_elem_key = PsycDictKey {
-        value: PsycString {
-            length: key.len(),
-            data: key_ptr
-        },
-        length: 0,
-        flag: PsycElemFlag::PSYC_ELEM_CHECK_LENGTH
-    };
-    PsycDictElem {
-        value: psyc_dict_elem_value,
-        key: psyc_dict_elem_key
     }
 }

@@ -105,7 +105,7 @@ psyc_render_list (PsycList *list, char *buffer, size_t buflen)
 }
 
 #ifdef __INLINE_PSYC_RENDER
-static inline
+extern inline
 #endif
 PsycRenderRC
 psyc_render_dict (PsycDict *dict, char *buffer, size_t buflen)

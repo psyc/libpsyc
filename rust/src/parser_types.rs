@@ -9,7 +9,7 @@ enum PsycUpdatePart { }
 
 #[repr(C)]
 pub struct PsycParseState {
-    buffer: PsycString,
+    pub buffer: PsycString,
     cursor: usize,
     startc: usize,
     routinglen: usize,
@@ -25,8 +25,8 @@ pub struct PsycParseState {
 
 #[repr(C)]
 pub struct PsycParseListState {
-    buffer: PsycString,
-    cursor: usize,
+    pub buffer: PsycString,
+    pub cursor: usize,
     startc: usize,
     list_type: PsycString,
     elemlen: usize,
@@ -37,8 +37,8 @@ pub struct PsycParseListState {
 
 #[repr(C)]
 pub struct PsycParseDictState {
-    buffer: PsycString,
-    cursor: usize,
+    pub buffer: PsycString,
+    pub cursor: usize,
     startc: usize,
     elemlen: usize,
     elem_parsed: usize,
@@ -49,7 +49,7 @@ pub struct PsycParseDictState {
 #[repr(C)]
 pub struct PsycParseIndexState { 
     buffer: PsycString,
-    cursor: usize,
+    pub cursor: usize,
     startc: usize,
     elemlen: usize,
     elem_parsed: usize,
@@ -60,7 +60,7 @@ pub struct PsycParseIndexState {
 #[repr(C)]
 pub struct PsycParseUpdateState {
     buffer: PsycString,
-    cursor: usize,
+    pub cursor: usize,
     startc: usize,
     elemlen: usize,
     elem_parsed: usize,
@@ -79,6 +79,7 @@ pub enum PsycParseFlag {
     PSYC_PARSE_START_AT_CONTENT = 2,
 }
 
+#[derive(Debug)]
 #[repr(C)]
 pub enum PsycParseRC {
     /// Error, no length is set for a modifier which is longer than PSYC_MODIFIER_SIZE_THRESHOLD.
@@ -150,6 +151,7 @@ pub enum PsycParseRC {
     PSYC_PARSE_COMPLETE = 13,
 }
 
+#[derive(Debug)]
 #[repr(C)]
 pub enum PsycParseListRC {
     /// Error, no length is set for an element which is longer than PSYC_ELEM_SIZE_THRESHOLD.
@@ -180,6 +182,7 @@ pub enum PsycParseListRC {
     PSYC_PARSE_LIST_END = 8,
 }
 
+#[derive(Debug)]
 #[repr(C)]
 pub enum PsycParseDictRC {
     PSYC_PARSE_DICT_ERROR_VALUE = -9,
