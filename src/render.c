@@ -78,7 +78,7 @@ psyc_render_dict_key (PsycDictKey *elem, char *buffer, size_t buflen)
 }
 
 #ifdef __INLINE_PSYC_RENDER
-static inline
+extern inline
 #endif
 PsycRenderRC
 psyc_render_list (PsycList *list, char *buffer, size_t buflen)
@@ -162,7 +162,7 @@ psyc_render_modifier (PsycModifier *mod, char *buffer)
 }
 
 #ifdef __INLINE_PSYC_RENDER
-static inline
+extern inline
 #endif
 PsycRenderRC
 psyc_render (PsycPacket *p, char *buffer, size_t buflen)

@@ -253,7 +253,7 @@ typedef struct {
 /**
  * Return the number of digits a number has in its base 10 representation.
  */
-static inline size_t
+inline size_t
 psyc_num_length (size_t n)
 {
     return n < 10 ? 1 : log10(n) + 1;
@@ -263,7 +263,7 @@ psyc_num_length (size_t n)
  * \internal
  * Check if a modifier needs length.
  */
-static inline PsycModifierFlag
+inline PsycModifierFlag
 psyc_modifier_length_check (PsycModifier *m)
 {
     if (m->value.length > 0
@@ -275,7 +275,7 @@ psyc_modifier_length_check (PsycModifier *m)
 }
 
 /** Initialize modifier */
-static inline void
+inline void
 psyc_modifier_init (PsycModifier *m, PsycOperator oper,
 		    char *name, size_t namelen,
 		    char *value, size_t valuelen, PsycModifierFlag flag)

@@ -94,7 +94,7 @@ typedef PsycTextValueRC (*PsycTextCB) (void *cls, const char *name, size_t namel
  * @param buffer Output buffer where the rendered text is going to be written.
  * @param buflen Length of output buffer.
  */
-static inline void
+inline void
 psyc_text_state_init (PsycTextState *state,
 		      char *tmpl, size_t tmplen,
 		      char *buffer, size_t buflen)
@@ -120,7 +120,7 @@ psyc_text_state_init (PsycTextState *state,
  * @param clo Closing brace.
  * @param clolen Length of closing brace.
  */
-static inline void
+inline void
 psyc_text_state_init_custom (PsycTextState *state,
 			     char *tmpl, size_t tmplen,
 			     char *buffer, size_t buflen,
@@ -138,7 +138,7 @@ psyc_text_state_init_custom (PsycTextState *state,
 /**
  * Sets a new output buffer in the PSYC text state struct.
  */
-static inline void
+inline void
 psyc_text_buffer_set (PsycTextState *state, char *buffer, size_t length)
 {
     state->buffer = (PsycString) {
@@ -146,7 +146,7 @@ psyc_text_buffer_set (PsycTextState *state, char *buffer, size_t length)
     state->written = 0;
 }
 
-static inline size_t
+inline size_t
 psyc_text_bytes_written (PsycTextState *state)
 {
     return state->written;

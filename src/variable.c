@@ -104,6 +104,15 @@ const PsycMapInt psyc_methods[] = {
 };
 const size_t psyc_methods_num = PSYC_NUM_ELEM(psyc_methods);
 
+extern inline PsycRoutingVar
+psyc_var_routing (const char *name, size_t len);
+
+extern inline PsycType
+psyc_var_type (const char *name, size_t len);
+
+extern inline PsycBool
+psyc_var_is_list (const char *name, size_t len);
+
 /**
  * Get the method, its family and its flags.
  */

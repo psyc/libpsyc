@@ -25,6 +25,24 @@ const PsycTemplates psyc_templates = { .s = {
 #include "templates.h"
 }};
 
+extern inline void
+psyc_text_state_init (PsycTextState *state,
+		      char *tmpl, size_t tmplen,
+		      char *buffer, size_t buflen);
+
+extern inline void
+psyc_text_state_init_custom (PsycTextState *state,
+			     char *tmpl, size_t tmplen,
+			     char *buffer, size_t buflen,
+			     char *ope, size_t opelen,
+			     char *clo, size_t clolen);
+
+extern inline void
+psyc_text_buffer_set (PsycTextState *state, char *buffer, size_t length);
+
+extern inline size_t
+psyc_text_bytes_written (PsycTextState *state);
+
 PsycTextRC
 psyc_text (PsycTextState *state, PsycTextCB get_value, void *get_value_cls)
 {

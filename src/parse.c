@@ -53,6 +53,65 @@ typedef struct {
     size_t startc;
 } ParseState;
 
+extern inline void
+psyc_parse_state_init (PsycParseState *state, uint8_t flags);
+
+extern inline void
+psyc_parse_buffer_set (PsycParseState *state, const char *buffer, size_t length);
+
+extern inline void
+psyc_parse_list_state_init (PsycParseListState *state);
+
+extern inline void
+psyc_parse_list_buffer_set (PsycParseListState *state,
+			    const char *buffer, size_t length);
+
+extern inline void
+psyc_parse_dict_state_init (PsycParseDictState *state);
+
+extern inline void
+psyc_parse_dict_buffer_set (PsycParseDictState *state,
+			     const char *buffer, size_t length);
+
+extern inline void
+psyc_parse_index_state_init (PsycParseIndexState *state);
+
+extern inline void
+psyc_parse_index_buffer_set (PsycParseIndexState *state,
+			     const char *buffer, size_t length);
+
+extern inline void
+psyc_parse_update_state_init (PsycParseUpdateState *state);
+
+extern inline void
+psyc_parse_update_buffer_set (PsycParseUpdateState *state,
+			     const char *buffer, size_t length);
+
+extern inline size_t
+psyc_parse_content_length (PsycParseState *state);
+
+extern inline PsycBool
+psyc_parse_content_length_found (PsycParseState *state);
+
+extern inline size_t
+psyc_parse_value_length (PsycParseState *state);
+
+extern inline PsycBool
+psyc_parse_value_length_found (PsycParseState *state);
+
+extern inline size_t
+psyc_parse_cursor (PsycParseState *state);
+
+extern inline size_t
+psyc_parse_buffer_length (PsycParseState *state);
+
+extern inline size_t
+psyc_parse_remaining_length (PsycParseState *state);
+
+extern inline const char *
+psyc_parse_remaining_buffer (PsycParseState *state);
+
+
 /**
  * Parse variable name or method name.
  *
@@ -155,7 +214,10 @@ parse_until (ParseState *state, const char end, PsycString *value)
  * Parse simple or binary variable.
  * @return PARSE_ERROR or PARSE_SUCCESS
  */
-static inline ParseRC
+#ifdef __INLINE_PSYC_PARSE
+extern inline
+#endif
+ParseRC
 psyc_parse_modifier (PsycParseState *state, char *oper,
 		     PsycString *name, PsycString *value)
 {
@@ -504,7 +566,7 @@ psyc_parse (PsycParseState *state, char *oper,
  * list-value	= %x00-7B / %x7D-FF	; any byte except "|"
  */
 #ifdef __INLINE_PSYC_PARSE
-static inline
+extern inline
 #endif
 PsycParseListRC
 psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem)
@@ -664,6 +726,9 @@ psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem)
  * dict-key	= %x00-7C / %x7E-FF	; any byte except "{"
  * dict-value	= %x00-7A / %x7C-FF	; any byte except "}"
  */
+#ifdef __INLINE_PSYC_PARSE
+extern inline
+#endif
 PsycParseDictRC
 psyc_parse_dict (PsycParseDictState *state, PsycString *type, PsycString *elem)
 {
@@ -886,7 +951,7 @@ psyc_parse_dict (PsycParseDictState *state, PsycString *type, PsycString *elem)
 }
 
 #ifdef __INLINE_PSYC_PARSE
-static inline
+extern inline
 #endif
 PsycParseIndexRC
 psyc_parse_index (PsycParseIndexState *state, PsycString *idx)
@@ -1014,7 +1079,7 @@ psyc_parse_index (PsycParseIndexState *state, PsycString *idx)
 }
 
 #ifdef __INLINE_PSYC_PARSE
-static inline
+extern inline
 #endif
 PsycParseUpdateRC
 psyc_parse_update (PsycParseUpdateState *state, char *oper, PsycString *value)
@@ -1146,3 +1211,37 @@ psyc_parse_update (PsycParseUpdateState *state, char *oper, PsycString *value)
 
     return PSYC_PARSE_INDEX_ERROR; // should not be reached
 }
+
+extern inline size_t
+psyc_parse_int (const char *value, size_t len, int64_t *n);
+
+extern inline size_t
+psyc_parse_uint (const char *value, size_t len, uint64_t *n);
+
+extern inline size_t
+psyc_parse_list_index (const char *value, size_t len, int64_t *n);
+
+extern inline PsycBool
+psyc_is_oper (char g);
+
+extern inline char
+psyc_is_numeric (char c);
+
+extern inline char
+psyc_is_alpha (char c);
+
+extern inline char
+psyc_is_alpha_numeric (char c);
+
+extern inline char
+psyc_is_kw_char (char c);
+
+extern inline char
+psyc_is_name_char (char c);
+
+extern inline char
+psyc_is_host_char (char c);
+
+extern inline size_t
+psyc_parse_keyword (const char *data, size_t len);
+

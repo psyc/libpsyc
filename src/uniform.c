@@ -195,3 +195,6 @@ psyc_uniform_parse (PsycUniform *uni, const char *buffer, size_t length)
     uni->valid = 1;
     return uni->type;
 }
+
+extern inline int
+psyc_entity_type (char entity);

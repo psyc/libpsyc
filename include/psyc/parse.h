@@ -510,7 +510,7 @@ typedef struct {
  * @param flags Flags to be set for the parser, see PsycParseFlag.
  * @see PsycParseFlag
  */
-static inline void
+inline void
 psyc_parse_state_init (PsycParseState *state, uint8_t flags)
 {
     memset(state, 0, sizeof(PsycParseState));
@@ -531,7 +531,7 @@ psyc_parse_state_init (PsycParseState *state, uint8_t flags)
  * @param length length of the data in bytes
  * @see PsycString
  */
-static inline void
+inline void
 psyc_parse_buffer_set (PsycParseState *state, const char *buffer, size_t length)
 {
     state->buffer = (PsycString) {length, (char*)buffer};
@@ -546,7 +546,7 @@ psyc_parse_buffer_set (PsycParseState *state, const char *buffer, size_t length)
 /**
  * Initializes the list parser state.
  */
-static inline void
+inline void
 psyc_parse_list_state_init (PsycParseListState *state)
 {
     memset(state, 0, sizeof(PsycParseListState));
@@ -555,7 +555,7 @@ psyc_parse_list_state_init (PsycParseListState *state)
 /**
  * Sets a new buffer in the list parser state struct with data to be parsed.
  */
-static inline void
+inline void
 psyc_parse_list_buffer_set (PsycParseListState *state,
 			    const char *buffer, size_t length)
 {
@@ -566,7 +566,7 @@ psyc_parse_list_buffer_set (PsycParseListState *state,
 /**
  * Initializes the dict parser state.
  */
-static inline void
+inline void
 psyc_parse_dict_state_init (PsycParseDictState *state)
 {
     memset(state, 0, sizeof(PsycParseDictState));
@@ -575,7 +575,7 @@ psyc_parse_dict_state_init (PsycParseDictState *state)
 /**
  * Sets a new buffer in the dict parser state struct with data to be parsed.
  */
-static inline void
+inline void
 psyc_parse_dict_buffer_set (PsycParseDictState *state,
 			     const char *buffer, size_t length)
 {
@@ -586,7 +586,7 @@ psyc_parse_dict_buffer_set (PsycParseDictState *state,
 /**
  * Initializes the index parser state.
  */
-static inline void
+inline void
 psyc_parse_index_state_init (PsycParseIndexState *state)
 {
     memset(state, 0, sizeof(PsycParseIndexState));
@@ -595,7 +595,7 @@ psyc_parse_index_state_init (PsycParseIndexState *state)
 /**
  * Sets a new buffer in the index parser state struct with data to be parsed.
  */
-static inline void
+inline void
 psyc_parse_index_buffer_set (PsycParseIndexState *state,
 			     const char *buffer, size_t length)
 {
@@ -606,7 +606,7 @@ psyc_parse_index_buffer_set (PsycParseIndexState *state,
 /**
  * Initializes the update modifier parser state.
  */
-static inline void
+inline void
 psyc_parse_update_state_init (PsycParseUpdateState *state)
 {
     memset(state, 0, sizeof(PsycParseUpdateState));
@@ -615,7 +615,7 @@ psyc_parse_update_state_init (PsycParseUpdateState *state)
 /**
  * Sets a new buffer in the update modifier parser state struct with data to be parsed.
  */
-static inline void
+inline void
 psyc_parse_update_buffer_set (PsycParseUpdateState *state,
 			     const char *buffer, size_t length)
 {
@@ -623,49 +623,49 @@ psyc_parse_update_buffer_set (PsycParseUpdateState *state,
     state->cursor = 0;
 }
 
-static inline size_t
+inline size_t
 psyc_parse_content_length (PsycParseState *state)
 {
     return state->contentlen;
 }
 
-static inline PsycBool
+inline PsycBool
 psyc_parse_content_length_found (PsycParseState *state)
 {
     return (PsycBool) state->contentlen_found;
 }
 
-static inline size_t
+inline size_t
 psyc_parse_value_length (PsycParseState *state)
 {
     return state->valuelen;
 }
 
-static inline PsycBool
+inline PsycBool
 psyc_parse_value_length_found (PsycParseState *state)
 {
     return (PsycBool) state->valuelen_found;
 }
 
-static inline size_t
+inline size_t
 psyc_parse_cursor (PsycParseState *state)
 {
     return state->cursor;
 }
 
-static inline size_t
+inline size_t
 psyc_parse_buffer_length (PsycParseState *state)
 {
     return state->buffer.length;
 }
 
-static inline size_t
+inline size_t
 psyc_parse_remaining_length (PsycParseState *state)
 {
     return state->buffer.length - state->cursor;
 }
 
-static inline const char *
+inline const char *
 psyc_parse_remaining_buffer (PsycParseState *state)
 {
     return state->buffer.data + state->cursor;
@@ -688,7 +688,7 @@ psyc_parse_remaining_buffer (PsycParseState *state)
  *              in case of the body it will point to the data.
  */
 #ifdef __INLINE_PSYC_PARSE
-static inline
+inline
 #endif
 PsycParseRC
 psyc_parse (PsycParseState *state, char *oper,
@@ -706,30 +706,30 @@ psyc_parse (PsycParseState *state, char *oper,
  * @param elem It will point to the next element in the list.
  */
 #ifdef __INLINE_PSYC_PARSE
-static inline
+inline
 #endif
 PsycParseListRC
 psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem);
 
 #ifdef __INLINE_PSYC_PARSE
-static inline
+inline
 #endif
 PsycParseDictRC
 psyc_parse_dict (PsycParseDictState *state, PsycString *type, PsycString *elem);
 
 #ifdef __INLINE_PSYC_PARSE
-static inline
+inline
 #endif
 PsycParseIndexRC
 psyc_parse_index (PsycParseIndexState *state, PsycString *idx);
 
 #ifdef __INLINE_PSYC_PARSE
-static inline
+inline
 #endif
 PsycParseUpdateRC
 psyc_parse_update (PsycParseUpdateState *state, char *oper, PsycString *value);
 
-static inline size_t
+inline size_t
 psyc_parse_int (const char *value, size_t len, int64_t *n)
 {
     size_t c = 0;
@@ -754,7 +754,7 @@ psyc_parse_int (const char *value, size_t len, int64_t *n)
     return c;
 }
 
-static inline size_t
+inline size_t
 psyc_parse_uint (const char *value, size_t len, uint64_t *n)
 {
     size_t c = 0;
@@ -768,7 +768,7 @@ psyc_parse_uint (const char *value, size_t len, uint64_t *n)
     return c;
 }
 
-static inline size_t
+inline size_t
 psyc_parse_list_index (const char *value, size_t len, int64_t *n)
 {
     if (!value || len == 0 || value[0] != '#')
@@ -780,7 +780,7 @@ psyc_parse_list_index (const char *value, size_t len, int64_t *n)
  * Determines if the argument is a glyph.
  * Glyphs are: : = + - ? !
  */
-static inline PsycBool
+inline PsycBool
 psyc_is_oper (char g)
 {
     switch (g) {
@@ -800,7 +800,7 @@ psyc_is_oper (char g)
 /**
  * Determines if the argument is numeric.
  */
-static inline char
+inline char
 psyc_is_numeric (char c)
 {
     return c >= '0' && c <= '9';
@@ -809,7 +809,7 @@ psyc_is_numeric (char c)
 /**
  * Determines if the argument is alphabetic.
  */
-static inline char
+inline char
 psyc_is_alpha (char c)
 {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
@@ -818,7 +818,7 @@ psyc_is_alpha (char c)
 /**
  * Determines if the argument is alphanumeric.
  */
-static inline char
+inline char
 psyc_is_alpha_numeric (char c)
 {
     return psyc_is_alpha(c) || psyc_is_numeric(c);
@@ -828,7 +828,7 @@ psyc_is_alpha_numeric (char c)
  * Determines if the argument is a keyword character.
  * Keyword characters are: alphanumeric and _
  */
-static inline char
+inline char
 psyc_is_kw_char (char c)
 {
     return psyc_is_alpha_numeric(c) || c == '_';
@@ -838,7 +838,7 @@ psyc_is_kw_char (char c)
  * Determines if the argument is a name character.
  * Name characters are: see opaque_part in RFC 2396
  */
-static inline char
+inline char
 psyc_is_name_char (char c)
 {
     return psyc_is_alpha(c) || (c >= '$' && c <= ';')
@@ -849,7 +849,7 @@ psyc_is_name_char (char c)
  * Determines if the argument is a hostname character.
  * Hostname characters are: alphanumeric and -
  */
-static inline char
+inline char
 psyc_is_host_char (char c)
 {
     return psyc_is_alpha_numeric(c) || c == '.' || c == '-';
@@ -860,7 +860,7 @@ psyc_is_host_char (char c)
  * It should contain one or more keyword characters.
  * @return Number of characters parsed.
  */
-static inline size_t
+inline size_t
 psyc_parse_keyword (const char *data, size_t len)
 {
     size_t c = 0;
