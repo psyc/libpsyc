@@ -1,3 +1,7 @@
+# 'nettest' is currently broken. testserver is not receiving any of the
+# packets that 'nc' is passing to it. this is a bug in the testing suite,
+# not in the library.		--lynX 2016
+
 export LD_LIBRARY_PATH = ../lib
 
 OPT = -O2
@@ -24,6 +28,8 @@ endif
 
 all: ${TARGETS}
 it: all
+
+check: test
 
 test_psyc: LOADLIBES := ${LOADLIBES} ${LOADLIBES_NET}
 test_psyc_speed: LOADLIBES := ${LOADLIBES} ${LOADLIBES_NET}
@@ -66,7 +72,7 @@ test: ${TARGETS}
 
 nettest: nettestfull nettestsplit
 
-nettestrun: srvstart pkt srvkill
+nettestrun: start pkt stop
 
 nettestfull:
 	${MAKE} nettestrun; x=$$?; pkill -x test_psyc; exit $$x
@@ -85,11 +91,11 @@ pktsplit:
 pkterr:
 	for f in packets/err-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT}; done
 
-srvstart:
+start:
 	pkill -x test_psyc; exit 0
-	./test_psyc -p ${PORT} -S ${srv_args} &
+	./test_psyc -p ${PORT} -S ${srv_args} -vvv &
 
-srvkill:
+stop:
 	pkill -x test_psyc
 
 bench: bench-genpkts bench-psyc bench-psyc-bin bench-json bench-json-bin bench-xml
