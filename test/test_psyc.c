@@ -70,7 +70,7 @@ test_init (int i)
 int
 test_input (int i, char *recvbuf, size_t nbytes)
 {
-    int j, ret, retl, r;
+    int j, ret, retl;
     char sendbuf[SEND_BUF_SIZE];
     char *parsebuf = recvbuf - contbytes;
     /* We have a buffer with pointers pointing to various parts of it:
@@ -154,7 +154,7 @@ test_input (int i, char *recvbuf, size_t nbytes)
 	    if (verbose)
 		printf("# Done parsing.\n");
 	    else if (progress)
-		r = write(1, ".", 1);
+		(void) write(1, ".", 1);
 	    if ((filename && !multiple) || (!filename && single))
 		ret = -1;
 
@@ -428,7 +428,7 @@ test_input (int i, char *recvbuf, size_t nbytes)
     } while (ret > 0);
 
     if (progress)
-	r = write(1, " ", 1);
+	(void) write(1, " ", 1);
 
     return ret;
 }
