@@ -1,5 +1,4 @@
-prefix = /usr
-includedir = ${prefix}/include
+includedir = ${DESTDIR}/include
 
 INSTALL = install
 HEADERS = psyc.h

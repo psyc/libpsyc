@@ -1,5 +1,4 @@
-prefix = /usr
-includedir = ${prefix}/include/d
+includedir = ${DESTDIR}/include/d
 
 INSTALL = install
 HEADERS = common.d parse.d

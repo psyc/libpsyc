@@ -1,5 +1,4 @@
-prefix = /usr
-libdir = ${prefix}/lib
+libdir = ${DESTDIR}/lib
 
 INSTALL = install
 LIBS = libpsyc.a libpsyc.so

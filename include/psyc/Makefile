@@ -1,7 +1,6 @@
 # Why do we have a Makefile in the include directory?
 
-prefix = /usr
-includedir = ${prefix}/include
+includedir = ${DESTDIR}/include
 
 INSTALL = install
 HEADERS = match.h method.h packet.h parse.h render.h text.h uniform.h variable.h

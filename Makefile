@@ -9,15 +9,28 @@ all:
 
 it: all
 
+destdir:
+	@if test "foo$(DESTDIR)" = "foo" ; then \
+            echo "libpsyc install: You must provide a DESTDIR=/usr or such." ;\
+	    exit 2 ;\
+	else true; fi
+	-@if [ ! -w "$(DESTDIR)" ]; then \
+	    mkdir "$(DESTDIR)" ;\
+	fi
+	@if [ ! -w "$(DESTDIR)" ]; then \
+            echo "libpsyc install: You must provide a writable DESTDIR." ;\
+	    exit 2 ;\
+	else true; fi
+
 install: install-lib install-inc install-d
 
-install-lib: all
+install-lib: destdir all
 	${MAKE} -C lib install
 
-install-inc: all
+install-inc: destdir all
 	${MAKE} -C include install
 
-install-d: all
+install-d: destdir all
 	${MAKE} -C d install
 
 debug:
