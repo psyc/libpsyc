@@ -21,6 +21,7 @@
 #ifndef PSYC_METHOD_H
 #define PSYC_METHOD_H
 
+/** Characteristics attributed to certain method families. */
 typedef enum {
     PSYC_METHOD_TEMPLATE = 1 << 0,
     PSYC_METHOD_REPLY    = 1 << 1,
@@ -29,9 +30,15 @@ typedef enum {
     PSYC_METHOD_MANUAL   = 1 << 4,
 } PsycMethodFlag;
 
+/**
+ * This is a preliminary set of methods, you will encounter a lot more in
+ * the wild. The definitive standardization and definition of compact methods
+ * will follow. "mc" is an old abbreviation for method.
+ */
 typedef enum {
     PSYC_MC_UNKNOWN,
 
+    PSYC_MC_CONVERSE,
     PSYC_MC_DATA,
     PSYC_MC_ECHO,
     PSYC_MC_ECHO_CONTEXT_ENTER,
@@ -42,8 +49,8 @@ typedef enum {
     PSYC_MC_FAILURE_ALIAS_NONEXISTANT,
     PSYC_MC_FAILURE_ALIAS_UNAVAILABLE,
     PSYC_MC_INFO,
-    PSYC_MC_MESSAGE,
-    PSYC_MC_MESSAGE_ACTION,
+    PSYC_MC_MESSAGE,		// deprecated, use _converse
+    PSYC_MC_MESSAGE_ACTION,	// deprecated, use _converse
     PSYC_MC_NOTICE,
     PSYC_MC_NOTICE_ALIAS_ADD,
     PSYC_MC_NOTICE_ALIAS_CHANGE,
@@ -68,10 +75,12 @@ typedef enum {
     PSYC_METHODS_NUM,
 } PsycMethod;
 
+/* Same list of typical but non-final methods again */
 typedef union PsycTemplates {
     PsycString a[PSYC_METHODS_NUM];
     struct {
 	PsycString _;
+	PsycString _converse;
 	PsycString _data;
 	PsycString _echo;
 	PsycString _echo_context_enter;
@@ -82,8 +91,8 @@ typedef union PsycTemplates {
 	PsycString _failure_alias_nonexistant;
 	PsycString _failure_alias_unavailable;
 	PsycString _info;
-	PsycString _message;
-	PsycString _message_action;
+	PsycString _message;		// deprecated, use _converse
+	PsycString _message_action;	// deprecated, use _converse
 	PsycString _notice;
 	PsycString _notice_alias_add;
 	PsycString _notice_alias_change;

@@ -31,7 +31,7 @@
 /// Routing variables in alphabetical order.
 extern const PsycMapInt psyc_rvars[];
 
-// Variable types in alphabetical order.
+/// Variable types in alphabetical order.
 extern const PsycMapInt psyc_var_types[];
 
 /// Method names in alphabetical order.

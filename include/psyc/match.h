@@ -32,13 +32,27 @@ typedef struct {
 } PsycMapInt;
 
 /**
- * Checks if long keyword string inherits from short keyword string.
+ * Checks if long keyword string inherits from short keyword string
+ * according to the principles of PSYC keyword inheritance.
+ * See about:inheritance.
+ *
+ * @param sho Shorter string
+ * @param slen Shorter string length
+ * @param lon Longer string
+ * @param llen Longer string length
  */
 int
 psyc_inherits (char *sho, size_t slen, char *lon, size_t llen);
 
 /**
- * Checks if short keyword string matches long keyword string.
+ * Checks if short keyword string matches long keyword string
+ * according to the principles of PSYC keyword matching.
+ * See about:psycmatch.
+ *
+ * @param sho Shorter string
+ * @param slen Shorter string length
+ * @param lon Longer string
+ * @param llen Longer string length
  */
 int
 psyc_matches (char *sho, size_t slen, char *lon, size_t llen);
@@ -55,7 +69,6 @@ psyc_matches (char *sho, size_t slen, char *lon, size_t llen);
  *
  * @return The value of the entry if found, or NULL if not found.
  */
-
 void *
 psyc_map_lookup (const PsycMap *map, size_t size,
 		 const char *key, size_t keylen, PsycBool inherit);

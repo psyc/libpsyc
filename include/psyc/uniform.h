@@ -85,6 +85,10 @@ typedef enum {
     PSYC_PARSE_UNIFORM_INVALID_SCHEME = -1,
 } PsycParseUniformRC;
 
+/**
+ * Accepted transport flags in PSYC uniforms.
+ * Appears after the hostname, the colon and the optional port number
+ */
 typedef enum {
     PSYC_TRANSPORT_TCP = 'c',
     PSYC_TRANSPORT_UDP = 'd',
@@ -92,6 +96,7 @@ typedef enum {
     PSYC_TRANSPORT_GNUNET = 'g',
 } PsycTransport;
 
+/** Characters indicating typical kinds of PSYC entities. */
 typedef enum {
     PSYC_ENTITY_ROOT = 0,
     PSYC_ENTITY_PERSON = '~',

@@ -76,6 +76,7 @@
 # define PSYC_ELEM_SIZE_THRESHOLD 9
 #endif
 
+/** PSYC2 packet delimiter character */
 #define PSYC_PACKET_DELIMITER_CHAR '|'
 #define PSYC_PACKET_DELIMITER	   "\n|\n"
 
@@ -117,6 +118,7 @@ typedef enum {
     PSYC_PACKET_NO_LENGTH = 2,
 } PsycPacketFlag;
 
+/** Operators for modifying or querying PSYC state */
 typedef enum {
     PSYC_OPERATOR_SET = ':',
     PSYC_OPERATOR_ASSIGN = '=',
@@ -126,12 +128,14 @@ typedef enum {
     PSYC_OPERATOR_QUERY = '?',
 } PsycOperator;
 
+/* Reduced set of operators allowed in routing layer */
 typedef enum {
     PSYC_STATE_NOOP = 0,
     PSYC_STATE_RESET = '=',
     PSYC_STATE_RESYNC = '?',
 } PsycStateOp;
 
+/** Enumeration of standard routing variables */
 typedef enum {
     PSYC_PACKET_ID_CONTEXT = 0,
     PSYC_PACKET_ID_SOURCE = 1,

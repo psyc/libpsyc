@@ -137,6 +137,7 @@
 
 #include "../psyc.h"
 
+/** Options for selective parsing. */
 typedef enum {
     /// Default Flag. Parse everything.
     PSYC_PARSE_ALL = 0,
@@ -221,7 +222,7 @@ typedef enum {
     PSYC_PARSE_COMPLETE = 13,
 } PsycParseRC;
 
-/// PSYC packet parts.
+/** PSYC packet parts. */
 typedef enum {
     PSYC_PART_RESET = -1,
     PSYC_PART_ROUTING = 0,
