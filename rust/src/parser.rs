@@ -1,4 +1,4 @@
-use types::*;
+use types::PsycString;
 use parser_types::*;
 use util;
 use std::mem;
@@ -29,93 +29,6 @@ pub struct PsycParser {
 
 pub struct PsycListParser {
     state: PsycParseListState
-}
-
-#[derive(Debug, PartialEq)]
-pub enum PsycParserResult<'a> {
-    StateSync,
-    StateReset,
-    Complete,
-    InsufficientData,
-    RoutingModifier {
-        operator: char,
-        name: &'a [u8],
-        value: &'a [u8]
-    },
-    EntityModifier {
-        operator: char,
-        name: &'a [u8],
-        value: &'a [u8]
-    },
-    EntityModifierStart {
-        operator: char,
-        name: &'a [u8],
-        value_part: &'a [u8]
-    },
-    EntityModifierCont {
-        value_part: &'a [u8]
-    },
-    EntityModifierEnd {
-        value_part: &'a [u8]
-    },
-    Body {
-        name: &'a [u8],
-        value: &'a [u8]
-    },
-    BodyStart {
-        name: &'a [u8],
-        value_part: &'a [u8]
-    },
-    BodyCont {
-        value_part: &'a [u8]
-    },
-    BodyEnd {
-        value_part: &'a [u8]
-    }
-}
-
-#[derive(Debug, PartialEq)]
-pub enum PsycListParserResult<'a> {
-    Complete,
-    InsufficientData,
-    ListElement {
-        value: &'a [u8]
-    },
-    ListElementStart {
-        value_part: &'a [u8]
-    },
-    ListElementCont {
-        value_part: &'a [u8]
-    },
-    ListElementEnd {
-        value_part: &'a [u8]
-    }
-}
-
-#[repr(C)]
-#[derive(Debug, PartialEq)]
-pub enum PsycParserError {
-    NoModifierLength = PsycParseRC::PSYC_PARSE_ERROR_MOD_NO_LEN as _,
-    NoContentLength = PsycParseRC::PSYC_PARSE_ERROR_NO_LEN as _,
-    NoEndDelimiter = PsycParseRC::PSYC_PARSE_ERROR_END as _,
-    NoNewlineAfterMethod = PsycParseRC::PSYC_PARSE_ERROR_METHOD as _,
-    NoNewlineAfterModifier = PsycParseRC::PSYC_PARSE_ERROR_MOD_NL as _,
-    InvalidModifierLength = PsycParseRC::PSYC_PARSE_ERROR_MOD_LEN as _,
-    NoTabBeforeModifierValue = PsycParseRC::PSYC_PARSE_ERROR_MOD_TAB as _,
-    NoModifierName = PsycParseRC::PSYC_PARSE_ERROR_MOD_NAME as _,
-    NoNewlineAfterContentLength = PsycParseRC::PSYC_PARSE_ERROR_LENGTH as _,
-    GenericError = PsycParseRC::PSYC_PARSE_ERROR as _,
-}
-
-#[repr(C)]
-#[derive(Debug, PartialEq)]
-pub enum PsycListParserError {
-    NoElementLength = PsycParseListRC::PSYC_PARSE_LIST_ERROR_ELEM_NO_LEN as _,
-    InvalidElementLength = PsycParseListRC::PSYC_PARSE_LIST_ERROR_ELEM_LENGTH as _,
-    InvalidElementType = PsycParseListRC::PSYC_PARSE_LIST_ERROR_ELEM_TYPE as _,
-    InvalidElementStart = PsycParseListRC::PSYC_PARSE_LIST_ERROR_ELEM_START as _,
-    InvalidType = PsycParseListRC::PSYC_PARSE_LIST_ERROR_TYPE as _,
-    GenericError = PsycParseListRC::PSYC_PARSE_LIST_ERROR as _,
 }
 
 impl PsycParser {
@@ -207,29 +120,29 @@ impl PsycParser {
 
                 PsycParseRC::PSYC_PARSE_BODY => {
                     let result = PsycParserResult::Body {
-                        name: util::cstring_to_slice(name.data, name.length),
-                        value: util::cstring_to_slice(value.data, value.length)
+                        method: util::cstring_to_slice(name.data, name.length),
+                        data: util::cstring_to_slice(value.data, value.length)
                     };
                     Ok(result)
                 },
 
                 PsycParseRC::PSYC_PARSE_BODY_START => {
                     let result = PsycParserResult::BodyStart {
-                        name: util::cstring_to_slice(name.data, name.length),
-                        value_part: util::cstring_to_slice(value.data, value.length)
+                        method: util::cstring_to_slice(name.data, name.length),
+                        data_part: util::cstring_to_slice(value.data, value.length)
                     };
                     Ok(result)
                 },
                 PsycParseRC::PSYC_PARSE_BODY_CONT => {
                     let result = PsycParserResult::BodyCont {
-                        value_part: util::cstring_to_slice(value.data, value.length)
+                        data_part: util::cstring_to_slice(value.data, value.length)
                     };
                     Ok(result)
                 },
 
                 PsycParseRC::PSYC_PARSE_BODY_END => {
                     let result = PsycParserResult::BodyEnd {
-                        value_part: util::cstring_to_slice(value.data, value.length)
+                        data_part: util::cstring_to_slice(value.data, value.length)
                     };
                     Ok(result)
                 }
@@ -300,21 +213,24 @@ impl PsycListParser {
 
                     PsycParseListRC::PSYC_PARSE_LIST_ELEM_START => {
                         let result = PsycListParserResult::ListElementStart {
-                            value_part: util::cstring_to_slice(element.data, element.length)
+                            value_part: util::cstring_to_slice(element.data,
+                                                               element.length)
                         };
                         return Ok(result)
                     },
 
                     PsycParseListRC::PSYC_PARSE_LIST_ELEM_CONT => {
                         let result = PsycListParserResult::ListElementCont {
-                            value_part: util::cstring_to_slice(element.data, element.length)
+                            value_part: util::cstring_to_slice(element.data,
+                                                               element.length)
                         };
                         return Ok(result)
                     },
 
                     PsycParseListRC::PSYC_PARSE_LIST_ELEM_END => {
                         let result = PsycListParserResult::ListElementEnd {
-                            value_part: util::cstring_to_slice(element.data, element.length)
+                            value_part: util::cstring_to_slice(element.data,
+                                                               element.length)
                         };
                         return Ok(result)
                     },

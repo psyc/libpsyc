@@ -33,6 +33,16 @@ pub enum PsycPacketFlag {
     PSYC_PACKET_NO_LENGTH = 2,
 }
 
+#[repr(C)]
+pub enum PsycPacketId {
+    PSYC_PACKET_ID_CONTEXT = 0,
+    PSYC_PACKET_ID_SOURCE = 1,
+    PSYC_PACKET_ID_TARGET = 2,
+    PSYC_PACKET_ID_COUNTER = 3,
+    PSYC_PACKET_ID_FRAGMENT = 4,
+    PSYC_PACKET_ID_ELEMS = 5,
+}
+
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub enum PsycOperator {
@@ -49,16 +59,6 @@ pub enum PsycStateOp {
     PSYC_STATE_NOOP = 0,
     PSYC_STATE_RESET = '=' as _,
     PSYC_STATE_RESYNC = '?' as _,
-}
-
-#[repr(C)]
-pub enum PsycPacketId {
-    PSYC_PACKET_ID_CONTEXT = 0,
-    PSYC_PACKET_ID_SOURCE = 1,
-    PSYC_PACKET_ID_TARGET = 2,
-    PSYC_PACKET_ID_COUNTER = 3,
-    PSYC_PACKET_ID_FRAGMENT = 4,
-    PSYC_PACKET_ID_ELEMS = 5,
 }
 
 #[repr(C)]
@@ -115,4 +115,12 @@ pub enum PsycRenderRC {
     PSYC_RENDER_ERROR = -1,
     /// Packet is rendered successfully in the buffer.
     PSYC_RENDER_SUCCESS = 0,
+}
+
+#[repr(C)]
+#[derive(Debug, PartialEq)]
+pub enum PacketRenderError {
+    MethodMissing = PsycRenderRC::PSYC_RENDER_ERROR_METHOD_MISSING as _,
+    ModifierNameMissing = PsycRenderRC::PSYC_RENDER_ERROR_MODIFIER_NAME_MISSING as _,
+    GenericError = PsycRenderRC::PSYC_RENDER_ERROR as _
 }

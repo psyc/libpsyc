@@ -1,7 +1,6 @@
 extern crate psyc;
 
 use psyc::*;
-use psyc::packet_types::*;
 
 #[test]
 fn test_create_render() {
