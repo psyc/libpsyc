@@ -34,6 +34,8 @@ testdebug: debug
 test: all
 	${MAKE} -C test test nettest
 
+check: test
+
 bench: all
 	${MAKE} -C test bench
 
@@ -49,5 +51,3 @@ clean:
 help:
 	@/bin/echo -e "Usage:\n\tmake - compile\n\tmake diet - compile with diet libc\n\tmake test\n\tmake doc\n\tmake install [prefix=/usr]"
 
-legal:
-	git push l

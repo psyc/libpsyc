@@ -21,3 +21,7 @@ Other possible targets include:
 : make doc                    # generate the API documentation (will be put in the doc folder)
 : make help                   # display the possible targets
 
+On BSD try this:
+
+: sudo gmake install prefix=/usr/local
+

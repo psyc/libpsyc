@@ -44,6 +44,27 @@ For more information see the API documentation at [[http://lib.psyc.eu/doc/]].
 : test/     # test sourcecodes and test input files
 : d/        # the D binding
 
+* Compiling libpsyc
+
+On GNU systems, type
+: make
+ 
+On other systems install GNU make, then type
+: gmake
+
+and you are done.
+Other possible targets include:
+
+: make install [prefix=/usr]  # install into prefix
+: make diet                   # compile with diet libc
+: make test                   # compile and run the tests
+: make doc                    # generate the API documentation (will be put in the doc folder)
+: make help                   # display the possible targets
+
+* Requirements
+
+libpsyc is currently known to compile under Linux and SunOS.
+
 * Contact
 
 If you created new bindings, patches or anything other that you think should go
