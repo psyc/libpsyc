@@ -256,6 +256,7 @@ If this didn't help, you can also look into:
 - Adobe AMF
 - ASN.1
 - BSON
+- CBOR
 - Cisco Etch
 - Efficient XML
 - Facebook Thrift
