@@ -262,10 +262,17 @@ If this didn't help, you can also look into:
 - Facebook Thrift
 - Google Protocol Buffers
 
-The drawback of these binary formats is, unlike PSYC, JSON and XML
-you can't edit them manually and you can't produce valid messages
-by replacing variables in a simple text template. You depend on
-specialized parsers and renderers to be provided.
+The drawback of these binary formats is that you cannot edit 
+them manually and you can't produce valid messages
+by replacing variables in a simple text template.
+You depend on specialized parsers and renderers to be provided.
+
+At least some of these binary formats are self-typed like JSON
+and do not need to be compiled specifically for the application,
+but even BSON and CBOR share JSON's lack of actual protocol semantics 
+which invites unexperienced developers to design protocols which
+will be harder to extend and adapt while maintaining backward
+compatibility.
 
 There's also
 
@@ -273,7 +280,8 @@ There's also
 
 This format is formally text-based, but not easy to read as it doesn't
 have any visual separators and isn't easy to edit as everything is
-prefixed by lengths even for very short items.
+prefixed by lengths even for very short items. It is therefore also
+not templateable.
 
 * Further Reading
 
