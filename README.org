@@ -95,3 +95,10 @@ This source code should follow the [[http://about.psyc.eu/Indent]] conventions.
 (if you have good reasons to use another style, discuss it on the
 wiki page so that it becomes the general style convention for all
 of us, not just for you).
+
+* Disclaimer
+
+The https://github.com/psyc/libpsyc repository only serves promotional
+purposes. It may be outdated and we do not recommend participating in a
+centralistic social networking business.
+
