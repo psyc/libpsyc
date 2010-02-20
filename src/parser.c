@@ -224,7 +224,11 @@ inline int PSYC_parseElement(
 			return -5; // report error
 		}
 		else
+		{
+			*name = data+*cursor;
+			*nlength=1;
 			method=1;
+		}
 	}
 	else
 	{
@@ -247,12 +251,7 @@ inline int PSYC_parseElement(
 			&& data[*cursor] != '_')  // AND not '_'. must be invalid then	
 		return -1; // return parser error.
 
-	if(1 == method) // for the method..
-	{
-		*name=data+*cursor; // the name starts here.
-		*nlength=1; // the initial length is 1.
-	}else
-		*nlength+=1;
+	*nlength+=1;
 
 	/* now checking how long the name of the variable is. */
 	unsigned int i=0;

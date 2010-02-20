@@ -54,6 +54,14 @@ int main(int argc, char** argv)
 			write(0,"\n",1);
 		}
 
+		if(ret == 3 || ret == 2)
+		{
+			write(0,varname,nl);
+			write(0," = ",3);
+			write(0,varvalue,vl);
+			write(0,"\n",1);
+		}
+
 		if(tmp != cursor)
 			tmp=cursor;
 		else
