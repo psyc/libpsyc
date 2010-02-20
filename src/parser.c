@@ -302,6 +302,11 @@ inline int PSYC_parseElement(
 		}else
 		{
 			*value=data+*cursor+1; 
+			if(1== complete) // we know the length of the packet
+			{
+				*vlength= dlength - *cursor -3;
+			}else
+			{
 			*vlength=0;
 			while(1)
 			{
@@ -330,7 +335,7 @@ inline int PSYC_parseElement(
 					}
 				}
 				++(*vlength); 
-			}
+			}}
 		}
 	}else if(inHeader == 0 && method==0 && data[*cursor] == ' ') // oi, its a binary var!
 	{ // after SP the length follows.
@@ -347,7 +352,7 @@ inline int PSYC_parseElement(
 			++strln;
 
 		}while(isNumeric(data[*cursor]));
-
+		// after the length a TAB follows
 		if(data[*cursor] != '\t')
 			return -8;
 		
