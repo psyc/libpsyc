@@ -289,16 +289,23 @@ inline int PSYC_parseElement(
 		 * for the method: after the \n data follows,
 		 * which is anything but \n|\n
 		 *
+		 * but data is optional, so we first check 
+		 * here if data follows at all.
+		 *
 		 * arg-data=*value. we set value here so it
 		 * points to a valid range and so we point
 		 * to the first potential arg-data byte.
 		 * If there is no arg-data, we still have
 		 * the length attribute on 0.  */
-		if(method == 0 && data[*cursor] == '\n') // emptyvar
+		if((method == 0 && data[*cursor] == '\n') /* emptyvar */ ||
+			(method == 1 && *cursor+2 < dlength && 
+			 data[*cursor+1] == '|' && 
+			 data[*cursor+2] == '\n') /*no data */ )
 		{
 			*value=data+*cursor;
 			*vlength=0;
-		}else
+		}
+		else
 		{
 			*value=data+*cursor+1; 
 			if(1== complete) // we know the length of the packet
@@ -318,23 +325,26 @@ inline int PSYC_parseElement(
 					if(0 == method && data[*cursor] == '\n')
 						break;
 
-					if(1 == method && data[*cursor] == '|')
+					if(1 == method && data[*cursor] == '\n')
 					{
-						if(dlength<=++(*cursor)) // incremented cursor inside lenght?
+						if(dlength<=(*cursor)+2) // incremented cursor inside lenght?
 						{
 							*cursor=startc; // set to start value
 							return 1; // return insufficient
 						}
 
-						/* packet finishes here */
-						if(data[*cursor] == '\n')
-						{	
-							*cursor+=1;
-							return 3;
-						}
+						if(data[*cursor+1] == '|')
+							if(data[*cursor+2] == '\n')
+							{
+								/* packet finishes here */
+								*cursor+=3;
+								return 3;
+							}
+							
 					}
 					++(*vlength); 
-				}}
+				}
+			}
 		}
 	}else if(inHeader == 0 && method==0 && data[*cursor] == ' ') // oi, its a binary var!
 	{ // after SP the length follows.
