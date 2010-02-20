@@ -245,8 +245,9 @@ inline int PSYC_parseElement(
 	 * so checking for \n too here
 
 	 * We dont check if cursor inside length, because
-	 * the last loop iteration did that already. */
-	if(data[*cursor] == '\t' || (data[*cursor] == '\n' && method==1)) 
+	 * the last loop iteration did that already. 
+	 */
+	if(data[*cursor] == '\t' || data[*cursor] == '\n') // && method==1)) 
 	{
 		/* after the \t the arg-data follows, which is
 		 * anything but \n. arg-data can be of length 0
@@ -259,38 +260,43 @@ inline int PSYC_parseElement(
 		 * to the first potential arg-data byte.
 		 * If there is no arg-data, we still have
 		 * the length attribute on 0.  */
-		*value=data+*cursor+1; 
-		*vlength=0;
-
-		while(1)
+		if(method == 0 && data[*cursor] == '\n') // emptyvar
 		{
-			if(dlength<=++(*cursor)) // incremented cursor inside lenght?
+			*value=data+*cursor;
+			*vlength=0;
+		}else
+		{
+			*value=data+*cursor+1; 
+			*vlength=0;
+			while(1)
 			{
-				*cursor=startc; // set to start value
-				return 1; // return insufficient
-			}
-
-			if(1 != method && data[*cursor] == '\n')
-				break;
-
-			if(1 == method && data[*cursor] == '|')
-			{
-				if(dlength<++(*cursor)) // incremented cursor inside lenght?
+				if(dlength<=++(*cursor)) // incremented cursor inside lenght?
 				{
 					*cursor=startc; // set to start value
 					return 1; // return insufficient
 				}
 
-				/* packet finishes here */
-				if(data[*cursor] == '\n')
-				{	
-					*cursor+=1;
-					return 3;
-				}
-			}
-			++(*vlength); 
-		}
+				if(0 == method && data[*cursor] == '\n')
+					break;
 
+				if(1 == method && data[*cursor] == '|')
+				{
+					if(dlength<++(*cursor)) // incremented cursor inside lenght?
+					{
+						*cursor=startc; // set to start value
+						return 1; // return insufficient
+					}
+
+					/* packet finishes here */
+					if(data[*cursor] == '\n')
+					{	
+						*cursor+=1;
+						return 3;
+					}
+				}
+				++(*vlength); 
+			}
+		}
 	}
 
 
