@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 		if(tmp != cursor)
 			tmp=cursor;
 		else
-			return;
+			return 1;
 		printf("ret: %d\ncursor: %d\n--------\n",
 				ret,cursor);
 	}

@@ -1,3 +1,3 @@
-CFLAGS=-I.. -DDEBUG ../parser.c
+CFLAGS=-I.. -DDEBUG -lpsyc
 
 it: testParser
