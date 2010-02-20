@@ -307,19 +307,8 @@ inline int PSYC_parseElement(
 				*vlength= dlength - *cursor -3;
 			}else
 			{
-			*vlength=0;
-			while(1)
-			{
-				if(dlength<=++(*cursor)) // incremented cursor inside lenght?
-				{
-					*cursor=startc; // set to start value
-					return 1; // return insufficient
-				}
-
-				if(0 == method && data[*cursor] == '\n')
-					break;
-
-				if(1 == method && data[*cursor] == '|')
+				*vlength=0;
+				while(1)
 				{
 					if(dlength<=++(*cursor)) // incremented cursor inside lenght?
 					{
@@ -327,15 +316,26 @@ inline int PSYC_parseElement(
 						return 1; // return insufficient
 					}
 
-					/* packet finishes here */
-					if(data[*cursor] == '\n')
-					{	
-						*cursor+=1;
-						return 3;
+					if(0 == method && data[*cursor] == '\n')
+						break;
+
+					if(1 == method && data[*cursor] == '|')
+					{
+						if(dlength<=++(*cursor)) // incremented cursor inside lenght?
+						{
+							*cursor=startc; // set to start value
+							return 1; // return insufficient
+						}
+
+						/* packet finishes here */
+						if(data[*cursor] == '\n')
+						{	
+							*cursor+=1;
+							return 3;
+						}
 					}
-				}
-				++(*vlength); 
-			}}
+					++(*vlength); 
+				}}
 		}
 	}else if(inHeader == 0 && method==0 && data[*cursor] == ' ') // oi, its a binary var!
 	{ // after SP the length follows.
@@ -355,7 +355,7 @@ inline int PSYC_parseElement(
 		// after the length a TAB follows
 		if(data[*cursor] != '\t')
 			return -8;
-		
+
 		// now we have the length. convert it to int
 		int binLength = atoi(bin_length_str);
 		// is that still in this buffer?
@@ -365,9 +365,9 @@ inline int PSYC_parseElement(
 			return 1;
 		}
 
-		*value = data + *cursor;		
+		*value = data + *cursor+1;		
 		*vlength=binLength;
-		*cursor += binLength;
+		*cursor += binLength+1;
 	}else
 		return -8;
 
