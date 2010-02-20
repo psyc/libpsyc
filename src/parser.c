@@ -1,8 +1,11 @@
 #include <stdint.h>
+#include <stdlib.h>
 
 #ifdef DEBUG
 #include <stdio.h>
 #endif
+
+
 
 /** @brief isGlyph
  *
@@ -24,22 +27,28 @@ inline char isGlyph(uint8_t g)
 }
 
 
+inline char isNumeric(uint8_t c)
+{
+	return c >= '0' && c <= '9' ;
+}
+
 inline char isAlphaNumeric(uint8_t c)
 {
 	return
 		(( c >= 'a' && c <= 'z' )||
 		 ( c >= 'A' && c <= 'Z' )||
-		 ( c >= '0' && c <= '9' ))
+			 isNumeric(c))
 		;
 
 }
+
 
 inline int PSYC_parseElement(
 		unsigned int* cursor,
 		const uint8_t * data, unsigned int dlength,
 		const uint8_t** name, unsigned int *nlength,
 		const uint8_t** value, unsigned int *vlength,
-		char inHeader);
+		char inHeader,char complete);
 
 /** @brief parses a routerVariable
  * 
@@ -82,7 +91,7 @@ inline int PSYC_parseHeader(
 		const uint8_t** name, unsigned int *nlength,
 		const uint8_t** value, unsigned int *vlength)
 {
-	return PSYC_parseElement(cursor,data,dlength,name,nlength,value,vlength,1); 
+	return PSYC_parseElement(cursor,data,dlength,name,nlength,value,vlength,1,0); 
 }
 
 
@@ -104,10 +113,36 @@ inline int PSYC_parseOpenBody(
 		const uint8_t** value, unsigned int *vlength)
 {
 
-	return PSYC_parseElement(cursor,data,dlength,name,nlength,value,vlength,0); 
+	return PSYC_parseElement(cursor,data,dlength,name,nlength,value,vlength,0,0); 
 }
 
 
+/** @brief parses one bodyelement
+ *
+ *  This parses one body element, that is
+ *  either an entity-variable or the method
+ *
+ *  The function assumes that dlength is set
+ *  to the exact length of the packet
+ *  so that data[dlength-1]  would be the
+ *  ending "\n" of the packet.
+ *
+ *  The parameters are nearly the same as for
+ *  PSYC_parseHeader, only difference is
+ *  that a returnvalue of 2 means, we encountered
+ *  the method. 
+ *  This means that the out paramterer
+ *  name contains the methodname and 
+ *  value the content.
+ *  */
+int PSYC_parseClosedBody(
+		unsigned int* cursor,
+		const uint8_t * data, unsigned int dlength,
+		const uint8_t** name, unsigned int *nlength,
+		const uint8_t** value, unsigned int *vlength)
+{
+	return PSYC_parseElement(cursor,data,dlength,name,nlength,value,vlength,0,1); 
+}
 
 
 
@@ -121,7 +156,7 @@ inline int PSYC_parseElement(
 		const uint8_t * data, unsigned int dlength,
 		const uint8_t** name, unsigned int *nlength,
 		const uint8_t** value, unsigned int *vlength,
-		char inHeader)
+		char inHeader,char complete)
 {
 	/* first we test if we can access the first char */
 	if(dlength<=*cursor) // cursor is not inside the length
@@ -281,7 +316,7 @@ inline int PSYC_parseElement(
 
 				if(1 == method && data[*cursor] == '|')
 				{
-					if(dlength<++(*cursor)) // incremented cursor inside lenght?
+					if(dlength<=++(*cursor)) // incremented cursor inside lenght?
 					{
 						*cursor=startc; // set to start value
 						return 1; // return insufficient
@@ -297,7 +332,41 @@ inline int PSYC_parseElement(
 				++(*vlength); 
 			}
 		}
-	}
+	}else if(inHeader == 0 && method==0 && data[*cursor] == ' ') // oi, its a binary var!
+	{ // after SP the length follows.
+		const uint8_t * bin_length_str = data + *cursor+1;
+		int strln = 0;
+		do
+		{
+			if(dlength<=++(*cursor)) // incremented cursor inside lenght?
+			{
+				*cursor=startc; // set to start value
+				return 1; // return insufficient
+			}
+
+			++strln;
+
+		}while(isNumeric(data[*cursor]));
+
+		if(data[*cursor] != '\t')
+			return -8;
+		
+		// now we have the length. convert it to int
+		int binLength = atoi(bin_length_str);
+		// is that still in this buffer?
+		if(dlength <= *cursor+binLength+1 )
+		{
+			*cursor=startc;
+			return 1;
+		}
+
+		*value = data + *cursor;		
+		*vlength=binLength;
+		*cursor += binLength;
+	}else
+		return -8;
+
+
 
 
 	/* if there was a \t, then we parsed up until the 
@@ -381,29 +450,6 @@ int PSYC_parseHeader2(
 		const uint8_t** value1, unsigned int *vlength1,
 		const uint8_t** value2, unsigned int *vlength2);
 
-/** @brief parses one bodyelement
- *
- *  This parses one body element, that is
- *  either an entity-variable or the method
- *
- *  The function assumes that dlength is set
- *  to the exact length of the packet
- *  so that data[dlength-1]  would be the
- *  ending "\n" of the packet.
- *
- *  The parameters are nearly the same as for
- *  PSYC_routerVariable, only difference is
- *  that a returnvalue of 2 means, we encountered
- *  the method. 
- *  This means that the out paramterer
- *  name contains the methodname and 
- *  value the content.
- *  */
-int PSYC_parseClosedBody(
-		unsigned int* cursor,
-		const uint8_t * data, unsigned int dlength,
-		const uint8_t** name, unsigned int *nlength,
-		const uint8_t** value, unsigned int *vlength);
 
 /* @brief parses an bodyelement in two buffers
  *
