@@ -85,7 +85,7 @@ inline int PSYC_parseElement(
  *           <0 on a parsing error.
  *              This invalidates all but the cursor
  *              out paramater. */
-inline int PSYC_parseHeader(
+int PSYC_parseHeader(
 		unsigned int* cursor,
 		const uint8_t * data, unsigned int dlength,
 		const uint8_t** name, unsigned int *nlength,

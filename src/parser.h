@@ -36,7 +36,7 @@
  *           <0 on a parsing error.
  *              This invalidates all but the cursor
  *              out paramater. */
-extern int PSYC_parseHeader(
+int PSYC_parseHeader(
 									unsigned int* cursor,
                   const uint8_t * data, unsigned int dlength,
                   const uint8_t** name, unsigned int *nlength,
@@ -110,7 +110,7 @@ int PSYC_parseClosedBody(
  * real length of the packet and thus
  * searches for the terminator.
  */
-extern int PSYC_parseOpenBody(
+int PSYC_parseOpenBody(
 									unsigned int* cursor,
                   const uint8_t * data, unsigned int dlength,
                   const uint8_t** name, unsigned int *nlength,
