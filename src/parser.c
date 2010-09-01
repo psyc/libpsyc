@@ -106,7 +106,7 @@ inline int PSYC_parseHeader(
  * real length of the packet and thus
  * searches for the terminator.
  */
-int PSYC_parseOpenBody(
+extern int PSYC_parseOpenBody(
 		unsigned int* cursor,
 		const uint8_t * data, unsigned int dlength,
 		const uint8_t** name, unsigned int *nlength,

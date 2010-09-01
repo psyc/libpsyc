@@ -1,4 +1,4 @@
-CC=clang
+CC=cc
 
 dietlib:
 	/opt/diet/bin/diet ${CC}  -c -Os parser.c -o libpsyc.o -DDEBUG	
