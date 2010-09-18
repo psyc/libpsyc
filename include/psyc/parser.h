@@ -6,9 +6,12 @@
  *  advances the cursor after the variable,
  *  writes the variables name, value and their
  *  lengths in the corresponding out parameters
- *  and returns 0 or an errorcode.
+ *  and returns 0 or an errorcode. 
  *
- *  
+ *	Note that a return value of 3 does
+ *	not exclude the possibility of
+ *	the variable related parameters being
+ *	filled.
  *  
  *
  *  @param data pointer to the packet data
@@ -32,7 +35,7 @@
  *             body/entity section, but leaves 
  *             the other out parameters invalid.
  *           3 the packet is complete.
- *           >2 on a context error,
+ *           >3 on a context error,
  *           <0 on a parsing error.
  *              This invalidates all but the cursor
  *              out paramater. */
@@ -135,4 +138,3 @@ int PSYC_parseOpenBody2(
 
 
 
-//#include <parser.c>
