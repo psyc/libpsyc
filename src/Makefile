@@ -1,4 +1,5 @@
 CC=cc
+# CC=clang
 
 default: 
 	@/bin/echo -e "Usage:\n\tmake diet - compile with diet libc\n\tmake lib  - compile with normal gnu libc"
