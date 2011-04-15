@@ -1,4 +1,58 @@
 #include <stdint.h>
+#include <string.h>
+
+enum
+{
+
+}
+
+typedef struct 
+{
+	unsigned int length;
+	const uint8_t *ptr;
+} PSYC_Array;
+
+typedef struct 
+{
+	unsigned int cursor;           // current position in buffer
+	PSYC_Array buffer;
+	uint8_t flags;
+
+	char inHeader;
+	unsigned int length;
+} PSYC_State;
+
+
+inline PSYC_Array (const uint8_t memory, unsigned int length)
+{
+	PSYC_Array arr = {length, memory};
+
+	return arr;
+}
+
+inline void PSYC_initState (PSYC_State* state)
+{
+	memset(state, 0, sizeof(PSYC_State));
+}
+
+inline void PSYC_nextBuffer (PSYC_State* state, PSYC_Array newBuf)
+{
+	state->buffer = newBuf; 
+}
+
+
+int PSYC_parse(PSYC_State* state, 
+               PSYC_ConstArray name, 
+               PSYC_ConstArray value, 
+               uint8_t modifier, 
+               unsigned long *expectedBytes);
+
+
+inline unsigned int PSYC_getBodyLength (PSYC_State* state)
+{
+	return state->length;
+}
+
 
 /** @brief parses a routerVariable
  * 
