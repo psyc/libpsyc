@@ -9,5 +9,5 @@ diet:
 	/opt/diet/bin/diet ar rcs libpsyc.a libpsyc.o
 
 lib:
-	${CC} -static -c -Os parser.c -lc -o libpsyc.o -DDEBUG	
+	${CC} -static -c -Os parser.c -lc -o libpsyc.o -DDEBUG	-I../include
 	ar rcs libpsyc.a libpsyc.o

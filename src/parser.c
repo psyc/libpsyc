@@ -5,7 +5,7 @@
 #include <stdio.h>
 #endif
 
-
+#include <psyc/parser.h>
 
 /** @brief isGlyph
  *
@@ -44,22 +44,10 @@ inline char isAlphaNumeric(uint8_t c)
 
 
 
-int PSYC_parse(PSYC_State* state, 
-               PSYC_ConstArray name, 
-               PSYC_ConstArray value, 
-               uint8_t modifier, 
-               unsigned long *expectedBytes)
-{
-
-}
-
-
-
-
 /** @brief generalized linebased parser */
 inline int PSYC_parse(
 		PSYC_State* state,
-		PSYC_Array* name, PSYC_Array* value
+		PSYC_Array* name, PSYC_Array* value,
 		uint8_t* modifier, unsigned long* expectedBytes)
 {
 	/* first we test if we can access the first char */
@@ -101,7 +89,16 @@ inline int PSYC_parse(
 			return -6; // report error
 		}else // it is a glyph, so a variable name starts here
 		{
-			*modifier = *state->buffer.ptr+state->cursor;
+			*modifier = *(state->buffer.ptr+state->cursor);
+			
+			if (state->buffer.length <= ++(state->cursor))
+			{
+				state->cursor = startc; // rewind to start of line
+				return 1;  // return insufficient
+			}
+
+			name->ptr = state->buffer.ptr + state->cursor;
+
 			name->length = 0;
 		}
 	}
@@ -140,6 +137,14 @@ inline int PSYC_parse(
 	}
 	else
 	{
+		*modifier = *(state->buffer.ptr+state->cursor);
+		
+		if (state->buffer.length <= ++(state->cursor))
+		{
+			state->cursor = startc; // rewind
+			return 1; // return insufficient
+		}
+
 		name->ptr = state->buffer.ptr+state->cursor;
 		name->length=1;
 	}
@@ -177,7 +182,6 @@ inline int PSYC_parse(
 			break; // not valid? then stop the loop right here
 
 		++(name->length); // was a valid char, increase length
-
 	}
 
 	/* we now parsed the variable name successfully

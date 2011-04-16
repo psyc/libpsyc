@@ -1,15 +1,11 @@
 #include <stdint.h>
 #include <string.h>
 
-enum
-{
-
-}
 
 typedef struct 
 {
 	unsigned int length;
-	const uint8_t *ptr;
+	const uint8_t * ptr;
 } PSYC_Array;
 
 typedef struct 
@@ -23,7 +19,7 @@ typedef struct
 } PSYC_State;
 
 
-inline PSYC_Array (const uint8_t memory, unsigned int length)
+inline PSYC_Array PSYC_CreateArray (uint8_t* const memory, unsigned int length)
 {
 	PSYC_Array arr = {length, memory};
 
@@ -41,11 +37,9 @@ inline void PSYC_nextBuffer (PSYC_State* state, PSYC_Array newBuf)
 }
 
 
-int PSYC_parse(PSYC_State* state, 
-               PSYC_ConstArray name, 
-               PSYC_ConstArray value, 
-               uint8_t modifier, 
-               unsigned long *expectedBytes);
+inline int PSYC_parse(PSYC_State* state, 
+               PSYC_Array* name, PSYC_Array* value, 
+               uint8_t* modifier, unsigned long *expectedBytes);
 
 
 inline unsigned int PSYC_getBodyLength (PSYC_State* state)
