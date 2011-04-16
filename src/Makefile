@@ -1,18 +1,21 @@
-CC=cc
+CC=cc -I../include
 # CC=clang
+
+S=parser.c match.c
+O=parser.o match.o
 
 default: 
 	@/bin/echo -e "Usage:\n\tmake diet - compile with diet libc\n\tmake lib  - compile with normal gnu libc"
 
 diet:
-	/opt/diet/bin/diet ${CC} -static -c -Os parser.c -o libpsyc.o -DDEBUG	
-	/opt/diet/bin/diet ar rcs libpsyc.a libpsyc.o
+	/opt/diet/bin/diet ${CC} -static -c -Os $S -DDEBUG	
+	/opt/diet/bin/diet ar rcs libpsyc.a $O
 
-lib:
-	${CC} -static -c -Os parser.c -lc -o libpsyc.o -DDEBUG	-I../include
-	ar rcs libpsyc.a libpsyc.o
+lib: $S
+	${CC} -static -c -Os $S -lc -DDEBUG
+	ar rcs libpsyc.a $O
 
 match: match.c
-	${CC} -o $@ -DTEST $<
+	${CC} -o $@ -DDEBUG=2 -DCMDTOOL -DTEST $<
 
 it: match
