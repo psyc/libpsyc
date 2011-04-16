@@ -1,15 +1,7 @@
-#include <string.h>
-#include <stdint.h>
-
-#ifdef TEST
-# include <stdio.h>
-# define PT(args) printf args;
-#else
-# define PT(args)
-#endif
+#include "psyc/lib.h"
 
 int PSYC_matches(uint8_t* sho, unsigned int slen,
-	      uint8_t* lon, unsigned int llen) {
+		 uint8_t* lon, unsigned int llen) {
 	uint8_t *s, *l, *se, *le;
 
 	if (!slen) slen = strlen(sho);
@@ -66,7 +58,7 @@ failed:
 	return 1;
 }
 
-#ifdef TEST
+#ifdef CMDTOOL
 int main(int argc, char **argv) {
 	if (argc != 3) {
 		printf("Usage: %s <short> <long>\n\nExample: %s _failure_delivery _failure_unsuccessful_delivery_death\n", argv[0], argv[0]);
