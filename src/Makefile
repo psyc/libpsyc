@@ -11,3 +11,8 @@ diet:
 lib:
 	${CC} -static -c -Os parser.c -lc -o libpsyc.o -DDEBUG	-I../include
 	ar rcs libpsyc.a libpsyc.o
+
+match: match.c
+	${CC} -o $@ -DTEST $<
+
+it: match
