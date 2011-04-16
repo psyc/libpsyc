@@ -1,18 +1,22 @@
-#include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #ifdef TEST
+# include <stdio.h>
 # define PT(args) printf args;
 #else
 # define PT(args)
 #endif
 
-int psycmatch(char* sho, char* lon) {
-	char *s, *l, *se, *le;
-	int slen, llen;
+int PSYC_matches(uint8_t* sho, unsigned int slen,
+	      uint8_t* lon, unsigned int llen) {
+	uint8_t *s, *l, *se, *le;
 
-	if (!(slen = strlen(sho)) || *sho != '_' ||
-	    !(llen = strlen(lon)) || *lon != '_') {
+	if (!slen) slen = strlen(sho);
+	if (!llen) llen = strlen(lon);
+
+	if (slen == 0 || *sho != '_' ||
+	    llen == 0 || *lon != '_') {
 		PT(("Please use long format keywords (compact ones would be faster, I know..)\n"))
 		return -2;
 	}
@@ -68,7 +72,7 @@ int main(int argc, char **argv) {
 		printf("Usage: %s <short> <long>\n\nExample: %s _failure_delivery _failure_unsuccessful_delivery_death\n", argv[0], argv[0]);
 		return -1;
 	}
-	if (psycmatch(argv[1], argv[2]) == 0)
+	if (PSYC_matches((uint8_t*) argv[1], 0, (uint8_t*) argv[2], 0) == 0)
 	    printf("Yes, they match!\n");
 }
 #endif
