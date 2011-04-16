@@ -262,27 +262,29 @@ inline int PSYC_parse(
 		}
 	}else if(state->inHeader == 0 && method==0 && state->buffer.ptr[state->cursor] == ' ') // oi, its a binary var!
 	{ // after SP the length follows.
-		const uint8_t * bin_length_str = state->buffer.ptr + state->cursor+1;
-		int strln = 0;
-		do
+		unsigned int binLength= 0;
+
+		if(state->buffer.length<=++(state->cursor)) // incremented cursor inside lenght?
 		{
+			state->cursor=startc; // set to start value
+			return 1; // return insufficient
+		}
+
+		while(isNumeric(state->buffer.ptr[state->cursor]));
+		{
+			binLength = 10 * binLength + state->buffer.ptr[state->cursor] - '0';
+
 			if(state->buffer.length<=++(state->cursor)) // incremented cursor inside lenght?
 			{
 				state->cursor=startc; // set to start value
 				return 1; // return insufficient
 			}
-
-			++strln;
 		}
-		while(isNumeric(state->buffer.ptr[state->cursor]));
-
 		// after the length a TAB follows
 		if (state->buffer.ptr[state->cursor] != '\t')
 			return -8;
 
-		// now we have the length. convert it to int
-		int binLength = atoi(bin_length_str);
-		// is that still in this buffer?
+		// is the length still in this buffer?
 		if(state->buffer.length <= state->cursor+binLength+1 )
 		{
 			state->cursor=startc;
@@ -292,7 +294,8 @@ inline int PSYC_parse(
 		value->ptr = state->buffer.ptr + state->cursor+1;		
 		value->length=binLength;
 		state->cursor += binLength+1;
-	}else
+	}
+	else
 		return -8;
 
 
