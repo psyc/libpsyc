@@ -1,13 +1,20 @@
 #include <stdint.h>
 #include <string.h>
 
-enum
+enum PSYC_Flags
+{
+	PSYC_HEADER_ONLY = 1
+};
+
+
+enum PSYC_ReturnCodes
 {
 	PSYC_SUCCESS = 0,
 	PSYC_INSUFFICIENT = 1,
 	PSYC_ROUTING = 2,
 	PSYC_ENTITY = 3,
 	PSYC_COMPLETE = 4,
+	PSYC_HEADER_COMPLETE = 5, 
 };
 
 
@@ -34,6 +41,12 @@ inline PSYC_Array PSYC_CreateArray (uint8_t* const memory, unsigned int length)
 	PSYC_Array arr = {length, memory};
 
 	return arr;
+}
+
+inline void PSYC_initState2 (PSYC_State* state, uint8_t flags )
+{
+	memset(state, 0, sizeof(PSYC_State));
+	state->flags = flags;
 }
 
 inline void PSYC_initState (PSYC_State* state)
