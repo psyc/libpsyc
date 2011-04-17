@@ -9,12 +9,12 @@ enum PSYC_Flags
 
 enum PSYC_ReturnCodes
 {
-	PSYC_SUCCESS = 0,
-	PSYC_INSUFFICIENT = 1,
-	PSYC_ROUTING = 2,
-	PSYC_ENTITY = 3,
-	PSYC_COMPLETE = 4,
-	PSYC_HEADER_COMPLETE = 5, 
+	PSYC_METHOD = 1,
+	PSYC_INSUFFICIENT,
+	PSYC_ROUTING,
+	PSYC_ENTITY,
+	PSYC_COMPLETE,
+	PSYC_HEADER_COMPLETE, 
 };
 
 
@@ -35,7 +35,7 @@ typedef struct
 	unsigned int contentLength;
 } PSYC_State;
 
-
+#ifndef PSYC_COMPILE_LIBRARY
 inline PSYC_Array PSYC_CreateArray (uint8_t* const memory, unsigned int length)
 {
 	PSYC_Array arr = {length, memory};
@@ -60,15 +60,15 @@ inline void PSYC_nextBuffer (PSYC_State* state, PSYC_Array newBuf)
 }
 
 
-inline int PSYC_parse(PSYC_State* state, 
-               PSYC_Array* name, PSYC_Array* value, 
-               uint8_t* modifier, unsigned long *expectedBytes);
-
 
 inline unsigned int PSYC_getBodyLength (PSYC_State* state)
 {
 	return state->length;
 }
+#endif
 
+int PSYC_parse(PSYC_State* state, 
+               PSYC_Array* name, PSYC_Array* value, 
+               uint8_t* modifier, unsigned long *expectedBytes);
 
 

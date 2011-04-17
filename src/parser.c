@@ -87,7 +87,7 @@ start:
 				// a NL follows the length
 				if (state->buffer.ptr[state->cursor] != '\n')
 				{
-
+					return -10;
 				}
 			}
 
