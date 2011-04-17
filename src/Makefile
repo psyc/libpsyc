@@ -12,7 +12,7 @@ diet:
 	/opt/diet/bin/diet ar rcs libpsyc.a $O
 
 lib: $S
-	${CC} -static -c -Os $S -lc -DDEBUG -DPSYC_COMPILE_LIBRARY
+	${CC} -static -c -g -O0 $S -lc -DDEBUG -DPSYC_COMPILE_LIBRARY
 	ar rcs libpsyc.a $O
 
 match: match.c

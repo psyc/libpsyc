@@ -30,7 +30,7 @@ typedef struct
 	PSYC_Array buffer;
 	uint8_t flags;
 
-	char inHeader;
+	char inBody;
 	unsigned int length;
 	unsigned int contentLength;
 } PSYC_State;
@@ -58,8 +58,6 @@ inline void PSYC_nextBuffer (PSYC_State* state, PSYC_Array newBuf)
 {
 	state->buffer = newBuf; 
 }
-
-
 
 inline unsigned int PSYC_getBodyLength (PSYC_State* state)
 {
