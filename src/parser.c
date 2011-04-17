@@ -61,7 +61,7 @@ start:
 	/* each line of the header starts with a glyph.
 	 * iE :_name, -_name +_name etc, so just test if 
 	 * the first char is a glyph. */
-	if(1==state->inHeader)
+	if(0==state->inBody)
 	{
 		if(!isGlyph(state->buffer.ptr[state->cursor])) // is the first char not a glyph?
 		{
@@ -95,7 +95,7 @@ start:
 			// is complete(empty packet) or that the method started.
 			if(isAlphaNumeric(state->buffer.ptr[state->cursor]))
 			{
-				state->inHeader = 0;
+				state->inBody = 1;
 				if (state->flags & PSYC_HEADER_ONLY)
 					return PSYC_HEADER_COMPLETE; // return header finished
 				else
@@ -113,6 +113,7 @@ start:
 				if(state->buffer.ptr[state->cursor]=='\n')
 				{
 					++(state->cursor);
+					state->inBody = 0;
 					return PSYC_COMPLETE; // return packet finished
 				}
 			}
@@ -130,54 +131,61 @@ start:
 
 			name->ptr = state->buffer.ptr + state->cursor;
 
-			name->length = 0;
+			name->length = 1;
 		}
-	}
+	} // endif inBody=0
 
 	char method=0;
+	/* each line of the header starts with a glyph.
+	 * iE :_name, -_name +_name etc, so just test if 
+	 * the first char is a glyph. */
 	/* in the body, the same applies, only that the
 	 * method does not start with a glyph.*/ 
-	if(0==state->inHeader && !isGlyph(state->buffer.ptr[state->cursor]))
+	if(1==state->inBody)
 	{
-		if(!isAlphaNumeric(state->buffer.ptr[state->cursor]) && state->buffer.ptr[state->cursor] != '_')
+		if(!isGlyph(state->buffer.ptr[state->cursor]))
 		{
-			// the body rule is optional, which means
-			// that now also just |\n can follow.
-			if(state->buffer.ptr[state->cursor] == '|')
+			if(!isAlphaNumeric(state->buffer.ptr[state->cursor]) && state->buffer.ptr[state->cursor] != '_')
 			{
-				if(state->buffer.length<=++(state->cursor)) // incremented cursor inside lenght?
+				// the body rule is optional, which means
+				// that now also just |\n can follow.
+				if(state->buffer.ptr[state->cursor] == '|')
 				{
-					state->cursor=startc; // set to start value
-					return PSYC_INSUFFICIENT; // return insufficient
-				}
+					if(state->buffer.length<=++(state->cursor)) // incremented cursor inside lenght?
+					{
+						state->cursor=startc; // set to start value
+						return PSYC_INSUFFICIENT; // return insufficient
+					}
 
-				if(state->buffer.ptr[state->cursor]=='\n')
-				{
-					++(state->cursor);
-					return PSYC_COMPLETE; // return packet finished
+					if(state->buffer.ptr[state->cursor]=='\n')
+					{
+						++(state->cursor);
+						state->inBody = 0;
+						return PSYC_COMPLETE; // return packet finished
+					}
 				}
+				return -5; // report error
 			}
-			return -5; // report error
+			else
+			{
+				name->ptr = state->buffer.ptr+state->cursor;
+				name->length=1;
+				method=1;
+			}
 		}
 		else
 		{
+			*modifier = *(state->buffer.ptr+state->cursor);
+
+			if (state->buffer.length <= ++(state->cursor))
+			{
+				state->cursor = startc; // rewind
+				return PSYC_INSUFFICIENT; // return insufficient
+			}
+
 			name->ptr = state->buffer.ptr+state->cursor;
 			name->length=1;
-			method=1;
 		}
-	}
-	else
-	{
-		*modifier = *(state->buffer.ptr+state->cursor);
-		
-		if (state->buffer.length <= ++(state->cursor))
-		{
-			state->cursor = startc; // rewind
-			return PSYC_INSUFFICIENT; // return insufficient
-		}
-
-		name->ptr = state->buffer.ptr+state->cursor;
-		name->length=1;
 	}
 
 	/* validate the incremented cursor */
@@ -293,6 +301,7 @@ start:
 							{
 								/* packet finishes here */
 								state->cursor+=3;
+								state->inBody = 0;
 								return PSYC_COMPLETE;
 							}
 							
@@ -302,7 +311,7 @@ start:
 			}
 		}
 	}
-	else if(state->inHeader == 0 && method==0 && state->buffer.ptr[state->cursor] == ' ') // oi, its a binary var!
+	else if(state->inBody == 1 && method==0 && state->buffer.ptr[state->cursor] == ' ') // oi, its a binary var!
 	{ // after SP the length follows.
 		unsigned int binLength= 0;
 
@@ -344,7 +353,7 @@ start:
 
 
 	/* if there was a \t, then we parsed up until the 
-	 * \n char from the simple-arg rule ( \t arg-state->buffer.ptr \n )
+	 * \n char from the simple-arg rule ( \t arg-data \n )
 	 *
 	 * Now, if there would be no \t, we still would be at
 	 * the point where a \n must follow.
@@ -366,16 +375,20 @@ start:
 		return PSYC_INSUFFICIENT; // return insufficient
 	}
 
-	if(1 == state->inHeader && state->buffer.ptr[state->cursor] == '\n') 
+	if(0 == state->inBody && state->buffer.ptr[state->cursor] == '\n') 
 	{
 		state->cursor+=1;
-		state->inHeader = 0;
-		return 2; // line is complete, but body starts now.
+		state->inBody = 1;
+		
+		if (state->flags & PSYC_HEADER_ONLY)
+			return PSYC_HEADER_COMPLETE; // return header finished
+		else
+			goto start;
 	}
 
 	if(state->buffer.ptr[state->cursor] != '|') // no pipe, then only line complete, not the packet.
 	{
-		if (state->inHeader == 1)
+		if (state->inBody == 0)
 			return PSYC_ROUTING;
 		else
 			return PSYC_ENTITY;	
@@ -389,6 +402,7 @@ start:
 		return -4;
 
 	state->cursor+=1;
+	state->inBody = 0;
 	return PSYC_COMPLETE; // packet is complete
 }
 
