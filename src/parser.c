@@ -50,6 +50,7 @@ inline int PSYC_parse(
 		PSYC_Array* name, PSYC_Array* value,
 		uint8_t* modifier, unsigned long* expectedBytes)
 {
+start:
 	/* first we test if we can access the first char */
 	if(state->buffer.length<=state->cursor) // cursor is not inside the length
 		return PSYC_INSUFFICIENT; // return insufficient data.
@@ -95,7 +96,10 @@ inline int PSYC_parse(
 			if(isAlphaNumeric(state->buffer.ptr[state->cursor]))
 			{
 				state->inHeader = 0;
-				return 2; // return header finished
+				if (state->flags & PSYC_HEADER_ONLY)
+					return PSYC_HEADER_COMPLETE; // return header finished
+				else
+					goto start;
 			}
 
 			if(state->buffer.ptr[state->cursor] == '|')
@@ -109,7 +113,7 @@ inline int PSYC_parse(
 				if(state->buffer.ptr[state->cursor]=='\n')
 				{
 					++(state->cursor);
-					return 3; // return packet finished
+					return PSYC_COMPLETE; // return packet finished
 				}
 			}
 			return -6; // report error
@@ -150,7 +154,7 @@ inline int PSYC_parse(
 				if(state->buffer.ptr[state->cursor]=='\n')
 				{
 					++(state->cursor);
-					return 3; // return packet finished
+					return PSYC_COMPLETE; // return packet finished
 				}
 			}
 			return -5; // report error
@@ -289,7 +293,7 @@ inline int PSYC_parse(
 							{
 								/* packet finishes here */
 								state->cursor+=3;
-								return 3;
+								return PSYC_COMPLETE;
 							}
 							
 					}
@@ -385,6 +389,6 @@ inline int PSYC_parse(
 		return -4;
 
 	state->cursor+=1;
-	return 3; // packet is complete
+	return PSYC_COMPLETE; // packet is complete
 }
 
