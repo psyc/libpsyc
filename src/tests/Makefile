@@ -6,3 +6,5 @@ works:
 
 it: testParser
 
+test:
+	for f in parser/*txt; do echo -e "\n>> $$f"; ./testParser $$f; done
