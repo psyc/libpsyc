@@ -32,8 +32,8 @@ int main(int argc, char** argv)
 		{
 			case PSYC_ROUTING:
 			case PSYC_ENTITY:
-			case PSYC_METHOD:
 				write(0,&modifier,1);
+			case PSYC_METHOD:
 				write(0,name.ptr, name.length);
 				write(0," = ", 3);
 				write(0,value.ptr, value.length);

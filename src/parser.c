@@ -321,7 +321,7 @@ start:
 			return PSYC_INSUFFICIENT; // return insufficient
 		}
 
-		while(isNumeric(state->buffer.ptr[state->cursor]));
+		while(isNumeric(state->buffer.ptr[state->cursor]))
 		{
 			binLength = 10 * binLength + state->buffer.ptr[state->cursor] - '0';
 
@@ -380,10 +380,7 @@ start:
 		state->cursor+=1;
 		state->inBody = 1;
 		
-		if (state->flags & PSYC_HEADER_ONLY)
-			return PSYC_HEADER_COMPLETE; // return header finished
-		else
-			goto start;
+		return PSYC_ROUTING; // return header finished
 	}
 
 	if(state->buffer.ptr[state->cursor] != '|') // no pipe, then only line complete, not the packet.
