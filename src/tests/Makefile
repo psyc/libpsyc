@@ -1,10 +1,16 @@
-CFLAGS=-I.. -DDEBUG
-LDFLAGS=-L.. -lpsyc
+CFLAGS=-I../../include -DDEBUG -g -O0
+LDFLAGS=-L..
+LOADLIBES=-lpsyc
+TARGETS=testParser testMatch
 
-works:
-	cc -I../../include -g -O0 -DDEBUG -L.. parser/testParser.c -o testParser -lpsyc
+all: $(TARGETS)
 
-it: testParser
+# special case because not in the same directory
+testParser:
+	${CC} ${CFLAGS} ${LDFLAGS} parser/testParser.c ${LOADLIBES} -o testParser
 
 test:
 	for f in parser/*txt; do echo -e "\n>> $$f"; ./testParser $$f; done
+
+clean:
+	rm $(TARGETS)
