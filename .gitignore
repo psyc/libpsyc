@@ -1,11 +1,11 @@
-CVS
 .config
 ~$*
 .DS_Store
 .metadata
-.actionScriptProperties
 .#*
 *~
+\#*
+*.a
 *.o
 *.swf
 *.swp
@@ -19,3 +19,4 @@ CVS
 src/match
 src/tests/parser/testParser
 src/tests/testMatch
+src/tests/testParser
