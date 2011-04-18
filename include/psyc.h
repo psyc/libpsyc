@@ -5,8 +5,8 @@
 
 /** @brief Checks if short keyword string matches long keyword string
  */
-int PSYC_matches(uint8_t* sho, unsigned int slen,
-		 uint8_t* lon, unsigned int llen);
+int PSYC_matches(uint8_t* sho, size_t  slen,
+		 uint8_t* lon, size_t  llen);
 
 /** @brief Callback for PSYC_text() that produces a value for a match
  *
@@ -16,8 +16,8 @@ int PSYC_matches(uint8_t* sho, unsigned int slen,
  * number of bytes written. 0 is a legal return value. Should the
  * callback return -1, PSYC_text leaves the original template text as is.
  */
-typedef int (*PSYC_textCB)(uint8_t* match, unsigned int mlen,
-		           uint8_t** buffer, unsigned int* blen);
+typedef int (*PSYC_textCB)(uint8_t* match, size_t  mlen,
+		           uint8_t** buffer, size_t * blen);
 
 /** @brief Fills out text templates by asking a callback for content
  *
@@ -31,8 +31,8 @@ typedef int (*PSYC_textCB)(uint8_t* match, unsigned int mlen,
  *
  * See also http://about.psyc.eu/psyctext
  */
-int PSYC_text(uint8_t* template, unsigned int tlen,
-	      uint8_t** buffer, unsigned int* blen,
+int PSYC_text(uint8_t* template, size_t  tlen,
+	      uint8_t** buffer, size_t * blen,
 	      PSYC_textCB lookupValue,
 	      char* braceOpen, char* braceClose);
 
