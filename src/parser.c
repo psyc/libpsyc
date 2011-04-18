@@ -281,12 +281,12 @@ start:
 				if (value->ptr + state->contentLength + 3 > state->buffer.ptr + state->buffer.length)
 				{ // no
 					value->length = state->buffer.length - state->cursor;
-					*expectedBytes = state->contentLength - value->length; 
+					//*expectedBytes = state->contentLength - value->length;
 				} 
 				else // yes, the packet is complete in the buffer.
 				{
 					value->length= state->buffer.length - state->cursor -3;
-					*expectedBytes = 0;
+					//*expectedBytes = 0;
 				}
 			}
 			else // else search for the terminator

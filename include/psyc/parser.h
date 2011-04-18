@@ -16,7 +16,8 @@ enum PSYC_ReturnCodes
 	PSYC_ROUTING,
 	PSYC_ENTITY,
 	PSYC_ENTITY_INCOMPLETE,
-	PSYC_HEADER_DONE, 
+	PSYC_HEADER_COMPLETE,
+	PSYC_COMPLETE,
 };
 
 
@@ -90,7 +91,4 @@ inline unsigned int PSYC_getValueRemaining (PSYC_State* s)
 #endif
 
 int PSYC_parse(PSYC_State* state, 
-               uint8_t* modifier, PSYC_Array* name, PSYC_Array* value, 
-               unsigned long* bytesParsed, unsigned long *bytesExpected);
-
-
+               uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
