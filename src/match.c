@@ -1,5 +1,7 @@
 #include "psyc/lib.h"
 
+/* TODO: PSYC_inherits() */
+
 int PSYC_matches(uint8_t* sho, unsigned int slen,
 		 uint8_t* lon, unsigned int llen) {
 	uint8_t *s, *l, *se, *le;
@@ -30,6 +32,7 @@ int PSYC_matches(uint8_t* sho, unsigned int slen,
 
 	se = sho+slen;
 	le = lon+llen;
+	/* doesn't always work this way.. FIXME */
 	*se = *le = '_';
 	sho++; lon++;
 	while(s = strchr(sho, '_')) {
