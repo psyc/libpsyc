@@ -2,8 +2,8 @@
 
 /* TODO: PSYC_inherits() */
 
-int PSYC_matches(uint8_t* sho, unsigned int slen,
-		 uint8_t* lon, unsigned int llen) {
+int PSYC_matches(uint8_t* sho, size_t slen,
+		 uint8_t* lon, size_t llen) {
 	uint8_t *s, *l, *se, *le;
 
 	if (!slen) slen = strlen(sho);
