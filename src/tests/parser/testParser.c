@@ -23,10 +23,10 @@ int main(int argc, char** argv)
 	int ret;
 	PSYC_Array name, value;
 
-	PSYC_nextBuffer(&state, PSYC_CreateArray(buffer, index));
+	PSYC_nextBuffer(&state, PSYC_createArray(buffer, index));
 
 	// try parsing that now	
-	while(ret=PSYC_parse(&state, &name, &value, &modifier, &expectedBytes))
+	while(ret=PSYC_parse(&state, &name, &value, &modifier))
 	{
 		switch (ret)
 		{
