@@ -1,6 +1,9 @@
 #include <stdint.h>
 #include <string.h>
 
+#ifndef PSYC_PARSER_H_INCLUDED
+#define PSYC_PARSER_H_INCLUDED
+
 enum PSYC_Flags
 {
 	PSYC_HEADER_ONLY = 1
@@ -154,3 +157,6 @@ inline size_t PSYC_getContentLength (PSYC_State* s)
 int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
 
 int PSYC_parseList(PSYC_ListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem);
+
+
+#endif
