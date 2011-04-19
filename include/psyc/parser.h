@@ -1,8 +1,23 @@
+#ifndef PSYC_PARSER_H
+# define PSYC_PARSER_H
+
 #include <stdint.h>
 #include <string.h>
 
-#ifndef PSYC_PARSER_H_INCLUDED
-#define PSYC_PARSER_H_INCLUDED
+enum PSYC_Types {
+	PSYC_TYPE_AMOUNT,
+	PSYC_TYPE_COLOR,
+	PSYC_TYPE_DATE,
+	PSYC_TYPE_DEGREE,
+	PSYC_TYPE_ENTITY,
+	PSYC_TYPE_FLAG,
+	PSYC_TYPE_LANGUAGE,
+	PSYC_TYPE_LIST,
+	PSYC_TYPE_NICK,
+	PSYC_TYPE_PAGE,
+	PSYC_TYPE_UNIFORM,
+	PSYC_TYPE_TIME,
+};
 
 enum PSYC_Flags
 {
@@ -163,5 +178,4 @@ int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Arra
 
 int PSYC_parseList(PSYC_ListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem);
 
-
-#endif
+#endif // PSYC_PARSER_H
