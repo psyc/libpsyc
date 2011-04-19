@@ -1,3 +1,6 @@
+#ifndef PSYC_PARSER_H
+# define PSYC_PARSER_H
+
 #include <stdint.h>
 #include <string.h>
 
@@ -81,44 +84,47 @@ typedef struct
 
 typedef struct
 {
-	size_t cursor; /** current position in buffer */
-	size_t startc; /** line start position */
+	size_t cursor; ///< current position in buffer
+	size_t startc; ///< line start position
 	PSYC_Array buffer;
 	uint8_t flags;
-	char part; /** part of the packet being parsed currently, see PSYC_Parts */
+	char part; ///< part of the packet being parsed currently, see PSYC_Parts
 
-	size_t contentParsed; /** number of bytes parsed from the content so far */
-	size_t contentLength; /** expected length of the content */
-	char contentLengthFound; /** is there a length given for this packet? */
-	size_t valueParsed; /** number of bytes parsed from the value so far */
-	size_t valueLength; /** expected length of the value */
+	size_t contentParsed; ///< number of bytes parsed from the content so far
+	size_t contentLength; ///< expected length of the content
+	char contentLengthFound; ///< is there a length given for this packet?
+	size_t valueParsed; ///< number of bytes parsed from the value so far
+	size_t valueLength; ///< expected length of the value
 } PSYC_State;
 
 typedef struct
 {
-	size_t cursor; /** current position in buffer */
-	size_t startc; /** line start position */
+	size_t cursor; ///< current position in buffer
+	size_t startc; ///< line start position
 	PSYC_Array buffer;
-	char type; /** list type, see PSYC_ListTypes */
+	char type; ///< list type, see PSYC_ListTypes
 
-	size_t elemParsed; /** number of bytes parsed from the elem so far */
-	size_t elemLength; /** expected length of the elem */
+	size_t elemParsed; ///< number of bytes parsed from the elem so far
+	size_t elemLength; ///< expected length of the elem
 } PSYC_ListState;
 
 #ifndef PSYC_COMPILE_LIBRARY
-/* @brief Shortcut for creating an array.
+/**
+ * Shortcut for creating an array.
  *
  * @param memory Pointer to the buffer.
  * @param length Length of that buffer.
  *
- * @return An instance of the PSYC_Array struct. */
+ * @return An instance of the PSYC_Array struct.
+ */
 inline PSYC_Array PSYC_createArray (uint8_t* const memory, size_t length)
 {
 	PSYC_Array arr = {length, memory};
 	return arr;
 }
 
-/* @brief Initiates the state struct with flags.
+/**
+ * Initiates the state struct with flags.
  *
  * @param state Pointer to the state struct that should be initiated.
  * @param flags The flags that one ones to set, see PSYC_Flags.
@@ -129,7 +135,8 @@ inline void PSYC_initState2 (PSYC_State* state, uint8_t flags )
 	state->flags = flags;
 }
 
-/* @brief Initiates the state struct.
+/**
+ * Initiates the state struct.
  *
  * @param state Pointer to the state struct that should be initiated.
  */
@@ -138,7 +145,8 @@ inline void PSYC_initState (PSYC_State* state)
 	memset(state, 0, sizeof(PSYC_State));
 }
 
-/* @brief Initiates the list state struct.
+/**
+ * Initiates the list state struct.
  *
  * @param state Pointer to the list state struct that should be initiated.
  */
@@ -169,3 +177,5 @@ inline size_t PSYC_getContentLength (PSYC_State* s)
 int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
 
 int PSYC_parseList(PSYC_ListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem);
+
+#endif // PSYC_PARSER_H
