@@ -1,7 +1,7 @@
 |
 =_source	psyc://foo/~bar
 :_target	psyc://bar/~baz
-=_list_foo	foo|bar|baz
+=_list_foo	|foo|bar|baz
 :_tag	sch1828hu3r2cm
 
 =_foo	bar baz
