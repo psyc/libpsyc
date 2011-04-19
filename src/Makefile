@@ -20,3 +20,6 @@ match: match.c
 	${CC} -o $@ -DDEBUG=2 -DCMDTOOL -DTEST $<
 
 it: match
+
+clean:
+	rm -f $O
