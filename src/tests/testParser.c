@@ -5,31 +5,26 @@
 
 int main(int argc, char** argv)
 {
-	uint8_t buffer[2048];
-	int index;
+	int index, ret;
+	uint8_t buffer[2048], modifier;
+	PSYC_Array name, value, elem;
+	PSYC_State state;
+	PSYC_ListState listState;
 
 	int file = open(argv[1],O_RDONLY);
 	if(file < 0)
 		return -1;
 	index = read(file,(void*)buffer,sizeof(buffer));
 
-	write(1, ">> INPUT:\n", 10);
+	write(1, ">> INPUT\n", 9);
 	write(1, buffer, index);
-	write(1, ">> PARSE:\n", 10);
+	write(1, ">> PARSE\n", 9);
 
-	PSYC_State state;
 	PSYC_initState(&state);
-
-	//unsigned int cursor=0,tmp=0;
-	//unsigned long expectedBytes=0;
-	uint8_t modifier;
-	int ret;
-	PSYC_Array name, value;
-
 	PSYC_nextBuffer(&state, PSYC_createArray(buffer, index));
 
 	// try parsing that now
-	while((ret=PSYC_parse(&state, &modifier, &name, &value)))
+	while (ret = PSYC_parse(&state, &modifier, &name, &value))
 	{
 		switch (ret)
 		{
@@ -41,6 +36,33 @@ int main(int argc, char** argv)
 				write(1, " = ", 3);
 				write(1, value.ptr, value.length);
 				write(1, "\n", 1);
+				if (memcmp(name.ptr, "_list", 5) == 0)
+				{
+					write(1, ">>> LIST START\n", 15);
+					PSYC_initListState(&listState);
+					PSYC_nextListBuffer(&listState, value);
+					while (ret = PSYC_parseList(&listState, &name, &value, &elem))
+					{
+						switch (ret)
+						{
+							case PSYC_LIST_END:
+							case PSYC_LIST_ELEM:
+								write(1, "|", 1);
+								write(1, elem.ptr, elem.length);
+								write(1, "\n", 1);
+								break;
+							default:
+								printf("Error while parsing list: %i\n", ret);
+								return 1;
+						}
+
+						if (ret == PSYC_LIST_END)
+						{
+							write(1, ">>> LIST END\n", 13);
+							break;
+						}
+					}
+				}
 				break;
 			case PSYC_COMPLETE:
 				printf("Done parsing.\n");
@@ -54,5 +76,4 @@ int main(int argc, char** argv)
 		}
 	}
 	return 0;
-
 }
