@@ -76,9 +76,9 @@ inline int PSYC_parseName(PSYC_State* state, PSYC_Array* name)
  * @details length is the expected length of the data, parsed is the number of bytes parsed so far
  * @return PSYC_COMPLETE or PSYC_INCOMPLETE
  */
-inline int PSYC_parseBinaryValue(PSYC_State* state, PSYC_Array* value, unsigned int* length, unsigned int* parsed)
+inline int PSYC_parseBinaryValue(PSYC_State* state, PSYC_Array* value, size_t* length, size_t* parsed)
 {
-	unsigned int remaining = *length - *parsed;
+	size_t remaining = *length - *parsed;
 	value->ptr = state->buffer.ptr + state->cursor;
 
 	if (state->cursor + remaining > state->buffer.length) // is the length larger than this buffer?
@@ -167,7 +167,7 @@ inline int PSYC_parseVar(PSYC_State* state, uint8_t* modifier, PSYC_Array* name,
 int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value)
 {
 	int ret; /* a return value */
-	unsigned int pos;	/* a cursor position */
+	size_t pos;	/* a cursor position */
 
 	/* start position of the current line in the buffer
 	 * in case we return insufficent, we rewind to this position */
