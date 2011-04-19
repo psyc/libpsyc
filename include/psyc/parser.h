@@ -43,24 +43,24 @@ enum PSYC_Parts
 
 typedef struct 
 {
-	unsigned int length;
+	size_t length;
 	const uint8_t * ptr;
 } PSYC_Array;
 
 
 typedef struct 
 {
-	unsigned int cursor; /** current position in buffer */
-	unsigned int startc; /** line start position */
+	size_t cursor; /** current position in buffer */
+	size_t startc; /** line start position */
 	PSYC_Array buffer;
 	uint8_t flags;
 	char part; /** part of the packet being parsed currently, see PSYC_Parts */
 
-	unsigned int contentParsed; /** number of bytes parsed from the content so far */
-	unsigned int contentLength; /** expected length of the content */
+	size_t contentParsed; /** number of bytes parsed from the content so far */
+	size_t contentLength; /** expected length of the content */
 	char contentLengthFound; /** is there a length given for this packet? */
-	unsigned int valueParsed; /** number of bytes parsef from the value so far */
-	unsigned int valueLength; /** expected length of the value */
+	size_t valueParsed; /** number of bytes parsef from the value so far */
+	size_t valueLength; /** expected length of the value */
 } PSYC_State;
 
 #ifndef PSYC_COMPILE_LIBRARY
@@ -70,7 +70,7 @@ typedef struct
  * @param length length of that buffer
  *
  * @returns an instance of the PSYC_Array struct */
-inline PSYC_Array PSYC_createArray (uint8_t* const memory, unsigned int length)
+inline PSYC_Array PSYC_createArray (uint8_t* const memory, size_t length)
 {
 	PSYC_Array arr = {length, memory};
 
@@ -101,7 +101,7 @@ inline void PSYC_nextBuffer (PSYC_State* state, PSYC_Array newBuf)
 	state->cursor = 0;
 }
 
-inline unsigned int PSYC_getContentLength (PSYC_State* s)
+inline size_t PSYC_getContentLength (PSYC_State* s)
 {
 	return s->contentLength;
 }

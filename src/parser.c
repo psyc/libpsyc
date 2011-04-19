@@ -49,7 +49,7 @@ inline char isAlphaNumeric(uint8_t c)
 
 inline char isKwChar(uint8_t c)
 {
-	return c == '_' || isAlphaNumeric(c);
+	return isAlphaNumeric(c) || c == '_';
 }
 
 /**
