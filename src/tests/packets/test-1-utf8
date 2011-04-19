@@ -1,0 +1,14 @@
+|
+:_source	psyc://foo/~bar
+:_target	psyc://bar/~baz
+:_tag	sch1828hu3r2cm
+
+:_foo	bar baz
+:_abc_def 15	fóö bär
+báz
+:_foo_bar	yay
+_message_foo_bar
+ohai there!
+\o/
+|
+|

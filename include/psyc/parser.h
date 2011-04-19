@@ -9,15 +9,35 @@ enum PSYC_Flags
 
 enum PSYC_ReturnCodes
 {
-	PSYC_ERROR_EXPECTED_TAB = -8, 
+	PSYC_ERROR_END = -7,
+	PSYC_ERROR_METHOD = -6,
+	PSYC_ERROR_VAR_LEN = -5,
+	PSYC_ERROR_VAR_TAB = -4,
+	PSYC_ERROR_VAR_NAME = -3,
+	PSYC_ERROR_LENGTH = -2,
+	PSYC_ERROR = -1,
+	PSYC_SUCCESS = 0,
 	PSYC_BODY = 1,
-	PSYC_BODY_INCOMPLETE,
-	PSYC_INSUFFICIENT,
-	PSYC_ROUTING,
-	PSYC_ENTITY,
-	PSYC_ENTITY_INCOMPLETE,
-	PSYC_HEADER_COMPLETE,
-	PSYC_COMPLETE,
+	PSYC_BODY_INCOMPLETE = 2,
+	PSYC_INSUFFICIENT = 3,
+	PSYC_ROUTING = 4,
+	PSYC_ENTITY = 5,
+	PSYC_ENTITY_INCOMPLETE = 6,
+	PSYC_HEADER_COMPLETE = 7,
+	PSYC_COMPLETE = 8,
+	PSYC_INCOMPLETE = 9,
+};
+
+enum PSYC_Parts
+{
+	PSYC_PART_RESET = -1,
+	PSYC_PART_HEADER = 0,
+	PSYC_PART_LENGTH,
+	PSYC_PART_HEADER_END,
+	PSYC_PART_CONTENT,
+	PSYC_PART_METHOD,
+	PSYC_PART_DATA,
+	PSYC_PART_END,
 };
 
 
@@ -30,14 +50,17 @@ typedef struct
 
 typedef struct 
 {
-	unsigned int cursor;           // current position in buffer
+	unsigned int cursor; /** current position in buffer */
+	unsigned int startc; /** line start position */
 	PSYC_Array buffer;
 	uint8_t flags;
+	char part; /** part of the packet being parsed currently, see PSYC_Parts */
 
-	unsigned int contentParsed; //
-	char inContent;
-	unsigned int valueRemaining;
-	unsigned int contentLength;
+	unsigned int contentParsed; /** number of bytes parsed from the content so far */
+	unsigned int contentLength; /** expected length of the content */
+	char contentLengthFound; /** is there a length given for this packet? */
+	unsigned int valueParsed; /** number of bytes parsef from the value so far */
+	unsigned int valueLength; /** expected length of the value */
 } PSYC_State;
 
 #ifndef PSYC_COMPILE_LIBRARY
@@ -83,12 +106,6 @@ inline unsigned int PSYC_getContentLength (PSYC_State* s)
 	return s->contentLength;
 }
 
-inline unsigned int PSYC_getValueRemaining (PSYC_State* s)
-{
-	return s->valueRemaining;
-}
-
 #endif
 
-int PSYC_parse(PSYC_State* state, 
-               uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
+int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);

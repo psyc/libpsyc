@@ -10,43 +10,48 @@ int main(int argc, char** argv)
 
 	int file = open(argv[1],O_RDONLY);
 	if(file < 0)
-		return -1;	
+		return -1;
 	index = read(file,(void*)buffer,sizeof(buffer));
 
+	write(1, ">> INPUT:\n", 10);
+	write(1, buffer, index);
+	write(1, ">> PARSE:\n", 10);
 
 	PSYC_State state;
 	PSYC_initState(&state);
 
-	unsigned int cursor=0,tmp=0;
-	unsigned long expectedBytes=0;
+	//unsigned int cursor=0,tmp=0;
+	//unsigned long expectedBytes=0;
 	uint8_t modifier;
 	int ret;
 	PSYC_Array name, value;
 
 	PSYC_nextBuffer(&state, PSYC_createArray(buffer, index));
 
-	// try parsing that now	
-	while(ret=PSYC_parse(&state, &name, &value, &modifier))
+	// try parsing that now
+	while((ret=PSYC_parse(&state, &modifier, &name, &value)))
 	{
 		switch (ret)
 		{
 			case PSYC_ROUTING:
 			case PSYC_ENTITY:
-				write(0,&modifier,1);
-			case PSYC_METHOD:
-				write(0,name.ptr, name.length);
-				write(0," = ", 3);
-				write(0,value.ptr, value.length);
-				write(0,"\n", 1);
+				write(1, &modifier, 1);
+			case PSYC_BODY:
+				write(1, name.ptr, name.length);
+				write(1, " = ", 3);
+				write(1, value.ptr, value.length);
+				write(1, "\n", 1);
 				break;
 			case PSYC_COMPLETE:
-				write(0, "Done parsing.\n", 15);
+				printf("Done parsing.\n");
 				continue;
+			case PSYC_INSUFFICIENT:
+				printf("Insufficient data.\n");
+				return 0;
 			default:
 				printf("Error while parsing: %i\n", ret);
-				return;
+				return 1;
 		}
-
 	}
 	return 0;
 
