@@ -21,7 +21,7 @@ enum PSYC_Types {
 
 enum PSYC_Flags
 {
-	PSYC_HEADER_ONLY = 1
+	PSYC_HEADER_ONLY = 1,
 };
 
 
@@ -174,8 +174,17 @@ inline size_t PSYC_getContentLength (PSYC_State* s)
 
 #endif
 
+/**
+ * Parse PSYC packets.
+ * Generalized line-based parser.
+ * @return see PSYC_ReturnCodes
+ */
 int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
 
+/**
+ * List value parser.
+ * @return see PSYC_ListReturnCodes.
+ */
 int PSYC_parseList(PSYC_ListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem);
 
 #endif // PSYC_PARSER_H
