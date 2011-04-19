@@ -6,12 +6,23 @@
  * defined in this file.
 */
 
+/** @defgroup parsing Parsing Functions
+ *  
+ *  This module contains all parsing functions
+ *  @{
+ */
+
 #ifndef PSYC_PARSER_H
 # define PSYC_PARSER_H
 
 #include <stdint.h>
 #include <string.h>
 
+/** Different types that a variable can have
+ *
+ * This enum lists all the types that a variable
+ * in a psyc packet can have
+ */
 enum PSYC_Types {
 	PSYC_TYPE_AMOUNT,
 	PSYC_TYPE_COLOR,
@@ -32,7 +43,9 @@ enum PSYC_Flags
 	PSYC_HEADER_ONLY = 1,
 };
 
-
+/** The return value definitions for packet parsing function
+ * @see PSYC_parse() 
+ */
 enum PSYC_ReturnCodes
 {
 	PSYC_ERROR_END = -7,
@@ -182,12 +195,24 @@ inline size_t PSYC_getContentLength (PSYC_State* s)
 
 #endif
 
-/**
- * Parse PSYC packets.
- * Generalized line-based parser.
- * @return see PSYC_ReturnCodes
+/** Parse PSYC packets.
+ * 
+ * Generalized line-based packet parser.
+ * 
+ * @param state An initialized PSYC_State
+ * @param modifier A pointer to a character. In case of a variable, it will
+ *        be set to the modifier of that variable
+ * @param name A pointer to a PSYC_Array. It will point to the name of
+ *             the variable or method and its length will be set accordingly
+ * @param value A pointer to a PSYC_Array. It will point to the
+ *              value/body the variable/method and its length will be set accordingly
+ *
+ * @return one of PSYC_ReturnCodes
+ * @see PSYC_ReturnCodes
+ * @see PSYC_State
+ * @see PSYC_Array
  */
-int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
+PSYC_ReturnCodes PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
 
 /**
  * List value parser.
@@ -196,3 +221,5 @@ int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Arra
 int PSYC_parseList(PSYC_ListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem);
 
 #endif // PSYC_PARSER_H
+
+/** @} */ // end of parsing group
