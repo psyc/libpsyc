@@ -1,4 +1,4 @@
-CFLAGS=-I../../include -DDEBUG -g -O0 -Wall
+CFLAGS=-I../include -DDEBUG -g -O0 -Wall
 LDFLAGS=-L..
 LOADLIBES=-lpsyc
 TARGETS=testParser testMatch

@@ -1,4 +1,8 @@
 doc/
+src/match
+tests/testMatch
+tests/testParser
+
 .config
 ~$*
 .DS_Store
@@ -17,7 +21,3 @@ doc/
 *bak
 *diff
 *orig
-src/match
-src/tests/parser/testParser
-src/tests/testMatch
-src/tests/testParser
