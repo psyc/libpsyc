@@ -1,3 +1,11 @@
+/** 
+ * @file psyc/parser.h
+ * @brief Interface for various psyc parser functions
+ *
+ * All parsing functions and the definitions they use are 
+ * defined in this file.
+*/
+
 #ifndef PSYC_PARSER_H
 # define PSYC_PARSER_H
 
