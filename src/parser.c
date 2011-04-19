@@ -7,6 +7,13 @@
 
 #include <psyc/parser.h>
 
+#define ADVANCE_CURSOR_OR_RETURN()							 \
+	if (++(state->cursor) >= state->buffer.length) \
+	{																							 \
+		state->cursor = state->startc;							 \
+		return PSYC_INSUFFICIENT;										 \
+	}
+
 /** @brief isGlyph
  *
  * @todo: document this function
@@ -16,9 +23,10 @@ inline char isGlyph(uint8_t g)
 	switch(g)
 	{
 		case ':':
-		case '-':
-		case '+':
 		case '=':
+		case '?':
+		case '+':
+		case '-':
 			return 1;
 		default:
 			return 0;
@@ -26,411 +34,319 @@ inline char isGlyph(uint8_t g)
 
 }
 
-
 inline char isNumeric(uint8_t c)
 {
-	return c >= '0' && c <= '9' ;
+	return c >= '0' && c <= '9';
 }
 
 inline char isAlphaNumeric(uint8_t c)
 {
 	return
-		(( c >= 'a' && c <= 'z' )||
-		 ( c >= 'A' && c <= 'Z' )||
-			 isNumeric(c))
-		;
-
+		(c >= 'a' && c <= 'z') ||
+		(c >= 'A' && c <= 'Z') ||
+		isNumeric(c);
 }
 
-
-
-/** @brief generalized linebased parser */
-inline int PSYC_parse(
-		PSYC_State* state,
-		uint8_t* modifier, PSYC_Array* name, PSYC_Array* value)
+inline char isKwChar(uint8_t c)
 {
-start:
+	return c == '_' || isAlphaNumeric(c);
+}
 
-	if (state->valueRemaining != 0)
-		goto binaryArg;
+/**
+ * @brief Parse variable name or method name.
+ * @details It should contain one or more keyword characters.
+ * @return PSYC_ERROR or PSYC_SUCCESS
+ */
+inline int PSYC_parseName(PSYC_State* state, PSYC_Array* name)
+{
+	name->ptr = state->buffer.ptr + state->cursor;
+	name->length = 0;
+
+	while (isKwChar(state->buffer.ptr[state->cursor]))
+	{
+		name->length++; // was a valid char, increase length
+		ADVANCE_CURSOR_OR_RETURN();
+	}
+
+	return name->length > 0 ? PSYC_SUCCESS : PSYC_ERROR;
+}
+
+/**
+ * @brief Parse binary data into value.
+ * @details length is the expected length of the data, parsed is the number of bytes parsed so far
+ * @return PSYC_COMPLETE or PSYC_INCOMPLETE
+ */
+inline int PSYC_parseBinaryValue(PSYC_State* state, PSYC_Array* value, unsigned int* length, unsigned int* parsed)
+{
+	unsigned int remaining = *length - *parsed;
+	value->ptr = state->buffer.ptr + state->cursor;
+
+	if (state->cursor + remaining > state->buffer.length) // is the length larger than this buffer?
+	{
+		value->length = state->buffer.length - state->cursor;
+		*parsed += value->length;
+		state->cursor = 0;
+		return PSYC_INCOMPLETE;
+	}
+
+	value->length += remaining;
+	state->cursor += remaining;
+	*parsed += value->length;
+
+	return PSYC_COMPLETE;
+}
+
+/**
+ * @brief Parse simple or binary variable
+ * @return PSYC_ERROR or PSYC_SUCCESS
+ */
+inline int PSYC_parseVar(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value)
+{
+	*modifier = *(state->buffer.ptr + state->cursor);
+	ADVANCE_CURSOR_OR_RETURN();
+
+	if (PSYC_parseName(state, name) != PSYC_SUCCESS)
+		return PSYC_ERROR_VAR_NAME;
+
+	value->length = 0;
+
+	/* Parse the value.
+	 * If we're in the content part check if it's a binary var */
+	if (state->part == PSYC_PART_CONTENT && state->buffer.ptr[state->cursor] == ' ') // binary arg
+	{ // after SP the length follows.
+		ADVANCE_CURSOR_OR_RETURN();
+		state->valueLength = 0;
+		state->valueParsed = 0;
+
+		if (isNumeric(state->buffer.ptr[state->cursor]))
+		{
+			do
+			{
+				state->valueLength = 10 * state->valueLength + state->buffer.ptr[state->cursor] - '0';
+				ADVANCE_CURSOR_OR_RETURN();
+			}
+			while (isNumeric(state->buffer.ptr[state->cursor]));
+		}
+		else
+			return PSYC_ERROR_VAR_LEN;
+
+		// after the length a TAB follows
+		if (state->buffer.ptr[state->cursor] != '\t')
+			return PSYC_ERROR_VAR_TAB;
+
+		if (state->buffer.length <= ++(state->cursor)) // incremented cursor inside length?
+		{
+			state->cursor = 0;
+			return PSYC_ENTITY_INCOMPLETE;
+		}
+
+		if (PSYC_parseBinaryValue(state, value, &(state->valueLength), &(state->valueParsed)) == PSYC_INCOMPLETE)
+			return PSYC_ENTITY_INCOMPLETE;
+
+		state->cursor++;
+		return PSYC_SUCCESS;
+	}
+	else if (state->buffer.ptr[state->cursor] == '\t') // simple arg
+	{
+		ADVANCE_CURSOR_OR_RETURN();
+		value->ptr = state->buffer.ptr + state->cursor;
+
+		while (state->buffer.ptr[state->cursor] != '\n')
+		{
+			value->length++;
+			ADVANCE_CURSOR_OR_RETURN();
+		}
+		state->cursor++;
+		return PSYC_SUCCESS;
+	}
+	else
+		return PSYC_ERROR_VAR_TAB;
+}
+
+/** @brief generalized line-based parser */
+int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value)
+{
+	int ret; /* a return value */
+	unsigned int pos;	/* a cursor position */
+
+	/* start position of the current line in the buffer
+	 * in case we return insufficent, we rewind to this position */
+	state->startc = state->cursor;
 
 	/* first we test if we can access the first char */
-	if(state->buffer.length<=state->cursor) // cursor is not inside the length
+	if (state->buffer.length <= state->cursor) // cursor is not inside the length
 		return PSYC_INSUFFICIENT; // return insufficient data.
 
-	// in case we return insufficent, we rewind to the start.
-	unsigned int startc=state->cursor; 
-
-	/******************************************
-	* * * * * * * Inspect Header  * * * * * * * 
-	*******************************************/
-	/* each line of the header starts with a glyph.
-	 * iE :_name, -_name +_name etc, so just test if 
-	 * the first char is a glyph. */
-	if(0==state->inContent)
+	switch (state->part)
 	{
-		if(!isGlyph(state->buffer.ptr[state->cursor])) // is the first char not a glyph?
-		{ // parse length of content here
-			if(isNumeric(state->buffer.ptr[state->cursor]))
-			{
-				if(state->buffer.length<=++(state->cursor)) // incremented cursor inside length?
-				{
-					state->cursor=startc; // set to start value
-					return PSYC_INSUFFICIENT; // return insufficient
-				}
+		case PSYC_PART_RESET: // new packet starts here, reset state
+			state->valueParsed = 0;
+			state->valueLength = 0;
+			state->contentParsed = 0;
+			state->contentLength = 0;
+			state->contentLengthFound = 0;
+			state->part = PSYC_PART_HEADER;
+			// fall thru
 
-				while(isNumeric(state->buffer.ptr[state->cursor]));
+		case PSYC_PART_HEADER:
+			/* Each line of the header starts with a glyph,
+			 * i.e. :_name, -_name +_name etc,
+			 * so just test if the first char is a glyph.
+			 */
+			if (isGlyph(state->buffer.ptr[state->cursor])) // is the first char a glyph?
+			{ // it is a glyph, so a variable starts here
+				ret = PSYC_parseVar(state, modifier, name, value);
+				return ret == PSYC_SUCCESS ? PSYC_ROUTING : ret;
+			}
+			else // not a glyph
+			{
+				state->part = PSYC_PART_LENGTH;
+				// fall thru
+			}
+
+		case PSYC_PART_LENGTH:
+			/* End of header, content starts with an optional length then a NL */
+			if (isNumeric(state->buffer.ptr[state->cursor]))
+			{
+				state->contentLengthFound = 1;
+				state->contentLength = 0;
+				do
 				{
 					state->contentLength = 10 * state->contentLength + state->buffer.ptr[state->cursor] - '0';
-
-					if(state->buffer.length<=++(state->cursor)) // incremented cursor inside length?
-					{
-						state->cursor=startc; // set to start value
-						return PSYC_INSUFFICIENT; // return insufficient
-					}
+					ADVANCE_CURSOR_OR_RETURN();
 				}
-			}
-			// header ends with a NL
-			if (state->buffer.ptr[state->cursor] != '\n')
-			{
-				return -10;
+				while (isNumeric(state->buffer.ptr[state->cursor]));
 			}
 
-			if (state->buffer.length<=++(state->cursor)) // incremented cursor inside length?
+			if (state->buffer.ptr[state->cursor] == '\n') /* start of content */
 			{
-				state->cursor=startc; // set to start value
-				return PSYC_INSUFFICIENT; // return insufficient
-			}
-
-			// the only other possibility now is that the packet 
-			// is complete(empty packet) or that the method started.
-			if (isAlphaNumeric(state->buffer.ptr[state->cursor]))
-			{
-				state->inContent = 1;
-
-				if (state->flags & PSYC_HEADER_ONLY)
-					return PSYC_HEADER_COMPLETE; // return header finished
+				/* If we need to parse the header only and we know the content length, then skip content parsing. */
+				if (state->flags & PSYC_HEADER_ONLY && state->contentLengthFound)
+					state->part = PSYC_PART_DATA;
 				else
-					goto start;
+					state->part = PSYC_PART_CONTENT;
+			}
+			else /* not start of content, this must be the end */
+			{
+				/* if we have a length then it should've been followed by a \n */
+				if (state->contentLengthFound)
+					return PSYC_ERROR_LENGTH;
+
+				state->part = PSYC_PART_END;
+				goto PSYC_PART_END;
 			}
 
-			if (state->buffer.ptr[state->cursor] == '|')
-			{
-				if (state->buffer.length<=++(state->cursor)) // incremented cursor inside length?
-				{
-					state->cursor=startc; // set to start value
-					return PSYC_INSUFFICIENT; // return insufficient
-				}
+			ADVANCE_CURSOR_OR_RETURN();
+			state->startc = state->cursor;
+			// fall thru
 
-				if (state->buffer.ptr[state->cursor]=='\n')
-				{
-					++(state->cursor);
-					state->inContent = 0;
-					return PSYC_COMPLETE; // return packet finished
-				}
-			}
-			return -6; // report error
-		}
-		else // it is a glyph, so a variable name starts here
-		{
-		/***************************************************
-		 * * * * * * * Routing Variable Start * * * * * * * 
-		 **************************************************/
-
-			*modifier = *(state->buffer.ptr+state->cursor);
-			
-			if (state->buffer.length <= ++(state->cursor))
-			{
-				state->cursor = startc; // rewind to start of line
-				return PSYC_INSUFFICIENT;  // return insufficient
+		case PSYC_PART_CONTENT:
+			/* In case of an incomplete binary variable resume parsing it. */
+			if (state->valueParsed < state->valueLength) {
+				ret = PSYC_parseBinaryValue(state, value, &(state->valueLength), &(state->valueParsed));
+				state->contentParsed += value->length;
+				return ret == PSYC_COMPLETE ? PSYC_ENTITY : PSYC_ENTITY_INCOMPLETE;
 			}
 
-			name->ptr = state->buffer.ptr + state->cursor;
-
-			name->length = 1;
-		}
-	} // endif inContent=0
-
-	char method=0;
-	/* each line of the header starts with a glyph.
-	 * iE :_name, -_name +_name etc, so just test if 
-	 * the first char is a glyph. */
-	/* in the body, the same applies, only that the
-	 * method does not start with a glyph.*/ 
-	if(1==state->inContent)
-	{
-		if(!isGlyph(state->buffer.ptr[state->cursor]))
-		{
-			if(!isAlphaNumeric(state->buffer.ptr[state->cursor]) && state->buffer.ptr[state->cursor] != '_')
+			/* Each line of the header starts with a glyph,
+			 * i.e. :_name, -_name +_name etc.
+			 * So just test if the first char is a glyph.
+			 * In the body, the same applies, only that the
+			 * method does not start with a glyph.
+			 */
+			if (isGlyph(state->buffer.ptr[state->cursor]))
 			{
-				// the body rule is optional, which means
-				// that now also just |\n can follow.
-				if(state->buffer.ptr[state->cursor] == '|')
-				{
-					if(state->buffer.length<=++(state->cursor)) // incremented cursor inside length?
-					{
-						state->cursor=startc; // set to start value
-						return PSYC_INSUFFICIENT; // return insufficient
-					}
-
-					if(state->buffer.ptr[state->cursor]=='\n')
-					{
-						++(state->cursor);
-						state->inContent = 0;
-						return PSYC_COMPLETE; // return packet finished
-					}
-				}
-				return -5; // report error
+				pos = state->cursor;
+				ret = PSYC_parseVar(state, modifier, name, value);
+				state->contentParsed += state->cursor - pos;
+				return ret == PSYC_SUCCESS ? PSYC_ENTITY : ret;
 			}
 			else
 			{
-				name->ptr = state->buffer.ptr+state->cursor;
-				name->length=1;
-				method=1;
-			}
-		}
-		else
-		{
-			*modifier = *(state->buffer.ptr+state->cursor);
-
-			if (state->buffer.length <= ++(state->cursor))
-			{
-				state->cursor = startc; // rewind
-				return PSYC_INSUFFICIENT; // return insufficient
+				state->part = PSYC_PART_METHOD;
+				state->startc = state->cursor;
+				// fall thru
 			}
 
-			name->ptr = state->buffer.ptr+state->cursor;
-			name->length=1;
-		}
-	}
+		case PSYC_PART_METHOD:
+			pos = state->cursor;
+			if (PSYC_parseName(state, name) == PSYC_SUCCESS)
+			{ /* the method ends with a \n then the data follows */
+				if (state->buffer.ptr[state->cursor] != '\n')
+					return PSYC_ERROR_METHOD;
 
-	/* validate the incremented cursor */
-	if(state->buffer.length <= ++(state->cursor))
-	{
-		state->cursor=startc;
-		return PSYC_INSUFFICIENT;
-	}
-
-	/* what follows is the name. At least one char.
-	 * allowed is alphanumeric and _ */	 
-
-	// first char must exist.
-	if(!isAlphaNumeric(state->buffer.ptr[state->cursor]) // is it not alphanum
-			&& state->buffer.ptr[state->cursor] != '_')  // AND not '_'. must be invalid then	
-		return -1; // return parser error.
-
-	name->length+=1;
-
-	/* now checking how long the name of the variable is. */
-	unsigned int i=0;
-	while(1)
-	{
-		if(state->buffer.length<= ++(state->cursor)) // incremented cursor inside length?
-		{
-			state->cursor=startc; // set to start value
-			return PSYC_INSUFFICIENT; // return insufficient
-		}
-
-		// same as bevore
-		if(!isAlphaNumeric(state->buffer.ptr[state->cursor]) &&
-				state->buffer.ptr[state->cursor] != '_')					
-			break; // not valid? then stop the loop right here
-
-		++(name->length); // was a valid char, increase length
-	}
-
-	/* we now parsed the variable name successfully
-	 * after the name either a \n or a \t follows.
-	 *
-	 * for the method, the data starts after an \n
-	 * so checking for \n too here
-
-	 * We dont check if cursor inside length, because
-	 * the last loop iteration did that already. 
-	 */
-	if(state->buffer.ptr[state->cursor] == '\t' || state->buffer.ptr[state->cursor] == '\n') // && method==1)) 
-	{
-		/* after the \t the data follows, which is
-		 * anything but \n. data can be of length 0
-		 *
-		 * for the method: after the \n data follows,
-		 * which is anything but \n|\n
-		 *
-		 * but data is optional, so we first check 
-		 * here if data follows at all.
-		 *
-		 * arg-data=value. we set value here so it
-		 * points to a valid range and so we point
-		 * to the first potential arg-data byte.
-		 * If there is no arg-data, we still have
-		 * the length attribute on 0.  */
-		if((method == 0 && state->buffer.ptr[state->cursor] == '\n') /* emptyvar */ ||
-			(method == 1 && state->cursor+2 < state->buffer.length && 
-			 state->buffer.ptr[state->cursor+1] == '|' && 
-			 state->buffer.ptr[state->cursor+2] == '\n') /*no data */ )
-		{
-			value->ptr=state->buffer.ptr+state->cursor;
-			value->length=0;
-		}
-		else
-		{
-			value->ptr=state->buffer.ptr+state->cursor+1; 
-			if (0 != state->contentLength) // we know the length of the packet
-			{
-				// is the packet in the buffer?
-				if (value->ptr + state->contentLength + 3 > state->buffer.ptr + state->buffer.length)
-				{ // no
-					value->length = state->buffer.length - state->cursor;
-					//*expectedBytes = state->contentLength - value->length;
-				} 
-				else // yes, the packet is complete in the buffer.
-				{
-					value->length= state->buffer.length - state->cursor -3;
-					//*expectedBytes = 0;
-				}
+				state->cursor++;
+				state->startc = state->cursor;
+				state->contentParsed += state->cursor - pos;
+				state->part = PSYC_PART_DATA;
+				if (state->cursor >= state->buffer.length)
+					return PSYC_INSUFFICIENT;
+				// fall thru
 			}
-			else // else search for the terminator
+			else /* no method, which means the packet should end now */
 			{
-				value->length=0;
+				state->part = PSYC_PART_END;
+				state->startc = state->cursor;
+				goto PSYC_PART_END;
+			}
 
+		case PSYC_PART_DATA:
+			value->ptr = state->buffer.ptr + state->cursor;
+			value->length = 0;
+
+			if (state->contentLengthFound) // we know the length of the packet
+			{
+				if (PSYC_parseBinaryValue(state, value, &(state->contentLength), &(state->contentParsed)) == PSYC_INCOMPLETE)
+					return PSYC_BODY_INCOMPLETE;
+
+				state->cursor++;
+				state->part = PSYC_PART_END;
+				return PSYC_BODY;
+			}
+			else // search for the terminator
+			{
 				while (1)
 				{
-					if(state->buffer.length<=++(state->cursor)) // incremented cursor inside length?
+					if (state->buffer.ptr[state->cursor] == '\n')
 					{
-						state->cursor=startc; // set to start value
-						return PSYC_INSUFFICIENT ; // return insufficient
-					}
-
-					if(0 == method && state->buffer.ptr[state->cursor] == '\n')
-						break;
-
-					if(1 == method && state->buffer.ptr[state->cursor] == '\n')
-					{
-						if(state->buffer.length<=(state->cursor)+2) // incremented cursor inside length?
+						if (state->cursor+2 >= state->buffer.length) // incremented cursor inside length?
 						{
-							state->cursor=startc; // set to start value
+							state->cursor = state->startc; // set to start value
 							return PSYC_INSUFFICIENT; // return insufficient
 						}
 
-						if(state->buffer.ptr[state->cursor+1] == '|')
-							if(state->buffer.ptr[state->cursor+2] == '\n')
-							{
-								/* packet finishes here */
-								state->cursor+=3;
-								state->inContent = 0;
-								return PSYC_COMPLETE;
-							}
-							
+						if (state->buffer.ptr[state->cursor+1] == '|' &&
+								state->buffer.ptr[state->cursor+2] == '\n') /* packet ends here */
+						{
+							state->cursor++;
+							state->part = PSYC_PART_END;
+							return PSYC_BODY;
+						}
 					}
-					++(value->length); 
+					value->length++;
+					ADVANCE_CURSOR_OR_RETURN();
 				}
 			}
-		}
-	}
-	else if(state->inContent == 1 && method==0 && state->buffer.ptr[state->cursor] == ' ') // oi, its a binary var!
-	{ // after SP the length follows.
-		if(state->buffer.length<=++(state->cursor)) // incremented cursor inside length?
-		{
-			state->cursor=startc; // set to start value
-			return PSYC_INSUFFICIENT; // return insufficient
-		}
 
-		while(isNumeric(state->buffer.ptr[state->cursor]))
-		{
-			value->length = 10 * value->length + state->buffer.ptr[state->cursor] - '0';
-
-			if(state->buffer.length<=++(state->cursor)) // incremented cursor inside length?
-			{
-				state->cursor=startc; // set to start value
+		case PSYC_PART_END:
+		PSYC_PART_END:
+			/* end of packet, at this point we have already passed a \n
+				 and the cursor should point to | */
+			if (state->cursor+1 >= state->buffer.length) // incremented cursor inside length?
 				return PSYC_INSUFFICIENT; // return insufficient
+
+			if (state->buffer.ptr[state->cursor] == '|' &&
+					state->buffer.ptr[state->cursor+1] == '\n') /* packet ends here */
+			{
+				state->cursor += 2;
+				state->part = PSYC_PART_RESET;
+				return PSYC_COMPLETE;
 			}
-		}
-		// after the length a TAB follows
-		if (state->buffer.ptr[state->cursor] != '\t')
-			return PSYC_ERROR_EXPECTED_TAB;
-
-binaryArg:
-		if(state->buffer.length<=++(state->cursor)) // incremented cursor inside length?
-		{
-			state->valueRemaining = value->length - state->cursor;
-			state->cursor=0;  
-
-			value->length = 0;
-			value->ptr = state->buffer.ptr;
-
-			return PSYC_ENTITY_INCOMPLETE;
-		}
-
-		// is the length still in this buffer?
-		if(state->buffer.length <= state->cursor+value->length+1 )
-		{
-			state->valueRemaining = value->length - state->cursor;
-			state->cursor=0;
-		
-			value->ptr = state->buffer.ptr + state->cursor;		
-			value->length = state->buffer.length - state->cursor;
-
-			return PSYC_ENTITY_INCOMPLETE;
-		}
-
-		value->ptr = state->buffer.ptr + state->cursor;		
-		state->cursor += value->length;
-		state->valueRemaining = 0;
+			else /* packet should've ended here, return error */
+			{
+				state->part = PSYC_PART_RESET;
+				return PSYC_ERROR_END;
+			}
 	}
-	else
-		return -8;
-
-
-
-
-	/* if there was a \t, then we parsed up until the 
-	 * \n char from the simple-arg rule ( \t arg-data \n )
-	 *
-	 * Now, if there would be no \t, we still would be at
-	 * the point where a \n must follow.
-	 *
-	 * So, just checking \n here will cover both cases of
-	 * the alternative ( simple-arg / \n ) from rule
-	 * routing-modifier 
-	 *
-	 * again, the loop has already validated the cursors
-	 * position*/
-	if(state->buffer.ptr[state->cursor] != '\n')
-		return -2; // return parser error.
-
-	/* if a \n follows now, the an body is attached.
-	 * if not, a |\n must follow */
-	if(state->buffer.length<=++(state->cursor)) // incremented cursor inside length?
-	{
-		state->cursor=startc; // set to start value
-		return PSYC_INSUFFICIENT; // return insufficient
-	}
-
-	if(0 == state->inContent && state->buffer.ptr[state->cursor] == '\n') 
-	{
-		state->cursor+=1;
-		state->inContent = 1;
-		
-		return PSYC_ROUTING; // return header finished
-	}
-
-	if(state->buffer.ptr[state->cursor] != '|') // no pipe, then only line complete, not the packet.
-	{
-		if (state->inContent == 0)
-			return PSYC_ROUTING;
-		else
-			return PSYC_ENTITY;	
-	}
-	if(state->buffer.length<=++(state->cursor)) // incremented cursor inside length?
-	{
-		state->cursor=startc; // set to start value
-		return PSYC_INSUFFICIENT; // return insufficient
-	}
-	if(state->buffer.ptr[state->cursor] != '\n')	
-		return -4;
-
-	state->cursor+=1;
-	state->inContent = 0;
-	return PSYC_COMPLETE; // packet is complete
+	return PSYC_ERROR; // should not be reached
 }
-
