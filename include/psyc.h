@@ -1,3 +1,21 @@
+/** @file psyc.h
+ *
+ * @brief Main psyc interface providing crucial functionality  
+*/
+
+/** @mainpage Psyc Core Library
+ *
+ * @section intro_sec Introduction
+ *
+ * This is the introduction.
+ *
+ * @section install_sec Installation
+ *
+ * @subsection step1 Step 1: Opening the box
+ *  
+ * etc...
+ */
+
 #include <stdint.h>
 #include <string.h>
 
