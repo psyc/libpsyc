@@ -1,4 +1,4 @@
-CFLAGS=-I../../include -DDEBUG -DPSYC_COMPILE_LIBRARY -g -O0 -Wall
+CFLAGS=-I../../include -DDEBUG=2 -DPSYC_COMPILE_LIBRARY -g -O0 -Wall
 CC=cc -I../include
 # CC=clang
 
@@ -17,7 +17,7 @@ lib: $S
 	ar rcs libpsyc.a $O
 
 match: match.c
-	${CC} -o $@ -DDEBUG=2 -DCMDTOOL -DTEST $<
+	${CC} -o $@ -DDEBUG=4 -DCMDTOOL -DTEST $<
 
 it: match
 
