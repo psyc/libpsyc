@@ -1,15 +1,16 @@
-/** 
+/**
  * @file psyc/parser.h
- * @brief Interface for various psyc parser functions
+ * @brief Interface for various psyc parser functions.
  *
- * All parsing functions and the definitions they use are 
+ * All parsing functions and the definitions they use are
  * defined in this file.
 */
 
-/** @defgroup parsing Parsing Functions
- *  
- *  This module contains all parsing functions
- *  @{
+/**
+ * @defgroup parsing Parsing Functions
+ *
+ * This module contains all parsing functions.
+ * @{
  */
 
 #ifndef PSYC_PARSER_H
@@ -18,10 +19,11 @@
 #include <stdint.h>
 #include <string.h>
 
-/** Different types that a variable can have
+/**
+ * Different types that a variable can have.
  *
  * This enum lists all the types that a variable
- * in a psyc packet can have
+ * in a psyc packet can have.
  */
 enum PSYC_Types {
 	PSYC_TYPE_AMOUNT,
@@ -43,8 +45,9 @@ enum PSYC_Flags
 	PSYC_HEADER_ONLY = 1,
 };
 
-/** The return value definitions for packet parsing function
- * @see PSYC_parse() 
+/**
+ * The return value definitions for the packet parsing function.
+ * @see PSYC_parse()
  */
 enum PSYC_ReturnCodes
 {
@@ -67,6 +70,10 @@ enum PSYC_ReturnCodes
 	PSYC_INCOMPLETE = 9,
 };
 
+/**
+ * The return value definitions for the list parsing function.
+ * @see PSYC_parseList()
+ */
 enum PSYC_ListReturnCodes
 {
 	PSYC_ERROR_LIST_DELIM = -5,
@@ -79,6 +86,9 @@ enum PSYC_ListReturnCodes
 	PSYC_LIST_INCOMPLETE = 3,
 };
 
+/**
+ * PSYC packet parts.
+ */
 enum PSYC_Parts
 {
 	PSYC_PART_RESET = -1,
@@ -90,6 +100,10 @@ enum PSYC_Parts
 	PSYC_PART_END,
 };
 
+/**
+ * List types.
+ * Possible types are text and binary.
+ */
 enum PSYC_ListTypes
 {
 	PSYC_LIST_TEXT = 1,
@@ -102,7 +116,9 @@ typedef struct
 	const uint8_t * ptr;
 } PSYC_Array;
 
-
+/**
+ * Struct for keeping parser state.
+ */
 typedef struct
 {
 	size_t cursor; ///< current position in buffer
@@ -118,6 +134,9 @@ typedef struct
 	size_t valueLength; ///< expected length of the value
 } PSYC_State;
 
+/**
+ * Struct for keeping list parser state.
+ */
 typedef struct
 {
 	size_t cursor; ///< current position in buffer
@@ -195,13 +214,14 @@ inline size_t PSYC_getContentLength (PSYC_State* s)
 
 #endif
 
-/** Parse PSYC packets.
- * 
+/**
+ * Parse PSYC packets.
+ *
  * Generalized line-based packet parser.
- * 
+ *
  * @param state An initialized PSYC_State
  * @param modifier A pointer to a character. In case of a variable, it will
- *        be set to the modifier of that variable
+ *                 be set to the modifier of that variable
  * @param name A pointer to a PSYC_Array. It will point to the name of
  *             the variable or method and its length will be set accordingly
  * @param value A pointer to a PSYC_Array. It will point to the
@@ -212,11 +232,12 @@ inline size_t PSYC_getContentLength (PSYC_State* s)
  * @see PSYC_State
  * @see PSYC_Array
  */
-PSYC_ReturnCodes PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
+int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
 
 /**
  * List value parser.
- * @return see PSYC_ListReturnCodes.
+ * @return one of PSYC_ReturnCodes
+ * @see PSYC_ListReturnCodes
  */
 int PSYC_parseList(PSYC_ListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem);
 
