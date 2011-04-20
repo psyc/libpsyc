@@ -1,6 +1,40 @@
 #include "psyc/lib.h"
 
-/* TODO: PSYC_inherits() */
+int PSYC_inherits(char* sho, size_t slen,
+		  char* lon, size_t llen) {
+	if (!slen) slen = strlen(sho);
+	if (!llen) llen = strlen(lon);
+
+	if (slen == 0 || *sho != '_' ||
+	    llen == 0 || *lon != '_') {
+		P1(("Please use long format keywords (compact ones would be faster, I know..)\n"))
+		return -2;
+	}
+
+	if (slen > llen) {
+		P1(("The long string is shorter than the short one.\n"))
+		return -3;
+	}
+
+	if (!strncmp(sho, lon, slen)) {
+		/* according to PSYC spec we have hereby already proved
+		 * inheritance. the following check is optional!
+		 */
+		if (llen > slen && lon[slen] != '_') {
+			/* It is illegal to introduce a keyword family
+			 * that starts just like an existing one. Since
+			 * _failure exists, you can't use _fail. But
+			 * implementations are not required to recognize
+			 * that.
+			 */
+			P1(("Illegal choice of keyword names!\n"))
+			return -4;
+		}
+		return 0;
+	}
+	P4(("%*s does not inherit from %*s.\n", llen, lon, slen, sho))
+	return 1;
+}
 
 int PSYC_matches(char* sho, size_t slen,
 		 char* lon, size_t llen) {
@@ -66,7 +100,9 @@ int main(int argc, char **argv) {
 		printf("Usage: %s <short> <long>\n\nExample: %s _failure_delivery _failure_unsuccessful_delivery_death\n", argv[0], argv[0]);
 		return -1;
 	}
-	if (PSYC_matches((uint8_t*) argv[1], 0, (uint8_t*) argv[2], 0) == 0)
-	    printf("Yes, they match!\n");
+	if (PSYC_matches(argv[1], 0, argv[2], 0) == 0)
+	    printf("Yes, %s matches %s!\n", argv[1], argv[2]);
+	if (PSYC_inherits(argv[1], 0, argv[2], 0) == 0)
+	    printf("Yes, %s inherits from %s!\n", argv[2], argv[1]);
 }
 #endif
