@@ -5,6 +5,7 @@
 #include <stdio.h>
 #endif
 
+#include <psyc/lib.h>
 #include <psyc/parser.h>
 
 #define ADVANCE_CURSOR_OR_RETURN(ret)						 \
@@ -82,8 +83,13 @@ inline PSYC_ReturnCode PSYC_parseName(PSYC_State* state, PSYC_Array* name)
 }
 
 /**
- * Parse binary data into value.
- * length is the expected length of the data, parsed is the number of bytes parsed so far
+ * Parse binary data.
+ *
+ * @param state Parser state.
+ * @param value Start & length of parsed data is saved here.
+ * @param length Expected length of the data.
+ * @param parsed Number of bytes parsed so far.
+ *
  * @return PSYC_COMPLETE or PSYC_INCOMPLETE
  */
 inline PSYC_ReturnCode PSYC_parseBinaryValue(PSYC_State* state, PSYC_Array* value, size_t* length, size_t* parsed)
@@ -118,14 +124,14 @@ inline PSYC_ReturnCode PSYC_parseVar(PSYC_State* state, uint8_t* modifier, PSYC_
 		return PSYC_ERROR_VAR_NAME;
 
 	value->length = 0;
+	state->valueLength = 0;
+	state->valueParsed = 0;
 
 	// Parse the value.
 	// If we're in the content part check if it's a binary var.
 	if (state->part == PSYC_PART_CONTENT && state->buffer.ptr[state->cursor] == ' ') // binary arg
 	{ // After SP the length follows.
 		ADVANCE_CURSOR_OR_RETURN(PSYC_INSUFFICIENT);
-		state->valueLength = 0;
-		state->valueParsed = 0;
 
 		if (isNumeric(state->buffer.ptr[state->cursor]))
 		{
