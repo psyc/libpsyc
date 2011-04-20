@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 	int index, ret;
 	uint8_t buffer[2048], modifier;
 	PSYC_Array name, value, elem;
-	PSYC_State state;
+	PSYC_ParserState state;
 	PSYC_ListState listState;
 
 	int file = open(argv[1],O_RDONLY);
