@@ -42,16 +42,16 @@ typedef enum {
 	PSYC_TYPE_TIME,
 } PSYC_Type;
 
-enum PSYC_Flags
+typedef enum
 {
 	PSYC_HEADER_ONLY = 1,
-};
+} PSYC_Flag;
 
 /**
  * The return value definitions for the packet parsing function.
  * @see PSYC_parse()
  */
-enum PSYC_ReturnCodes
+typedef enum
 {
 	PSYC_ERROR_END = -7,
 	PSYC_ERROR_METHOD = -6,
@@ -61,22 +61,28 @@ enum PSYC_ReturnCodes
 	PSYC_ERROR_LENGTH = -2,
 	PSYC_ERROR = -1,
 	PSYC_SUCCESS = 0,
-	PSYC_BODY = 1,
-	PSYC_BODY_INCOMPLETE = 2,
-	PSYC_INSUFFICIENT = 3,
-	PSYC_ROUTING = 4,
-	PSYC_ENTITY = 5,
-	PSYC_ENTITY_INCOMPLETE = 6,
-	PSYC_HEADER_COMPLETE = 7,
-	PSYC_COMPLETE = 8,
-	PSYC_INCOMPLETE = 9,
-};
+	PSYC_INSUFFICIENT = 1,
+/// Routing variable parsing done. Modifier, name & value contains the respective parts.
+	PSYC_ROUTING = 2,
+/// Entity variable parsing done. Modifier, name & value contains the respective parts.
+	PSYC_ENTITY = 3,
+/// Entity variable parsing is incomplete. Modifier & name are complete, value is incomplete.
+	PSYC_ENTITY_INCOMPLETE = 4,
+/// Body parsing done, name contains method, value contains body.
+	PSYC_BODY = 5,
+/// Body parsing is incomplete, name contains method, value contains part of the body.
+	PSYC_BODY_INCOMPLETE = 6,
+/// Reached end of packet, parsing done.
+	PSYC_COMPLETE = 7,
+// Binary value parsing incomplete, used internally.
+	PSYC_INCOMPLETE = 8,
+} PSYC_ReturnCode;
 
 /**
  * The return value definitions for the list parsing function.
  * @see PSYC_parseList()
  */
-enum PSYC_ListReturnCodes
+typedef enum
 {
 	PSYC_ERROR_LIST_DELIM = -5,
 	PSYC_ERROR_LIST_LEN = -4,
@@ -86,12 +92,12 @@ enum PSYC_ListReturnCodes
 	PSYC_LIST_ELEM = 1,
 	PSYC_LIST_END = 2,
 	PSYC_LIST_INCOMPLETE = 3,
-};
+} PSYC_ListReturnCode;
 
 /**
  * PSYC packet parts.
  */
-enum PSYC_Parts
+typedef enum
 {
 	PSYC_PART_RESET = -1,
 	PSYC_PART_HEADER = 0,
@@ -100,17 +106,17 @@ enum PSYC_Parts
 	PSYC_PART_METHOD,
 	PSYC_PART_DATA,
 	PSYC_PART_END,
-};
+} PSYC_Part;
 
 /**
  * List types.
  * Possible types are text and binary.
  */
-enum PSYC_ListTypes
+typedef enum
 {
 	PSYC_LIST_TEXT = 1,
 	PSYC_LIST_BINARY = 2,
-};
+} PSYC_ListType;
 
 typedef struct
 {
@@ -127,7 +133,7 @@ typedef struct
 	size_t startc; ///< line start position
 	PSYC_Array buffer;
 	uint8_t flags;
-	char part; ///< part of the packet being parsed currently, see PSYC_Parts
+	PSYC_Part part; ///< part of the packet being parsed currently
 
 	size_t contentParsed; ///< number of bytes parsed from the content so far
 	size_t contentLength; ///< expected length of the content
@@ -144,7 +150,7 @@ typedef struct
 	size_t cursor; ///< current position in buffer
 	size_t startc; ///< line start position
 	PSYC_Array buffer;
-	char type; ///< list type, see PSYC_ListTypes
+	PSYC_ListType type; ///< list type
 
 	size_t elemParsed; ///< number of bytes parsed from the elem so far
 	size_t elemLength; ///< expected length of the elem
@@ -169,7 +175,7 @@ inline PSYC_Array PSYC_createArray (uint8_t* const memory, size_t length)
  * Initiates the state struct with flags.
  *
  * @param state Pointer to the state struct that should be initiated.
- * @param flags The flags that one ones to set, see PSYC_Flags.
+ * @param flags The flags that one ones to set, see PSYC_Flag.
  */
 inline void PSYC_initState2 (PSYC_State* state, uint8_t flags )
 {
@@ -228,20 +234,13 @@ inline size_t PSYC_getContentLength (PSYC_State* s)
  *             the variable or method and its length will be set accordingly
  * @param value A pointer to a PSYC_Array. It will point to the
  *              value/body the variable/method and its length will be set accordingly
- *
- * @return one of PSYC_ReturnCodes
- * @see PSYC_ReturnCodes
- * @see PSYC_State
- * @see PSYC_Array
  */
-int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
+PSYC_ReturnCode PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
 
 /**
  * List value parser.
- * @return one of PSYC_ReturnCodes
- * @see PSYC_ListReturnCodes
  */
-int PSYC_parseList(PSYC_ListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem);
+PSYC_ListReturnCode PSYC_parseList(PSYC_ListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem);
 
 #endif // PSYC_PARSER_H
 

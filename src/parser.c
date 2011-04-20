@@ -67,7 +67,7 @@ inline char isKwChar(uint8_t c)
  * It should contain one or more keyword characters.
  * @return PSYC_ERROR or PSYC_SUCCESS
  */
-inline int PSYC_parseName(PSYC_State* state, PSYC_Array* name)
+inline PSYC_ReturnCode PSYC_parseName(PSYC_State* state, PSYC_Array* name)
 {
 	name->ptr = state->buffer.ptr + state->cursor;
 	name->length = 0;
@@ -86,7 +86,7 @@ inline int PSYC_parseName(PSYC_State* state, PSYC_Array* name)
  * length is the expected length of the data, parsed is the number of bytes parsed so far
  * @return PSYC_COMPLETE or PSYC_INCOMPLETE
  */
-inline int PSYC_parseBinaryValue(PSYC_State* state, PSYC_Array* value, size_t* length, size_t* parsed)
+inline PSYC_ReturnCode PSYC_parseBinaryValue(PSYC_State* state, PSYC_Array* value, size_t* length, size_t* parsed)
 {
 	size_t remaining = *length - *parsed;
 	value->ptr = state->buffer.ptr + state->cursor;
@@ -109,7 +109,7 @@ inline int PSYC_parseBinaryValue(PSYC_State* state, PSYC_Array* value, size_t* l
  * Parse simple or binary variable.
  * @return PSYC_ERROR or PSYC_SUCCESS
  */
-inline int PSYC_parseVar(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value)
+inline PSYC_ReturnCode PSYC_parseVar(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value)
 {
 	*modifier = *(state->buffer.ptr + state->cursor);
 	ADVANCE_CURSOR_OR_RETURN(PSYC_INSUFFICIENT);
@@ -172,9 +172,8 @@ inline int PSYC_parseVar(PSYC_State* state, uint8_t* modifier, PSYC_Array* name,
 /**
  * Parse PSYC packets.
  * Generalized line-based parser.
- * @return see PSYC_ReturnCodes
  */
-int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value)
+PSYC_ReturnCode PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value)
 {
 	int ret; // a return value
 	size_t pos;	// a cursor position
@@ -364,7 +363,7 @@ int PSYC_parse(PSYC_State* state, uint8_t* modifier, PSYC_Array* name, PSYC_Arra
  * List value parser.
  * @return see PSYC_ListReturnCodes.
  */
-int PSYC_parseList(PSYC_ListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem)
+PSYC_ListReturnCode PSYC_parseList(PSYC_ListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem)
 {
 	if (state->cursor >= state->buffer.length)
 		return PSYC_LIST_INCOMPLETE;
