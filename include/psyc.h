@@ -23,8 +23,8 @@
 
 /** @brief Checks if short keyword string matches long keyword string
  */
-int PSYC_matches(uint8_t* sho, size_t  slen,
-		 uint8_t* lon, size_t  llen);
+int PSYC_matches(char* sho, size_t slen,
+		 char* lon, size_t llen);
 
 /** @brief Callback for PSYC_text() that produces a value for a match
  *

@@ -20,10 +20,12 @@
 
 /** Different types that a variable can have
  *
- * This enum lists all the types that a variable
- * in a psyc packet can have
+ * This enum lists PSYC variable types that
+ * this library is capable of checking for
+ * validity. Other variable types are treated
+ * as opaque data.
  */
-enum PSYC_Types {
+typedef enum {
 	PSYC_TYPE_AMOUNT,
 	PSYC_TYPE_COLOR,
 	PSYC_TYPE_DATE,
@@ -36,7 +38,7 @@ enum PSYC_Types {
 	PSYC_TYPE_PAGE,
 	PSYC_TYPE_UNIFORM,
 	PSYC_TYPE_TIME,
-};
+} PSYC_Type;
 
 enum PSYC_Flags
 {
