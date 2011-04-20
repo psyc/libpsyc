@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 	PSYC_nextBuffer(&state, PSYC_createArray(buffer, index));
 
 	// try parsing that now
-	while (ret = PSYC_parse(&state, &modifier, &name, &value))
+	while ((ret = PSYC_parse(&state, &modifier, &name, &value)))
 	{
 		switch (ret)
 		{
@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 					write(1, ">>> LIST START\n", 15);
 					PSYC_initListState(&listState);
 					PSYC_nextListBuffer(&listState, value);
-					while (ret = PSYC_parseList(&listState, &name, &value, &elem))
+					while ((ret = PSYC_parseList(&listState, &name, &value, &elem)))
 					{
 						switch (ret)
 						{
