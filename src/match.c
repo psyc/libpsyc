@@ -11,53 +11,52 @@ int PSYC_matches(char* sho, size_t slen,
 
 	if (slen == 0 || *sho != '_' ||
 	    llen == 0 || *lon != '_') {
-		PT(("Please use long format keywords (compact ones would be faster, I know..)\n"))
+		P1(("Please use long format keywords (compact ones would be faster, I know..)\n"))
 		return -2;
 	}
 
 	if (slen > llen) {
-		PT(("The long string is shorter than the short one.\n"))
+		P1(("The long string is shorter than the short one.\n"))
 		return -3;
 	}
 
 	if (slen == llen) {
-		if (!strcmp(sho, lon)) {
-			PT(("Identical arguments.\n"))
+		if (!strncmp(sho, lon, slen)) {
+			P1(("Identical arguments.\n"))
 			return 0;
 		}
-		PT(("Same length but different.\nNo match, but they could be related or have a common type.\n"))
+		P1(("Same length but different.\nNo match, but they could be related or have a common type.\n"))
 		return -4;
 	}
-	PT(("*start short '%s' long '%s'\n", sho, lon))
+	P3(("# PSYC_matches short '%*s' in long '%*s' ?\n", slen, sho, llen, lon))
 
 	se = sho+slen;
 	le = lon+llen;
-	/* doesn't always work this way.. FIXME */
-	*se = *le = '_';
-	sho++; lon++;
-	while((s = strchr(sho, '_'))) {
-		*s = 0;
-		PT(("sho goes '%c' and lon goes '%c'\n", *sho, *lon))
-		while((l = strchr(lon, '_'))) {
-			*l = 0;
-			PT(("strcmp short '%s' long '%s'\n", sho, lon))
-			if (!strcmp(sho, lon)) goto foundone;
-			if (l == le) goto failed;
-			*l = '_';
+	sho++; lon++; slen--; llen--;
+	while(*sho && sho < se) {
+		P3(("# comparing short '%*s' (%d)\n", slen, sho, slen))
+		unless (s = memchr(sho, '_', slen)) s = se;
+		P4(("# sho goes '%c' and lon goes '%c'\n", *sho, *lon))
+		while(*lon && lon < le) {
+			P3(("# against long '%*s' (%d)\n", llen, lon, llen))
+			unless (l = memchr(lon, '_', llen)) l = le;
+			P3(("# %d == %d && !strncmp '%*s', '%*s'\n", s-sho, l-lon, s-sho, sho, s-sho, lon))
+			if (l-lon == s-sho && !strncmp(sho, lon, s-sho)) goto foundone;
+			P4(("# failed\n"))
+			llen -= l-lon + 1;
 			lon = ++l;
 		}
 		goto failed;
 foundone:
-		PT(("found: short '%s' long '%s'\n", sho, lon))
-		if (s == se) goto success;
-		*l = *s = '_';
+		P3(("# found %d of short '%*s' and long '%*s'\n", s-sho, s-sho, sho, s-sho, lon))
+		llen -= l-lon;
+		slen -= s-sho;
 		sho = ++s;
 		lon = ++l;
 	}
-success:
 	return 0;
 failed:
-	PT(("No, they don't match.\n"))
+	P4(("No, they don't match.\n"))
 	return 1;
 }
 

@@ -32,6 +32,7 @@ int main(int argc, char** argv)
 			case PSYC_ENTITY:
 				write(1, &modifier, 1);
 			case PSYC_BODY:
+				// printf("the string is '%.*s'\n", name);
 				write(1, name.ptr, name.length);
 				write(1, " = ", 3);
 				write(1, value.ptr, value.length);
