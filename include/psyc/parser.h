@@ -19,29 +19,6 @@
 #include <stdint.h>
 #include <string.h>
 
-/**
- * Different types that a variable can have.
- *
- * This enum lists PSYC variable types that
- * this library is capable of checking for
- * validity. Other variable types are treated
- * as opaque data.
- */
-typedef enum {
-	PSYC_TYPE_AMOUNT,
-	PSYC_TYPE_COLOR,
-	PSYC_TYPE_DATE,
-	PSYC_TYPE_DEGREE,
-	PSYC_TYPE_ENTITY,
-	PSYC_TYPE_FLAG,
-	PSYC_TYPE_LANGUAGE,
-	PSYC_TYPE_LIST,
-	PSYC_TYPE_NICK,
-	PSYC_TYPE_PAGE,
-	PSYC_TYPE_UNIFORM,
-	PSYC_TYPE_TIME,
-} PSYC_Type;
-
 typedef enum
 {
 	PSYC_HEADER_ONLY = 1,
@@ -61,12 +38,18 @@ typedef enum
 	PSYC_ERROR_LENGTH = -2,
 	PSYC_ERROR = -1,
 	PSYC_SUCCESS = 0,
+/// Buffer contains insufficient amount of data.
+/// Fill another buffer and concatenate it with the end of the current buffer,
+/// from the cursor position to the end.
 	PSYC_INSUFFICIENT = 1,
-/// Routing variable parsing done. Modifier, name & value contains the respective parts.
+/// Routing variable parsing done.
+/// Modifier, name & value contains the respective parts.
 	PSYC_ROUTING = 2,
-/// Entity variable parsing done. Modifier, name & value contains the respective parts.
+/// Entity variable parsing done.
+/// Modifier, name & value contains the respective parts.
 	PSYC_ENTITY = 3,
-/// Entity variable parsing is incomplete. Modifier & name are complete, value is incomplete.
+/// Entity variable parsing is incomplete.
+/// Modifier & name are complete, value is incomplete.
 	PSYC_ENTITY_INCOMPLETE = 4,
 /// Body parsing done, name contains method, value contains body.
 	PSYC_BODY = 5,
@@ -74,7 +57,7 @@ typedef enum
 	PSYC_BODY_INCOMPLETE = 6,
 /// Reached end of packet, parsing done.
 	PSYC_COMPLETE = 7,
-// Binary value parsing incomplete, used internally.
+/// Binary value parsing incomplete, used internally.
 	PSYC_INCOMPLETE = 8,
 } PSYC_ReturnCode;
 
@@ -89,8 +72,11 @@ typedef enum
 	PSYC_ERROR_LIST_TYPE = -3,
 	PSYC_ERROR_LIST_NAME = -2,
 	PSYC_ERROR_LIST= -1,
+/// Completed parsing a list element.
 	PSYC_LIST_ELEM = 1,
+/// Reached end of buffer.
 	PSYC_LIST_END = 2,
+/// Binary list is incomplete.
 	PSYC_LIST_INCOMPLETE = 3,
 } PSYC_ListReturnCode;
 
@@ -130,14 +116,14 @@ typedef struct
 typedef struct
 {
 	size_t cursor; ///< current position in buffer
-	size_t startc; ///< line start position
+	size_t startc; ///< position where the parsing would be resumed
 	PSYC_Array buffer;
-	uint8_t flags;
+	uint8_t flags; ///< flags for the parser, see PSYC_Flag
 	PSYC_Part part; ///< part of the packet being parsed currently
 
 	size_t contentParsed; ///< number of bytes parsed from the content so far
 	size_t contentLength; ///< expected length of the content
-	char contentLengthFound; ///< is there a length given for this packet?
+	PSYC_Bool contentLengthFound; ///< is there a length given for this packet?
 	size_t valueParsed; ///< number of bytes parsed from the value so far
 	size_t valueLength; ///< expected length of the value
 } PSYC_State;
@@ -175,7 +161,7 @@ inline PSYC_Array PSYC_createArray (uint8_t* const memory, size_t length)
  * Initiates the state struct with flags.
  *
  * @param state Pointer to the state struct that should be initiated.
- * @param flags The flags that one ones to set, see PSYC_Flag.
+ * @param flags Flags to be set for the parser, see PSYC_Flag.
  */
 inline void PSYC_initState2 (PSYC_State* state, uint8_t flags )
 {
