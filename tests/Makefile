@@ -1,5 +1,5 @@
 CFLAGS=-I../include -DDEBUG -g -O0 -Wall
-LDFLAGS=-L..
+LDFLAGS=-L../src
 LOADLIBES=-lpsyc
 TARGETS=testParser testMatch
 

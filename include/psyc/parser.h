@@ -121,7 +121,7 @@ typedef enum
 typedef struct
 {
 	size_t length;
-	const uint8_t * ptr;
+	const uint8_t * ptr; // just an unsigned char for opaque data
 } PSYC_Array;
 
 /**
