@@ -66,6 +66,12 @@ PSYC_Bool PSYC_isRoutingVar(char* name, size_t len);
 
 
 /**
+ * Checks if long keyword string inherits from short keyword string.
+ */
+int PSYC_inherits(char* sho, size_t slen,
+		  char* lon, size_t llen);
+
+/**
  * Checks if short keyword string matches long keyword string.
  */
 int PSYC_matches(char* sho, size_t slen,
