@@ -2,9 +2,9 @@
 
 /* TODO: PSYC_inherits() */
 
-int PSYC_matches(uint8_t* sho, size_t slen,
-		 uint8_t* lon, size_t llen) {
-	uint8_t *s, *l, *se, *le;
+int PSYC_matches(char* sho, size_t slen,
+		 char* lon, size_t llen) {
+	char *s, *l, *se, *le;
 
 	if (!slen) slen = strlen(sho);
 	if (!llen) llen = strlen(lon);
@@ -35,10 +35,10 @@ int PSYC_matches(uint8_t* sho, size_t slen,
 	/* doesn't always work this way.. FIXME */
 	*se = *le = '_';
 	sho++; lon++;
-	while(s = strchr(sho, '_')) {
+	while((s = strchr(sho, '_'))) {
 		*s = 0;
 		PT(("sho goes '%c' and lon goes '%c'\n", *sho, *lon))
-		while(l = strchr(lon, '_')) {
+		while((l = strchr(lon, '_'))) {
 			*l = 0;
 			PT(("strcmp short '%s' long '%s'\n", sho, lon))
 			if (!strcmp(sho, lon)) goto foundone;
