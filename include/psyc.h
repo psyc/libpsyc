@@ -31,6 +31,20 @@ typedef enum
 } PSYC_Bool;
 
 /**
+ * PSYC packet parts.
+ */
+typedef enum
+{
+	PSYC_PART_RESET = -1,
+	PSYC_PART_HEADER = 0,
+	PSYC_PART_LENGTH,
+	PSYC_PART_CONTENT,
+	PSYC_PART_METHOD,
+	PSYC_PART_DATA,
+	PSYC_PART_END,
+} PSYC_Part;
+
+/**
  * Different types that a variable can have.
  *
  * This enum lists PSYC variable types that
@@ -55,6 +69,16 @@ typedef enum
 } PSYC_Type;
 
 /**
+ * List types.
+ * Possible types are text and binary.
+ */
+typedef enum
+{
+	PSYC_LIST_TEXT = 1,
+	PSYC_LIST_BINARY = 2,
+} PSYC_ListType;
+
+/**
  * Get the type of variable name.
  */
 PSYC_Type PSYC_getVarType(char* name, size_t len);
@@ -63,7 +87,6 @@ PSYC_Type PSYC_getVarType(char* name, size_t len);
  * Get the type of variable name.
  */
 PSYC_Bool PSYC_isRoutingVar(char* name, size_t len);
-
 
 /**
  * Checks if long keyword string inherits from short keyword string.

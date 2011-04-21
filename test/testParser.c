@@ -1,3 +1,4 @@
+#include <psyc.h>
 #include <psyc/parser.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -8,8 +9,8 @@ int main(int argc, char** argv)
 	int index, ret;
 	uint8_t buffer[2048], modifier;
 	PSYC_Array name, value, elem;
-	PSYC_ParserState state;
-	PSYC_ListState listState;
+	PSYC_ParseState state;
+	PSYC_ParseListState listState;
 
 	int file = open(argv[1],O_RDONLY);
 	if(file < 0)

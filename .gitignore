@@ -1,7 +1,9 @@
-doc/
+doc/html
+doc/latex
+doc/man
 src/match
-tests/testMatch
-tests/testParser
+test/testMatch
+test/testParser
 
 .config
 ~$*
