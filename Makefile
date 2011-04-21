@@ -1,8 +1,8 @@
 .PHONY: doc
-.PHONY: tests
+.PHONY: test
 
 default:
-	@/bin/echo -e "Usage:\n\tmake diet - compile with diet libc\n\tmake lib  - compile with normal gnu libc\n\tmake tests\n\tmake doc"
+	@/bin/echo -e "Usage:\n\tmake diet - compile with diet libc\n\tmake lib  - compile with normal gnu libc\n\tmake test\n\tmake doc"
 
 lib:
 	make -C src lib
@@ -10,13 +10,13 @@ lib:
 diet:
 	make -C src diet
 
-tests:
-	make -C tests
+test:
+	make -C test
 
 doc:
 	doxygen
 
 clean:
 	make -C src clean
-	make -C tests clean
-	rm -rf doc
+	make -C test clean
+	rm -rf doc/html doc/latex doc/man

@@ -22,7 +22,7 @@
 typedef enum
 {
 	PSYC_HEADER_ONLY = 1,
-} PSYC_ParserFlag;
+} PSYC_ParseFlag;
 
 /**
  * The return value definitions for the packet parsing function.
@@ -78,36 +78,12 @@ typedef enum
 	PSYC_LIST_END = 2,
 /// Binary list is incomplete.
 	PSYC_LIST_INCOMPLETE = 3,
-} PSYC_ListRC;
-
-/**
- * PSYC packet parts.
- */
-typedef enum
-{
-	PSYC_PART_RESET = -1,
-	PSYC_PART_HEADER = 0,
-	PSYC_PART_LENGTH,
-	PSYC_PART_CONTENT,
-	PSYC_PART_METHOD,
-	PSYC_PART_DATA,
-	PSYC_PART_END,
-} PSYC_Part;
-
-/**
- * List types.
- * Possible types are text and binary.
- */
-typedef enum
-{
-	PSYC_LIST_TEXT = 1,
-	PSYC_LIST_BINARY = 2,
-} PSYC_ListType;
+} PSYC_ParseListRC;
 
 typedef struct
 {
 	size_t length;
-	const uint8_t * ptr; // just an unsigned char for opaque data
+	const uint8_t* ptr; // just an unsigned char for opaque data
 } PSYC_Array;	// to be renamed or solved differently..
 
 /**
@@ -117,8 +93,8 @@ typedef struct
 {
 	size_t cursor; ///< current position in buffer
 	size_t startc; ///< position where the parsing would be resumed
-	PSYC_Array buffer;
-	uint8_t flags; ///< flags for the parser, see PSYC_ParserFlag
+	PSYC_Array buffer; ///< buffer with data to be parsed
+	uint8_t flags; ///< flags for the parser, see PSYC_ParseFlag
 	PSYC_Part part; ///< part of the packet being parsed currently
 
 	size_t contentParsed; ///< number of bytes parsed from the content so far
@@ -126,7 +102,7 @@ typedef struct
 	PSYC_Bool contentLengthFound; ///< is there a length given for this packet?
 	size_t valueParsed; ///< number of bytes parsed from the value so far
 	size_t valueLength; ///< expected length of the value
-} PSYC_ParserState;
+} PSYC_ParseState;
 
 /**
  * Struct for keeping list parser state.
@@ -140,7 +116,7 @@ typedef struct
 
 	size_t elemParsed; ///< number of bytes parsed from the elem so far
 	size_t elemLength; ///< expected length of the elem
-} PSYC_ListState;
+} PSYC_ParseListState;
 
 #ifndef PSYC_COMPILE_LIBRARY
 /**
@@ -161,11 +137,11 @@ inline PSYC_Array PSYC_createArray (uint8_t* const memory, size_t length)
  * Initiates the state struct with flags.
  *
  * @param state Pointer to the state struct that should be initiated.
- * @param flags Flags to be set for the parser, see PSYC_ParserFlag.
+ * @param flags Flags to be set for the parser, see PSYC_ParseFlag.
  */
-inline void PSYC_initState2 (PSYC_ParserState* state, uint8_t flags )
+inline void PSYC_initState2 (PSYC_ParseState* state, uint8_t flags)
 {
-	memset(state, 0, sizeof(PSYC_ParserState));
+	memset(state, 0, sizeof(PSYC_ParseState));
 	state->flags = flags;
 }
 
@@ -174,9 +150,9 @@ inline void PSYC_initState2 (PSYC_ParserState* state, uint8_t flags )
  *
  * @param state Pointer to the state struct that should be initiated.
  */
-inline void PSYC_initState (PSYC_ParserState* state)
+inline void PSYC_initState (PSYC_ParseState* state)
 {
-	memset(state, 0, sizeof(PSYC_ParserState));
+	memset(state, 0, sizeof(PSYC_ParseState));
 }
 
 /**
@@ -184,24 +160,24 @@ inline void PSYC_initState (PSYC_ParserState* state)
  *
  * @param state Pointer to the list state struct that should be initiated.
  */
-inline void PSYC_initListState (PSYC_ListState* state)
+inline void PSYC_initListState (PSYC_ParseListState* state)
 {
-	memset(state, 0, sizeof(PSYC_ListState));
+	memset(state, 0, sizeof(PSYC_ParseListState));
 }
 
-inline void PSYC_nextBuffer (PSYC_ParserState* state, PSYC_Array newBuf)
-{
-	state->buffer = newBuf;
-	state->cursor = 0;
-}
-
-inline void PSYC_nextListBuffer (PSYC_ListState* state, PSYC_Array newBuf)
+inline void PSYC_nextBuffer (PSYC_ParseState* state, PSYC_Array newBuf)
 {
 	state->buffer = newBuf;
 	state->cursor = 0;
 }
 
-inline size_t PSYC_getContentLength (PSYC_ParserState* s)
+inline void PSYC_nextListBuffer (PSYC_ParseListState* state, PSYC_Array newBuf)
+{
+	state->buffer = newBuf;
+	state->cursor = 0;
+}
+
+inline size_t PSYC_getContentLength (PSYC_ParseState* s)
 {
 	return s->contentLength;
 }
@@ -213,7 +189,7 @@ inline size_t PSYC_getContentLength (PSYC_ParserState* s)
  *
  * Generalized line-based packet parser.
  *
- * @param state An initialized PSYC_ParserState
+ * @param state An initialized PSYC_ParseState
  * @param modifier A pointer to a character. In case of a variable, it will
  *                 be set to the modifier of that variable
  * @param name A pointer to a PSYC_Array. It will point to the name of
@@ -221,12 +197,12 @@ inline size_t PSYC_getContentLength (PSYC_ParserState* s)
  * @param value A pointer to a PSYC_Array. It will point to the
  *              value/body the variable/method and its length will be set accordingly
  */
-PSYC_ParseRC PSYC_parse(PSYC_ParserState* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
+PSYC_ParseRC PSYC_parse(PSYC_ParseState* state, uint8_t* modifier, PSYC_Array* name, PSYC_Array* value);
 
 /**
  * List value parser.
  */
-PSYC_ListRC PSYC_parseList(PSYC_ListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem);
+PSYC_ParseListRC PSYC_parseList(PSYC_ParseListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem);
 
 #endif // PSYC_PARSER_H
 
