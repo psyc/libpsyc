@@ -154,7 +154,7 @@ inline PSYC_ParseRC PSYC_parseBinaryValue(PSYC_ParseState* state, PSYC_Array* va
  * Parse simple or binary variable.
  * @return PSYC_PARSE_ERROR or PSYC_PARSE_SUCCESS
  */
-inline PSYC_ParseRC PSYC_parseVar(PSYC_ParseState* state, char* oper, PSYC_Array* name, PSYC_Array* value)
+inline PSYC_ParseRC PSYC_parseModifier(PSYC_ParseState* state, char* oper, PSYC_Array* name, PSYC_Array* value)
 {
 	*oper = *(state->buffer.ptr + state->cursor);
 	ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
@@ -248,7 +248,7 @@ PSYC_ParseRC PSYC_parse(PSYC_ParseState* state, char* oper, PSYC_Array* name, PS
 			// so just test if the first char is a glyph.
 			if (isGlyph(state->buffer.ptr[state->cursor])) // is the first char a glyph?
 			{ // it is a glyph, so a variable starts here
-				ret = PSYC_parseVar(state, oper, name, value);
+				ret = PSYC_parseModifier(state, oper, name, value);
 				return ret == PSYC_PARSE_SUCCESS ? PSYC_PARSE_ROUTING : ret;
 			}
 			else // not a glyph
@@ -310,7 +310,7 @@ PSYC_ParseRC PSYC_parse(PSYC_ParseState* state, char* oper, PSYC_Array* name, PS
 			if (isGlyph(state->buffer.ptr[state->cursor]))
 			{
 				pos = state->cursor;
-				ret = PSYC_parseVar(state, oper, name, value);
+				ret = PSYC_parseModifier(state, oper, name, value);
 				state->contentParsed += state->cursor - pos;
 				return ret == PSYC_PARSE_SUCCESS ? PSYC_PARSE_ENTITY : ret;
 			}
