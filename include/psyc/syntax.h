@@ -17,20 +17,20 @@
 #define	C_GLYPH_SEPARATOR_KEYWORD	'_'
 #define	S_GLYPH_SEPARATOR_KEYWORD	"_"
 
-#define	C_GLYPH_MODIFIER_SET		':'
-#define	S_GLYPH_MODIFIER_SET		":"
+#define	C_GLYPH_OPERATOR_SET		':'
+#define	S_GLYPH_OPERATOR_SET		":"
 
-#define	C_GLYPH_MODIFIER_ASSIGN		'='
-#define	S_GLYPH_MODIFIER_ASSIGN		"="
+#define	C_GLYPH_OPERATOR_ASSIGN		'='
+#define	S_GLYPH_OPERATOR_ASSIGN		"="
 
-#define	C_GLYPH_MODIFIER_AUGMENT	'+'
-#define	S_GLYPH_MODIFIER_AUGMENT	"+"
+#define	C_GLYPH_OPERATOR_AUGMENT	'+'
+#define	S_GLYPH_OPERATOR_AUGMENT	"+"
 
-#define	C_GLYPH_MODIFIER_DIMINISH	'-'
-#define	S_GLYPH_MODIFIER_DIMINISH	"-"
+#define	C_GLYPH_OPERATOR_DIMINISH	'-'
+#define	S_GLYPH_OPERATOR_DIMINISH	"-"
 
-#define	C_GLYPH_MODIFIER_QUERY		'?'
-#define	S_GLYPH_MODIFIER_QUERY		"?"
+#define	C_GLYPH_OPERATOR_QUERY		'?'
+#define	S_GLYPH_OPERATOR_QUERY		"?"
 
 /* might move into routing.h or something */
 #define PSYC_ROUTING			1

@@ -46,14 +46,14 @@ void PSYC_parse(const uint8_t* data, unsigned int length,
                 struct PSYC_Parser* pstate);
 
 /** @brief FlagMod */
-enum PSYC_Modifier
+enum PSYC_Operator
 { 
-	// variable modifers
-	ASSIGN=0x02, 
-	AUGMENT=0x04, 
-	DIMINISH=0x08, 
-	SET=0x10, 
-	QUERY=0x20 
+	// modifier operators
+	ASSIGN = 0x02,
+	AUGMENT = 0x04,
+	DIMINISH = 0x08,
+	SET = 0x10,
+	QUERY = 0x20,
 };
 
 struct PSYC_Parser
@@ -79,7 +79,7 @@ struct PSYC_Parser
 	void (*stateCallback)(struct PSYC_Parser* pstate,
 	       const uint8_t *name, const unsigned int nlength,
 	       const uint8_t *value, const unsigned int vlength,
-	       enum PSYC_Modifier modifiers, char inEntity);
+	       enum PSYC_Operator operators, char inEntity);
 
 	/** @brief gets called after the routing-header was parsed
 	 *
@@ -135,7 +135,7 @@ struct PSYC_Parser
 	void (*errorStateCallback)(struct PSYC_Parser* pstate,
 	       const uint8_t *name, const unsigned int nlength,
 	       const uint8_t *value, const unsigned int vlength,
-	       enum PSYC_Modifier modifiers);
+	       enum PSYC_Operator operators);
 
 
 	/*******************************************

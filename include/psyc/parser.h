@@ -43,13 +43,13 @@ typedef enum
 /// from the cursor position to the end.
 	PSYC_PARSE_INSUFFICIENT = 1,
 /// Routing variable parsing done.
-/// Modifier, name & value contains the respective parts.
+/// Operator, name & value contains the respective parts.
 	PSYC_PARSE_ROUTING = 2,
 /// Entity variable parsing done.
-/// Modifier, name & value contains the respective parts.
+/// Operator, name & value contains the respective parts.
 	PSYC_PARSE_ENTITY = 3,
 /// Entity variable parsing is incomplete.
-/// Modifier & name are complete, value is incomplete.
+/// Operator & name are complete, value is incomplete.
 	PSYC_PARSE_ENTITY_INCOMPLETE = 4,
 /// Body parsing done, name contains method, value contains body.
 	PSYC_PARSE_BODY = 5,
@@ -156,14 +156,14 @@ inline size_t PSYC_getContentLength (PSYC_ParseState* s);
  * Generalized line-based packet parser.
  *
  * @param state An initialized PSYC_ParseState
- * @param modifier A pointer to a character. In case of a variable, it will
- *                 be set to the modifier of that variable
+ * @param operator A pointer to a character. In case of a variable, it will
+ *                 be set to the operator of that variable
  * @param name A pointer to a PSYC_Array. It will point to the name of
  *             the variable or method and its length will be set accordingly
  * @param value A pointer to a PSYC_Array. It will point to the
  *              value/body the variable/method and its length will be set accordingly
  */
-PSYC_ParseRC PSYC_parse(PSYC_ParseState* state, char* modifier, PSYC_Array* name, PSYC_Array* value);
+PSYC_ParseRC PSYC_parse(PSYC_ParseState* state, char* operator, PSYC_Array* name, PSYC_Array* value);
 
 /**
  * List value parser.
