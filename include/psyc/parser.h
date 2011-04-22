@@ -120,11 +120,14 @@ typedef struct
  *
  * @return An instance of the PSYC_Array struct.
  */
-inline PSYC_Array PSYC_createArray (const char* memory, size_t length)
-{
-	PSYC_Array arr = {length, memory};
-	return arr;
-}
+inline PSYC_Array PSYC_createArray (const char* memory, size_t length);
+
+/**
+ * Initiates the state struct.
+ *
+ * @param state Pointer to the state struct that should be initiated.
+ */
+inline void PSYC_initParseState (PSYC_ParseState* state);
 
 /**
  * Initiates the state struct with flags.
@@ -132,48 +135,20 @@ inline PSYC_Array PSYC_createArray (const char* memory, size_t length)
  * @param state Pointer to the state struct that should be initiated.
  * @param flags Flags to be set for the parser, see PSYC_ParseFlag.
  */
-inline void PSYC_initParseState2 (PSYC_ParseState* state, uint8_t flags)
-{
-	memset(state, 0, sizeof(PSYC_ParseState));
-	state->flags = flags;
-}
-
-/**
- * Initiates the state struct.
- *
- * @param state Pointer to the state struct that should be initiated.
- */
-inline void PSYC_initParseState (PSYC_ParseState* state)
-{
-	memset(state, 0, sizeof(PSYC_ParseState));
-}
+inline void PSYC_initParseState2 (PSYC_ParseState* state, uint8_t flags);
 
 /**
  * Initiates the list state struct.
  *
  * @param state Pointer to the list state struct that should be initiated.
  */
-inline void PSYC_initParseListState (PSYC_ParseListState* state)
-{
-	memset(state, 0, sizeof(PSYC_ParseListState));
-}
+inline void PSYC_initParseListState (PSYC_ParseListState* state);
 
-inline void PSYC_nextParseBuffer (PSYC_ParseState* state, PSYC_Array newBuf)
-{
-	state->buffer = newBuf;
-	state->cursor = 0;
-}
+inline void PSYC_nextParseBuffer (PSYC_ParseState* state, PSYC_Array newBuf);
 
-inline void PSYC_nextParseListBuffer (PSYC_ParseListState* state, PSYC_Array newBuf)
-{
-	state->buffer = newBuf;
-	state->cursor = 0;
-}
+inline void PSYC_nextParseListBuffer (PSYC_ParseListState* state, PSYC_Array newBuf);
 
-inline size_t PSYC_getContentLength (PSYC_ParseState* s)
-{
-	return s->contentLength;
-}
+inline size_t PSYC_getContentLength (PSYC_ParseState* s);
 
 /**
  * Parse PSYC packets.

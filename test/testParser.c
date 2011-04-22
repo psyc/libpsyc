@@ -7,7 +7,7 @@
 int main(int argc, char** argv)
 {
 	int index, ret;
-	uint8_t buffer[2048], modifier;
+	char buffer[2048], modifier;
 	PSYC_Array name, value, elem;
 	PSYC_ParseState state;
 	PSYC_ParseListState listState;
