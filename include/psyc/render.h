@@ -42,7 +42,7 @@ inline void PSYC_initRenderState (PSYC_RenderState* state);
 int PSYC_renderVar(PSYC_RenderState* render,
                       const char* name, size_t nlength,
                       const char* value, size_t vlength,
-                      PSYC_RenderFlag flags, char operator);
+                      PSYC_RenderFlag flags, char oper);
 
 int PSYC_renderBody(PSYC_RenderState* render,
                     const char* method, size_t mlength,

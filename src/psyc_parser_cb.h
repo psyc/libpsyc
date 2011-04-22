@@ -79,7 +79,7 @@ struct PSYC_Parser
 	void (*stateCallback)(struct PSYC_Parser* pstate,
 	       const uint8_t *name, const unsigned int nlength,
 	       const uint8_t *value, const unsigned int vlength,
-	       enum PSYC_Operator operators, char inEntity);
+	       enum PSYC_Operator oper, char inEntity);
 
 	/** @brief gets called after the routing-header was parsed
 	 *
@@ -135,7 +135,7 @@ struct PSYC_Parser
 	void (*errorStateCallback)(struct PSYC_Parser* pstate,
 	       const uint8_t *name, const unsigned int nlength,
 	       const uint8_t *value, const unsigned int vlength,
-	       enum PSYC_Operator operators);
+	       enum PSYC_Operator oper);
 
 
 	/*******************************************

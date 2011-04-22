@@ -9,15 +9,15 @@ inline void PSYC_initRenderState (PSYC_RenderState* state)
 PSYC_RenderRC PSYC_renderVar(PSYC_RenderState* state,
                                 const char* name, size_t nlength,
                                 const char* value, size_t vlength,
-                                const PSYC_RenderFlag flags, char operator)
+                                const PSYC_RenderFlag flags, char oper)
 {
 	size_t startc = state->cursor;
 
 	unless (nlength) nlength = strlen(name);
 	// vlength 0 means an empty variable.. no cheating there
-	unless (operator) operator = C_GLYPH_OPERATOR_SET;
+	unless (oper) oper = C_GLYPH_OPERATOR_SET;
 
-	state->buffer[state->cursor++] = operator;
+	state->buffer[state->cursor++] = oper;
 	strncpy(&state->buffer[state->cursor], name, nlength);
 	state->cursor += nlength;
 
