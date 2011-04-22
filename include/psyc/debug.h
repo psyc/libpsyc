@@ -1,3 +1,6 @@
+#ifndef DEBUG_H
+# define DEBUG_H
+
 #ifdef DEBUG
 # include <stdio.h>
 # define PP(args) printf args;
@@ -93,3 +96,4 @@
 # define ASSERT(NAME,CONDITION,VALUE)
 #endif
 
+#endif // DEBUG_H

@@ -21,18 +21,18 @@ int main(int argc, char** argv)
 	write(1, buffer, index);
 	write(1, ">> PARSE\n", 9);
 
-	PSYC_initState(&state);
-	PSYC_nextBuffer(&state, PSYC_createArray(buffer, index));
+	PSYC_initParseState(&state);
+	PSYC_nextParseBuffer(&state, PSYC_createArray(buffer, index));
 
 	// try parsing that now
 	while ((ret = PSYC_parse(&state, &modifier, &name, &value)))
 	{
 		switch (ret)
 		{
-			case PSYC_ROUTING:
-			case PSYC_ENTITY:
+			case PSYC_PARSE_ROUTING:
+			case PSYC_PARSE_ENTITY:
 				write(1, &modifier, 1);
-			case PSYC_BODY:
+			case PSYC_PARSE_BODY:
 				// printf("the string is '%.*s'\n", name);
 				write(1, name.ptr, name.length);
 				write(1, " = ", 3);
@@ -41,14 +41,14 @@ int main(int argc, char** argv)
 				if (memcmp(name.ptr, "_list", 5) == 0)
 				{
 					write(1, ">>> LIST START\n", 15);
-					PSYC_initListState(&listState);
-					PSYC_nextListBuffer(&listState, value);
+					PSYC_initParseListState(&listState);
+					PSYC_nextParseListBuffer(&listState, value);
 					while ((ret = PSYC_parseList(&listState, &name, &value, &elem)))
 					{
 						switch (ret)
 						{
-							case PSYC_LIST_END:
-							case PSYC_LIST_ELEM:
+							case PSYC_PARSE_LIST_END:
+							case PSYC_PARSE_LIST_ELEM:
 								write(1, "|", 1);
 								write(1, elem.ptr, elem.length);
 								write(1, "\n", 1);
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 								return 1;
 						}
 
-						if (ret == PSYC_LIST_END)
+						if (ret == PSYC_PARSE_LIST_END)
 						{
 							write(1, ">>> LIST END\n", 13);
 							break;
@@ -66,10 +66,10 @@ int main(int argc, char** argv)
 					}
 				}
 				break;
-			case PSYC_COMPLETE:
+			case PSYC_PARSE_COMPLETE:
 				printf("Done parsing.\n");
 				continue;
-			case PSYC_INSUFFICIENT:
+			case PSYC_PARSE_INSUFFICIENT:
 				printf("Insufficient data.\n");
 				return 0;
 			default:
