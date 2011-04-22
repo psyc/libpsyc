@@ -19,13 +19,13 @@ int writePresence(const char *avail, int availlen, const char *desc, int desclen
 	}
 //	if (PSYC_initBuffer(pb, WHATEVER)) die("PSYC_initBuffer hates me");
 
-	(void) PSYC_renderHeader(pb, "_context", 0,
-				 myUNI, sizeof(myUNI), PSYC_FLAG_ROUTING, 0);
+	(void) PSYC_renderVar(pb, "_context", 0,
+				 myUNI, sizeof(myUNI), PSYC_RENDER_ROUTING, 0);
 
-	// the first call to PSYC_renderHeader() without PSYC_FLAG_ROUTING adds the
-	// extra newline to the buffer. later vars with PSYC_FLAG_ROUTING cause an error.
-	(void) PSYC_renderHeader(pb, "_degree_availability", 0, avail, availlen, 0, C_GLYPH_MODIFIER_ASSIGN);
-	(void) PSYC_renderHeader(pb, "_description_presence", 0, desc, desclen, 0, C_GLYPH_MODIFIER_ASSIGN);
+	// the first call to PSYC_renderHeader() without PSYC_RENDER_ROUTING adds the
+	// extra newline to the buffer. later vars with PSYC_RENDER_ROUTING cause an error.
+	(void) PSYC_renderVar(pb, "_degree_availability", 0, avail, availlen, 0, C_GLYPH_MODIFIER_ASSIGN);
+	(void) PSYC_renderVar(pb, "_description_presence", 0, desc, desclen, 0, C_GLYPH_MODIFIER_ASSIGN);
 	// presence is to be assigned permanently in distributed state
 
 	(void) PSYC_renderBody(pb, "_notice_presence", 0,

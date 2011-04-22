@@ -42,10 +42,7 @@ typedef struct
  *
  * @param state Pointer to the state struct that should be initiated.
  */
-inline void PSYC_initRenderState (PSYC_RenderState* state)
-{
-	memset(state, 0, sizeof(PSYC_RenderState));
-}
+inline void PSYC_initRenderState (PSYC_RenderState* state);
 
 int PSYC_renderVar(PSYC_RenderState* render,
                       const char* name, size_t nlength,

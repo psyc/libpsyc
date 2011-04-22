@@ -1,6 +1,11 @@
 #include "psyc/lib.h"
 #include "psyc/render.h"
 
+inline void PSYC_initRenderState (PSYC_RenderState* state)
+{
+	memset(state, 0, sizeof(PSYC_RenderState));
+}
+
 PSYC_RenderRC PSYC_renderVar(PSYC_RenderState* state,
                                 const char* name, size_t nlength,
                                 const char* value, size_t vlength,

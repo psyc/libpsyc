@@ -1,7 +1,7 @@
 #include <psyc.h>
 #include <stdint.h>
 
-const PSYC_Array PSYC_routingVars[] =
+const PSYC_Array PSYC_routingVars[] = /// Routing variables in alphabetical order.
 {
 	{17, "_amount_fragments"},
 	{ 8, "_context"},
