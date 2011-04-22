@@ -3,11 +3,6 @@
 
 #include "syntax.h"
 
-#define PSYC_FLAG_UNDEFINED     0
-#define PSYC_FLAG_NOT_BINARY    1
-#define PSYC_FLAG_YES_BINARY    2
-#define PSYC_FLAG_CHECK_BINARY  3
-
 typedef enum
 {
 	PSYC_RENDER_CHECK_LENGTH = 0,
@@ -47,7 +42,7 @@ inline void PSYC_initRenderState (PSYC_RenderState* state);
 int PSYC_renderVar(PSYC_RenderState* render,
                       const char* name, size_t nlength,
                       const char* value, size_t vlength,
-                      PSYC_RenderFlag flags, char modifier);
+                      PSYC_RenderFlag flags, char operator);
 
 int PSYC_renderBody(PSYC_RenderState* render,
                     const char* method, size_t mlength,

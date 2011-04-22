@@ -7,7 +7,7 @@
 int main(int argc, char** argv)
 {
 	int index, ret;
-	char buffer[2048], modifier;
+	char buffer[2048], operator;
 	PSYC_Array name, value, elem;
 	PSYC_ParseState state;
 	PSYC_ParseListState listState;
@@ -25,13 +25,13 @@ int main(int argc, char** argv)
 	PSYC_nextParseBuffer(&state, PSYC_createArray(buffer, index));
 
 	// try parsing that now
-	while ((ret = PSYC_parse(&state, &modifier, &name, &value)))
+	while ((ret = PSYC_parse(&state, &operator, &name, &value)))
 	{
 		switch (ret)
 		{
 			case PSYC_PARSE_ROUTING:
 			case PSYC_PARSE_ENTITY:
-				write(1, &modifier, 1);
+				write(1, &operator, 1);
 			case PSYC_PARSE_BODY:
 				// printf("the string is '%.*s'\n", name);
 				write(1, name.ptr, name.length);
