@@ -4,6 +4,7 @@ doc/man
 src/match
 test/testMatch
 test/testParser
+test/testRender
 
 .config
 ~$*
