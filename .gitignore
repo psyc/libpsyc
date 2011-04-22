@@ -5,6 +5,7 @@ src/match
 test/testMatch
 test/testParser
 test/testRender
+test/isRoutingVar
 
 .config
 ~$*

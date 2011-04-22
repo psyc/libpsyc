@@ -1,18 +1,33 @@
+#ifndef PSYC_RENDER_H
+# define PSYC_RENDER_H
+
 #include "syntax.h"
+
+#define PSYC_FLAG_UNDEFINED     0
+#define PSYC_FLAG_NOT_BINARY    1
+#define PSYC_FLAG_YES_BINARY    2
+#define PSYC_FLAG_CHECK_BINARY  3
+
+typedef enum
+{
+	PSYC_RENDER_CHECK_BINARY = 0,
+	PSYC_RENDER_BINARY = 1,
+	PSYC_RENDER_NOT_BINARY = 2,
+	PSYC_RENDER_ROUTING = 3,
+} PSYC_RenderFlag;
+
+typedef enum
+{
+	PSYC_RENDER_ERROR_ROUTING = -2,
+	PSYC_RENDER_ERROR = -1,
+	PSYC_RENDER_SUCCESS = 0,
+} PSYC_RenderRC;
 
 /**
  * Struct for keeping render state.
  */
-typedef enum {
-	PSYC_FINE = 0,
-	PSYC_NEED_LENGTH = 1
-} PSYC_RenderFlag;
-
-typedef enum {
-	PSYC_FLAG_ROUTING = 1
-} PSYC_RenderHeaderFlag;
-
-typedef struct {
+typedef struct
+{
 	PSYC_RenderFlag flag; ///< flags for the renderer
 	PSYC_Part part; ///< part of the packet being rendered
 	size_t cursor; ///< current position in buffer
@@ -22,14 +37,23 @@ typedef struct {
 	char buffer[]; ///< OMG a C99 feature! variable size buffer!
 } PSYC_RenderState;
 
-int PSYC_renderHeader(PSYC_RenderState* render,
+/**
+ * Initiates the state struct.
+ *
+ * @param state Pointer to the state struct that should be initiated.
+ */
+inline void PSYC_initRenderState (PSYC_RenderState* state)
+{
+	memset(state, 0, sizeof(PSYC_RenderState));
+}
+
+int PSYC_renderVar(PSYC_RenderState* render,
                       const char* name, size_t nlength,
                       const char* value, size_t vlength,
-                      PSYC_RenderHeaderFlag flags, char modifier);
+                      PSYC_RenderFlag flags, char modifier);
 
 int PSYC_renderBody(PSYC_RenderState* render,
                     const char* method, size_t mlength,
                     const char* data, size_t dlength);
 
-int PSYC_doneRender(PSYC_RenderState* render,
-                    uint8_t** buf, size_t* written);
+#endif // PSYC_RENDER_H

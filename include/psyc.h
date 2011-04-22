@@ -36,7 +36,7 @@ typedef enum
 typedef enum
 {
 	PSYC_PART_RESET = -1,
-	PSYC_PART_HEADER = 0,
+	PSYC_PART_ROUTING,
 	PSYC_PART_LENGTH,
 	PSYC_PART_CONTENT,
 	PSYC_PART_METHOD,
@@ -54,6 +54,7 @@ typedef enum
  */
 typedef enum
 {
+	PSYC_TYPE_UNKNOWN,
 	PSYC_TYPE_AMOUNT,
 	PSYC_TYPE_COLOR,
 	PSYC_TYPE_DATE,
@@ -78,15 +79,26 @@ typedef enum
 	PSYC_LIST_BINARY = 2,
 } PSYC_ListType;
 
-/**
- * Get the type of variable name.
- */
-PSYC_Type PSYC_getVarType(char* name, size_t len);
+typedef struct
+{
+	size_t length;
+	const char* ptr;
+} PSYC_Array;
+
+/// Routing vars in alphabetical order.
+extern const PSYC_Array PSYC_routingVars[];
+/// Number of routing vars.
+extern const size_t PSYC_routingVarsNum;
 
 /**
  * Get the type of variable name.
  */
-PSYC_Bool PSYC_isRoutingVar(char* name, size_t len);
+PSYC_Bool PSYC_isRoutingVar(const char* name, size_t len);
+
+/**
+ * Get the type of variable name.
+ */
+PSYC_Type PSYC_getVarType(char* name, size_t len);
 
 /**
  * Checks if long keyword string inherits from short keyword string.

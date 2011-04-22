@@ -1,51 +1,70 @@
 #include "psyc/lib.h"
 #include "psyc/render.h"
 
-int PSYC_renderHeader(PSYC_RenderState* r,
-                      const char* name, size_t nlength,
-                      const char* value, size_t vlength,
-                      const PSYC_RenderHeaderFlag flags,
-		      char modifier) {
+PSYC_RenderRC PSYC_renderVar(PSYC_RenderState* state,
+                                const char* name, size_t nlength,
+                                const char* value, size_t vlength,
+                                const PSYC_RenderFlag flags, char modifier)
+{
+	size_t startc = state->cursor;
+
 	unless (nlength) nlength = strlen(name);
 	// vlength 0 means an empty variable.. no cheating there
 	unless (modifier) modifier = C_GLYPH_MODIFIER_SET;
 
-	r->buffer[r->cursor++] = modifier;
-	strncpy(&r->buffer[r->cursor], name, nlength);
-	r->cursor += nlength;
-	if (vlength) {
-		r->buffer[r->cursor++] = '\t';
-		strncpy(&r->buffer[r->cursor], value, vlength);
-		r->cursor += vlength;
+	state->buffer[state->cursor++] = modifier;
+	strncpy(&state->buffer[state->cursor], name, nlength);
+	state->cursor += nlength;
+
+	if (vlength)
+	{
+		state->buffer[state->cursor++] = '\t';
+		strncpy(&state->buffer[state->cursor], value, vlength);
+		state->cursor += vlength;
 	}
 
-	if (flags == PSYC_FLAG_ROUTING) {
-		if (r->spot != 0) {
-			P1(("Too late to add a routing variable!\n"))
-			return -1;
+	//if (flags == PSYC_RENDER_ROUTING)
+	if (PSYC_isRoutingVar(name, nlength))
+	{ // no more routing headers allowed after content started
+		if (state->part != PSYC_PART_ROUTING)
+		{
+			P1(("Too late to add a routing variable!\n"));
+			return PSYC_RENDER_ERROR_ROUTING;
 		}
-	} else if (r->spot == 0) {
+	}
+	else if (state->part == PSYC_PART_ROUTING)
+	{ // first entity header, set part to content
+		state->part = PSYC_PART_CONTENT;
 		// add "\n000000000" to buffer
 		// and make spot point to the first 0
 	}
-	return 0;
+
+	// update content length if we're in the content part
+	if (state->part == PSYC_PART_CONTENT)
+		state->contentLength += state->cursor - startc;
+
+	return PSYC_RENDER_SUCCESS;
 }
 
-int PSYC_renderBody(PSYC_RenderState* render,
+/* render PSYC packets */
+PSYC_RenderRC PSYC_renderBody(PSYC_RenderState* state,
                     const char* method, size_t mlength,
-                    const char* data, size_t dlength) {
-
-	// find out if this packet needs a prepended length
-	if (dlength == 1 && data[0] == C_GLYPH_PACKET_DELIMITER)
-	    render->flag = PSYC_NEED_LENGTH;
-	else if (dlength > 404)
-	    render->flag = PSYC_NEED_LENGTH;
-	else if (memmem(data, dlength, PSYC_PACKET_DELIMITER,
-				sizeof(PSYC_PACKET_DELIMITER)))
-	    render->flag = PSYC_NEED_LENGTH;
-	else
-	    render->flag = PSYC_FINE;
+                    const char* data, size_t dlength)
+{
+	if (state->flag == PSYC_RENDER_CHECK_BINARY)
+	{
+		// find out if this packet needs a prepended length
+		if (dlength == 1 && data[0] == C_GLYPH_PACKET_DELIMITER)
+	    state->flag = PSYC_RENDER_BINARY;
+		else if (dlength > 404)
+	    state->flag = PSYC_RENDER_BINARY;
+		else if (memmem(data, dlength, PSYC_PACKET_DELIMITER, sizeof(PSYC_PACKET_DELIMITER)))
+	    state->flag = PSYC_RENDER_BINARY;
+		else
+	    state->flag = PSYC_RENDER_NOT_BINARY;
+	}
 
 	// TBD
-	return 0;
+
+	return PSYC_RENDER_SUCCESS;
 }
