@@ -51,17 +51,17 @@ PSYC_RenderRC PSYC_renderBody(PSYC_RenderState* state,
                     const char* method, size_t mlength,
                     const char* data, size_t dlength)
 {
-	if (state->flag == PSYC_RENDER_CHECK_BINARY)
+	if (state->flag == PSYC_RENDER_CHECK_LENGTH)
 	{
 		// find out if this packet needs a prepended length
 		if (dlength == 1 && data[0] == C_GLYPH_PACKET_DELIMITER)
-	    state->flag = PSYC_RENDER_BINARY;
+	    state->flag = PSYC_RENDER_NEED_LENGTH;
 		else if (dlength > 404)
-	    state->flag = PSYC_RENDER_BINARY;
+	    state->flag = PSYC_RENDER_NEED_LENGTH;
 		else if (memmem(data, dlength, PSYC_PACKET_DELIMITER, sizeof(PSYC_PACKET_DELIMITER)))
-	    state->flag = PSYC_RENDER_BINARY;
+	    state->flag = PSYC_RENDER_NEED_LENGTH;
 		else
-	    state->flag = PSYC_RENDER_NOT_BINARY;
+	    state->flag = PSYC_RENDER_NO_LENGTH;
 	}
 
 	// TBD
