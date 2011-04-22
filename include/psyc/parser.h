@@ -163,7 +163,7 @@ inline size_t PSYC_getContentLength (PSYC_ParseState* s);
  * @param value A pointer to a PSYC_Array. It will point to the
  *              value/body the variable/method and its length will be set accordingly
  */
-PSYC_ParseRC PSYC_parse(PSYC_ParseState* state, char* operator, PSYC_Array* name, PSYC_Array* value);
+PSYC_ParseRC PSYC_parse(PSYC_ParseState* state, char* oper, PSYC_Array* name, PSYC_Array* value);
 
 /**
  * List value parser.
