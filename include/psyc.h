@@ -79,18 +79,31 @@ typedef enum
 	PSYC_LIST_BINARY = 2,
 } PSYC_ListType;
 
+typedef enum {
+	PSYC_MODIFIER_CHECK_LENGTH = 0,
+	PSYC_MODIFIER_NEED_LENGTH = 1,
+	PSYC_MODIFIER_NO_LENGTH = 2,
+	PSYC_MODIFIER_ROUTING = 3,
+} PSYC_ModifierType;
+
+typedef enum {
+	PSYC_CONTENT_CHECK_LENGTH = 0,
+	PSYC_CONTENT_NEED_LENGTH = 1,
+	PSYC_CONTENT_NO_LENGTH = 2,
+} PSYC_ContentType;
+
 typedef struct
 {
 	size_t length;
 	const char* ptr;
 } PSYC_Array;
 
-
 /* intermediate struct for a PSYC variable modification */
 typedef struct {
 	char oper;  // not call it 'operator' as C++ may not like that..?
 	PSYC_Array name;
-	PSYC_Array parameter;
+	PSYC_Array value;
+	PSYC_ModifierType type;
 } PSYC_Modifier;
 
 /* intermediate struct for a PSYC packet */
@@ -99,6 +112,8 @@ typedef struct {
 	PSYC_Modifier **entity;	    // Header
 	PSYC_Array method;
 	PSYC_Array data;
+	PSYC_ContentType contentType;
+	size_t contentLength;
 } PSYC_Packet;
 
 

@@ -6,7 +6,7 @@ inline void PSYC_initRenderState (PSYC_RenderState* state)
 	memset(state, 0, sizeof(PSYC_RenderState));
 }
 
-PSYC_RenderRC PSYC_renderVar(PSYC_RenderState* state,
+PSYC_RenderRC PSYC_renderModifier(PSYC_RenderState* state,
                                 const char* name, size_t nlength,
                                 const char* value, size_t vlength,
                                 const PSYC_RenderFlag flags, char oper)
