@@ -85,6 +85,23 @@ typedef struct
 	const char* ptr;
 } PSYC_Array;
 
+
+/* intermediate struct for a PSYC variable modification */
+typedef struct {
+	char oper;  // not call it 'operator' as C++ may not like that..?
+	PSYC_Array name;
+	PSYC_Array parameter;
+} PSYC_Modifier;
+
+/* intermediate struct for a PSYC packet */
+typedef struct {
+	PSYC_Modifier **routing;    // Header
+	PSYC_Modifier **entity;	    // Header
+	PSYC_Array method;
+	PSYC_Array data;
+} PSYC_Packet;
+
+
 /// Routing vars in alphabetical order.
 extern const PSYC_Array PSYC_routingVars[];
 /// Number of routing vars.
