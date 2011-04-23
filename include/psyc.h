@@ -124,9 +124,9 @@ PSYC_Modifier PSYC_newModifier(char* oper, PSYC_Array* name, PSYC_Array* value, 
 
 PSYC_Modifier PSYC_newModifier2(char* oper, char* name, size_t namelen, char* value, size_t valuelen, PSYC_ModifierFlag flag);
 
-PSYC_Packet PSYC_newPacket(PSYC_Modifier** routing, PSYC_Modifier **entity, PSYC_Array* method, PSYC_Array* data, PSYC_PacketFlag flag)
+PSYC_Packet PSYC_newPacket(PSYC_Modifier** routing, PSYC_Modifier **entity, PSYC_Array* method, PSYC_Array* data, PSYC_PacketFlag flag);
 
-PSYC_Packet PSYC_newPacket2(PSYC_Modifier** routing, PSYC_Modifier **entity, char* method, size_t methodlen, char* data, size_t datalen, PSYC_PacketFlag flag)
+PSYC_Packet PSYC_newPacket2(PSYC_Modifier** routing, PSYC_Modifier **entity, char* method, size_t methodlen, char* data, size_t datalen, PSYC_PacketFlag flag);
 
 /// Routing vars in alphabetical order.
 extern const PSYC_Array PSYC_routingVars[];
