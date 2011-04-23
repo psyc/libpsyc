@@ -79,18 +79,20 @@ typedef enum
 	PSYC_LIST_BINARY = 2,
 } PSYC_ListType;
 
-typedef enum {
+typedef enum
+{
 	PSYC_MODIFIER_CHECK_LENGTH = 0,
 	PSYC_MODIFIER_NEED_LENGTH = 1,
 	PSYC_MODIFIER_NO_LENGTH = 2,
 	PSYC_MODIFIER_ROUTING = 3,
-} PSYC_ModifierType;
+} PSYC_ModifierFlag;
 
-typedef enum {
-	PSYC_CONTENT_CHECK_LENGTH = 0,
-	PSYC_CONTENT_NEED_LENGTH = 1,
-	PSYC_CONTENT_NO_LENGTH = 2,
-} PSYC_ContentType;
+typedef enum
+{
+	PSYC_PACKET_CHECK_LENGTH = 0,
+	PSYC_PACKET_NEED_LENGTH = 1,
+	PSYC_PACKET_NO_LENGTH = 2,
+} PSYC_PacketFlag;
 
 typedef struct
 {
@@ -102,23 +104,32 @@ typedef struct
 #define	PSYC_C2ARG(string) string, sizeof(string)-1
 
 /* intermediate struct for a PSYC variable modification */
-typedef struct {
+typedef struct
+{
 	char oper;  // not call it 'operator' as C++ may not like that..?
 	PSYC_Array name;
 	PSYC_Array value;
-	PSYC_ModifierType type;
+	PSYC_ModifierFlag flag;
 } PSYC_Modifier;
 
 /* intermediate struct for a PSYC packet */
-typedef struct {
-	PSYC_Modifier **routing;    // Header
-	PSYC_Modifier **entity;	    // Header
+typedef struct
+{
+	PSYC_Modifier** routing; // Routing header
+	PSYC_Modifier** entity;	// Entitiy header
 	PSYC_Array method;
 	PSYC_Array data;
-	PSYC_ContentType contentType;
-	size_t contentLength;
+	size_t length; /// Length of content part
+	PSYC_PacketFlag flag;
 } PSYC_Packet;
 
+PSYC_Modifier PSYC_newModifier(char* oper, PSYC_Array* name, PSYC_Array* value, PSYC_ModifierFlag flag);
+
+PSYC_Modifier PSYC_newModifier2(char* oper, char* name, size_t namelen, char* value, size_t valuelen, PSYC_ModifierFlag flag);
+
+PSYC_Packet PSYC_newPacket(PSYC_Modifier** routing, PSYC_Modifier **entity, PSYC_Array* method, PSYC_Array* data, PSYC_PacketFlag flag);
+
+PSYC_Packet PSYC_newPacket2(PSYC_Modifier** routing, PSYC_Modifier **entity, char* method, size_t methodlen, char* data, size_t datalen, PSYC_PacketFlag flag);
 
 /// Routing vars in alphabetical order.
 extern const PSYC_Array PSYC_routingVars[];
