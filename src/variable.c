@@ -5,22 +5,24 @@ const PSYC_Array PSYC_routingVars[] = /// Routing variables in alphabetical orde
 {
 	{17, "_amount_fragments"},
 	{ 8, "_context"},
-	{ 6, "_count"},
+//	{ 6, "_count"},			// older PSYC
 	{ 8, "_counter"}, // the name for this is supposed to be _count, not _counter
 	{ 9, "_fragment"},
-	{ 7, "_length"},
+//	{ 7, "_length"},		// older PSYC
 	{ 7, "_source"},
-	{22, "_source_identification"},
-	{13, "_source_relay"},
+	PSYC_C2ARRAY("_source_identification"),
+//	{22, "_source_identification"},
+	PSYC_C2ARRAY("_source_relay"),
+//	{13, "_source_relay"},
 	{19, "_source_relay_relay"}, // until you have a better idea.. is this really in use?
 	{ 4, "_tag"},
 	{10, "_tag_relay"},
-	{10, "_tag_reply"}, // should be obsolete, but.. TODO
+//	{10, "_tag_reply"},		// older PSYC
 	{ 7, "_target"},
 	{15, "_target_forward"},
 	{13, "_target_relay"},
-	{19, "_understand_modules"},
-	{14, "_using_modules"},
+//	{19, "_understand_modules"},    // older PSYC
+//	{14, "_using_modules"},	   	// older PSYC
 };
 
 const size_t PSYC_routingVarsNum = sizeof(PSYC_routingVars) / sizeof(*PSYC_routingVars);

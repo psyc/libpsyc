@@ -98,6 +98,9 @@ typedef struct
 	const char* ptr;
 } PSYC_Array;
 
+#define	PSYC_C2ARRAY(string) { sizeof(string)-1, string }
+#define	PSYC_C2ARG(string) string, sizeof(string)-1
+
 /* intermediate struct for a PSYC variable modification */
 typedef struct {
 	char oper;  // not call it 'operator' as C++ may not like that..?
