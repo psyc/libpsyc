@@ -5,14 +5,14 @@
 
 #include "../psyc.h"
 #include "./debug.h"
+#include <sys/cdefs.h>
 
 /* perlisms for readability */
 #define unless(COND)    if (!(COND))
 #define until(COND)     while (!(COND))
 
-#ifndef _GNU_SOURCE
-void *memmem(const void *haystack, size_t haystacklen,
-	     const void *needle,   size_t needlelen);
+#if !defined(_GNU_SOURCE) && !defined(__FBSDID)
+void * memmem(const void *l, size_t l_len, const void *s, size_t s_len);
 #endif
 
 #endif // PSYC_LIB_H
