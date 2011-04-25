@@ -57,8 +57,8 @@ PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen)
 		buffer[cur++] = '\n';
 	}
 
-	memcpy(buffer + cur, PSYC_PACKET_DELIMITER + 1, 2);
-	cur += 2;
+	buffer[cur++] = C_GLYPH_PACKET_DELIMITER;
+	buffer[cur++] = '\n';
 
 	assert(cur == packet->length);
 	return PSYC_RENDER_SUCCESS;
