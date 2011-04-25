@@ -71,12 +71,12 @@ inline PSYC_Packet PSYC_newPacket(PSYC_ModifierArray *routing,
 	}
 
 	// calculate routing header length
-	for (i = 0; i < routing->length; i++)
-		p.routingLength += PSYC_getModifierLength(&routing->ptr[i]);
+	for (i = 0; i < routing->lines; i++)
+		p.routingLength += PSYC_getModifierLength(routing->modifiers[i]);
 
 	// calculate entity header length
-	for (i = 0; i < entity->length; i++)
-		p.contentLength += PSYC_getModifierLength(&routing->ptr[i]);
+	for (i = 0; i < entity->lines; i++)
+		p.contentLength += PSYC_getModifierLength(routing->modifiers[i]);
 
 	// add length of method, data & delimiter
 	p.contentLength += method->length + 1 + data->length; // method \n data
@@ -95,8 +95,8 @@ inline PSYC_Packet PSYC_newPacket2(PSYC_Modifier **routing, size_t routinglen,
                                    const char *data, size_t datalen,
                                    PSYC_PacketFlag flag)
 {
-	PSYC_ModifierArray r = {routinglen, *routing};
-	PSYC_ModifierArray e = {entitylen, *entity};
+	PSYC_ModifierArray r = {routinglen, routing};
+	PSYC_ModifierArray e = {entitylen, entity};
 	PSYC_String m = {methodlen, method};
 	PSYC_String d = {datalen, data};
 
