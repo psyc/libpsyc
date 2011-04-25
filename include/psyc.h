@@ -124,8 +124,8 @@ typedef struct
 
 typedef struct
 {
-	size_t length;
-	PSYC_Modifier *ptr;
+	size_t lines;
+	PSYC_Modifier **modifiers;
 } PSYC_ModifierArray;
 
 /* intermediate struct for a PSYC packet */
