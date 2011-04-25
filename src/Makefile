@@ -2,8 +2,8 @@ CFLAGS=-I../include -DDEBUG=2 -DPSYC_COMPILE_LIBRARY -g -O0 -Wall
 CC=cc
 # CC=clang
 
-S=psyc.c parser.c match.c render.c memmem.c variable.c
-O=psyc.o parser.o match.o render.o memmem.o variable.o
+S=psyc.c parser.c match.c render.c memmem.c itoa.c variable.c
+O=psyc.o parser.o match.o render.o memmem.o itoa.o variable.o
 
 default: 
 	@/bin/echo -e "Usage:\n\tmake diet - compile with diet libc\n\tmake lib  - compile with normal gnu libc"
@@ -18,6 +18,9 @@ lib: $S
 
 match: match.c
 	${CC} -o $@ -DDEBUG=4 -DCMDTOOL -DTEST $<
+
+itoa: itoa.c
+	${CC} -o $@ -DDEBUG=4 -DCMDTOOL -DTEST -O0 $<
 
 it: match
 

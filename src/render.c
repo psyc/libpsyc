@@ -11,7 +11,8 @@ inline int PSYC_renderModifier(PSYC_Modifier *m, char *buffer)
 	if (m->flag == PSYC_MODIFIER_NEED_LENGTH)
 	{
 		buffer[cur++] = ' ';
-		cur += sprintf(buffer + cur, "%ld", m->value.length);
+//		cur += sprintf(buffer + cur, "%ld", m->value.length);
+		cur += itoa(m->value.length, buffer + cur, 10);
 	}
 	memcpy(buffer + cur, m->value.ptr, m->value.length);
 	cur += m->value.length;
@@ -30,8 +31,10 @@ PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen)
 	for (i = 0; i < packet->routing.lines; i++)
 		cur += PSYC_renderModifier(packet->routing.modifiers[i], buffer + cur);
 
-	if (packet->flag == PSYC_PACKET_NEED_LENGTH)
-		cur += sprintf(buffer + cur, "%ld", packet->contentLength);
+	if (packet->flag == PSYC_PACKET_NEED_LENGTH) {
+//		cur += sprintf(buffer + cur, "%ld", packet->contentLength);
+		cur += itoa(packet->contentLength, buffer + cur, 10);
+	}
 
 	buffer[cur++] = '\n';
 
