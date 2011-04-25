@@ -1,7 +1,7 @@
 #include "psyc/lib.h"
 #include "psyc/render.h"
 
-inline int PSYC_renderModifier(PSYC_Modifier *m, char *buffer)
+inline size_t PSYC_renderModifier(PSYC_Modifier *m, char *buffer)
 {
 	size_t cur = 0;
 

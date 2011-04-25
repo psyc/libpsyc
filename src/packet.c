@@ -85,9 +85,9 @@ inline PSYC_Packet PSYC_newPacket(PSYC_ModifierArray *routing,
 		p.contentLength += data->length + 1; // data\n
 
 	// set total length: routing-header \n content |\n
-	p.length = p.routingLength + 1 + p.contentLength + sizeof(PSYC_PACKET_DELIMITER) - 2; 
+	p.length = p.routingLength + 1 + p.contentLength + sizeof(PSYC_PACKET_DELIMITER) - 2;
 	if (flag == PSYC_PACKET_NEED_LENGTH) // add length of length if needed
-		p.length += log10((double)data->length) + 1;	
+		p.length += log10((double)data->length) + 1;
 
 	return p;
 }
