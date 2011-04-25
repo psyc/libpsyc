@@ -125,7 +125,7 @@ typedef struct
 typedef struct
 {
 	size_t lines;
-	PSYC_Modifier **modifiers;
+	PSYC_Modifier *modifiers;
 } PSYC_ModifierArray;
 
 /* intermediate struct for a PSYC packet */
@@ -154,8 +154,8 @@ inline PSYC_Packet PSYC_newPacket(PSYC_ModifierArray *routing,
                                   PSYC_String *method, PSYC_String *data,
                                   PSYC_PacketFlag flag);
 
-inline PSYC_Packet PSYC_newPacket2(PSYC_Modifier **routing, size_t routinglen,
-                                   PSYC_Modifier **entity, size_t entitylen,
+inline PSYC_Packet PSYC_newPacket2(PSYC_Modifier *routing, size_t routinglen,
+                                   PSYC_Modifier *entity, size_t entitylen,
                                    const char *method, size_t methodlen,
                                    const char *data, size_t datalen,
                                    PSYC_PacketFlag flag);

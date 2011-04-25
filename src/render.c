@@ -3,7 +3,7 @@
 
 inline int PSYC_renderModifier(PSYC_Modifier *m, char *buffer)
 {
-	int cur = 0;
+	size_t cur = 0;
 
 	buffer[cur++] = m->oper;
 	memcpy(buffer + cur, m->name.ptr, m->name.length);
@@ -11,9 +11,11 @@ inline int PSYC_renderModifier(PSYC_Modifier *m, char *buffer)
 	if (m->flag == PSYC_MODIFIER_NEED_LENGTH)
 	{
 		buffer[cur++] = ' ';
-//		cur += sprintf(buffer + cur, "%ld", m->value.length);
+		//cur += sprintf(buffer + cur, "%ld", m->value.length);
 		cur += itoa(m->value.length, buffer + cur, 10);
 	}
+
+	buffer[cur++] = '\t';
 	memcpy(buffer + cur, m->value.ptr, m->value.length);
 	cur += m->value.length;
 	buffer[cur++] = '\n';
@@ -23,26 +25,39 @@ inline int PSYC_renderModifier(PSYC_Modifier *m, char *buffer)
 
 PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen)
 {
-	size_t cur, i;
+	size_t i, cur = 0;
 
 	if (packet->length > buflen)
 		return PSYC_RENDER_ERROR;
 
 	for (i = 0; i < packet->routing.lines; i++)
-		cur += PSYC_renderModifier(packet->routing.modifiers[i], buffer + cur);
+		cur += PSYC_renderModifier(&packet->routing.modifiers[i], buffer + cur);
 
 	if (packet->flag == PSYC_PACKET_NEED_LENGTH) {
-//		cur += sprintf(buffer + cur, "%ld", packet->contentLength);
+		//cur += sprintf(buffer + cur, "%ld", packet->contentLength);
 		cur += itoa(packet->contentLength, buffer + cur, 10);
 	}
 
 	buffer[cur++] = '\n';
 
 	for (i = 0; i < packet->entity.lines; i++)
-		cur += PSYC_renderModifier(packet->entity.modifiers[i], buffer + cur);
+		cur += PSYC_renderModifier(&packet->entity.modifiers[i], buffer + cur);
 
-	memcpy(buffer + cur, PSYC_C2ARG(PSYC_PACKET_DELIMITER));
+	if (packet->method.length)
+	{
+		memcpy(buffer + cur, packet->method.ptr, packet->method.length);
+		cur += packet->method.length;
+		buffer[cur++] = '\n';
+	}
 
+	if (packet->data.length)
+	{
+		memcpy(buffer + cur, packet->data.ptr, packet->method.length);
+		cur += packet->data.length;
+		buffer[cur++] = '\n';
+	}
+
+	memcpy(buffer + cur, PSYC_PACKET_DELIMITER + 1, 2);
 	return PSYC_RENDER_SUCCESS;
 }
 

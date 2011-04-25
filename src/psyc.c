@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-inline PSYC_String PSYC_newString (const char *str, size_t strlen)
+inline PSYC_String PSYC_newString(const char *str, size_t strlen)
 {
 	PSYC_String s = {strlen, str};
 	return s;
@@ -40,7 +40,7 @@ inline PSYC_Modifier PSYC_newModifier2(char oper,
 
 inline size_t PSYC_getModifierLength(PSYC_Modifier *m)
 {
-	size_t length =
+	size_t length = 1 + // oper
 		m->name.length + 1 + // name\t
 		m->value.length + 1; // value\n
 
@@ -70,27 +70,30 @@ inline PSYC_Packet PSYC_newPacket(PSYC_ModifierArray *routing,
 	    p.flag = PSYC_PACKET_NO_LENGTH;
 	}
 
-	// calculate routing header length
+	// add routing header length
 	for (i = 0; i < routing->lines; i++)
-		p.routingLength += PSYC_getModifierLength(routing->modifiers[i]);
+		p.routingLength += PSYC_getModifierLength(&routing->modifiers[i]);
 
-	// calculate entity header length
+	// add entity header length
 	for (i = 0; i < entity->lines; i++)
-		p.contentLength += PSYC_getModifierLength(routing->modifiers[i]);
+		p.contentLength += PSYC_getModifierLength(&entity->modifiers[i]);
 
 	// add length of method, data & delimiter
-	p.contentLength += method->length + 1 + data->length; // method \n data
+	if (method->length)
+		p.contentLength += method->length + 1; // method\n
+	if (data->length)
+		p.contentLength += data->length + 1; // data\n
 
-	// set total length: routing-header \n content \n|\n
-	p.length = p.routingLength + 1 + p.contentLength + sizeof(PSYC_PACKET_DELIMITER) - 1; 
+	// set total length: routing-header \n content |\n
+	p.length = p.routingLength + 1 + p.contentLength + sizeof(PSYC_PACKET_DELIMITER) - 2; 
 	if (flag == PSYC_PACKET_NEED_LENGTH) // add length of length if needed
 		p.length += log10((double)data->length) + 1;	
 
 	return p;
 }
 
-inline PSYC_Packet PSYC_newPacket2(PSYC_Modifier **routing, size_t routinglen,
-                                   PSYC_Modifier **entity, size_t entitylen,
+inline PSYC_Packet PSYC_newPacket2(PSYC_Modifier *routing, size_t routinglen,
+                                   PSYC_Modifier *entity, size_t entitylen,
                                    const char *method, size_t methodlen,
                                    const char *data, size_t datalen,
                                    PSYC_PacketFlag flag)
