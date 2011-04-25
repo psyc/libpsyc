@@ -6,7 +6,7 @@
 
 int main(int argc, char** argv)
 {
-	int index, ret;
+	int indx, ret;
 	char buffer[2048], oper;
 	PSYC_String name, value, elem;
 	PSYC_ParseState state;
@@ -15,14 +15,14 @@ int main(int argc, char** argv)
 	int file = open(argv[1],O_RDONLY);
 	if(file < 0)
 		return -1;
-	index = read(file,(void*)buffer,sizeof(buffer));
+	indx = read(file,(void*)buffer,sizeof(buffer));
 
 	write(1, ">> INPUT\n", 9);
-	write(1, buffer, index);
+	write(1, buffer, indx);
 	write(1, ">> PARSE\n", 9);
 
 	PSYC_initParseState(&state);
-	PSYC_nextParseBuffer(&state, PSYC_newString(buffer, index));
+	PSYC_nextParseBuffer(&state, PSYC_newString(buffer, indx));
 
 	// try parsing that now
 	while ((ret = PSYC_parse(&state, &oper, &name, &value)))
