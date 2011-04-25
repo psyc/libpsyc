@@ -24,10 +24,10 @@ int writePresence(const char *avail, int availlen, const char *desc, int desclen
 	};
 
 	PSYC_Packet packet = PSYC_newPacket2(routing, PSYC_NUM_ELEM(routing),
-																			 entity, PSYC_NUM_ELEM(entity),
+	                                     entity, PSYC_NUM_ELEM(entity),
 	                                     PSYC_C2ARG("_notice_presence"),
-																			 NULL, 0,
-																			 //PSYC_C2ARG("foobar"),
+	                                     NULL, 0,
+	                                     //PSYC_C2ARG("foobar"),
 	                                     PSYC_PACKET_CHECK_LENGTH);
 
 	char buffer[512];
