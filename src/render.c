@@ -1,5 +1,6 @@
 #include "psyc/lib.h"
 #include "psyc/render.h"
+#include "psyc/syntax.h"
 
 inline size_t PSYC_renderModifier(PSYC_Modifier *m, char *buffer)
 {
@@ -28,38 +29,43 @@ PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen)
 	size_t i, cur = 0;
 
 	if (packet->length > buflen)
-		return PSYC_RENDER_ERROR;
+		return PSYC_RENDER_ERROR; // return error if packet doesn't fit in buffer
 
+	// render routing modifiers
 	for (i = 0; i < packet->routing.lines; i++)
 		cur += PSYC_renderModifier(&packet->routing.modifiers[i], buffer + cur);
 
+	// add length if needed
 	if (packet->flag == PSYC_PACKET_NEED_LENGTH) {
 		//cur += sprintf(buffer + cur, "%ld", packet->contentLength);
 		cur += itoa(packet->contentLength, buffer + cur, 10);
 	}
 
-	buffer[cur++] = '\n';
+	buffer[cur++] = '\n'; // start of content part
 
+	// render entity modifiers
 	for (i = 0; i < packet->entity.lines; i++)
 		cur += PSYC_renderModifier(&packet->entity.modifiers[i], buffer + cur);
 
-	if (packet->method.length)
+	if (packet->method.length) // add method\n
 	{
 		memcpy(buffer + cur, packet->method.ptr, packet->method.length);
 		cur += packet->method.length;
 		buffer[cur++] = '\n';
 	}
 
-	if (packet->data.length)
+	if (packet->data.length) // add data\n
 	{
 		memcpy(buffer + cur, packet->data.ptr, packet->method.length);
 		cur += packet->data.length;
 		buffer[cur++] = '\n';
 	}
 
+	// add packet delimiter
 	buffer[cur++] = C_GLYPH_PACKET_DELIMITER;
 	buffer[cur++] = '\n';
 
+	// actual length should be equal to pre-calculated length at this point
 	assert(cur == packet->length);
 	return PSYC_RENDER_SUCCESS;
 }
