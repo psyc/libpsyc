@@ -5,17 +5,17 @@ inline int PSYC_renderModifier(PSYC_Modifier *m, char *buffer)
 {
 	int cur = 0;
 
-	memcpy(buffer + cur++, &m->oper, 1);
+	buffer[cur++] = m->oper;
 	memcpy(buffer + cur, m->name.ptr, m->name.length);
 	cur += m->name.length;
 	if (m->flag == PSYC_MODIFIER_NEED_LENGTH)
 	{
-		memcpy(buffer + cur++, " ", 1);
+		buffer[cur++] = ' ';
 		cur += sprintf(buffer + cur, "%ld", m->value.length);
 	}
 	memcpy(buffer + cur, m->value.ptr, m->value.length);
 	cur += m->value.length;
-	memcpy(buffer + cur++, "\n", 1);
+	buffer[cur++] = '\n';
 
 	return cur;
 }
@@ -33,7 +33,7 @@ PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen)
 	if (packet->flag == PSYC_PACKET_NEED_LENGTH)
 		cur += sprintf(buffer + cur, "%ld", packet->contentLength);
 
-	memcpy(buffer + cur++, "\n", 1);
+	buffer[cur++] = '\n';
 
 	for (i = 0; i < packet->entity.length; i++)
 		cur += PSYC_renderModifier(&packet->entity.ptr[i], buffer + cur);
