@@ -3,7 +3,7 @@
 
 #ifdef DEBUG
 # include <stdio.h>
-# define PP(args) printf(args);
+# define PP(args) printf args;
 #else
 # define PP(args)
 #endif
