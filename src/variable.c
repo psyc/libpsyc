@@ -29,7 +29,7 @@ const size_t PSYC_routingVarsNum = sizeof(PSYC_routingVars) / sizeof(*PSYC_routi
 /**
  * Get the type of variable name.
  */
-PSYC_Bool PSYC_isRoutingVar(const char* name, size_t len)
+PSYC_Bool PSYC_isRoutingVar(const char *name, size_t len)
 {
 	size_t cursor = 1;
 	int8_t matching[PSYC_routingVarsNum]; // indexes of matching vars
@@ -68,7 +68,7 @@ PSYC_Bool PSYC_isRoutingVar(const char* name, size_t len)
 /**
  * Get the type of variable name.
  */
-PSYC_Type PSYC_getVarType(char* name, size_t len)
+PSYC_Type PSYC_getVarType(char *name, size_t len)
 {
 	return PSYC_TYPE_UNKNOWN;
 }

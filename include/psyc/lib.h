@@ -11,6 +11,8 @@
 #define unless(COND)    if (!(COND))
 #define until(COND)     while (!(COND))
 
+#define PSYC_NUM_ELEM(a) (sizeof(a) / sizeof(*(a)))
+
 #if !defined(_GNU_SOURCE) && !defined(__FBSDID)
 void * memmem(const void *l, size_t l_len, const void *s, size_t s_len);
 #endif
