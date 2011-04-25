@@ -3,16 +3,16 @@
 
 #include <math.h>
 
-inline PSYC_String PSYC_newString(const char *str, size_t strlen)
+inline psycString psyc_newString(const char *str, size_t strlen)
 {
-	PSYC_String s = {strlen, str};
+	psycString s = {strlen, str};
 	return s;
 }
 
-inline PSYC_Modifier PSYC_newModifier(char oper, PSYC_String *name, PSYC_String *value,
-                                      PSYC_ModifierFlag flag)
+inline psycModifier psyc_newModifier(char oper, psycString *name, psycString *value,
+                                      psycModifierFlag flag)
 {
-	PSYC_Modifier m = {oper, *name, *value, flag};
+	psycModifier m = {oper, *name, *value, flag};
 
 	if (flag == PSYC_MODIFIER_CHECK_LENGTH) // find out if it needs a length
 	{
@@ -27,18 +27,18 @@ inline PSYC_Modifier PSYC_newModifier(char oper, PSYC_String *name, PSYC_String 
 	return m;
 }
 
-inline PSYC_Modifier PSYC_newModifier2(char oper,
+inline psycModifier psyc_newModifier2(char oper,
                                        const char *name, size_t namelen,
                                        const char *value, size_t valuelen,
-                                       PSYC_ModifierFlag flag)
+                                       psycModifierFlag flag)
 {
-	PSYC_String n = {namelen, name};
-	PSYC_String v = {valuelen, value};
+	psycString n = {namelen, name};
+	psycString v = {valuelen, value};
 
-	return PSYC_newModifier(oper, &n, &v, flag);
+	return psyc_newModifier(oper, &n, &v, flag);
 }
 
-inline size_t PSYC_getModifierLength(PSYC_Modifier *m)
+inline size_t psyc_getModifierLength(psycModifier *m)
 {
 	size_t length = 1 + // oper
 		m->name.length + 1 + // name\t
@@ -50,12 +50,12 @@ inline size_t PSYC_getModifierLength(PSYC_Modifier *m)
 	return length;
 }
 
-inline PSYC_Packet PSYC_newPacket(PSYC_ModifierArray *routing,
-                                  PSYC_ModifierArray *entity,
-                                  PSYC_String *method, PSYC_String *data,
-                                  PSYC_PacketFlag flag)
+inline psycPacket psyc_newPacket(psycModifierArray *routing,
+                                  psycModifierArray *entity,
+                                  psycString *method, psycString *data,
+                                  psycPacketFlag flag)
 {
-	PSYC_Packet p = {*routing, *entity, *method, *data, 0, 0, flag};
+	psycPacket p = {*routing, *entity, *method, *data, 0, 0, flag};
 	size_t i;
 
 	if (flag == PSYC_PACKET_CHECK_LENGTH) // find out if it needs a length
@@ -72,11 +72,11 @@ inline PSYC_Packet PSYC_newPacket(PSYC_ModifierArray *routing,
 
 	// add routing header length
 	for (i = 0; i < routing->lines; i++)
-		p.routingLength += PSYC_getModifierLength(&routing->modifiers[i]);
+		p.routingLength += psyc_getModifierLength(&routing->modifiers[i]);
 
 	// add entity header length
 	for (i = 0; i < entity->lines; i++)
-		p.contentLength += PSYC_getModifierLength(&entity->modifiers[i]);
+		p.contentLength += psyc_getModifierLength(&entity->modifiers[i]);
 
 	// add length of method, data & delimiter
 	if (method->length)
@@ -92,16 +92,16 @@ inline PSYC_Packet PSYC_newPacket(PSYC_ModifierArray *routing,
 	return p;
 }
 
-inline PSYC_Packet PSYC_newPacket2(PSYC_Modifier *routing, size_t routinglen,
-                                   PSYC_Modifier *entity, size_t entitylen,
+inline psycPacket psyc_newPacket2(psycModifier *routing, size_t routinglen,
+                                   psycModifier *entity, size_t entitylen,
                                    const char *method, size_t methodlen,
                                    const char *data, size_t datalen,
-                                   PSYC_PacketFlag flag)
+                                   psycPacketFlag flag)
 {
-	PSYC_ModifierArray r = {routinglen, routing};
-	PSYC_ModifierArray e = {entitylen, entity};
-	PSYC_String m = {methodlen, method};
-	PSYC_String d = {datalen, data};
+	psycModifierArray r = {routinglen, routing};
+	psycModifierArray e = {entitylen, entity};
+	psycString m = {methodlen, method};
+	psycString d = {datalen, data};
 
-	return PSYC_newPacket(&r, &e, &m, &d, flag);
+	return psyc_newPacket(&r, &e, &m, &d, flag);
 }

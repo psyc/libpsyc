@@ -1,2 +1,2 @@
-int PSYC_version() { return 1; }
+int psyc_version() { return 1; }
 

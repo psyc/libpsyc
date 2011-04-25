@@ -1,2 +1,2 @@
-/* PSYC_text() */
+/* psyc_text() */
 

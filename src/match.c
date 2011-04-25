@@ -1,6 +1,6 @@
 #include "psyc/lib.h"
 
-int PSYC_inherits(char* sho, size_t slen,
+int psyc_inherits(char* sho, size_t slen,
 		  char* lon, size_t llen) {
 
 	// this allows to pass zero-terminated strings instead of providing
@@ -41,7 +41,7 @@ int PSYC_inherits(char* sho, size_t slen,
 	return 1;
 }
 
-int PSYC_matches(char* sho, size_t slen,
+int psyc_matches(char* sho, size_t slen,
 		 char* lon, size_t llen) {
 	char *s, *l, *se, *le;
 
@@ -67,7 +67,7 @@ int PSYC_matches(char* sho, size_t slen,
 		P1(("Same length but different.\nNo match, but they could be related or have a common type.\n"))
 		return -4;
 	}
-	P3(("# PSYC_matches short '%*s' in long '%*s' ?\n", slen, sho, llen, lon))
+	P3(("# psyc_matches short '%*s' in long '%*s' ?\n", slen, sho, llen, lon))
 
 	se = sho+slen;
 	le = lon+llen;
@@ -105,9 +105,9 @@ int main(int argc, char **argv) {
 		printf("Usage: %s <short> <long>\n\nExample: %s _failure_delivery _failure_unsuccessful_delivery_death\n", argv[0], argv[0]);
 		return -1;
 	}
-	if (PSYC_matches(argv[1], 0, argv[2], 0) == 0)
+	if (psyc_matches(argv[1], 0, argv[2], 0) == 0)
 	    printf("Yes, %s matches %s!\n", argv[1], argv[2]);
-	if (PSYC_inherits(argv[1], 0, argv[2], 0) == 0)
+	if (psyc_inherits(argv[1], 0, argv[2], 0) == 0)
 	    printf("Yes, %s inherits from %s!\n", argv[2], argv[1]);
 }
 #endif

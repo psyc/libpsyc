@@ -2,7 +2,7 @@
 #include "psyc/render.h"
 #include "psyc/syntax.h"
 
-inline size_t PSYC_renderModifier(PSYC_Modifier *m, char *buffer)
+inline size_t psyc_renderModifier(psycModifier *m, char *buffer)
 {
 	size_t cur = 0;
 
@@ -24,7 +24,7 @@ inline size_t PSYC_renderModifier(PSYC_Modifier *m, char *buffer)
 	return cur;
 }
 
-PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen)
+psycRenderRC psyc_render(psycPacket *packet, char *buffer, size_t buflen)
 {
 	size_t i, cur = 0;
 
@@ -33,7 +33,7 @@ PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen)
 
 	// render routing modifiers
 	for (i = 0; i < packet->routing.lines; i++)
-		cur += PSYC_renderModifier(&packet->routing.modifiers[i], buffer + cur);
+		cur += psyc_renderModifier(&packet->routing.modifiers[i], buffer + cur);
 
 	// add length if needed
 	if (packet->flag == PSYC_PACKET_NEED_LENGTH) {
@@ -45,7 +45,7 @@ PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen)
 
 	// render entity modifiers
 	for (i = 0; i < packet->entity.lines; i++)
-		cur += PSYC_renderModifier(&packet->entity.modifiers[i], buffer + cur);
+		cur += psyc_renderModifier(&packet->entity.modifiers[i], buffer + cur);
 
 	if (packet->method.length) // add method\n
 	{
@@ -71,15 +71,15 @@ PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen)
 }
 
 /*
-inline void PSYC_initRenderState (PSYC_RenderState *state)
+inline void psyc_initRenderState (psycRenderState *state)
 {
-	memset(state, 0, sizeof(PSYC_RenderState));
+	memset(state, 0, sizeof(psycRenderState));
 }
 
-PSYC_RenderRC PSYC_renderModifier(PSYC_RenderState *state,
+psycRenderRC psyc_renderModifier(psycRenderState *state,
                                 const char *name, size_t nlength,
                                 const char *value, size_t vlength,
-                                const PSYC_RenderFlag flags, char oper)
+                                const psycRenderFlag flags, char oper)
 {
 	size_t startc = state->cursor;
 
@@ -99,7 +99,7 @@ PSYC_RenderRC PSYC_renderModifier(PSYC_RenderState *state,
 	}
 
 	//if (flags == PSYC_RENDER_ROUTING)
-	if (PSYC_isRoutingVar(name, nlength))
+	if (psyc_isRoutingVar(name, nlength))
 	{ // no more routing headers allowed after content started
 		if (state->part != PSYC_PART_ROUTING)
 		{
@@ -121,7 +121,7 @@ PSYC_RenderRC PSYC_renderModifier(PSYC_RenderState *state,
 	return PSYC_RENDER_SUCCESS;
 }
 
-PSYC_RenderRC PSYC_renderBody(PSYC_RenderState *state,
+psycRenderRC psyc_renderBody(psycRenderState *state,
                     const char *method, size_t mlength,
                     const char *data, size_t dlength)
 {

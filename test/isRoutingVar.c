@@ -19,8 +19,8 @@ int main(int argc, char** argv)
 	int i;
 	for (i = 0; i < sizeof(vars) / sizeof(*vars); i++)
 	{
-		printf(">> %s: %ld %ld\n", vars[i], sizeof(vars[i]), sizeof(*vars[i]));
-		printf("%s: %d\n", vars[i], PSYC_isRoutingVar(vars[i], strlen(vars[i])));
+		printf(">> %s: %d %d\n", vars[i], sizeof(vars[i]), sizeof(*vars[i]));
+		printf("%s: %d\n", vars[i], psyc_isRoutingVar(vars[i], strlen(vars[i])));
 	}
 
 	return 0;

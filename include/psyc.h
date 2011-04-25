@@ -28,7 +28,7 @@ typedef enum
 {
 	PSYC_FALSE = 0,
 	PSYC_TRUE = 1,
-} PSYC_Bool;
+} psycBool;
 
 /**
  * PSYC packet parts.
@@ -42,7 +42,7 @@ typedef enum
 	PSYC_PART_METHOD,
 	PSYC_PART_DATA,
 	PSYC_PART_END,
-} PSYC_Part;
+} psycPart;
 
 /**
  * Different types that a variable can have.
@@ -67,7 +67,7 @@ typedef enum
 	PSYC_TYPE_PAGE,
 	PSYC_TYPE_UNIFORM,
 	PSYC_TYPE_TIME,
-} PSYC_Type;
+} psycType;
 
 /**
  * List types.
@@ -77,7 +77,7 @@ typedef enum
 {
 	PSYC_LIST_TEXT = 1,
 	PSYC_LIST_BINARY = 2,
-} PSYC_ListType;
+} psycListType;
 
 typedef enum
 {
@@ -85,30 +85,30 @@ typedef enum
 	PSYC_MODIFIER_NEED_LENGTH = 1,
 	PSYC_MODIFIER_NO_LENGTH = 2,
 	PSYC_MODIFIER_ROUTING = 3,
-} PSYC_ModifierFlag;
+} psycModifierFlag;
 
 typedef enum
 {
 	PSYC_PACKET_CHECK_LENGTH = 0,
 	PSYC_PACKET_NEED_LENGTH = 1,
 	PSYC_PACKET_NO_LENGTH = 2,
-} PSYC_PacketFlag;
+} psycPacketFlag;
 
 typedef struct
 {
 	size_t length;
 	const char *ptr;
-} PSYC_String;
+} psycString;
 
 /**
- * Shortcut for creating a PSYC_String.
+ * Shortcut for creating a psycString.
  *
  * @param memory Pointer to the buffer.
  * @param length Length of that buffer.
  *
- * @return An instance of the PSYC_String struct.
+ * @return An instance of the psycString struct.
  */
-inline PSYC_String PSYC_newString (const char *str, size_t strlen);
+inline psycString psyc_newString (const char *str, size_t strlen);
 
 #define	PSYC_C2STR(string) {sizeof(string)-1, string}
 #define	PSYC_C2ARG(string) string, sizeof(string)-1
@@ -117,88 +117,88 @@ inline PSYC_String PSYC_newString (const char *str, size_t strlen);
 typedef struct
 {
 	char oper;  // not call it 'operator' as C++ may not like that..
-	PSYC_String name;
-	PSYC_String value;
-	PSYC_ModifierFlag flag;
-} PSYC_Modifier;
+	psycString name;
+	psycString value;
+	psycModifierFlag flag;
+} psycModifier;
 
 typedef struct
 {
 	size_t lines;
-	PSYC_Modifier *modifiers;
-} PSYC_ModifierArray;
+	psycModifier *modifiers;
+} psycModifierArray;
 
 /* intermediate struct for a PSYC packet */
 typedef struct
 {
-	PSYC_ModifierArray routing; ///< Routing header.
-	PSYC_ModifierArray entity;	///< Entitiy header.
-	PSYC_String method;
-	PSYC_String data;
+	psycModifierArray routing; ///< Routing header.
+	psycModifierArray entity;	///< Entitiy header.
+	psycString method;
+	psycString data;
 	size_t routingLength; ///< Length of routing part.
 	size_t contentLength; ///< Length of content part.
 	size_t length; ///< Total length of packet.
-	PSYC_PacketFlag flag;
-} PSYC_Packet;
+	psycPacketFlag flag;
+} psycPacket;
 
-inline int PSYC_version();
+inline int psyc_version();
 
-inline PSYC_Modifier PSYC_newModifier(char oper, PSYC_String *name, PSYC_String *value,
-                                      PSYC_ModifierFlag flag);
+inline psycModifier psyc_newModifier(char oper, psycString *name, psycString *value,
+                                      psycModifierFlag flag);
 
-inline PSYC_Modifier PSYC_newModifier2(char oper,
+inline psycModifier psyc_newModifier2(char oper,
                                        const char *name, size_t namelen,
                                        const char *value, size_t valuelen,
-                                       PSYC_ModifierFlag flag);
+                                       psycModifierFlag flag);
 
-inline PSYC_Packet PSYC_newPacket(PSYC_ModifierArray *routing,
-                                  PSYC_ModifierArray *entity,
-                                  PSYC_String *method, PSYC_String *data,
-                                  PSYC_PacketFlag flag);
+inline psycPacket psyc_newPacket(psycModifierArray *routing,
+                                  psycModifierArray *entity,
+                                  psycString *method, psycString *data,
+                                  psycPacketFlag flag);
 
-inline PSYC_Packet PSYC_newPacket2(PSYC_Modifier *routing, size_t routinglen,
-                                   PSYC_Modifier *entity, size_t entitylen,
+inline psycPacket psyc_newPacket2(psycModifier *routing, size_t routinglen,
+                                   psycModifier *entity, size_t entitylen,
                                    const char *method, size_t methodlen,
                                    const char *data, size_t datalen,
-                                   PSYC_PacketFlag flag);
+                                   psycPacketFlag flag);
 
 /// Routing vars in alphabetical order.
-extern const PSYC_String PSYC_routingVars[];
+extern const psycString PSYC_routingVars[];
 /// Number of routing vars.
 extern const size_t PSYC_routingVarsNum;
 
 /**
  * Get the type of variable name.
  */
-PSYC_Bool PSYC_isRoutingVar(const char *name, size_t len);
+psycBool psyc_isRoutingVar(const char *name, size_t len);
 
 /**
  * Get the type of variable name.
  */
-PSYC_Type PSYC_getVarType(char *name, size_t len);
+psycType psyc_getVarType(char *name, size_t len);
 
 /**
  * Checks if long keyword string inherits from short keyword string.
  */
-int PSYC_inherits(char *sho, size_t slen,
+int psyc_inherits(char *sho, size_t slen,
                   char *lon, size_t llen);
 
 /**
  * Checks if short keyword string matches long keyword string.
  */
-int PSYC_matches(char *sho, size_t slen,
+int psyc_matches(char *sho, size_t slen,
                  char *lon, size_t llen);
 
 /**
- * Callback for PSYC_text() that produces a value for a match.
+ * Callback for psyc_text() that produces a value for a match.
  *
  * The application looks up a match such as _fruit from [_fruit] and
  * if found writes its current value from its variable store into the
  * outgoing buffer.. "Apple" for example. The template returns the
  * number of bytes written. 0 is a legal return value. Should the
- * callback return -1, PSYC_text leaves the original template text as is.
+ * callback return -1, psyc_text leaves the original template text as is.
  */
-typedef int (*PSYC_textCB)(uint8_t *match, size_t  mlen,
+typedef int (*psyctextCB)(uint8_t *match, size_t  mlen,
                            uint8_t **buffer, size_t *blen);
 
 /**
@@ -214,9 +214,9 @@ typedef int (*PSYC_textCB)(uint8_t *match, size_t  mlen,
  *
  * See also http://about.psyc.eu/psyctext
  */
-int PSYC_text(uint8_t *template, size_t  tlen,
+int psyc_text(uint8_t *template, size_t  tlen,
               uint8_t **buffer, size_t *blen,
-              PSYC_textCB lookupValue,
+              psyctextCB lookupValue,
               char *braceOpen, char *braceClose);
 
 #endif // PSYC_H

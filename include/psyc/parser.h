@@ -22,11 +22,11 @@
 typedef enum
 {
 	PSYC_PARSE_HEADER_ONLY = 1,
-} PSYC_ParseFlag;
+} psycParseFlag;
 
 /**
  * The return value definitions for the packet parsing function.
- * @see PSYC_parse()
+ * @see psyc_parse()
  */
 typedef enum
 {
@@ -59,11 +59,11 @@ typedef enum
 	PSYC_PARSE_COMPLETE = 7,
 /// Binary value parsing incomplete, used internally.
 	PSYC_PARSE_INCOMPLETE = 8,
-} PSYC_ParseRC;
+} psycParseRC;
 
 /**
  * The return value definitions for the list parsing function.
- * @see PSYC_parseList()
+ * @see psyc_parseList()
  */
 typedef enum
 {
@@ -78,7 +78,7 @@ typedef enum
 	PSYC_PARSE_LIST_END = 2,
 /// Binary list is incomplete.
 	PSYC_PARSE_LIST_INCOMPLETE = 3,
-} PSYC_ParseListRC;
+} psycParseListRC;
 
 /**
  * Struct for keeping parser state.
@@ -87,16 +87,16 @@ typedef struct
 {
 	size_t cursor; ///< current position in buffer
 	size_t startc; ///< position where the parsing would be resumed
-	PSYC_String buffer; ///< buffer with data to be parsed
-	uint8_t flags; ///< flags for the parser, see PSYC_ParseFlag
-	PSYC_Part part; ///< part of the packet being parsed currently
+	psycString buffer; ///< buffer with data to be parsed
+	uint8_t flags; ///< flags for the parser, see psycParseFlag
+	psycPart part; ///< part of the packet being parsed currently
 
 	size_t contentParsed; ///< number of bytes parsed from the content so far
 	size_t contentLength; ///< expected length of the content
-	PSYC_Bool contentLengthFound; ///< is there a length given for this packet?
+	psycBool contentLengthFound; ///< is there a length given for this packet?
 	size_t valueParsed; ///< number of bytes parsed from the value so far
 	size_t valueLength; ///< expected length of the value
-} PSYC_ParseState;
+} psycParseState;
 
 /**
  * Struct for keeping list parser state.
@@ -105,60 +105,60 @@ typedef struct
 {
 	size_t cursor; ///< current position in buffer
 	size_t startc; ///< line start position
-	PSYC_String buffer;
-	PSYC_ListType type; ///< list type
+	psycString buffer;
+	psycListType type; ///< list type
 
 	size_t elemParsed; ///< number of bytes parsed from the elem so far
 	size_t elemLength; ///< expected length of the elem
-} PSYC_ParseListState;
+} psycParseListState;
 
 /**
  * Initiates the state struct.
  *
  * @param state Pointer to the state struct that should be initiated.
  */
-inline void PSYC_initParseState (PSYC_ParseState* state);
+inline void psyc_initParseState (psycParseState* state);
 
 /**
  * Initiates the state struct with flags.
  *
  * @param state Pointer to the state struct that should be initiated.
- * @param flags Flags to be set for the parser, see PSYC_ParseFlag.
+ * @param flags Flags to be set for the parser, see psycParseFlag.
  */
-inline void PSYC_initParseState2 (PSYC_ParseState* state, uint8_t flags);
+inline void psyc_initParseState2 (psycParseState* state, uint8_t flags);
 
 /**
  * Initiates the list state struct.
  *
  * @param state Pointer to the list state struct that should be initiated.
  */
-inline void PSYC_initParseListState (PSYC_ParseListState* state);
+inline void psyc_initParseListState (psycParseListState* state);
 
-inline void PSYC_nextParseBuffer (PSYC_ParseState* state, PSYC_String newBuf);
+inline void psyc_nextParseBuffer (psycParseState* state, psycString newBuf);
 
-inline void PSYC_nextParseListBuffer (PSYC_ParseListState* state, PSYC_String newBuf);
+inline void psyc_nextParseListBuffer (psycParseListState* state, psycString newBuf);
 
-inline size_t PSYC_getContentLength (PSYC_ParseState* s);
+inline size_t psyc_getContentLength (psycParseState* s);
 
 /**
  * Parse PSYC packets.
  *
  * Generalized line-based packet parser.
  *
- * @param state An initialized PSYC_ParseState
+ * @param state An initialized psycParseState
  * @param operator A pointer to a character. In case of a variable, it will
  *                 be set to the operator of that variable
- * @param name A pointer to a PSYC_String. It will point to the name of
+ * @param name A pointer to a psycString. It will point to the name of
  *             the variable or method and its length will be set accordingly
- * @param value A pointer to a PSYC_String. It will point to the
+ * @param value A pointer to a psycString. It will point to the
  *              value/body the variable/method and its length will be set accordingly
  */
-PSYC_ParseRC PSYC_parse(PSYC_ParseState* state, char* oper, PSYC_String* name, PSYC_String* value);
+psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psycString* value);
 
 /**
  * List value parser.
  */
-PSYC_ParseListRC PSYC_parseList(PSYC_ParseListState* state, PSYC_String *name, PSYC_String* value, PSYC_String* elem);
+psycParseListRC psyc_parseList(psycParseListState* state, psycString *name, psycString* value, psycString* elem);
 
 #endif // PSYC_PARSER_H
 

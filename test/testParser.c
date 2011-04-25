@@ -8,9 +8,9 @@ int main(int argc, char** argv)
 {
 	int indx, ret;
 	char buffer[2048], oper;
-	PSYC_String name, value, elem;
-	PSYC_ParseState state;
-	PSYC_ParseListState listState;
+	psycString name, value, elem;
+	psycParseState state;
+	psycParseListState listState;
 
 	int file = open(argv[1],O_RDONLY);
 	if(file < 0)
@@ -21,11 +21,11 @@ int main(int argc, char** argv)
 	write(1, buffer, indx);
 	write(1, ">> PARSE\n", 9);
 
-	PSYC_initParseState(&state);
-	PSYC_nextParseBuffer(&state, PSYC_newString(buffer, indx));
+	psyc_initParseState(&state);
+	psyc_nextParseBuffer(&state, psyc_newString(buffer, indx));
 
 	// try parsing that now
-	while ((ret = PSYC_parse(&state, &oper, &name, &value)))
+	while ((ret = psyc_parse(&state, &oper, &name, &value)))
 	{
 		switch (ret)
 		{
@@ -41,9 +41,9 @@ int main(int argc, char** argv)
 				if (memcmp(name.ptr, "_list", 5) == 0)
 				{
 					write(1, ">>> LIST START\n", 15);
-					PSYC_initParseListState(&listState);
-					PSYC_nextParseListBuffer(&listState, value);
-					while ((ret = PSYC_parseList(&listState, &name, &value, &elem)))
+					psyc_initParseListState(&listState);
+					psyc_nextParseListBuffer(&listState, value);
+					while ((ret = psyc_parseList(&listState, &name, &value, &elem)))
 					{
 						switch (ret)
 						{
