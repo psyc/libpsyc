@@ -15,4 +15,8 @@
 void * memmem(const void *l, size_t l_len, const void *s, size_t s_len);
 #endif
 
+#if !defined(_GNU_SOURCE) && !defined(__FBSDID)
+int itoa(int number, char* out, int base);
+#endif
+
 #endif // PSYC_LIB_H
