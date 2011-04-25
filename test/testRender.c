@@ -12,7 +12,7 @@ int writePresence(const char *avail, int availlen, const char *desc, int desclen
 		PSYC_newModifier2(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_source"), PSYC_C2ARG(myUNI),
 		                  PSYC_MODIFIER_ROUTING),
 		PSYC_newModifier2(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_context"), PSYC_C2ARG(myUNI),
-		                  PSYC_MODIFIER_CHECK_LENGTH),
+		                  PSYC_MODIFIER_ROUTING),
 	};
 
 	PSYC_Modifier entity[] = {

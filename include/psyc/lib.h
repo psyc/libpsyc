@@ -6,6 +6,7 @@
 #include "../psyc.h"
 #include "./debug.h"
 #include <sys/cdefs.h>
+#include <assert.h>
 
 /* perlisms for readability */
 #define unless(COND)    if (!(COND))

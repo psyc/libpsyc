@@ -3,7 +3,7 @@
 
 #ifdef DEBUG
 # include <stdio.h>
-# define PP(args) printf args;
+# define PP(args) printf(args);
 #else
 # define PP(args)
 #endif
@@ -80,20 +80,6 @@
 #else
 # define D4(CODE)
 # define P4(MSG)
-#endif
-
-// ASSERT() unused as yet
-#if DEBUG > 0
-# ifdef STRICT
-#  define ASSERT(NAME,COND,VALUE) { unless (COND) { \
-    PP(("Assertion %s failed in %s: %s\n", NAME, ME, VALUE)); \
-    raise_error("Assertion failed (strict mode).\n"); } }
-# else
-#  define ASSERT(NAME,COND,VALUE) { unless (COND) \
-    PP(("Assertion %s failed in %s: %s\n", NAME, ME, VALUE)); }
-# endif
-#else
-# define ASSERT(NAME,CONDITION,VALUE)
 #endif
 
 #endif // DEBUG_H
