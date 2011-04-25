@@ -17,16 +17,18 @@ int main(int argc, char** argv)
 		return -1;
 	indx = read(file,(void*)buffer,sizeof(buffer));
 
-	write(1, ">> INPUT\n", 9);
-	write(1, buffer, indx);
-	write(1, ">> PARSE\n", 9);
+//	write(1, ">> INPUT\n", 9);
+//	write(1, buffer, indx);
+//	write(1, ">> PARSE\n", 9);
 
 	psyc_initParseState(&state);
 	psyc_nextParseBuffer(&state, psyc_newString(buffer, indx));
 
 	// try parsing that now
-	while ((ret = psyc_parse(&state, &oper, &name, &value)))
-	{
+//	while ((ret = psyc_parse(&state, &oper, &name, &value)))
+//	{
+	do {
+		ret = psyc_parse(&state, &oper, &name, &value);
 		switch (ret)
 		{
 			case PSYC_PARSE_ROUTING:
@@ -67,15 +69,17 @@ int main(int argc, char** argv)
 				}
 				break;
 			case PSYC_PARSE_COMPLETE:
-				printf("Done parsing.\n");
+				// printf("Done parsing.\n");
+				ret = 0;
 				continue;
 			case PSYC_PARSE_INSUFFICIENT:
 				printf("Insufficient data.\n");
-				return 0;
+				return -1;
 			default:
 				printf("Error while parsing: %i\n", ret);
 				return 1;
 		}
-	}
+	} while (ret);
+
 	return 0;
 }

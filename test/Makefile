@@ -8,8 +8,8 @@ all: $(TARGETS)
 	./testMatch
 	./isRoutingVar
 
-test:
-	for f in packets/*; do echo -e "\n>> $$f"; ./testParser $$f; done
+test: $(TARGETS)
+	for f in packets/*; do echo "\n>> $$f"; ./testParser $$f; done
 
 clean:
 	rm -f $(TARGETS)
