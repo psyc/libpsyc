@@ -1,28 +1,27 @@
 #include <psyc.h>
 #include <stdint.h>
 
-const PSYC_Array PSYC_routingVars[] = /// Routing variables in alphabetical order.
+/// Routing variables in alphabetical order.
+const PSYC_String PSYC_routingVars[] =
 {
-	{17, "_amount_fragments"},
-	{ 8, "_context"},
-//	{ 6, "_count"},			// older PSYC
-	{ 8, "_counter"}, // the name for this is supposed to be _count, not _counter
-	{ 9, "_fragment"},
-//	{ 7, "_length"},		// older PSYC
-	{ 7, "_source"},
-	PSYC_C2ARRAY("_source_identification"),
-//	{22, "_source_identification"},
-	PSYC_C2ARRAY("_source_relay"),
-//	{13, "_source_relay"},
-	{19, "_source_relay_relay"}, // until you have a better idea.. is this really in use?
-	{ 4, "_tag"},
-	{10, "_tag_relay"},
-//	{10, "_tag_reply"},		// older PSYC
-	{ 7, "_target"},
-	{15, "_target_forward"},
-	{13, "_target_relay"},
-//	{19, "_understand_modules"},    // older PSYC
-//	{14, "_using_modules"},	   	// older PSYC
+	PSYC_C2STR("_amount_fragments"),
+	PSYC_C2STR("_context"),
+	//PSYC_C2STR("_count"),			// older PSYC
+	PSYC_C2STR("_counter"), // the name for this is supposed to be _count, not _counter
+	PSYC_C2STR("_fragment"),
+	//PSYC_C2STR("_length"),		// older PSYC
+	PSYC_C2STR("_source"),
+	PSYC_C2STR("_source_identification"),
+	PSYC_C2STR("_source_relay"),
+	PSYC_C2STR("_source_relay_relay"), // until you have a better idea.. is this really in use?
+	PSYC_C2STR("_tag"),
+	PSYC_C2STR("_tag_relay"),
+	//PSYC_C2STR("_tag_reply"),		// older PSYC
+	PSYC_C2STR("_target"),
+	PSYC_C2STR("_target_forward"),
+	PSYC_C2STR("_target_relay"),
+	//PSYC_C2STR(19, "_understand_modules"),    // older PSYC
+	//PSYC_C2STR(14, "_using_modules"),	   	// older PSYC
 };
 
 const size_t PSYC_routingVarsNum = sizeof(PSYC_routingVars) / sizeof(*PSYC_routingVars);

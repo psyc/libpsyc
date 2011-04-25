@@ -1,14 +1,57 @@
 #include "psyc/lib.h"
 #include "psyc/render.h"
 
-inline void PSYC_initRenderState (PSYC_RenderState* state)
+inline int PSYC_renderModifier(PSYC_Modifier *m, char *buffer)
+{
+	int cur = 0;
+
+	memcpy(buffer + cur++, &m->oper, 1);
+	memcpy(buffer + cur, m->name.ptr, m->name.length);
+	cur += m->name.length;
+	if (m->flag == PSYC_MODIFIER_NEED_LENGTH)
+	{
+		memcpy(buffer + cur++, " ", 1);
+		cur += sprintf(buffer + cur, "%ld", m->value.length);
+	}
+	memcpy(buffer + cur, m->value.ptr, m->value.length);
+	cur += m->value.length;
+	memcpy(buffer + cur++, "\n", 1);
+
+	return cur;
+}
+
+PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen)
+{
+	size_t cur, i;
+
+	if (packet->length > buflen)
+		return PSYC_RENDER_ERROR;
+
+	for (i = 0; i < packet->routing.length; i++)
+		cur += PSYC_renderModifier(&packet->routing.ptr[i], buffer + cur);
+
+	if (packet->flag == PSYC_PACKET_NEED_LENGTH)
+		cur += sprintf(buffer + cur, "%ld", packet->contentLength);
+
+	memcpy(buffer + cur++, "\n", 1);
+
+	for (i = 0; i < packet->entity.length; i++)
+		cur += PSYC_renderModifier(&packet->entity.ptr[i], buffer + cur);
+
+	memcpy(buffer + cur, PSYC_C2ARG(PSYC_PACKET_DELIMITER));
+
+	return PSYC_RENDER_SUCCESS;
+}
+
+/*
+inline void PSYC_initRenderState (PSYC_RenderState *state)
 {
 	memset(state, 0, sizeof(PSYC_RenderState));
 }
 
-PSYC_RenderRC PSYC_renderModifier(PSYC_RenderState* state,
-                                const char* name, size_t nlength,
-                                const char* value, size_t vlength,
+PSYC_RenderRC PSYC_renderModifier(PSYC_RenderState *state,
+                                const char *name, size_t nlength,
+                                const char *value, size_t vlength,
                                 const PSYC_RenderFlag flags, char oper)
 {
 	size_t startc = state->cursor;
@@ -51,10 +94,9 @@ PSYC_RenderRC PSYC_renderModifier(PSYC_RenderState* state,
 	return PSYC_RENDER_SUCCESS;
 }
 
-/* render PSYC packets */
-PSYC_RenderRC PSYC_renderBody(PSYC_RenderState* state,
-                    const char* method, size_t mlength,
-                    const char* data, size_t dlength)
+PSYC_RenderRC PSYC_renderBody(PSYC_RenderState *state,
+                    const char *method, size_t mlength,
+                    const char *data, size_t dlength)
 {
 	if (state->flag == PSYC_RENDER_CHECK_LENGTH)
 	{
@@ -63,7 +105,7 @@ PSYC_RenderRC PSYC_renderBody(PSYC_RenderState* state,
 	    state->flag = PSYC_RENDER_NEED_LENGTH;
 		else if (dlength > 404)
 	    state->flag = PSYC_RENDER_NEED_LENGTH;
-		else if (memmem(data, dlength, PSYC_PACKET_DELIMITER, sizeof(PSYC_PACKET_DELIMITER)))
+		else if (memmem(data, dlength, PSYC_C2ARG(PSYC_PACKET_DELIMITER)))
 	    state->flag = PSYC_RENDER_NEED_LENGTH;
 		else
 	    state->flag = PSYC_RENDER_NO_LENGTH;
@@ -73,3 +115,4 @@ PSYC_RenderRC PSYC_renderBody(PSYC_RenderState* state,
 
 	return PSYC_RENDER_SUCCESS;
 }
+*/
