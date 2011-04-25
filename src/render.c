@@ -58,6 +58,9 @@ PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen)
 	}
 
 	memcpy(buffer + cur, PSYC_PACKET_DELIMITER + 1, 2);
+	cur += 2;
+
+	assert(cur == packet->length);
 	return PSYC_RENDER_SUCCESS;
 }
 
