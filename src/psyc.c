@@ -17,11 +17,11 @@ inline PSYC_Modifier PSYC_newModifier(char oper, PSYC_String *name, PSYC_String 
 	if (flag == PSYC_MODIFIER_CHECK_LENGTH) // find out if it needs a length
 	{
 		if (value->length > PSYC_MODIFIER_SIZE_THRESHOLD)
-	    m.flag = PSYC_PACKET_NEED_LENGTH;
+	    m.flag = PSYC_MODIFIER_NEED_LENGTH;
 		else if (memchr(value->ptr, (int)'\n', value->length))
-	    m.flag = PSYC_PACKET_NEED_LENGTH;
+	    m.flag = PSYC_MODIFIER_NEED_LENGTH;
 		else
-	    m.flag = PSYC_PACKET_NO_LENGTH;
+	    m.flag = PSYC_MODIFIER_NO_LENGTH;
 	}
 
 	return m;

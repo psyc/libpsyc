@@ -2,6 +2,11 @@
 
 int PSYC_inherits(char* sho, size_t slen,
 		  char* lon, size_t llen) {
+
+	// this allows to pass zero-terminated strings instead of providing
+	// the length.. but we would be faster here if we expected the callee
+	// to always use the PSYC_C2ARG() macro instead. additionally, the
+	// empty string would then be fully supported (in case you want that)
 	if (!slen) slen = strlen(sho);
 	if (!llen) llen = strlen(lon);
 
