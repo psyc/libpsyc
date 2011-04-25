@@ -141,6 +141,8 @@ typedef struct
 	PSYC_PacketFlag flag;
 } PSYC_Packet;
 
+inline int PSYC_version();
+
 inline PSYC_Modifier PSYC_newModifier(char oper, PSYC_String *name, PSYC_String *value,
                                       PSYC_ModifierFlag flag);
 
