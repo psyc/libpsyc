@@ -1,4 +1,3 @@
-|
 =_source	psyc://foo/~bar
 :_target	psyc://bar/~baz
 =_list_foo	foo|bar|baz
