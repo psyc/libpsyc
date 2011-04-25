@@ -4,6 +4,9 @@ LOADLIBES=-lpsyc -lm
 TARGETS=testParser testMatch testRender isRoutingVar
 
 all: $(TARGETS)
+	./testRender
+	./testMatch
+	./isRoutingVar
 
 test:
 	for f in packets/*; do echo -e "\n>> $$f"; ./testParser $$f; done

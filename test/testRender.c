@@ -38,12 +38,13 @@ int testPresence(const char *avail, int availlen, const char *desc, int desclen,
 }
 
 int main() {
-	return testPresence(PSYC_C2ARG("_here"), PSYC_C2ARG("I'm omnipresent right now"), "\
-:_context\tpsyc://10.100.1000/~ludwig\n\
+	int rc = testPresence(PSYC_C2ARG("_here"), PSYC_C2ARG("I'm omnipresent right now"), "\
+:_context\t" myUNI "\n\
 \n\
 =_degree_availability\t_here\n\
 =_description_presence\tI'm omnipresent right now\n\
 _notice_presence\n\
 |\n");
-
+	unless (rc) puts("psyc_render passed the test.");
+	return rc;
 }
