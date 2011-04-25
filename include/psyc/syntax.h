@@ -10,6 +10,11 @@
 # define PSYC_CONTENT_SIZE_THRESHOLD 444
 #endif
 
+/* beyond this a modifier value length must be provided */
+#ifndef PSYC_MODIFIER_SIZE_THRESHOLD
+# define PSYC_MODIFIER_SIZE_THRESHOLD 404
+#endif
+
 #define C_GLYPH_PACKET_DELIMITER	'|'
 #define S_GLYPH_PACKET_DELIMITER	"|"
 #define PSYC_PACKET_DELIMITER	      "\n|\n"

@@ -32,11 +32,14 @@ typedef struct
 	char buffer[]; ///< OMG a C99 feature! variable size buffer!
 } PSYC_RenderState;
 
+PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen);
+
 /**
  * Initiates the state struct.
  *
  * @param state Pointer to the state struct that should be initiated.
  */
+/*
 inline void PSYC_initRenderState (PSYC_RenderState* state);
 
 int PSYC_renderModifier(PSYC_RenderState* render,
@@ -47,5 +50,5 @@ int PSYC_renderModifier(PSYC_RenderState* render,
 int PSYC_renderBody(PSYC_RenderState* render,
                     const char* method, size_t mlength,
                     const char* data, size_t dlength);
-
+*/
 #endif // PSYC_RENDER_H

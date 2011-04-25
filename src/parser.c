@@ -15,12 +15,6 @@
 		return ret;																	 \
 	}
 
-inline PSYC_Array PSYC_createArray (const char* memory, size_t length)
-{
-	PSYC_Array arr = {length, memory};
-	return arr;
-}
-
 inline void PSYC_initParseState (PSYC_ParseState* state)
 {
 	memset(state, 0, sizeof(PSYC_ParseState));
@@ -37,13 +31,13 @@ inline void PSYC_initParseListState (PSYC_ParseListState* state)
 	memset(state, 0, sizeof(PSYC_ParseListState));
 }
 
-inline void PSYC_nextParseBuffer (PSYC_ParseState* state, PSYC_Array newBuf)
+inline void PSYC_nextParseBuffer (PSYC_ParseState* state, PSYC_String newBuf)
 {
 	state->buffer = newBuf;
 	state->cursor = 0;
 }
 
-inline void PSYC_nextParseListBuffer (PSYC_ParseListState* state, PSYC_Array newBuf)
+inline void PSYC_nextParseListBuffer (PSYC_ParseListState* state, PSYC_String newBuf)
 {
 	state->buffer = newBuf;
 	state->cursor = 0;
@@ -107,7 +101,7 @@ inline char isKwChar(uint8_t c)
  * It should contain one or more keyword characters.
  * @return PSYC_PARSE_ERROR or PSYC_PARSE_SUCCESS
  */
-inline PSYC_ParseRC PSYC_parseName(PSYC_ParseState* state, PSYC_Array* name)
+inline PSYC_ParseRC PSYC_parseName(PSYC_ParseState* state, PSYC_String* name)
 {
 	name->ptr = state->buffer.ptr + state->cursor;
 	name->length = 0;
@@ -131,7 +125,7 @@ inline PSYC_ParseRC PSYC_parseName(PSYC_ParseState* state, PSYC_Array* name)
  *
  * @return PSYC_PARSE_COMPLETE or PSYC_PARSE_INCOMPLETE
  */
-inline PSYC_ParseRC PSYC_parseBinaryValue(PSYC_ParseState* state, PSYC_Array* value, size_t* length, size_t* parsed)
+inline PSYC_ParseRC PSYC_parseBinaryValue(PSYC_ParseState* state, PSYC_String* value, size_t* length, size_t* parsed)
 {
 	size_t remaining = *length - *parsed;
 	value->ptr = state->buffer.ptr + state->cursor;
@@ -154,7 +148,7 @@ inline PSYC_ParseRC PSYC_parseBinaryValue(PSYC_ParseState* state, PSYC_Array* va
  * Parse simple or binary variable.
  * @return PSYC_PARSE_ERROR or PSYC_PARSE_SUCCESS
  */
-inline PSYC_ParseRC PSYC_parseModifier(PSYC_ParseState* state, char* oper, PSYC_Array* name, PSYC_Array* value)
+inline PSYC_ParseRC PSYC_parseModifier(PSYC_ParseState* state, char* oper, PSYC_String* name, PSYC_String* value)
 {
 	*oper = *(state->buffer.ptr + state->cursor);
 	ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
@@ -218,7 +212,7 @@ inline PSYC_ParseRC PSYC_parseModifier(PSYC_ParseState* state, char* oper, PSYC_
  * Parse PSYC packets.
  * Generalized line-based parser.
  */
-PSYC_ParseRC PSYC_parse(PSYC_ParseState* state, char* oper, PSYC_Array* name, PSYC_Array* value)
+PSYC_ParseRC PSYC_parse(PSYC_ParseState* state, char* oper, PSYC_String* name, PSYC_String* value)
 {
 	int ret; // a return value
 	size_t pos;	// a cursor position
@@ -408,7 +402,7 @@ PSYC_ParseRC PSYC_parse(PSYC_ParseState* state, char* oper, PSYC_Array* name, PS
  * List value parser.
  * @return see PSYC_ListRC.
  */
-PSYC_ParseListRC PSYC_parseList(PSYC_ParseListState* state, PSYC_Array *name, PSYC_Array* value, PSYC_Array* elem)
+PSYC_ParseListRC PSYC_parseList(PSYC_ParseListState* state, PSYC_String *name, PSYC_String* value, PSYC_String* elem)
 {
 	if (state->cursor >= state->buffer.length)
 		return PSYC_PARSE_LIST_INCOMPLETE;

@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 {
 	int index, ret;
 	char buffer[2048], oper;
-	PSYC_Array name, value, elem;
+	PSYC_String name, value, elem;
 	PSYC_ParseState state;
 	PSYC_ParseListState listState;
 
@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 	write(1, ">> PARSE\n", 9);
 
 	PSYC_initParseState(&state);
-	PSYC_nextParseBuffer(&state, PSYC_createArray(buffer, index));
+	PSYC_nextParseBuffer(&state, PSYC_newString(buffer, index));
 
 	// try parsing that now
 	while ((ret = PSYC_parse(&state, &oper, &name, &value)))

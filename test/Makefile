@@ -1,6 +1,6 @@
 CFLAGS=-I../include -DDEBUG -g -O0 -Wall
 LDFLAGS=-L../src
-LOADLIBES=-lpsyc
+LOADLIBES=-lpsyc -lm
 TARGETS=testParser testMatch testRender isRoutingVar
 
 all: $(TARGETS)
