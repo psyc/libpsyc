@@ -27,16 +27,16 @@ PSYC_RenderRC PSYC_render(PSYC_Packet *packet, char *buffer, size_t buflen)
 	if (packet->length > buflen)
 		return PSYC_RENDER_ERROR;
 
-	for (i = 0; i < packet->routing.length; i++)
-		cur += PSYC_renderModifier(&packet->routing.ptr[i], buffer + cur);
+	for (i = 0; i < packet->routing.lines; i++)
+		cur += PSYC_renderModifier(packet->routing.modifiers[i], buffer + cur);
 
 	if (packet->flag == PSYC_PACKET_NEED_LENGTH)
 		cur += sprintf(buffer + cur, "%ld", packet->contentLength);
 
 	memcpy(buffer + cur++, "\n", 1);
 
-	for (i = 0; i < packet->entity.length; i++)
-		cur += PSYC_renderModifier(&packet->entity.ptr[i], buffer + cur);
+	for (i = 0; i < packet->entity.lines; i++)
+		cur += PSYC_renderModifier(packet->entity.modifiers[i], buffer + cur);
 
 	memcpy(buffer + cur, PSYC_C2ARG(PSYC_PACKET_DELIMITER));
 
