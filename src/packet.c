@@ -3,8 +3,6 @@
 
 #include <math.h>
 
-int PSYC_version() { return 1; }
-
 inline PSYC_String PSYC_newString(const char *str, size_t strlen)
 {
 	PSYC_String s = {strlen, str};
