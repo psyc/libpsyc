@@ -31,6 +31,11 @@ typedef enum
  */
 psycRenderRC psyc_render(psycPacket *packet, char *buffer, size_t buflen);
 
+/**
+ * Render a PSYC list into a buffer.
+ */
+inline psycRenderRC psyc_renderList(psycList *list, char *buffer, size_t buflen);
+
 /*
 typedef enum
 {

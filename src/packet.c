@@ -10,7 +10,7 @@ inline psycString psyc_newString(const char *str, size_t strlen)
 }
 
 inline psycModifier psyc_newModifier(char oper, psycString *name, psycString *value,
-                                      psycModifierFlag flag)
+                                     psycModifierFlag flag)
 {
 	psycModifier m = {oper, *name, *value, flag};
 
@@ -28,9 +28,9 @@ inline psycModifier psyc_newModifier(char oper, psycString *name, psycString *va
 }
 
 inline psycModifier psyc_newModifier2(char oper,
-                                       const char *name, size_t namelen,
-                                       const char *value, size_t valuelen,
-                                       psycModifierFlag flag)
+                                      const char *name, size_t namelen,
+                                      const char *value, size_t valuelen,
+                                      psycModifierFlag flag)
 {
 	psycString n = {namelen, name};
 	psycString v = {valuelen, value};
@@ -50,10 +50,46 @@ inline size_t psyc_getModifierLength(psycModifier *m)
 	return length;
 }
 
-inline psycPacket psyc_newPacket(psycModifierArray *routing,
-                                  psycModifierArray *entity,
-                                  psycString *method, psycString *data,
-                                  psycPacketFlag flag)
+inline psycList psyc_newList(psycString *elems, size_t num_elems, psycListFlag flag)
+{
+	psycList list = {num_elems, elems, 0, flag};
+	size_t i;
+
+	if (flag == PSYC_LIST_CHECK_LENGTH) // check if list elements need length
+	{
+		for (i = 0; i < num_elems; i++)
+		{
+			if (memchr(elems[i].ptr, (int)'|', elems[i].length) ||
+			    memchr(elems[i].ptr, (int)'\n', elems[i].length))
+			{
+				list.flag = PSYC_LIST_NEED_LENGTH;
+				break;
+			}
+		}
+	}
+
+	if (list.flag == PSYC_LIST_NEED_LENGTH)
+	{
+		for (i = 0; i < num_elems; i++)
+		{
+			if (i > 0)
+				list.length++; // |
+			list.length += log10((double)elems[i].length) + 2 + elems[i].length; // length SP elem
+		}
+	}
+	else
+	{
+		for (i = 0; i < num_elems; i++)
+			list.length += 1 + elems[i].length; // |elem
+	}
+
+	return list;
+}
+
+inline psycPacket psyc_newPacket(psycHeader *routing,
+                                 psycHeader *entity,
+                                 psycString *method, psycString *data,
+                                 psycPacketFlag flag)
 {
 	psycPacket p = {*routing, *entity, *method, *data, 0, 0, flag};
 	size_t i;
@@ -93,13 +129,13 @@ inline psycPacket psyc_newPacket(psycModifierArray *routing,
 }
 
 inline psycPacket psyc_newPacket2(psycModifier *routing, size_t routinglen,
-                                   psycModifier *entity, size_t entitylen,
-                                   const char *method, size_t methodlen,
-                                   const char *data, size_t datalen,
-                                   psycPacketFlag flag)
+                                  psycModifier *entity, size_t entitylen,
+                                  const char *method, size_t methodlen,
+                                  const char *data, size_t datalen,
+                                  psycPacketFlag flag)
 {
-	psycModifierArray r = {routinglen, routing};
-	psycModifierArray e = {entitylen, entity};
+	psycHeader r = {routinglen, routing};
+	psycHeader e = {entitylen, entity};
 	psycString m = {methodlen, method};
 	psycString d = {datalen, data};
 
