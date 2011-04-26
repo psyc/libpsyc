@@ -354,18 +354,20 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			{
 				while (1)
 				{
-					if (state->buffer.ptr[state->cursor] == '\n')
+					uint8_t nl = state->buffer.ptr[state->cursor] == '\n';
+					// check for |\n if we're at the start of data or we have found a \n
+					if (state->cursor == state->startc || nl)
 					{
-						if (state->cursor+2 >= state->buffer.length) // incremented cursor inside length?
+						if (state->cursor+1+nl >= state->buffer.length) // incremented cursor inside length?
 						{
 							state->cursor = state->startc;
 							return PSYC_PARSE_INSUFFICIENT;
 						}
 
-						if (state->buffer.ptr[state->cursor+1] == '|' &&
-								state->buffer.ptr[state->cursor+2] == '\n') // packet ends here
+						if (state->buffer.ptr[state->cursor+nl] == '|' &&
+								state->buffer.ptr[state->cursor+1+nl] == '\n') // packet ends here
 						{
-							state->cursor++;
+							state->cursor += nl;
 							state->part = PSYC_PART_END;
 							return PSYC_PARSE_BODY;
 						}

@@ -9,7 +9,7 @@ all: $(TARGETS)
 	./isRoutingVar
 
 test: $(TARGETS)
-	for f in packets/*; do echo "\n>> $$f"; ./testParser $$f; done
+	for f in packets/*; do echo ">> $$f"; ./testParser $$f; done
 
 clean:
 	rm -f $(TARGETS)
