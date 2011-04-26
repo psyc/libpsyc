@@ -1,29 +1,30 @@
-#include <psyc.h>
-#include <psyc/parser.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
 
-int main(int argc, char** argv)
+#include <psyc/lib.h>
+#include <psyc/parser.h>
+
+int main(int argc, char **argv)
 {
-	int indx, ret, verbose = argc > 2;
+	int idx, ret, verbose = argc > 2;
 	char buffer[2048], oper;
 	psycString name, value, elem;
 	psycParseState state;
 	psycParseListState listState;
 
 	int file = open(argv[1],O_RDONLY);
-	if(file < 0)
+	if (file < 0)
 		return -1;
-	indx = read(file,(void*)buffer,sizeof(buffer));
+	idx = read(file,(void*)buffer,sizeof(buffer));
 
 	if (verbose) {
 		write(1, ">> INPUT\n", 9);
-		write(1, buffer, indx);
+		write(1, buffer, idx);
 		write(1, ">> PARSE\n", 9);
 	}
 	psyc_initParseState(&state);
-	psyc_nextParseBuffer(&state, psyc_newString(buffer, indx));
+	psyc_nextParseBuffer(&state, psyc_newString(buffer, idx));
 
 	// try parsing that now
 //	while ((ret = psyc_parse(&state, &oper, &name, &value)))

@@ -147,7 +147,7 @@ typedef struct
 typedef struct
 {
 	psycHeader routing; ///< Routing header.
-	psycHeader entity;	///< Entitiy header.
+	psycHeader entity;  ///< Entitiy header.
 	psycString method;
 	psycString data;
 	size_t routingLength; ///< Length of routing part.
@@ -158,26 +158,49 @@ typedef struct
 
 inline int psyc_version();
 
+/** Check if a modifier needs length */
+inline psycModifierFlag psyc_checkModifierLength(psycModifier *m);
+
+/** Get the total length of a modifier. */
+inline size_t psyc_getModifierLength(psycModifier *m);
+
+/** Create new modifier */
 inline psycModifier psyc_newModifier(char oper, psycString *name, psycString *value,
+                                     psycModifierFlag flag);
+
+/** Create new modifier */
+inline psycModifier psyc_newModifier2(char oper,
+                                      const char *name, size_t namelen,
+                                      const char *value, size_t valuelen,
                                       psycModifierFlag flag);
 
-inline psycModifier psyc_newModifier2(char oper,
-                                       const char *name, size_t namelen,
-                                       const char *value, size_t valuelen,
-                                       psycModifierFlag flag);
+/** Check if a list needs length */
+inline psycListFlag psyc_checkListLength(psycList *list);
 
+/** Get the total length of a list. */
+inline psycListFlag psyc_getListLength(psycList *list);
+
+/** Check if a packet needs length */
+inline psycPacketFlag psyc_checkPacketLength(psycPacket *p);
+
+/** Calculate and set the length of packet parts and total packet length  */
+inline size_t psyc_setPacketLength(psycPacket *p);
+
+/** Create new list */
 inline psycList psyc_newList(psycString *elems, size_t num_elems, psycListFlag flag);
 
+/** Create new packet */
 inline psycPacket psyc_newPacket(psycHeader *routing,
-                                  psycHeader *entity,
-                                  psycString *method, psycString *data,
-                                  psycPacketFlag flag);
+                                 psycHeader *entity,
+                                 psycString *method, psycString *data,
+                                 psycPacketFlag flag);
 
+/** Create new packet */
 inline psycPacket psyc_newPacket2(psycModifier *routing, size_t routinglen,
-                                   psycModifier *entity, size_t entitylen,
-                                   const char *method, size_t methodlen,
-                                   const char *data, size_t datalen,
-                                   psycPacketFlag flag);
+                                  psycModifier *entity, size_t entitylen,
+                                  const char *method, size_t methodlen,
+                                  const char *data, size_t datalen,
+                                  psycPacketFlag flag);
 
 /// Routing vars in alphabetical order.
 extern const psycString PSYC_routingVars[];
