@@ -26,7 +26,6 @@ int testPresence(const char *avail, int availlen, const char *desc, int desclen,
 	                                     entity, PSYC_NUM_ELEM(entity),
 	                                     PSYC_C2ARG("_notice_presence"),
 	                                     NULL, 0,
-	                                     //PSYC_C2ARG("foobar"),
 	                                     PSYC_PACKET_CHECK_LENGTH);
 
 	char buffer[512];
@@ -66,7 +65,6 @@ int testList(const char *rendered, uint8_t verbose)
 	psyc_renderList(&list_bin, buf_bin, sizeof(buf_bin));
 
 	psycModifier entity[] = {
-		// presence is to be assigned permanently in distributed state
 		psyc_newModifier2(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_list_text"),
 		                  buf_text, list_text.length, list_text.flag),
 		psyc_newModifier2(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_list_binary"),
