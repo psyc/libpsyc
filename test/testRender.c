@@ -23,10 +23,10 @@ int testPresence(const char *avail, int availlen, const char *desc, int desclen,
 	};
 
 	psycPacket packet = psyc_newPacket2(routing, PSYC_NUM_ELEM(routing),
-	                                     entity, PSYC_NUM_ELEM(entity),
-	                                     PSYC_C2ARG("_notice_presence"),
-	                                     NULL, 0,
-	                                     PSYC_PACKET_CHECK_LENGTH);
+	                                    entity, PSYC_NUM_ELEM(entity),
+	                                    PSYC_C2ARG("_notice_presence"),
+	                                    NULL, 0,
+	                                    PSYC_PACKET_CHECK_LENGTH);
 
 	char buffer[512];
 	psyc_render(&packet, buffer, sizeof(buffer));
@@ -68,7 +68,7 @@ int testList(const char *rendered, uint8_t verbose)
 		psyc_newModifier2(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_list_text"),
 		                  buf_text, list_text.length, list_text.flag),
 		psyc_newModifier2(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_list_binary"),
-		                  buf_bin, list_bin.length, list_text.flag),
+		                  buf_bin, list_bin.length, list_bin.flag),
 	};
 
 	psycPacket packet = psyc_newPacket2(routing, PSYC_NUM_ELEM(routing),
@@ -84,7 +84,7 @@ int testList(const char *rendered, uint8_t verbose)
 	return strncmp(rendered, buffer, packet.length);
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char **argv) {
 	uint8_t verbose = argc > 1;
 
 	if (testPresence(PSYC_C2ARG("_here"), PSYC_C2ARG("I'm omnipresent right now"), "\
