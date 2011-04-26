@@ -2,23 +2,58 @@
 #include "psyc/render.h"
 #include "psyc/syntax.h"
 
-inline size_t psyc_renderModifier(psycModifier *m, char *buffer)
+inline psycRenderRC psyc_renderList(psycList *list, char *buffer, size_t buflen)
+{
+	size_t i, cur = 0;
+	psycString *elem;
+
+	if (list->length > buflen)
+		return PSYC_RENDER_ERROR; // return error if list doesn't fit in buffer
+
+	if (list->flag == PSYC_LIST_NEED_LENGTH)
+	{
+		for (i = 0; i < list->num_elems; i++)
+		{
+			elem = &list->elems[i];
+			if (i > 0)
+				buffer[cur++] = '|';
+			cur += itoa(elem->length, buffer + cur, 10);
+			buffer[cur++] = ' ';
+			memcpy(buffer + cur, elem->ptr, elem->length);
+			cur += elem->length;
+		}
+	}
+	else
+	{
+		for (i = 0; i < list->num_elems; i++)
+		{
+			elem = &list->elems[i];
+			buffer[cur++] = '|';
+			memcpy(buffer + cur, elem->ptr, elem->length);
+			cur += elem->length;
+		}
+	}
+
+	return PSYC_RENDER_SUCCESS;
+}
+
+inline size_t psyc_renderModifier(psycModifier *mod, char *buffer)
 {
 	size_t cur = 0;
 
-	buffer[cur++] = m->oper;
-	memcpy(buffer + cur, m->name.ptr, m->name.length);
-	cur += m->name.length;
-	if (m->flag == PSYC_MODIFIER_NEED_LENGTH)
+	buffer[cur++] = mod->oper;
+	memcpy(buffer + cur, mod->name.ptr, mod->name.length);
+	cur += mod->name.length;
+	if (mod->flag == PSYC_MODIFIER_NEED_LENGTH)
 	{
 		buffer[cur++] = ' ';
-		//cur += sprintf(buffer + cur, "%ld", m->value.length);
-		cur += itoa(m->value.length, buffer + cur, 10);
+		//cur += sprintf(buffer + cur, "%ld", mod->value.length);
+		cur += itoa(mod->value.length, buffer + cur, 10);
 	}
 
 	buffer[cur++] = '\t';
-	memcpy(buffer + cur, m->value.ptr, m->value.length);
-	cur += m->value.length;
+	memcpy(buffer + cur, mod->value.ptr, mod->value.length);
+	cur += mod->value.length;
 	buffer[cur++] = '\n';
 
 	return cur;

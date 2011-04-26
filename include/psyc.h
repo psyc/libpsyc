@@ -89,6 +89,13 @@ typedef enum
 
 typedef enum
 {
+	PSYC_LIST_CHECK_LENGTH = 0,
+	PSYC_LIST_NEED_LENGTH = 1,
+	PSYC_LIST_NO_LENGTH = 2,
+} psycListFlag;
+
+typedef enum
+{
 	PSYC_PACKET_CHECK_LENGTH = 0,
 	PSYC_PACKET_NEED_LENGTH = 1,
 	PSYC_PACKET_NO_LENGTH = 2,
@@ -126,13 +133,21 @@ typedef struct
 {
 	size_t lines;
 	psycModifier *modifiers;
-} psycModifierArray;
+} psycHeader;
+
+typedef struct
+{
+	size_t num_elems;
+	psycString *elems;
+	size_t length;
+	psycListFlag flag;
+} psycList;
 
 /* intermediate struct for a PSYC packet */
 typedef struct
 {
-	psycModifierArray routing; ///< Routing header.
-	psycModifierArray entity;	///< Entitiy header.
+	psycHeader routing; ///< Routing header.
+	psycHeader entity;	///< Entitiy header.
 	psycString method;
 	psycString data;
 	size_t routingLength; ///< Length of routing part.
@@ -151,8 +166,10 @@ inline psycModifier psyc_newModifier2(char oper,
                                        const char *value, size_t valuelen,
                                        psycModifierFlag flag);
 
-inline psycPacket psyc_newPacket(psycModifierArray *routing,
-                                  psycModifierArray *entity,
+inline psycList psyc_newList(psycString *elems, size_t num_elems, psycListFlag flag);
+
+inline psycPacket psyc_newPacket(psycHeader *routing,
+                                  psycHeader *entity,
                                   psycString *method, psycString *data,
                                   psycPacketFlag flag);
 
