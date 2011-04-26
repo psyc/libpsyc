@@ -91,7 +91,7 @@ psycRenderRC psyc_render(psycPacket *packet, char *buffer, size_t buflen)
 
 	if (packet->data.length) // add data\n
 	{
-		memcpy(buffer + cur, packet->data.ptr, packet->method.length);
+		memcpy(buffer + cur, packet->data.ptr, packet->data.length);
 		cur += packet->data.length;
 		buffer[cur++] = '\n';
 	}
