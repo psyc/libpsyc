@@ -1,0 +1,257 @@
+/**
+ * libpsyc test server for packet parsing & rendering
+ * based on selectserver.c from http://beej.us/guide/bgnet/
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+
+#include <psyc/lib.h>
+#include <psyc/parser.h>
+#include <psyc/render.h>
+
+const size_t RECV_BUF_SIZE = 256;
+const size_t SEND_BUF_SIZE = 1024;
+const size_t NUM_PARSERS = 100;
+
+// get sockaddr, IPv4 or IPv6:
+void *get_in_addr(struct sockaddr *sa)
+{
+	if (sa->sa_family == AF_INET) {
+		return &(((struct sockaddr_in*)sa)->sin_addr);
+	}
+
+	return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+int main(int argc, char **argv)
+{
+	char *port = argc > 1 ? argv[1] : "4440";
+	uint8_t verbose = argc > 2;
+
+	fd_set master;    // master file descriptor list
+	fd_set read_fds;  // temp file descriptor list for select()
+	int fdmax;        // maximum file descriptor number
+
+	int listener;     // listening socket descriptor
+	int newfd;        // newly accept()ed socket descriptor
+	struct sockaddr_storage remoteaddr; // client address
+	socklen_t addrlen;
+
+	char buf[2*RECV_BUF_SIZE];            // cont buf + recv buf: [  ccrrrr]
+	char *recvbuf = buf + RECV_BUF_SIZE;  // recv buf:                 ^^^^
+	char *parsebuf;                       // parse buf:              ^^^^^^
+	char sendbuf[SEND_BUF_SIZE];
+	size_t nbytes, contbytes = 0;
+
+	char remoteIP[INET6_ADDRSTRLEN];
+
+	int yes = 1;        // for setsockopt() SO_REUSEADDR, below
+	int i, rv;
+
+	struct addrinfo hints, *ai, *p;
+
+	psycParseState parsers[NUM_PARSERS];
+	psycPacket packets[NUM_PARSERS];
+
+	int ret, retl;
+	char oper;
+	psycString name, value, elem;
+	psycParseListState listState;
+
+	FD_ZERO(&master);    // clear the master and temp sets
+	FD_ZERO(&read_fds);
+
+	// get us a socket and bind it
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+	if ((rv = getaddrinfo(NULL, port, &hints, &ai)) != 0) {
+		fprintf(stderr, "error: %s\n", gai_strerror(rv));
+		exit(1);
+	}
+	
+	for (p = ai; p != NULL; p = p->ai_next) {
+		listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+		if (listener < 0) { 
+			continue;
+		}
+		
+		// lose the pesky "address already in use" error message
+		setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+
+		if (bind(listener, p->ai_addr, p->ai_addrlen) < 0) {
+			close(listener);
+			continue;
+		}
+
+		break;
+	}
+
+	// if we got here, it means we didn't get bound
+	if (p == NULL) {
+		fprintf(stderr, "failed to bind\n");
+		exit(2);
+	}
+
+	freeaddrinfo(ai); // all done with this
+
+	// listen
+	if (listen(listener, 10) == -1) {
+		perror("listen");
+		exit(3);
+	}
+
+	// add the listener to the master set
+	FD_SET(listener, &master);
+
+	// keep track of the biggest file descriptor
+	fdmax = listener; // so far, it's this one
+
+	// main loop
+	for (;;) {
+		read_fds = master; // copy it
+		if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1) {
+			perror("select");
+			exit(4);
+		}
+
+		// run through the existing connections looking for data to read
+		for (i = 0; i <= fdmax; i++) {
+			if (FD_ISSET(i, &read_fds)) { // we got one!!
+				if (i == listener) {
+					// handle new connections
+					if (fdmax == NUM_PARSERS - 1)
+						continue; // ignore if there's too many
+
+					addrlen = sizeof remoteaddr;
+					newfd = accept(listener, (struct sockaddr *)&remoteaddr, &addrlen);
+
+					if (newfd == -1) {
+						perror("accept");
+					} else {
+						FD_SET(newfd, &master); // add to master set
+						if (newfd > fdmax) {    // keep track of the max
+							fdmax = newfd;
+						}
+
+						// reset parser state & packet
+						psyc_initParseState(&parsers[newfd]);
+						memset(&packets[newfd], 0, sizeof(psycPacket));
+
+						printf("# New connection from %s on socket %d\n",
+						       inet_ntop(remoteaddr.ss_family,
+						                 get_in_addr((struct sockaddr*)&remoteaddr),
+						                 remoteIP, INET6_ADDRSTRLEN),
+						       newfd);
+					}
+				} else {
+					// handle data from a client
+					if ((nbytes = recv(i, recvbuf, RECV_BUF_SIZE, 0)) <= 0) {
+						// got error or connection closed by client
+						if (nbytes == 0) {
+							// connection closed
+							printf("socket %d hung up\n", i);
+						} else {
+							perror("recv");
+						}
+						close(i); // bye!
+						FD_CLR(i, &master); // remove from master set
+					} else {
+						// we got some data from a client
+						parsebuf = recvbuf - contbytes;
+						psyc_nextParseBuffer(&parsers[i], psyc_newString(parsebuf, contbytes + nbytes));
+						contbytes = 0;
+
+						do {
+							ret = psyc_parse(&parsers[i], &oper, &name, &value);
+							switch (ret) {
+								case PSYC_PARSE_ROUTING:
+								case PSYC_PARSE_ENTITY:
+								case PSYC_PARSE_ENTITY_INCOMPLETE:
+									if (verbose)
+										write(1, &oper, 1);
+								case PSYC_PARSE_BODY:
+								case PSYC_PARSE_BODY_INCOMPLETE:
+									if (ret == PSYC_PARSE_BODY_INCOMPLETE ||
+									    ret == PSYC_PARSE_ENTITY_INCOMPLETE)
+										ret = 0;
+
+									// printf("the string is '%.*s'\n", name);
+									if (verbose) {
+										write(1, name.ptr, name.length);
+										write(1, " = ", 3);
+										write(1, value.ptr, value.length);
+										write(1, "\n", 1);
+									}
+									if (memcmp(name.ptr, "_list", 5) == 0) {
+										if (verbose)
+											write(1, ">>> LIST START\n", 15);
+										psyc_initParseListState(&listState);
+										psyc_nextParseListBuffer(&listState, value);
+										do {
+											retl = psyc_parseList(&listState, &name, &value, &elem);
+											switch (retl) {
+												case PSYC_PARSE_LIST_END:
+													retl = 0;
+												case PSYC_PARSE_LIST_ELEM:
+													if (verbose) {
+														write(1, "|", 1);
+														write(1, elem.ptr, elem.length);
+														write(1, "\n", 1);
+														if (ret == PSYC_PARSE_LIST_END)
+															write(1, ">>> LIST END\n", 13);
+													}
+													break;
+												default:
+													printf("# Error while parsing list: %i\n", ret);
+													ret = retl = -1;
+											}
+										} while (retl > 0);
+									}
+									break;
+								case PSYC_PARSE_COMPLETE:
+									printf("# Done parsing.\n");
+#ifdef RENDER_WORKS
+									psyc_render(&packets[i], sendbuf, SEND_BUF_SIZE);
+									if (send(i, sendbuf, packets[i].length, 0) == -1) {
+										perror("send");
+									}
+#endif
+									ret = -1;
+									break;
+								case PSYC_PARSE_INSUFFICIENT:
+									printf("# Insufficient data.\n");
+									contbytes = parsers[i].buffer.length - parsers[i].cursor;
+									if (contbytes > 0) { // copy end of parsebuf before start of recvbuf
+										assert(recvbuf - contbytes >= buf); // make sure it's still in the buffer
+										memcpy(recvbuf - contbytes, parsebuf + parsers[i].cursor, contbytes);
+									}
+									ret = 0;
+									break;
+								default:
+									printf("# Error while parsing: %i\n", ret);
+									ret = -1;
+							}
+						} while (ret > 0);
+						if (ret < 0) {
+							printf("# Closing connection: %i\n", i);
+							close(i); // bye!
+							FD_CLR(i, &master); // remove from master set
+						}
+					}
+				} // END handle data from client
+			} // END got new incoming connection
+		} // END looping through file descriptors
+	} // END for(;;)--and you thought it would never end!
+
+	return 0;
+}
