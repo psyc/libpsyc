@@ -402,11 +402,12 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			}
 			else // Search for the terminator.
 			{
+				size_t datac = state->cursor; // start of data
 				while (1)
 				{
 					uint8_t nl = state->buffer.ptr[state->cursor] == '\n';
 					// check for |\n if we're at the start of data or we have found a \n
-					if (state->cursor == state->startc || nl)
+					if (state->cursor == datac || nl)
 					{
 						if (state->cursor+1+nl >= state->buffer.length) // incremented cursor inside length?
 						{
