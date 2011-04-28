@@ -16,10 +16,10 @@ nettest:
 	for f in packets/full-* packets/error-*; do echo ">> $$f"; cat $$f | nc localhost $(PORT); done
 
 nettestp1:
-	(for f in packets/part-1-p*; do cat $$f; done) | nc nb $(PORT)
+	(for f in packets/part-1-p*; do cat $$f; done) | nc localhost $(PORT)
 
 nettestp2:
-	(for f in packets/part-1-length-p*; do cat $$f; done) | nc nb $(PORT)
+	(for f in packets/part-1-length-p*; do cat $$f; done) | nc localhost $(PORT)
 
 clean:
 	rm -f $(TARGETS)

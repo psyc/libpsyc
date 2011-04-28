@@ -146,13 +146,13 @@ typedef struct
 /* intermediate struct for a PSYC packet */
 typedef struct
 {
-	psycHeader routing; ///< Routing header.
-	psycHeader entity;  ///< Entitiy header.
+	psycHeader routing;	///< Routing header.
+	psycHeader entity;	///< Entity header.
 	psycString method;
 	psycString data;
-	size_t routingLength; ///< Length of routing part.
-	size_t contentLength; ///< Length of content part.
-	size_t length; ///< Total length of packet.
+	size_t routingLength;	///< Length of routing part.
+	size_t contentLength;	///< Length of content part.
+	size_t length;		///< Total length of packet.
 	psycPacketFlag flag;
 } psycPacket;
 
