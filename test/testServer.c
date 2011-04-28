@@ -1,6 +1,8 @@
 /**
  * libpsyc test server for packet parsing & rendering
+ *
  * based on selectserver.c from http://beej.us/guide/bgnet/
+ *	"The C source code presented in this document is hereby granted to the public domain, and is completely free of any license restriction."
  */
 
 #include <stdio.h>
