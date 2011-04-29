@@ -285,14 +285,18 @@ int main(int argc, char **argv)
 
 									if (verbose)
 										printf("\t\t\t\t\t\t\t\t# n:%ld v:%ld c:%ld r:%ld\n", pname->length, pvalue->length, parsers[i].contentParsed, parsers[i].routingLength);
+							}
 
-									if (name.length >= 5 && memcmp(name.ptr, "_list", 5) == 0) {
+							switch (ret) {
+								case PSYC_PARSE_ROUTING:
+								case PSYC_PARSE_ENTITY:
+									if (pname->length >= 5 && memcmp(pname->ptr, "_list", 5) == 0) {
 										if (verbose)
 											printf("## LIST START\n");
 										psyc_initParseListState(&listState);
-										psyc_nextParseListBuffer(&listState, value);
+										psyc_nextParseListBuffer(&listState, *pvalue);
 										do {
-											retl = psyc_parseList(&listState, &name, &value, &elem);
+											retl = psyc_parseList(&listState, pname, pvalue, &elem);
 											switch (retl) {
 												case PSYC_PARSE_LIST_END:
 													retl = 0;
