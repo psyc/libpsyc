@@ -228,7 +228,8 @@ int main(int argc, char **argv)
 									ret = -1;
 									break;
 								case PSYC_PARSE_INSUFFICIENT:
-									printf("# Insufficient data.\n");
+									if (verbose)
+										printf("# Insufficient data.\n");
 									contbytes = parsers[i].buffer.length - parsers[i].cursor;
 									if (contbytes > 0) { // copy end of parsebuf before start of recvbuf
 										assert(recvbuf - contbytes >= buf); // make sure it's still in the buffer
@@ -250,7 +251,8 @@ int main(int argc, char **argv)
 								case PSYC_PARSE_BODY:
 									if (oper) {
 										mod->oper = oper;
-										if (verbose) write(1, &oper, 1);
+										if (verbose)
+											printf("%c", oper);
 									}
 
 									if (name.length) {
@@ -260,8 +262,7 @@ int main(int argc, char **argv)
 										memcpy((void*)pname->ptr, name.ptr, name.length);
 										name.length = 0;
 										if (verbose) {
-											write(1, pname->ptr, pname->length);
-											write(1, " = ", 3);
+											printf("%.*s = ", (int)pname->length, pname->ptr);
 										}
 									}
 
@@ -273,16 +274,21 @@ int main(int argc, char **argv)
 										pvalue->length += value.length;
 										value.length = 0;
 										if (verbose) {
-											write(1, pvalue->ptr, pvalue->length);
+											printf("%.*s", (int)pvalue->length, pvalue->ptr);
 											if (parsers[i].valueLength > pvalue->length)
-												write(1, "...", 3);
-											write(1, "\n", 1);
+												printf("...");
+											printf("\n");
 										}
+									} else if (verbose) {
+										printf("\n");
 									}
+
+									if (verbose)
+										printf("\t\t\t\t\t\t\t\t# n:%ld v:%ld c:%ld r:%ld\n", pname->length, pvalue->length, parsers[i].contentParsed, parsers[i].routingLength);
 
 									if (name.length >= 5 && memcmp(name.ptr, "_list", 5) == 0) {
 										if (verbose)
-											write(1, ">>> LIST START\n", 15);
+											printf("## LIST START\n");
 										psyc_initParseListState(&listState);
 										psyc_nextParseListBuffer(&listState, value);
 										do {
@@ -292,11 +298,9 @@ int main(int argc, char **argv)
 													retl = 0;
 												case PSYC_PARSE_LIST_ELEM:
 													if (verbose) {
-														write(1, "|", 1);
-														write(1, elem.ptr, elem.length);
-														write(1, "\n", 1);
+														printf("|%.*s\n", (int)elem.length, elem.ptr);
 														if (ret == PSYC_PARSE_LIST_END)
-															write(1, ">>> LIST END\n", 13);
+															printf("## LIST END");
 													}
 													break;
 												default:
