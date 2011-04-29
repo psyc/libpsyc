@@ -8,6 +8,7 @@ all: $(TARGETS)
 	./testRender
 	./testMatch
 	./isRoutingVar
+	./getVarType
 
 test: $(TARGETS)
 	for f in packets/full-* packets/error-*; do echo ">> $$f"; ./testParser $$f; done

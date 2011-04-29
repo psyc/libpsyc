@@ -32,7 +32,7 @@ int testPresence(const char *avail, int availlen, const char *desc, int desclen,
 	psyc_render(&packet, buffer, sizeof(buffer));
 	if (verbose)
 		write(0, buffer, packet.length);
-	return strncmp(rendered, buffer, packet.
+	return strncmp(rendered, buffer, packet.length);
 }
 
 int testList(const char *rendered, uint8_t verbose)
