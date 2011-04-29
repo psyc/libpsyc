@@ -7,6 +7,7 @@ test/testParser
 test/testRender
 test/testServer
 test/isRoutingVar
+test/getVarType
 
 .config
 ~$*
