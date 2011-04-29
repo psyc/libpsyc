@@ -12,6 +12,12 @@ all: $(TARGETS)
 test: $(TARGETS)
 	for f in packets/full-* packets/error-*; do echo ">> $$f"; ./testParser $$f; done
 
+netstart:
+	./testServer $(PORT)
+
+netstartv:
+	./testServer $(PORT) -v
+
 nettest:
 	for f in packets/full-*; do echo ">> $$f"; cat $$f | nc localhost $(PORT) | diff -u $$f -; done
 
