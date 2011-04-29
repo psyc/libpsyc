@@ -18,16 +18,3 @@ _message_foo_bar
 ohai there!
 \o/
 |
-:_target	psyc://foo.bar/~baz
-
-:_test	123
-_message_test
-ohai!
-|
-:_target	psyc://foo.bar/~baz
-
-+_list_foo	yay
--_amount_x	2
-_notice_test
-test!
-|

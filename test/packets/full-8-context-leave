@@ -1,9 +1,4 @@
 :_target	psyc://p5B084547.dip.t-dialin.net/@test
-:_source	something
-
-_request_context_enter
-|
-:_target	psyc://p5B084547.dip.t-dialin.net/@test
 
 :_more	vars
 :_bin 6	"1

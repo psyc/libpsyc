@@ -16,9 +16,3 @@ _message_foo_bar
 ohai there!
 \o/
 |
-:_target	psyc://foo.bar/~baz
-
-:_test	123
-_message_test
-ohai!
-|
