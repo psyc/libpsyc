@@ -7,8 +7,9 @@ int psyc_inherits(char* sho, size_t slen,
 	// the length.. but we would be faster here if we expected the callee
 	// to always use the PSYC_C2ARG() macro instead. additionally, the
 	// empty string would then be fully supported (in case you want that)
-	if (!slen) slen = strlen(sho);
-	if (!llen) llen = strlen(lon);
+	// Disabled this, let's use that macro rather.
+	//if (!slen) slen = strlen(sho);
+	//if (!llen) llen = strlen(lon);
 
 	if (slen == 0 || *sho != '_' ||
 	    llen == 0 || *lon != '_') {
@@ -45,8 +46,8 @@ int psyc_matches(char* sho, size_t slen,
 		 char* lon, size_t llen) {
 	char *s, *l, *se, *le;
 
-	if (!slen) slen = strlen(sho);
-	if (!llen) llen = strlen(lon);
+	//if (!slen) slen = strlen(sho);
+	//if (!llen) llen = strlen(lon);
 
 	if (slen == 0 || *sho != '_' ||
 	    llen == 0 || *lon != '_') {
