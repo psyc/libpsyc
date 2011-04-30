@@ -1,5 +1,5 @@
 CFLAGS=-I../include -DDEBUG -g -O0 -Wall
-LDFLAGS=-L../src
+LDFLAGS=-L../lib
 LOADLIBES=-lpsyc -lm
 TARGETS=testServer testParser testMatch testRender isRoutingVar getVarType
 PORT=4440
