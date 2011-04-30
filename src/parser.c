@@ -230,6 +230,10 @@ inline psycParseRC psyc_parseModifier(psycParseState* state, char* oper, psycStr
  */
 psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psycString* value)
 {
+	if (state->flags & PSYC_PARSE_HEADER_ONLY &&
+			state->flags & PSYC_PARSE_BEGIN_AT_CONTENT)
+		return PSYC_PARSE_ERROR_INVALID_FLAGS;
+		
 	psycParseRC ret; // a return value
 	size_t pos = state->cursor;	// a cursor position
 
