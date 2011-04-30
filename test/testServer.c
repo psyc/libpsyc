@@ -43,7 +43,7 @@ void *get_in_addr(struct sockaddr *sa)
 int main(int argc, char **argv)
 {
 	char *port = argc > 1 ? argv[1] : "4440";
-	uint8_t verbose = argc > 2;
+	uint8_t routing_only = argc > 2, verbose = argc > 3;
 
 	fd_set master;    // master file descriptor list
 	fd_set read_fds;  // temp file descriptor list for select()
@@ -157,7 +157,10 @@ int main(int argc, char **argv)
 						}
 
 						// reset parser state & packet
-						psyc_initParseState(&parsers[newfd]);
+						if (routing_only)
+							psyc_initParseState2(&parsers[newfd], PSYC_PARSE_ROUTING_ONLY);
+						else
+							psyc_initParseState(&parsers[newfd]);
 						memset(&packets[newfd], 0, sizeof(psycPacket));
 						memset(&routing[newfd], 0, sizeof(psycModifier) * ROUTING_LINES);
 						memset(&entity[newfd], 0, sizeof(psycModifier) * ENTITY_LINES);
@@ -193,6 +196,8 @@ int main(int argc, char **argv)
 
 						do {
 							ret = psyc_parse(&parsers[i], &oper, &name, &value);
+							if (verbose)
+								printf("# ret = %d\n", ret);
 							switch (ret) {
 								case PSYC_PARSE_ROUTING:
 									assert(packets[i].routing.lines < ROUTING_LINES);

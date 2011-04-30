@@ -27,8 +27,14 @@ test: ${TARGETS}
 netstart:
 	./testServer ${PORT}
 
+netstartr:
+	./testServer ${PORT} -r
+
 netstartv:
 	./testServer ${PORT} -v
+
+netstartrv:
+	./testServer ${PORT} -r -v
 
 nettest:
 	for f in packets/full-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | diff -u $$f -; done

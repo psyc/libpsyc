@@ -25,7 +25,7 @@ inline void psyc_initParseState2 (psycParseState* state, uint8_t flags)
 	memset(state, 0, sizeof(psycParseState));
 	state->flags = flags;
 
-	if (flags & PSYC_PARSE_BEGIN_AT_CONTENT)
+	if (flags & PSYC_PARSE_START_AT_CONTENT)
 		state->part = PSYC_PART_CONTENT;
 }
 
@@ -36,7 +36,7 @@ inline void psyc_initParseListState (psycParseListState* state)
 
 inline void psyc_nextParseBuffer (psycParseState* state, psycString newBuf)
 {
-	if (state->flags & PSYC_PARSE_BEGIN_AT_CONTENT)
+	if (state->flags & PSYC_PARSE_START_AT_CONTENT)
 	{
 		state->contentLength = newBuf.length;
 		state->contentLengthFound = PSYC_TRUE;
@@ -231,7 +231,7 @@ inline psycParseRC psyc_parseModifier(psycParseState* state, char* oper, psycStr
 psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psycString* value)
 {
 #ifdef DEBUG
-	if (state->flags & PSYC_PARSE_HEADER_ONLY && state->flags & PSYC_PARSE_BEGIN_AT_CONTENT)
+	if (state->flags & PSYC_PARSE_ROUTING_ONLY && state->flags & PSYC_PARSE_START_AT_CONTENT)
 		PP(("Invalid flag combination"))
 #endif
 
@@ -301,7 +301,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			{
 				// If we need to parse the header only and we know the content length,
 				// then skip content parsing.
-				if (state->flags & PSYC_PARSE_HEADER_ONLY)
+				if (state->flags & PSYC_PARSE_ROUTING_ONLY)
 				{
 					state->part = PSYC_PART_DATA;
 					if (++(state->cursor) >= state->buffer.length)
