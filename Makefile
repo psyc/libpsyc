@@ -2,11 +2,8 @@
 .PHONY: test
 .PHONY: lib
 
-default:
-	@/bin/echo -e "Usage:\n\tmake diet - compile with diet libc\n\tmake glibc  - compile with normal gnu libc\n\tmake test\n\tmake doc"
-
-lib:
-	${MAKE} -C src lib
+all:
+	${MAKE} -C src
 
 diet:
 	${MAKE} -C src diet
@@ -21,3 +18,6 @@ clean:
 	make -C src clean
 	make -C test clean
 	rm -rf doc/html doc/latex doc/man
+
+help:
+	@/bin/echo -e "Usage:\n\tmake - compile\n\tmake diet - compile with diet libc\n\tmake test\n\tmake doc"
