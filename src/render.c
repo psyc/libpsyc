@@ -47,7 +47,6 @@ inline size_t psyc_renderModifier(psycModifier *mod, char *buffer)
 	if (mod->flag == PSYC_MODIFIER_NEED_LENGTH)
 	{
 		buffer[cur++] = ' ';
-		//cur += sprintf(buffer + cur, "%ld", mod->value.length);
 		cur += itoa(mod->value.length, buffer + cur, 10);
 	}
 
@@ -71,10 +70,8 @@ psycRenderRC psyc_render(psycPacket *packet, char *buffer, size_t buflen)
 		cur += psyc_renderModifier(&packet->routing.modifiers[i], buffer + cur);
 
 	// add length if needed
-	if (packet->flag == PSYC_PACKET_NEED_LENGTH) {
-		//cur += sprintf(buffer + cur, "%ld", packet->contentLength);
+	if (packet->flag == PSYC_PACKET_NEED_LENGTH)
 		cur += itoa(packet->contentLength, buffer + cur, 10);
-	}
 
 	if (packet->entity.lines || packet->method.length || packet->data.length)
 		buffer[cur++] = '\n'; // start of content part if there's content

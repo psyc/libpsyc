@@ -113,23 +113,30 @@ inline psycList psyc_newList(psycString *elems, size_t num_elems, psycListFlag f
 
 inline psycPacketFlag psyc_checkPacketLength(psycPacket *p)
 {
-	psycPacketFlag flag;
-
 	if (p->data.length == 1 && p->data.ptr[0] == C_GLYPH_PACKET_DELIMITER)
-		flag = PSYC_PACKET_NEED_LENGTH;
-	else if (p->data.length > PSYC_CONTENT_SIZE_THRESHOLD)
-		flag = PSYC_PACKET_NEED_LENGTH;
-	else if (memmem(p->data.ptr, p->data.length, PSYC_C2ARG(PSYC_PACKET_DELIMITER)))
-		flag = PSYC_PACKET_NEED_LENGTH;
-	else
-		flag = PSYC_PACKET_NO_LENGTH;
+		return PSYC_PACKET_NEED_LENGTH;
 
-	return flag;
+	if (p->data.length > PSYC_CONTENT_SIZE_THRESHOLD)
+		return PSYC_PACKET_NEED_LENGTH;
+
+	int i;
+	// if any entity modifiers need length it is possible they contain
+	// a packet terminator, thus the content should have a length as well
+	for (i = 0; i < p->entity.lines; i++)
+		if (p->entity.modifiers[i].flag == PSYC_MODIFIER_NEED_LENGTH)
+			return PSYC_PACKET_NEED_LENGTH;
+
+	if (memmem(p->data.ptr, p->data.length, PSYC_C2ARG(PSYC_PACKET_DELIMITER)))
+		return PSYC_PACKET_NEED_LENGTH;
+
+	return PSYC_PACKET_NO_LENGTH;
 }
 
 inline size_t psyc_setPacketLength(psycPacket *p)
 {
 	size_t i;
+	p->routingLength = 0;
+	p->contentLength = 0;
 
 	// add routing header length
 	for (i = 0; i < p->routing.lines; i++)
@@ -145,14 +152,14 @@ inline size_t psyc_setPacketLength(psycPacket *p)
 	if (p->data.length)
 		p->contentLength += p->data.length + 1; // data\n
 
-	// set total length: routing-header \n content |\n
-	p->length = p->routingLength + p->contentLength + sizeof(PSYC_PACKET_DELIMITER) - 2;
+	// set total length: routing-header content |\n
+	p->length = p->routingLength + p->contentLength + 2;
+
 	if (p->contentLength > 0)
 	{
-		p->contentLength--; // subtract the \n from the delimiter, as that doesn't belong to the content part
 		p->length++; // add \n at the start of the content part
 		if (p->flag == PSYC_PACKET_NEED_LENGTH) // add length of length if needed
-			p->length += log10((double)p->data.length) + 1;
+			p->length += log10((double)p->contentLength) + 1;
 	}
 
 	return p->length;

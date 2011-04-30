@@ -416,10 +416,9 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 				if (state->cursor >= state->buffer.length)
 					return PSYC_PARSE_BODY;
 
-				if (state->buffer.ptr[state->cursor] != '\n')
+				if (state->buffer.ptr[state->cursor] != '|')
 					return PSYC_PARSE_ERROR_BODY;
 
-				state->cursor++;
 				state->part = PSYC_PART_END;
 				return PSYC_PARSE_BODY;
 			}
