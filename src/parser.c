@@ -24,6 +24,9 @@ inline void psyc_initParseState2 (psycParseState* state, uint8_t flags)
 {
 	memset(state, 0, sizeof(psycParseState));
 	state->flags = flags;
+
+	if (flags & PSYC_PARSE_BEGIN_AT_CONTENT)
+		state->part = PSYC_PART_CONTENT;
 }
 
 inline void psyc_initParseListState (psycParseListState* state)
@@ -33,6 +36,12 @@ inline void psyc_initParseListState (psycParseListState* state)
 
 inline void psyc_nextParseBuffer (psycParseState* state, psycString newBuf)
 {
+	if (state->flags & PSYC_PARSE_BEGIN_AT_CONTENT)
+	{
+		state->contentLength = newBuf.length;
+		state->contentLengthFound = PSYC_TRUE;
+	}
+
 	state->buffer = newBuf;
 	state->cursor = 0;
 }
@@ -274,6 +283,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			{
 				state->contentLengthFound = 1;
 				state->contentLength = 0;
+
 				do
 				{
 					state->contentLength = 10 * state->contentLength + state->buffer.ptr[state->cursor] - '0';
@@ -307,7 +317,8 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 
 		case PSYC_PART_CONTENT:
 			// In case of an incomplete binary variable resume parsing it.
-			if (state->valueParsed < state->valueLength) {
+			if (state->valueParsed < state->valueLength) 
+			{
 				ret = psyc_parseBinaryValue(state, value, &(state->valueLength), &(state->valueParsed));
 				state->contentParsed += value->length;
 
