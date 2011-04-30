@@ -8,13 +8,13 @@
    xmlns="http://www.w3.org/2000/svg"
    id="svg4025"
    version="1.1"
-   width="715.59717"
-   height="145.17674"
+   width="234"
+   height="50"
    xml:space="preserve"><g
      id="g4035"
-     transform="matrix(1.25,0,0,-1.25,-0.93316256,156.86281)"><g
+     transform="matrix(1,0,0,-1,2,52)"><g
        id="g4037"
-       transform="scale(0.1,0.1)"><path
+       transform="scale(0.04,0.04)"><path
          d="m 223.621,1244.61 5292.459,0 c 113.7,0 205.87,-92.17 205.87,-205.86 l 0,-729.109 c 0,-113.696 -92.17,-205.86 -205.87,-205.86 l -5292.459,0 c -113.695,0 -205.8632,92.164 -205.8632,205.86 l 0,729.109 c 0,113.69 92.1682,205.86 205.8632,205.86"
          style="fill:#e45e3b;fill-opacity:1;fill-rule:nonzero;stroke:none"
          id="path4039" /><path

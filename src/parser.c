@@ -133,13 +133,15 @@ inline psycParseRC psyc_parseBinaryValue(psycParseState* state, psycString* valu
 	if (state->cursor + remaining > state->buffer.length) // is the length larger than this buffer?
 	{
 		value->length = state->buffer.length - state->cursor;
+		state->cursor += value->length;
 		*parsed += value->length;
 		return PSYC_PARSE_INCOMPLETE;
 	}
 
-	value->length += remaining;
+	value->length = remaining;
 	state->cursor += remaining;
-	*parsed += value->length;
+	*parsed += remaining;
+	assert(*parsed == *length);
 
 	return PSYC_PARSE_COMPLETE;
 }
@@ -153,9 +155,13 @@ inline psycParseRC psyc_parseModifier(psycParseState* state, char* oper, psycStr
 	*oper = *(state->buffer.ptr + state->cursor);
 	ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 
-	if (psyc_parseName(state, name) != PSYC_PARSE_SUCCESS)
-		return PSYC_PARSE_ERROR_VAR_NAME;
+	psycParseRC ret = psyc_parseName(state, name);
+	if (ret == PSYC_PARSE_ERROR)
+		return PSYC_PARSE_ERROR_MOD_NAME;
+	else if (ret != PSYC_PARSE_SUCCESS)
+		return ret;
 
+	size_t length = 0;
 	value->length = 0;
 	state->valueLength = 0;
 	state->valueParsed = 0;
@@ -170,25 +176,26 @@ inline psycParseRC psyc_parseModifier(psycParseState* state, char* oper, psycStr
 		{
 			do
 			{
-				state->valueLength = 10 * state->valueLength + state->buffer.ptr[state->cursor] - '0';
+				length = 10 * length + state->buffer.ptr[state->cursor] - '0';
 				ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 			}
 			while (isNumeric(state->buffer.ptr[state->cursor]));
+			state->valueLength = length;
 		}
 		else
-			return PSYC_PARSE_ERROR_VAR_LEN;
+			return PSYC_PARSE_ERROR_MOD_LEN;
 
 		// After the length a TAB follows.
 		if (state->buffer.ptr[state->cursor] != '\t')
-			return PSYC_PARSE_ERROR_VAR_TAB;
+			return PSYC_PARSE_ERROR_MOD_TAB;
 
-		if (state->buffer.length <= ++(state->cursor)) // Incremented cursor inside length?
-			return PSYC_PARSE_ENTITY_INCOMPLETE;
+		if (++(state->cursor) >= state->buffer.length)
+			return PSYC_PARSE_INCOMPLETE;
 
-		if (psyc_parseBinaryValue(state, value, &(state->valueLength), &(state->valueParsed)) == PSYC_PARSE_INCOMPLETE)
-			return PSYC_PARSE_ENTITY_INCOMPLETE;
+		ret = psyc_parseBinaryValue(state, value, &(state->valueLength), &(state->valueParsed));
+		if (ret == PSYC_PARSE_INCOMPLETE)
+			return ret;
 
-		state->cursor++;
 		return PSYC_PARSE_SUCCESS;
 	}
 	else if (state->buffer.ptr[state->cursor] == '\t') // simple arg
@@ -201,11 +208,11 @@ inline psycParseRC psyc_parseModifier(psycParseState* state, char* oper, psycStr
 			value->length++;
 			ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 		}
-		state->cursor++;
+
 		return PSYC_PARSE_SUCCESS;
 	}
 	else
-		return PSYC_PARSE_ERROR_VAR_TAB;
+		return PSYC_PARSE_ERROR_MOD_TAB;
 }
 
 /**
@@ -214,7 +221,7 @@ inline psycParseRC psyc_parseModifier(psycParseState* state, char* oper, psycStr
  */
 psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psycString* value)
 {
-	int ret; // a return value
+	psycParseRC ret; // a return value
 	size_t pos;	// a cursor position
 
 	// Start position of the current line in the buffer
@@ -230,6 +237,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 		case PSYC_PART_RESET: // New packet starts here, reset state.
 			state->valueParsed = 0;
 			state->valueLength = 0;
+			state->routingLength = 0;
 			state->contentParsed = 0;
 			state->contentLength = 0;
 			state->contentLengthFound = 0;
@@ -237,17 +245,27 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			// fall thru
 
 		case PSYC_PART_ROUTING:
+			pos = state->cursor;
+			if (state->routingLength > 0)
+			{
+				if (state->buffer.ptr[state->cursor] != '\n')
+					return PSYC_PARSE_ERROR_MOD_NL;
+				ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+			}
+
 			// Each line of the header starts with a glyph,
 			// i.e. :_name, -_name +_name etc,
 			// so just test if the first char is a glyph.
 			if (isGlyph(state->buffer.ptr[state->cursor])) // is the first char a glyph?
 			{ // it is a glyph, so a variable starts here
 				ret = psyc_parseModifier(state, oper, name, value);
+				state->routingLength += state->cursor - pos;
 				return ret == PSYC_PARSE_SUCCESS ? PSYC_PARSE_ROUTING : ret;
 			}
 			else // not a glyph
 			{
 				state->part = PSYC_PART_LENGTH;
+				state->startc = state->cursor;
 				// fall thru
 			}
 
@@ -284,8 +302,8 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 				goto PSYC_PART_END;
 			}
 
+			state->startc = state->cursor + 1;
 			ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
-			state->startc = state->cursor;
 			// fall thru
 
 		case PSYC_PART_CONTENT:
@@ -293,7 +311,20 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			if (state->valueParsed < state->valueLength) {
 				ret = psyc_parseBinaryValue(state, value, &(state->valueLength), &(state->valueParsed));
 				state->contentParsed += value->length;
-				return ret == PSYC_PARSE_COMPLETE ? PSYC_PARSE_ENTITY : PSYC_PARSE_ENTITY_INCOMPLETE;
+
+				if (ret == PSYC_PARSE_INCOMPLETE)
+					return PSYC_PARSE_ENTITY_INCOMPLETE;
+
+				return PSYC_PARSE_ENTITY;
+			}
+
+			pos = state->cursor;
+
+			if (state->contentParsed > 0)
+			{
+				if (state->buffer.ptr[state->cursor] != '\n')
+					return PSYC_PARSE_ERROR_MOD_NL;
+				ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 			}
 
 			// Each line of the header starts with a glyph,
@@ -303,31 +334,45 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			// method does not start with a glyph.
 			if (isGlyph(state->buffer.ptr[state->cursor]))
 			{
-				pos = state->cursor;
 				ret = psyc_parseModifier(state, oper, name, value);
 				state->contentParsed += state->cursor - pos;
-				return ret == PSYC_PARSE_SUCCESS ? PSYC_PARSE_ENTITY : ret;
+
+				if (ret == PSYC_PARSE_INCOMPLETE)
+					return PSYC_PARSE_ENTITY_INCOMPLETE;
+				else if (ret == PSYC_PARSE_SUCCESS)
+					return PSYC_PARSE_ENTITY;
+
+				return ret;
 			}
 			else
 			{
-				state->part = PSYC_PART_METHOD;
+				state->contentParsed += state->cursor - pos;
 				state->startc = state->cursor;
+				state->part = PSYC_PART_METHOD;
 				// fall thru
 			}
 
 		case PSYC_PART_METHOD:
 			pos = state->cursor;
-			if (psyc_parseName(state, name) == PSYC_PARSE_SUCCESS)
+			ret = psyc_parseName(state, name);
+
+			if (ret == PSYC_PARSE_INSUFFICIENT)
+				return ret;
+			else if (ret == PSYC_PARSE_SUCCESS)
 			{ // the method ends with a \n then the data follows
 				if (state->buffer.ptr[state->cursor] != '\n')
 					return PSYC_PARSE_ERROR_METHOD;
 
-				state->cursor++;
-				state->startc = state->cursor;
-				state->contentParsed += state->cursor - pos;
-				state->part = PSYC_PART_DATA;
-				if (state->cursor >= state->buffer.length)
-					return PSYC_PARSE_INSUFFICIENT;
+				if (state->contentLengthFound)
+				{ // if length was found set start position to the beginning of data
+					state->cursor++;
+					state->startc = state->cursor;
+					state->contentParsed += state->cursor - pos;
+					state->part = PSYC_PART_DATA;
+				}
+				else // otherwise keep it at the beginning of method
+					ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+
 				// fall thru
 			}
 			else // No method, which means the packet should end now.
@@ -343,8 +388,15 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 
 			if (state->contentLengthFound) // We know the length of the packet.
 			{
-				if (psyc_parseBinaryValue(state, value, &(state->contentLength), &(state->contentParsed)) == PSYC_PARSE_INCOMPLETE)
+				if (state->contentParsed < state->contentLength &&
+				    psyc_parseBinaryValue(state, value, &(state->contentLength), &(state->contentParsed)) == PSYC_PARSE_INCOMPLETE)
 					return PSYC_PARSE_BODY_INCOMPLETE;
+
+				if (state->cursor >= state->buffer.length)
+					return PSYC_PARSE_BODY;
+
+				if (state->buffer.ptr[state->cursor] != '\n')
+					return PSYC_PARSE_ERROR_BODY;
 
 				state->cursor++;
 				state->part = PSYC_PART_END;
@@ -352,11 +404,12 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			}
 			else // Search for the terminator.
 			{
+				size_t datac = state->cursor; // start of data
 				while (1)
 				{
 					uint8_t nl = state->buffer.ptr[state->cursor] == '\n';
 					// check for |\n if we're at the start of data or we have found a \n
-					if (state->cursor == state->startc || nl)
+					if (state->cursor == datac || nl)
 					{
 						if (state->cursor+1+nl >= state->buffer.length) // incremented cursor inside length?
 						{
@@ -367,6 +420,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 						if (state->buffer.ptr[state->cursor+nl] == '|' &&
 								state->buffer.ptr[state->cursor+1+nl] == '\n') // packet ends here
 						{
+							state->contentParsed += state->cursor - pos;
 							state->cursor += nl;
 							state->part = PSYC_PART_END;
 							return PSYC_PARSE_BODY;
@@ -385,7 +439,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 				return PSYC_PARSE_INSUFFICIENT;
 
 			if (state->buffer.ptr[state->cursor] == '|' &&
-					state->buffer.ptr[state->cursor+1] == '\n') // packet ends here
+			    state->buffer.ptr[state->cursor+1] == '\n') // packet ends here
 			{
 				state->cursor += 2;
 				state->part = PSYC_PART_RESET;
@@ -414,7 +468,7 @@ psycParseListRC psyc_parseList(psycParseListState* state, psycString *name, psyc
 	if (!state->type) // If type is not set we're at the start
 	{
 		if (name->length < 5 || memcmp(name->ptr, "_list", 5) != 0 ||
-				(name->length > 5 && name->ptr[5] != '_')) // name should be _list or should start with _list_
+		    (name->length > 5 && name->ptr[5] != '_')) // name should be _list or should start with _list_
 			return PSYC_PARSE_LIST_ERROR_NAME;
 
 		// First character is either | for text lists, or a number for binary lists

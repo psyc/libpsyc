@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
 =_description_presence\tI'm omnipresent right now\n\
 _notice_presence\n\
 |\n", verbose))
-		return -1;
+		return 1;
 
 	if (testList("\
 :_source	psyc://10.100.1000/~ludwig\n\
@@ -106,7 +106,7 @@ qux\n\
 _test_list\n\
 list test\n\
 |\n", verbose))
-		return -2;
+		return 2;
 
 	puts("psyc_render passed all tests.");
 

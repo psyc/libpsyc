@@ -76,7 +76,8 @@ psycRenderRC psyc_render(psycPacket *packet, char *buffer, size_t buflen)
 		cur += itoa(packet->contentLength, buffer + cur, 10);
 	}
 
-	buffer[cur++] = '\n'; // start of content part
+	if (packet->entity.lines || packet->method.length || packet->data.length)
+		buffer[cur++] = '\n'; // start of content part if there's content
 
 	// render entity modifiers
 	for (i = 0; i < packet->entity.lines; i++)

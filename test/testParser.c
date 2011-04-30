@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 				continue;
 			case PSYC_PARSE_INSUFFICIENT:
 				printf("Insufficient data.\n");
-				return -1;
+				return 1;
 			default:
 				printf("Error while parsing: %i\n", ret);
 				return 1;

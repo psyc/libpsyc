@@ -1,62 +1,83 @@
-#include <psyc.h>
+#include <psyc/lib.h>
 #include <stdint.h>
 
 /// Routing variables in alphabetical order.
-const psycString PSYC_routingVars[] =
+
+const psycString psyc_routingVars[] =
 {
 	PSYC_C2STR("_amount_fragments"),
 	PSYC_C2STR("_context"),
 	//PSYC_C2STR("_count"),			// older PSYC
-	PSYC_C2STR("_counter"), // the name for this is supposed to be _count, not _counter
+	PSYC_C2STR("_counter"),			// the name for this is supposed to be _count, not _counter
 	PSYC_C2STR("_fragment"),
 	//PSYC_C2STR("_length"),		// older PSYC
 	PSYC_C2STR("_source"),
-	PSYC_C2STR("_source_identification"),
+	//PSYC_C2STR("_source_identification"),	// older PSYC
+	PSYC_C2STR("_source_identity"),
 	PSYC_C2STR("_source_relay"),
-	PSYC_C2STR("_source_relay_relay"), // until you have a better idea.. is this really in use?
+	PSYC_C2STR("_source_relay_relay"),	// until you have a better idea.. is this really in use?
 	PSYC_C2STR("_tag"),
 	PSYC_C2STR("_tag_relay"),
 	//PSYC_C2STR("_tag_reply"),		// older PSYC
 	PSYC_C2STR("_target"),
 	PSYC_C2STR("_target_forward"),
 	PSYC_C2STR("_target_relay"),
-	//PSYC_C2STR(19, "_understand_modules"),    // older PSYC
-	//PSYC_C2STR(14, "_using_modules"),	   	// older PSYC
+	//PSYC_C2STR("_understand_modules"),	// older PSYC
+	//PSYC_C2STR("_using_modules"),		// older PSYC
 };
 
-const size_t PSYC_routingVarsNum = sizeof(PSYC_routingVars) / sizeof(*PSYC_routingVars);
+const psycMatchVar psyc_varTypes[] =
+{
+	{PSYC_C2STR("_amount"),   PSYC_TYPE_AMOUNT},
+	{PSYC_C2STR("_color"),    PSYC_TYPE_COLOR},
+	{PSYC_C2STR("_date"),     PSYC_TYPE_DATE},
+	{PSYC_C2STR("_degree"),   PSYC_TYPE_DEGREE},
+	{PSYC_C2STR("_entity"),   PSYC_TYPE_ENTITY},
+	{PSYC_C2STR("_flag"),     PSYC_TYPE_FLAG},
+	{PSYC_C2STR("_language"), PSYC_TYPE_LANGUAGE},
+	{PSYC_C2STR("_list"),     PSYC_TYPE_LIST},
+	{PSYC_C2STR("_nick"),     PSYC_TYPE_NICK},
+	{PSYC_C2STR("_page"),     PSYC_TYPE_PAGE},
+	{PSYC_C2STR("_uniform"),  PSYC_TYPE_UNIFORM},
+	{PSYC_C2STR("_time"),     PSYC_TYPE_TIME},
+};
+
+const size_t psyc_routingVarsNum = PSYC_NUM_ELEM(psyc_routingVars);
+const size_t psyc_varTypesNum = PSYC_NUM_ELEM(psyc_varTypes);
 
 /**
  * Get the type of variable name.
  */
 psycBool psyc_isRoutingVar(const char *name, size_t len)
 {
+	//return psyc_matchArray(psyc_routingVars, PSYC_NUM_ELEM(psyc_routingVars), name, len, 0);
 	size_t cursor = 1;
-	int8_t matching[PSYC_routingVarsNum]; // indexes of matching vars
-	memset(&matching, -1, sizeof(matching));
 	uint8_t i, m = 0;
+	int8_t matching[psyc_routingVarsNum]; // indexes of matching vars
 
 	if (len < 2 || name[0] != '_')
 		return PSYC_FALSE;
 
 	// first find the vars with matching length
-	for (i=0; i<PSYC_routingVarsNum; i++)
-		if (len == PSYC_routingVars[i].length)
+	for (i=0; i<psyc_routingVarsNum; i++)
+		if (len == psyc_routingVars[i].length)
 			matching[m++] = i;
+
+	matching[m] = -1; // mark the end of matching indexes
 
 	while (cursor < len && matching[0] >= 0)
 	{
-		for (i = m = 0; i < PSYC_routingVarsNum; i++)
+		for (i = m = 0; i < psyc_routingVarsNum; i++)
 		{
 			if (matching[i] < 0)
-				break;
-			if (PSYC_routingVars[matching[i]].ptr[cursor] == name[cursor])
+				break; // reached the end of possible matches
+			if (psyc_routingVars[matching[i]].ptr[cursor] == name[cursor])
 				matching[m++] = matching[i]; // found a match, update matching indexes
-			else if (PSYC_routingVars[matching[i]].ptr[cursor] > name[cursor])
-				break; // passed the possible matches in alphabetical order
+			else if (psyc_routingVars[matching[i]].ptr[cursor] > name[cursor])
+				break; // passed the possible matches in alphabetical order in the array
 		}
 
-		if (m < PSYC_routingVarsNum)
+		if (m < psyc_routingVarsNum)
 			matching[m] = -1; // mark the end of matching indexes
 
 		cursor++;
@@ -68,7 +89,43 @@ psycBool psyc_isRoutingVar(const char *name, size_t len)
 /**
  * Get the type of variable name.
  */
-psycType psyc_getVarType(char *name, size_t len)
+psycType psyc_getVarType(const char *name, size_t len)
 {
-	return PSYC_TYPE_UNKNOWN;
+	//return psyc_matchArray(psyc_varTypes, PSYC_NUM_ELEM(psyc_varTypes), name, len, 1);
+	size_t cursor = 1;
+	uint8_t i, m = 0;
+	int8_t matching[psyc_varTypesNum]; // indexes of matching vars
+
+	if (len < 2 || name[0] != '_')
+		return 0;
+
+	// first find the vars with matching length
+	for (i=0; i<psyc_varTypesNum; i++)
+		if (len == psyc_varTypes[i].name.length || (len > psyc_varTypes[i].name.length && name[psyc_varTypes[i].name.length] == '_'))
+			matching[m++] = i;
+
+	matching[m] = -1; // mark the end of matching indexes
+
+	while (cursor < len && matching[0] >= 0)
+	{
+		for (i = m = 0; i < psyc_varTypesNum; i++)
+		{
+			if (matching[i] < 0)
+				break; // reached the end of possible matches
+			if (cursor < psyc_varTypes[matching[i]].name.length && psyc_varTypes[matching[i]].name.ptr[cursor] == name[cursor])
+				matching[m++] = matching[i]; // found a match, update matching indexes
+			else if (cursor == psyc_varTypes[matching[i]].name.length && name[cursor] == '_')
+				return psyc_varTypes[matching[0]].value; // _ after the end of a matching prefix
+			else if (psyc_varTypes[matching[i]].name.ptr[cursor] > name[cursor])
+				break; // passed the possible matches in alphabetical order in the array
+		}
+
+		if (m < psyc_varTypesNum)
+			matching[m] = -1; // mark the end of matching indexes
+
+		cursor++;
+	}
+
+	// return first match if found
+	return matching[0] >= 0 ? psyc_varTypes[matching[0]].value : 0;
 }
