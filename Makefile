@@ -1,17 +1,18 @@
 .PHONY: doc
 .PHONY: test
+.PHONY: lib
 
 default:
 	@/bin/echo -e "Usage:\n\tmake diet - compile with diet libc\n\tmake glibc  - compile with normal gnu libc\n\tmake test\n\tmake doc"
 
-glibc:
-	make -C src glibc
+lib:
+	${MAKE} -C src lib
 
 diet:
-	make -C src diet
+	${MAKE} -C src diet
 
 test:
-	make -C test
+	${MAKE} -C test
 
 doc:
 	doxygen
