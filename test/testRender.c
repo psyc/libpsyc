@@ -99,7 +99,7 @@ _notice_presence\n\
 	if (testList("\
 :_source	psyc://10.100.1000/~ludwig\n\
 :_context	psyc://10.100.1000/~ludwig\n\
-\n\
+85\n\
 :_list_text	|foo|bar|baz\n\
 :_list_binary 21	3 foo|3 b|r|7 baz\n\
 qux\n\
