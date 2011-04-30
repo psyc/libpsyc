@@ -136,10 +136,6 @@ inline psycParseRC psyc_parseName(psycParseState* state, psycString* name)
  */
 inline psycParseRC psyc_parseBinaryValue(psycParseState* state, psycString* value, size_t* length, size_t* parsed)
 {
-	if (state->flags & PSYC_PARSE_HEADER_ONLY &&
-			state->flags & PSYC_PARSE_BEGIN_AT_CONTENT)
-		return PSYC_PARSE_ERROR_INVALID_FLAGS;
-		
 	size_t remaining = *length - *parsed;
 	value->ptr = state->buffer.ptr + state->cursor;
 
@@ -300,8 +296,13 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			{
 				// If we need to parse the header only and we know the content length,
 				// then skip content parsing.
-				if (state->flags & PSYC_PARSE_HEADER_ONLY && state->contentLengthFound)
+				if (state->flags & PSYC_PARSE_HEADER_ONLY)
+				{
 					state->part = PSYC_PART_DATA;
+					if (++(state->cursor) >= state->buffer.length)
+						return PSYC_PARSE_INSUFFICIENT;
+					goto PSYC_PART_DATA;
+				}
 				else
 					state->part = PSYC_PART_CONTENT;
 			}
@@ -397,6 +398,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			}
 
 		case PSYC_PART_DATA:
+		PSYC_PART_DATA:
 			value->ptr = state->buffer.ptr + state->cursor;
 			value->length = 0;
 
