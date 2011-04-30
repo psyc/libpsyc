@@ -5,11 +5,14 @@
 all:
 	${MAKE} -C src
 
+debug:
+	${MAKE} -C src debug
+
 diet:
 	${MAKE} -C src diet
 
 test:
-	${MAKE} -C test
+	${MAKE} -C test test
 
 doc:
 	doxygen
