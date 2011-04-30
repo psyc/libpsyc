@@ -146,9 +146,14 @@ inline size_t psyc_setPacketLength(psycPacket *p)
 		p->contentLength += p->data.length + 1; // data\n
 
 	// set total length: routing-header \n content |\n
-	p->length = p->routingLength + 1 + p->contentLength + sizeof(PSYC_PACKET_DELIMITER) - 2;
-	if (p->flag == PSYC_PACKET_NEED_LENGTH) // add length of length if needed
-		p->length += log10((double)p->data.length) + 1;
+	p->length = p->routingLength + p->contentLength + sizeof(PSYC_PACKET_DELIMITER) - 2;
+	if (p->contentLength > 0)
+	{
+		p->contentLength--; // subtract the \n from the delimiter, as that doesn't belong to the content part
+		p->length++; // add \n at the start of the content part
+		if (p->flag == PSYC_PACKET_NEED_LENGTH) // add length of length if needed
+			p->length += log10((double)p->data.length) + 1;
+	}
 
 	return p->length;
 }

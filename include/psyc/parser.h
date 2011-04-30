@@ -30,11 +30,13 @@ typedef enum
  */
 typedef enum
 {
-	PSYC_PARSE_ERROR_END = -7,
-	PSYC_PARSE_ERROR_METHOD = -6,
-	PSYC_PARSE_ERROR_VAR_LEN = -5,
-	PSYC_PARSE_ERROR_VAR_TAB = -4,
-	PSYC_PARSE_ERROR_VAR_NAME = -3,
+	PSYC_PARSE_ERROR_END = -9,
+	PSYC_PARSE_ERROR_BODY = -8,
+	PSYC_PARSE_ERROR_METHOD = -7,
+	PSYC_PARSE_ERROR_MOD_NL = -6,
+	PSYC_PARSE_ERROR_MOD_LEN = -5,
+	PSYC_PARSE_ERROR_MOD_TAB = -4,
+	PSYC_PARSE_ERROR_MOD_NAME = -3,
 	PSYC_PARSE_ERROR_LENGTH = -2,
 	PSYC_PARSE_ERROR = -1,
 	PSYC_PARSE_SUCCESS = 0,
@@ -42,13 +44,13 @@ typedef enum
 /// Fill another buffer and concatenate it with the end of the current buffer,
 /// from the cursor position to the end.
 	PSYC_PARSE_INSUFFICIENT = 1,
-/// Routing variable parsing done.
+/// Routing modifier parsing done.
 /// Operator, name & value contains the respective parts.
 	PSYC_PARSE_ROUTING = 2,
-/// Entity variable parsing done.
+/// Entity modifier parsing done.
 /// Operator, name & value contains the respective parts.
 	PSYC_PARSE_ENTITY = 3,
-/// Entity variable parsing is incomplete.
+/// Entity modifier parsing is incomplete.
 /// Operator & name are complete, value is incomplete.
 	PSYC_PARSE_ENTITY_INCOMPLETE = 4,
 /// Body parsing done, name contains method, value contains body.
@@ -91,6 +93,7 @@ typedef struct
 	uint8_t flags; ///< flags for the parser, see psycParseFlag
 	psycPart part; ///< part of the packet being parsed currently
 
+	size_t routingLength; ///< length of routing part parsed so far
 	size_t contentParsed; ///< number of bytes parsed from the content so far
 	size_t contentLength; ///< expected length of the content
 	psycBool contentLengthFound; ///< is there a length given for this packet?

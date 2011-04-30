@@ -107,6 +107,12 @@ typedef struct
 	const char *ptr;
 } psycString;
 
+typedef struct
+{
+	psycString name;
+	int value;
+} psycMatchVar;
+
 /**
  * Shortcut for creating a psycString.
  *
@@ -146,13 +152,13 @@ typedef struct
 /* intermediate struct for a PSYC packet */
 typedef struct
 {
-	psycHeader routing; ///< Routing header.
-	psycHeader entity;  ///< Entitiy header.
+	psycHeader routing;	///< Routing header.
+	psycHeader entity;	///< Entity header.
 	psycString method;
 	psycString data;
-	size_t routingLength; ///< Length of routing part.
-	size_t contentLength; ///< Length of content part.
-	size_t length; ///< Total length of packet.
+	size_t routingLength;	///< Length of routing part.
+	size_t contentLength;	///< Length of content part.
+	size_t length;		///< Total length of packet.
 	psycPacketFlag flag;
 } psycPacket;
 
@@ -204,8 +210,7 @@ inline psycPacket psyc_newPacket2(psycModifier *routing, size_t routinglen,
 
 /// Routing vars in alphabetical order.
 extern const psycString PSYC_routingVars[];
-/// Number of routing vars.
-extern const size_t PSYC_routingVarsNum;
+extern const psycMatchVar PSYC_varTypes[];
 
 /**
  * Get the type of variable name.
@@ -215,7 +220,7 @@ psycBool psyc_isRoutingVar(const char *name, size_t len);
 /**
  * Get the type of variable name.
  */
-psycType psyc_getVarType(char *name, size_t len);
+psycType psyc_getVarType(const char *name, size_t len);
 
 /**
  * Checks if long keyword string inherits from short keyword string.
@@ -238,8 +243,8 @@ int psyc_matches(char *sho, size_t slen,
  * number of bytes written. 0 is a legal return value. Should the
  * callback return -1, psyc_text leaves the original template text as is.
  */
-typedef int (*psyctextCB)(uint8_t *match, size_t  mlen,
-                           uint8_t **buffer, size_t *blen);
+typedef int (*psyctextCB)(char *match, size_t  mlen,
+                           char **buffer, size_t *blen);
 
 /**
  * Fills out text templates by asking a callback for content.
@@ -254,8 +259,8 @@ typedef int (*psyctextCB)(uint8_t *match, size_t  mlen,
  *
  * See also http://about.psyc.eu/psyctext
  */
-int psyc_text(uint8_t *template, size_t  tlen,
-              uint8_t **buffer, size_t *blen,
+int psyc_text(char *template, size_t  tlen,
+              char **buffer, size_t *blen,
               psyctextCB lookupValue,
               char *braceOpen, char *braceClose);
 
