@@ -1,24 +1,28 @@
-CFLAGS=-I../include -DDEBUG=2 -DPSYC_COMPILE_LIBRARY -g -O0 -Wall
-CC=cc
-# CC=clang
+OPT = -O2
+DEBUG = 2
+CFLAGS = -I../include -Wall ${OPT}
+DIET = diet
+WRAPPER =
 
-test -z "$DIET" || DIET=diet
+S = packet.c misc.c parser.c match.c render.c memmem.c itoa.c variable.c
+O = packet.o misc.o parser.o match.o render.o memmem.o itoa.o variable.o
 
-S=packet.c misc.c parser.c match.c render.c memmem.c itoa.c variable.c
-O=packet.o misc.o parser.o match.o render.o memmem.o itoa.o variable.o
+all: lib
 
-default: 
+help:
 	@/bin/echo -e "Usage:\n\tmake diet - compile with diet libc\n\tmake lib  - compile with normal gnu libc"
 
-diet:
-	${DIET} ${CC} -static -c -Os $S ${CFLAGS}
-	@test -d ../lib || mkdir ../lib
-	${DIET} ar rcs ../lib/libpsyc.a $O
+debug: CFLAGS += -DDEBUG=${DEBUG} -g
+debug: CFLAGS := $(subst ${OPT},-O0,${CFLAGS})
+debug: lib
 
-glibc: $S
-	${CC} -static -c -g -O0 $S -lc ${CFLAGS}
-	@test -d ../lib || mkdir ../lib
-	ar rcs ../lib/libpsyc.a $O
+diet: WRAPPER = ${DIET}
+diet: lib
+
+lib: CC := ${WRAPPER} ${CC}
+lib: $O
+	@mkdir -p ../lib
+	${WRAPPER} ar rcs ../lib/libpsyc.a $O
 
 match: match.c
 	${CC} -o $@ -DDEBUG=4 -DCMDTOOL -DTEST $<
