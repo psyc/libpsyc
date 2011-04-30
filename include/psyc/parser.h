@@ -23,7 +23,7 @@ typedef enum
 {
 	PSYC_PARSE_HEADER_ONLY = 1,
 	/// Expects only the content part of a packet. The length of the content must fit exactly in this case
-	PSYC_BEGIN_PARSE_AT_CONTENT = 2, 
+	PSYC_PARSE_BEGIN_AT_CONTENT = 2, 
 } psycParseFlag;
 
 /**

@@ -22,6 +22,7 @@ extern (C):
 enum ParseFlag
 {
 	PARSE_HEADER_ONLY = 1,
+	PARSE_BEGIN_AT_CONTENT = 2,
 }
 
 /**
