@@ -136,6 +136,10 @@ inline psycParseRC psyc_parseName(psycParseState* state, psycString* name)
  */
 inline psycParseRC psyc_parseBinaryValue(psycParseState* state, psycString* value, size_t* length, size_t* parsed)
 {
+	if (state->flags & PSYC_PARSE_HEADER_ONLY &&
+			state->flags & PSYC_PARSE_BEGIN_AT_CONTENT)
+		return PSYC_PARSE_ERROR_INVALID_FLAGS;
+		
 	size_t remaining = *length - *parsed;
 	value->ptr = state->buffer.ptr + state->cursor;
 

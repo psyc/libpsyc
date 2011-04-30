@@ -21,6 +21,7 @@
 
 typedef enum
 {
+	/// Parse only the header
 	PSYC_PARSE_HEADER_ONLY = 1,
 	/// Expects only the content part of a packet. The length of the content must fit exactly in this case
 	PSYC_PARSE_BEGIN_AT_CONTENT = 2, 
@@ -32,6 +33,8 @@ typedef enum
  */
 typedef enum
 {
+	/// Invalid combination of flags
+	PSYC_PARSE_ERROR_INVALID_FLAGS = -10,
 	PSYC_PARSE_ERROR_END = -9,
 	PSYC_PARSE_ERROR_BODY = -8,
 	PSYC_PARSE_ERROR_METHOD = -7,
