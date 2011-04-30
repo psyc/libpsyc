@@ -16,7 +16,9 @@
  * etc...
  */
 
-EPOCH = 1440444041      // 2015-08-24 21:20:41 CET (Monday)
+module psyc.common;
+
+const EPOCH = 1440444041;      // 2015-08-24 21:20:41 CET (Monday)
 
 extern (C):
 
@@ -118,9 +120,6 @@ struct MatchVar
  * @return An instance of the String struct.
  */
 String newString (char *str, size_t strlen);
-
-#define	C2STR(_string) {sizeof(_string)-1, _string}
-#define	C2ARG(_string) _string, sizeof(_string)-1
 
 /* intermediate struct for a PSYC variable modification */
 struct Modifier
@@ -239,8 +238,7 @@ int matches(char *sho, size_t slen,
  * number of bytes written. 0 is a legal return value. Should the
  * callback return -1, text leaves the original template text as is.
  */
-typedef int (*textCB)(char *match, size_t  mlen,
-                           char **buffer, size_t *blen);
+alias extern (C) int function (char *match, size_t  mlen, char **buffer, size_t *blen) textCB;
 
 /**
  * Fills out text templates by asking a callback for content.
@@ -255,7 +253,7 @@ typedef int (*textCB)(char *match, size_t  mlen,
  *
  * See also http://about..eu/text
  */
-int text(char *template, size_t  tlen,
+int text(char *_template, size_t  tlen,
               char **buffer, size_t *blen,
               textCB lookupValue,
               char *braceOpen, char *braceClose);

@@ -1,6 +1,6 @@
 module psyc.parser;
 
-import psyc.psyc;
+import psyc.common;
 
 /**
  * @file d/psyc/parser.d
