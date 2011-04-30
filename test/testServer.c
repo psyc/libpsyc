@@ -15,8 +15,9 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <math.h>
+#include <assert.h>
 
-#include <psyc/lib.h>
+#include <psyc.h>
 #include <psyc/parser.h>
 #include <psyc/render.h>
 #include <psyc/syntax.h>

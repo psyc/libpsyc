@@ -38,7 +38,7 @@ int psyc_inherits(char* sho, size_t slen,
 		}
 		return 0;
 	}
-	P4(("%*s does not inherit from %*s.\n", llen, lon, slen, sho))
+	P4(("%.*s does not inherit from %.*s.\n", (int)llen, lon, (int)slen, sho))
 	return 1;
 }
 
@@ -68,19 +68,19 @@ int psyc_matches(char* sho, size_t slen,
 		P1(("Same length but different.\nNo match, but they could be related or have a common type.\n"))
 		return -4;
 	}
-	P3(("# psyc_matches short '%*s' in long '%*s' ?\n", slen, sho, llen, lon))
+	P3(("# psyc_matches short '%.*s' in long '%.*s' ?\n", (int)slen, sho, (int)llen, lon))
 
 	se = sho+slen;
 	le = lon+llen;
 	sho++; lon++; slen--; llen--;
 	while(*sho && sho < se) {
-		P3(("# comparing short '%*s' (%d)\n", slen, sho, slen))
+		P3(("# comparing short '%.*s' (%d)\n", (int)slen, sho, (int)slen))
 		unless (s = memchr(sho, '_', slen)) s = se;
-		P4(("# sho goes '%c' and lon goes '%c'\n", *sho, *lon))
+		P4(("# sho goes '%c' and lon goes '%c'\n", *sho, (int)*lon))
 		while(*lon && lon < le) {
-			P3(("# against long '%*s' (%d)\n", llen, lon, llen))
+			P3(("# against long '%.*s' (%d)\n", (int)llen, lon, (int)llen))
 			unless (l = memchr(lon, '_', llen)) l = le;
-			P3(("# %d == %d && !strncmp '%*s', '%*s'\n", s-sho, l-lon, s-sho, sho, s-sho, lon))
+			P3(("# %ld == %ld && !strncmp '%.*s', '%.*s'\n", s-sho, l-lon, (int)(s-sho), sho, (int)(s-sho), lon))
 			if (l-lon == s-sho && !strncmp(sho, lon, s-sho)) goto foundone;
 			P4(("# failed\n"))
 			llen -= l-lon + 1;
@@ -88,7 +88,7 @@ int psyc_matches(char* sho, size_t slen,
 		}
 		goto failed;
 foundone:
-		P3(("# found %d of short '%*s' and long '%*s'\n", s-sho, s-sho, sho, s-sho, lon))
+		P3(("# found %ld of short '%.*s' and long '%.*s'\n", s-sho, (int)(s-sho), sho, (int)(s-sho), lon))
 		llen -= l-lon;
 		slen -= s-sho;
 		sho = ++s;
