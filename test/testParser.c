@@ -7,7 +7,7 @@
 
 int main(int argc, char **argv)
 {
-	int idx, ret, header_only = argc > 2, verbose = argc > 3;
+	int idx, ret, routing_only = argc > 2, verbose = argc > 3;
 	char buffer[2048], oper;
 	psycString name, value, elem;
 	psycParseState state;
@@ -23,8 +23,8 @@ int main(int argc, char **argv)
 		write(1, buffer, idx);
 		write(1, ">> PARSE\n", 9);
 	}
-	if (header_only)
-		psyc_initParseState2(&state, PSYC_PARSE_HEADER_ONLY);
+	if (routing_only)
+		psyc_initParseState2(&state, PSYC_PARSE_ROUTING_ONLY);
 	else
 		psyc_initParseState(&state);
 	psyc_nextParseBuffer(&state, psyc_newString(buffer, idx));
