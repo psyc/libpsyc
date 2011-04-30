@@ -8,7 +8,7 @@ WRAPPER =
 DIET = diet
 PORT = 4440
 
-all: test
+all: ${TARGETS}
 
 diet: WRAPPER = ${DIET}
 diet: all
