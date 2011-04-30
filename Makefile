@@ -4,8 +4,8 @@
 default:
 	@/bin/echo -e "Usage:\n\tmake diet - compile with diet libc\n\tmake lib  - compile with normal gnu libc\n\tmake test\n\tmake doc"
 
-lib:
-	make -C src lib
+glibc:
+	make -C src glibc
 
 diet:
 	make -C src diet
