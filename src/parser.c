@@ -222,7 +222,7 @@ inline psycParseRC psyc_parseModifier(psycParseState* state, char* oper, psycStr
 psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psycString* value)
 {
 	psycParseRC ret; // a return value
-	size_t pos;	// a cursor position
+	size_t pos = state->cursor;	// a cursor position
 
 	// Start position of the current line in the buffer
 	// in case we return insufficent, we rewind to this position.
@@ -245,7 +245,6 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			// fall thru
 
 		case PSYC_PART_ROUTING:
-			pos = state->cursor;
 			if (state->routingLength > 0)
 			{
 				if (state->buffer.ptr[state->cursor] != '\n')
