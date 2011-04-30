@@ -33,8 +33,6 @@ typedef enum
  */
 typedef enum
 {
-	/// Invalid combination of flags
-	PSYC_PARSE_ERROR_INVALID_FLAGS = -10,
 	PSYC_PARSE_ERROR_END = -9,
 	PSYC_PARSE_ERROR_BODY = -8,
 	PSYC_PARSE_ERROR_METHOD = -7,
