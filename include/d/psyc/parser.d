@@ -58,6 +58,12 @@ enum ParseRC
 	PARSE_BODY = 5,
 /// Body parsing is incomplete, name contains method, value contains part of the body.
 	PARSE_BODY_INCOMPLETE = 6,
+/// Content parsing done, value contains the whole content.
+/// Used when PSYC_PARSE_ROUTING_ONLY is set.
+	PARSE_CONTENT = 5,
+/// Content parsing is incomplete, value contains part of content.
+/// Used when PSYC_PARSE_ROUTING_ONLY is set.
+	PARSE_CONTENT_INCOMPLETE = 6,
 /// Reached end of packet, parsing done.
 	PARSE_COMPLETE = 7,
 /// Binary value parsing incomplete, used internally.

@@ -60,9 +60,11 @@ typedef enum
 	PSYC_PARSE_BODY = 5,
 /// Body parsing is incomplete, name contains method, value contains part of the body.
 	PSYC_PARSE_BODY_INCOMPLETE = 6,
-/// Content parsing done, value contains the whole content. Used when PSYC_PARSE_ROUTING_ONLY is set.
+/// Content parsing done, value contains the whole content.
+/// Used when PSYC_PARSE_ROUTING_ONLY is set.
 	PSYC_PARSE_CONTENT = 5,
-/// Content parsing is incomplete, value contains part of content. Used when PSYC_PARSE_ROUTING_ONLY is set.
+/// Content parsing is incomplete, value contains part of content.
+/// Used when PSYC_PARSE_ROUTING_ONLY is set.
 	PSYC_PARSE_CONTENT_INCOMPLETE = 6,
 /// Reached end of packet, parsing done.
 	PSYC_PARSE_COMPLETE = 7,
