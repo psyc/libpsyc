@@ -3,8 +3,8 @@ DEBUG = 2
 CFLAGS = -I../include -Wall ${OPT}
 DIET = diet
 
-S = packet.c misc.c parser.c match.c render.c memmem.c itoa.c variable.c
-O = packet.o misc.o parser.o match.o render.o memmem.o itoa.o variable.o
+S = packet.c misc.c parser.c match.c render.c memmem.c itoa.c variable.c text.c
+O = packet.o misc.o parser.o match.o render.o memmem.o itoa.o variable.o text.o
 
 all: CC := ${WRAPPER} ${CC}
 all: lib
