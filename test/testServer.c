@@ -161,6 +161,7 @@ int main(int argc, char **argv)
 							psyc_initParseState2(&parsers[newfd], PSYC_PARSE_ROUTING_ONLY);
 						else
 							psyc_initParseState(&parsers[newfd]);
+
 						memset(&packets[newfd], 0, sizeof(psycPacket));
 						memset(&routing[newfd], 0, sizeof(psycModifier) * ROUTING_LINES);
 						memset(&entity[newfd], 0, sizeof(psycModifier) * ENTITY_LINES);
@@ -188,7 +189,7 @@ int main(int argc, char **argv)
 					} else {
 						// we got some data from a client
 						parsebuf = recvbuf - contbytes;
-						psyc_nextParseBuffer(&parsers[i], psyc_newString(parsebuf, contbytes + nbytes));
+						psyc_setParseBuffer(&parsers[i], psyc_newString(parsebuf, contbytes + nbytes));
 						contbytes = 0;
 						oper = 0;
 						name.length = 0;
@@ -198,6 +199,7 @@ int main(int argc, char **argv)
 							ret = psyc_parse(&parsers[i], &oper, &name, &value);
 							if (verbose)
 								printf("# ret = %d\n", ret);
+
 							switch (ret) {
 								case PSYC_PARSE_ROUTING:
 									assert(packets[i].routing.lines < ROUTING_LINES);
@@ -299,8 +301,10 @@ int main(int argc, char **argv)
 									if (pname->length >= 5 && memcmp(pname->ptr, "_list", 5) == 0) {
 										if (verbose)
 											printf("## LIST START\n");
+
 										psyc_initParseListState(&listState);
-										psyc_nextParseListBuffer(&listState, *pvalue);
+										psyc_setParseListBuffer(&listState, *pvalue);
+
 										do {
 											retl = psyc_parseList(&listState, pname, pvalue, &elem);
 											switch (retl) {

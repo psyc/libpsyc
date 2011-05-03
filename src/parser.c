@@ -8,11 +8,11 @@
 #include <psyc/lib.h>
 #include <psyc/parser.h>
 
-#define ADVANCE_CURSOR_OR_RETURN(ret)						 \
+#define PSYC_ADVANCE_CURSOR_OR_RETURN(ret)       \
 	if (++(state->cursor) >= state->buffer.length) \
-	{																							 \
-		state->cursor = state->startc;							 \
-		return ret;																	 \
+	{                                              \
+		state->cursor = state->startc;               \
+		return ret;                                  \
 	}
 
 inline void psyc_initParseState (psycParseState* state)
@@ -29,27 +29,37 @@ inline void psyc_initParseState2 (psycParseState* state, uint8_t flags)
 		state->part = PSYC_PART_CONTENT;
 }
 
+inline void psyc_setParseBuffer (psycParseState* state, psycString buffer)
+{
+	state->buffer = buffer;
+	state->cursor = 0;
+
+	if (state->flags & PSYC_PARSE_START_AT_CONTENT)
+	{
+		state->contentLength = buffer.length;
+		state->contentLengthFound = PSYC_TRUE;
+	}
+}
+
+inline void psyc_setParseBuffer2 (psycParseState* state, char *buffer, size_t length)
+{
+	psyc_setParseBuffer(state, psyc_newString(buffer, length));
+}
+
 inline void psyc_initParseListState (psycParseListState* state)
 {
 	memset(state, 0, sizeof(psycParseListState));
 }
 
-inline void psyc_nextParseBuffer (psycParseState* state, psycString newBuf)
+inline void psyc_setParseListBuffer (psycParseListState* state, psycString buffer)
 {
-	if (state->flags & PSYC_PARSE_START_AT_CONTENT)
-	{
-		state->contentLength = newBuf.length;
-		state->contentLengthFound = PSYC_TRUE;
-	}
-
-	state->buffer = newBuf;
+	state->buffer = buffer;
 	state->cursor = 0;
 }
 
-inline void psyc_nextParseListBuffer (psycParseListState* state, psycString newBuf)
+inline void psyc_setParseListBuffer2 (psycParseListState* state, char *buffer, size_t length)
 {
-	state->buffer = newBuf;
-	state->cursor = 0;
+	psyc_setParseListBuffer(state, psyc_newString(buffer, length));
 }
 
 inline size_t psyc_getContentLength (psycParseState* s)
@@ -80,7 +90,7 @@ inline char isGlyph(uint8_t g)
 /**
  * Determines if the argument is numeric.
  */
-inline char isNumeric(uint8_t c)
+inline char isNumeric (uint8_t c)
 {
 	return c >= '0' && c <= '9';
 }
@@ -88,7 +98,7 @@ inline char isNumeric(uint8_t c)
 /**
  * Determines if the argument is alphanumeric.
  */
-inline char isAlphaNumeric(uint8_t c)
+inline char isAlphaNumeric (uint8_t c)
 {
 	return
 		(c >= 'a' && c <= 'z') ||
@@ -100,7 +110,7 @@ inline char isAlphaNumeric(uint8_t c)
  * Determines if the argument is a keyword character.
  * Keyword characters are: alphanumeric and _
  */
-inline char isKwChar(uint8_t c)
+inline char isKwChar (uint8_t c)
 {
 	return isAlphaNumeric(c) || c == '_';
 }
@@ -110,7 +120,7 @@ inline char isKwChar(uint8_t c)
  * It should contain one or more keyword characters.
  * @return PSYC_PARSE_ERROR or PSYC_PARSE_SUCCESS
  */
-inline psycParseRC psyc_parseName(psycParseState* state, psycString* name)
+inline psycParseRC psyc_parseName (psycParseState* state, psycString* name)
 {
 	name->ptr = state->buffer.ptr + state->cursor;
 	name->length = 0;
@@ -118,7 +128,7 @@ inline psycParseRC psyc_parseName(psycParseState* state, psycString* name)
 	while (isKwChar(state->buffer.ptr[state->cursor]))
 	{
 		name->length++; // was a valid char, increase length
-		ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+		PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 	}
 
 	return name->length > 0 ? PSYC_PARSE_SUCCESS : PSYC_PARSE_ERROR;
@@ -134,7 +144,7 @@ inline psycParseRC psyc_parseName(psycParseState* state, psycString* name)
  *
  * @return PSYC_PARSE_COMPLETE or PSYC_PARSE_INCOMPLETE
  */
-inline psycParseRC psyc_parseBinaryValue(psycParseState* state, psycString* value, size_t* length, size_t* parsed)
+inline psycParseRC psyc_parseBinaryValue (psycParseState* state, psycString* value, size_t* length, size_t* parsed)
 {
 	size_t remaining = *length - *parsed;
 	value->ptr = state->buffer.ptr + state->cursor;
@@ -159,10 +169,10 @@ inline psycParseRC psyc_parseBinaryValue(psycParseState* state, psycString* valu
  * Parse simple or binary variable.
  * @return PSYC_PARSE_ERROR or PSYC_PARSE_SUCCESS
  */
-inline psycParseRC psyc_parseModifier(psycParseState* state, char* oper, psycString* name, psycString* value)
+inline psycParseRC psyc_parseModifier (psycParseState* state, char* oper, psycString* name, psycString* value)
 {
 	*oper = *(state->buffer.ptr + state->cursor);
-	ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+	PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 
 	psycParseRC ret = psyc_parseName(state, name);
 	if (ret == PSYC_PARSE_ERROR)
@@ -179,14 +189,14 @@ inline psycParseRC psyc_parseModifier(psycParseState* state, char* oper, psycStr
 	// If we're in the content part check if it's a binary var.
 	if (state->part == PSYC_PART_CONTENT && state->buffer.ptr[state->cursor] == ' ') // binary arg
 	{ // After SP the length follows.
-		ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+		PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 
 		if (isNumeric(state->buffer.ptr[state->cursor]))
 		{
 			do
 			{
 				length = 10 * length + state->buffer.ptr[state->cursor] - '0';
-				ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+				PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 			}
 			while (isNumeric(state->buffer.ptr[state->cursor]));
 			state->valueLength = length;
@@ -209,13 +219,13 @@ inline psycParseRC psyc_parseModifier(psycParseState* state, char* oper, psycStr
 	}
 	else if (state->buffer.ptr[state->cursor] == '\t') // simple arg
 	{
-		ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+		PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 		value->ptr = state->buffer.ptr + state->cursor;
 
 		while (state->buffer.ptr[state->cursor] != '\n')
 		{
 			value->length++;
-			ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+			PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 		}
 
 		return PSYC_PARSE_SUCCESS;
@@ -263,7 +273,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			{
 				if (state->buffer.ptr[state->cursor] != '\n')
 					return PSYC_PARSE_ERROR_MOD_NL;
-				ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+				PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 			}
 
 			// Each line of the header starts with a glyph,
@@ -292,7 +302,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 				do
 				{
 					state->contentLength = 10 * state->contentLength + state->buffer.ptr[state->cursor] - '0';
-					ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+					PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 				}
 				while (isNumeric(state->buffer.ptr[state->cursor]));
 			}
@@ -322,7 +332,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			}
 
 			state->startc = state->cursor + 1;
-			ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+			PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 			// fall thru
 
 		case PSYC_PART_CONTENT:
@@ -344,7 +354,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			{
 				if (state->buffer.ptr[state->cursor] != '\n')
 					return PSYC_PARSE_ERROR_MOD_NL;
-				ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+				PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 			}
 
 			// Each line of the header starts with a glyph,
@@ -391,7 +401,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 					state->part = PSYC_PART_DATA;
 				}
 				else // otherwise keep it at the beginning of method
-					ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+					PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 
 				// fall thru
 			}
@@ -447,7 +457,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 						}
 					}
 					value->length++;
-					ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+					PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 				}
 			}
 
@@ -530,7 +540,7 @@ psycParseListRC psyc_parseList(psycParseListState* state, psycString *name, psyc
 				do
 				{
 					state->elemLength = 10 * state->elemLength + state->buffer.ptr[state->cursor] - '0';
-					ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_LIST_INCOMPLETE);
+					PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_LIST_INCOMPLETE);
 				}
 				while (isNumeric(state->buffer.ptr[state->cursor]));
 			}
