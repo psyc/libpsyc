@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include <psyc/lib.h>
 #include <psyc/text.h>
 
