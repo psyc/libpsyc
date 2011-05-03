@@ -15,57 +15,6 @@
 		return ret;                                  \
 	}
 
-inline void psyc_initParseState (psycParseState* state)
-{
-	memset(state, 0, sizeof(psycParseState));
-}
-
-inline void psyc_initParseState2 (psycParseState* state, uint8_t flags)
-{
-	memset(state, 0, sizeof(psycParseState));
-	state->flags = flags;
-
-	if (flags & PSYC_PARSE_START_AT_CONTENT)
-		state->part = PSYC_PART_CONTENT;
-}
-
-inline void psyc_setParseBuffer (psycParseState* state, psycString buffer)
-{
-	state->buffer = buffer;
-	state->cursor = 0;
-
-	if (state->flags & PSYC_PARSE_START_AT_CONTENT)
-	{
-		state->contentLength = buffer.length;
-		state->contentLengthFound = PSYC_TRUE;
-	}
-}
-
-inline void psyc_setParseBuffer2 (psycParseState* state, char *buffer, size_t length)
-{
-	psyc_setParseBuffer(state, psyc_newString(buffer, length));
-}
-
-inline void psyc_initParseListState (psycParseListState* state)
-{
-	memset(state, 0, sizeof(psycParseListState));
-}
-
-inline void psyc_setParseListBuffer (psycParseListState* state, psycString buffer)
-{
-	state->buffer = buffer;
-	state->cursor = 0;
-}
-
-inline void psyc_setParseListBuffer2 (psycParseListState* state, char *buffer, size_t length)
-{
-	psyc_setParseListBuffer(state, psyc_newString(buffer, length));
-}
-
-inline size_t psyc_getContentLength (psycParseState* s)
-{
-	return s->contentLength;
-}
 
 /** 
  * Determines if the argument is a glyph.
