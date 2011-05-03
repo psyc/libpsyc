@@ -38,21 +38,46 @@ typedef struct
  * number of bytes written. 0 is a legal return value. Should the
  * callback return -1, psyc_text leaves the original template text as is.
  */
-typedef psycTextValueRC (*psycTextCB)(char *name, size_t len, psycString *value);
+typedef psycTextValueRC (*psycTextCB)(const char *name, size_t len, psycString *value);
 
-inline void psyc_initTextState (psycTextState *state,
-                                char *template, size_t tlen,
-                                char *buffer, size_t blen);
+static inline
+void psyc_initTextState (psycTextState *state,
+                         char *template, size_t tlen,
+                         char *buffer, size_t blen)
+{
+	state->cursor = state->written = 0;
+	state->template = psyc_newString(template, tlen);
+	state->buffer = psyc_newString(buffer, blen);
+	state->open = psyc_newString("[", 1);
+	state->close = psyc_newString("]", 1);
+}
 
-inline void psyc_initTextState2 (psycTextState* state,
-                                 char *template, size_t tlen,
-                                 char *buffer, size_t blen,
-                                 char *open, size_t openlen,
-                                 char *close, size_t closelen);
+static inline
+void psyc_initTextState2 (psycTextState* state,
+                          char *template, size_t tlen,
+                          char *buffer, size_t blen,
+                          char *open, size_t openlen,
+                          char *close, size_t closelen)
+{
+	state->template = psyc_newString(template, tlen);
+	state->buffer = psyc_newString(buffer, blen);
+	state->open = psyc_newString(open, openlen);
+	state->close = psyc_newString(close, closelen);
+}
 
-inline void psyc_setTextBuffer (psycTextState *state, psycString buffer);
+static inline
+void psyc_setTextBuffer (psycTextState* state, psycString buffer)
+{
+	state->buffer = buffer;
+	state->written = 0;
+}
 
-inline void psyc_setTextBuffer2 (psycTextState *state, char *buffer, size_t length);
+static inline
+void psyc_setTextBuffer2 (psycTextState* state,
+                          char *buffer, size_t length)
+{
+	psyc_setTextBuffer(state, psyc_newString(buffer, length));
+}
 
 /**
  * Fills out text templates by asking a callback for content.

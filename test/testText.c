@@ -7,21 +7,21 @@
 
 uint8_t verbose;
 
-psycTextValueRC getValueFooBar (char *name, size_t len, psycString *value)
+psycTextValueRC getValueFooBar (const char *name, size_t len, psycString *value)
 {
 	value->ptr = "Foo Bar";
 	value->length = 7;
 	return PSYC_TEXT_VALUE_FOUND;
 }
 
-psycTextValueRC getValueEmpty (char *name, size_t len, psycString *value)
+psycTextValueRC getValueEmpty (const char *name, size_t len, psycString *value)
 {
 	value->ptr = "";
 	value->length = 0;
 	return PSYC_TEXT_VALUE_FOUND;
 }
 
-psycTextValueRC getValueNotFound (char *name, size_t len, psycString *value)
+psycTextValueRC getValueNotFound (const char *name, size_t len, psycString *value)
 {
 	return PSYC_TEXT_VALUE_NOT_FOUND;
 }
@@ -88,5 +88,8 @@ int main(int argc, char **argv)
 		if (memcmp(result.ptr, PSYC_C2ARG("Hello Foo Bar & Foo Bar!")))
 			return 10 + i;
 	}
+
+	puts("psyc_text passed all tests.");
+
 	return 0;
 }
