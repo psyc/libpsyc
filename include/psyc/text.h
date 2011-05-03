@@ -93,4 +93,4 @@ void psyc_setTextBuffer2 (psycTextState* state,
  * See also http://about.psyc.eu/psyctext
  */
 
-psycTextRC psyc_text(psycTextState *state, psycTextCB getValue);
+psycTextRC psyc_text (psycTextState *state, psycTextCB getValue);

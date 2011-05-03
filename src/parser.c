@@ -20,7 +20,8 @@
  * Determines if the argument is a glyph.
  * Glyphs are: : = + - ? !
  */
-inline char isGlyph(uint8_t g)
+static inline
+char isGlyph (uint8_t g)
 {
 	switch(g)
 	{
@@ -39,7 +40,8 @@ inline char isGlyph(uint8_t g)
 /**
  * Determines if the argument is numeric.
  */
-inline char isNumeric (uint8_t c)
+static inline
+char isNumeric (uint8_t c)
 {
 	return c >= '0' && c <= '9';
 }
@@ -47,7 +49,8 @@ inline char isNumeric (uint8_t c)
 /**
  * Determines if the argument is alphanumeric.
  */
-inline char isAlphaNumeric (uint8_t c)
+static inline
+char isAlphaNumeric (uint8_t c)
 {
 	return
 		(c >= 'a' && c <= 'z') ||
@@ -59,7 +62,8 @@ inline char isAlphaNumeric (uint8_t c)
  * Determines if the argument is a keyword character.
  * Keyword characters are: alphanumeric and _
  */
-inline char isKwChar (uint8_t c)
+static inline
+char isKwChar (uint8_t c)
 {
 	return isAlphaNumeric(c) || c == '_';
 }
@@ -69,7 +73,8 @@ inline char isKwChar (uint8_t c)
  * It should contain one or more keyword characters.
  * @return PSYC_PARSE_ERROR or PSYC_PARSE_SUCCESS
  */
-inline psycParseRC psyc_parseName (psycParseState* state, psycString* name)
+static inline
+psycParseRC psyc_parseKeyword (psycParseState* state, psycString* name)
 {
 	name->ptr = state->buffer.ptr + state->cursor;
 	name->length = 0;
@@ -93,7 +98,9 @@ inline psycParseRC psyc_parseName (psycParseState* state, psycString* name)
  *
  * @return PSYC_PARSE_COMPLETE or PSYC_PARSE_INCOMPLETE
  */
-inline psycParseRC psyc_parseBinaryValue (psycParseState* state, psycString* value, size_t* length, size_t* parsed)
+static inline
+psycParseRC psyc_parseBinaryValue (psycParseState *state, psycString *value,
+                                   size_t *length, size_t *parsed)
 {
 	size_t remaining = *length - *parsed;
 	value->ptr = state->buffer.ptr + state->cursor;
@@ -118,12 +125,14 @@ inline psycParseRC psyc_parseBinaryValue (psycParseState* state, psycString* val
  * Parse simple or binary variable.
  * @return PSYC_PARSE_ERROR or PSYC_PARSE_SUCCESS
  */
-inline psycParseRC psyc_parseModifier (psycParseState* state, char* oper, psycString* name, psycString* value)
+static inline
+psycParseRC psyc_parseModifier (psycParseState *state, char *oper,
+                                psycString *name, psycString *value)
 {
 	*oper = *(state->buffer.ptr + state->cursor);
 	PSYC_ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 
-	psycParseRC ret = psyc_parseName(state, name);
+	psycParseRC ret = psyc_parseKeyword(state, name);
 	if (ret == PSYC_PARSE_ERROR)
 		return PSYC_PARSE_ERROR_MOD_NAME;
 	else if (ret != PSYC_PARSE_SUCCESS)
@@ -187,10 +196,12 @@ inline psycParseRC psyc_parseModifier (psycParseState* state, char* oper, psycSt
  * Parse PSYC packets.
  * Generalized line-based parser.
  */
-psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psycString* value)
+psycParseRC psyc_parse (psycParseState* state, char* oper,
+                        psycString* name, psycString* value)
 {
 #ifdef DEBUG
-	if (state->flags & PSYC_PARSE_ROUTING_ONLY && state->flags & PSYC_PARSE_START_AT_CONTENT)
+	if (state->flags & PSYC_PARSE_ROUTING_ONLY &&
+	    state->flags & PSYC_PARSE_START_AT_CONTENT)
 		PP(("Invalid flag combination"))
 #endif
 
@@ -333,7 +344,7 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 
 		case PSYC_PART_METHOD:
 			pos = state->cursor;
-			ret = psyc_parseName(state, name);
+			ret = psyc_parseKeyword(state, name);
 
 			if (ret == PSYC_PARSE_INSUFFICIENT)
 				return ret;
@@ -369,7 +380,8 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
 			if (state->contentLengthFound) // We know the length of the packet.
 			{
 				if (state->contentParsed < state->contentLength &&
-				    psyc_parseBinaryValue(state, value, &(state->contentLength), &(state->contentParsed)) == PSYC_PARSE_INCOMPLETE)
+				    psyc_parseBinaryValue(state, value, &(state->contentLength),
+						                      &(state->contentParsed)) == PSYC_PARSE_INCOMPLETE)
 					return PSYC_PARSE_BODY_INCOMPLETE;
 
 				if (state->cursor >= state->buffer.length)
@@ -437,7 +449,8 @@ psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psyc
  * List value parser.
  * @return see psycListRC.
  */
-psycParseListRC psyc_parseList(psycParseListState* state, psycString *name, psycString* value, psycString* elem)
+psycParseListRC psyc_parseList (psycParseListState* state, psycString *name,
+                                psycString* value, psycString* elem)
 {
 	if (state->cursor >= state->buffer.length)
 		return PSYC_PARSE_LIST_INCOMPLETE;
@@ -508,7 +521,8 @@ psycParseListRC psyc_parseList(psycParseListState* state, psycString *name, psyc
 		// Start or resume parsing the binary data
 		if (state->elemParsed < state->elemLength)
 		{
-			if (psyc_parseBinaryValue((psycParseState*)state, elem, &(state->elemLength), &(state->elemParsed)) == PSYC_PARSE_INCOMPLETE)
+			if (psyc_parseBinaryValue((psycParseState*)state, elem,
+			                          &(state->elemLength), &(state->elemParsed)) == PSYC_PARSE_INCOMPLETE)
 				return PSYC_PARSE_LIST_INCOMPLETE;
 
 			state->elemLength = 0;

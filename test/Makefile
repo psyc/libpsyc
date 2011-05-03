@@ -1,6 +1,6 @@
 OPT = -O2
 DEBUG = 2
-CFLAGS = -I../include -Wall ${OPT}
+CFLAGS = -I../include -Wall -std=c99 ${OPT}
 LDFLAGS = -L../lib
 LOADLIBES = -lpsyc -lm
 TARGETS = testServer testParser testMatch testRender testText isRoutingVar getVarType
@@ -20,9 +20,12 @@ debug: all
 test: ${TARGETS}
 	./testRender
 	./testMatch
+	./testText
 	./isRoutingVar
 	./getVarType
 	for f in packets/full-*; do echo ">> $$f"; ./testParser $$f; done
+
+testServer: CFLAGS := $(subst -std=c99,,${CFLAGS})
 
 netstart:
 	./testServer ${PORT}

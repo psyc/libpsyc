@@ -1,10 +1,10 @@
 OPT = -O2
 DEBUG = 2
-CFLAGS = -I../include -Wall ${OPT}
+CFLAGS = -I../include -Wall -std=c99 ${OPT}
 DIET = diet
 
-S = packet.c misc.c parser.c match.c render.c memmem.c itoa.c variable.c text.c
-O = packet.o misc.o parser.o match.o render.o memmem.o itoa.o variable.o text.o
+S = packet.c parser.c match.c render.c memmem.c itoa.c variable.c text.c
+O = packet.o parser.o match.o render.o memmem.o itoa.o variable.o text.o
 
 all: CC := ${WRAPPER} ${CC}
 all: lib
