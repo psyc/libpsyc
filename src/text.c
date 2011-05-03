@@ -1,44 +1,10 @@
 #include <psyc/lib.h>
 #include <psyc/text.h>
 
-inline void psyc_initTextState (psycTextState *state,
-                                char *template, size_t tlen,
-                                char *buffer, size_t blen)
-{
-	state->cursor = state->written = 0;
-	state->template = psyc_newString(template, tlen);
-	state->buffer = psyc_newString(buffer, blen);
-	state->open = psyc_newString("[", 1);
-	state->close = psyc_newString("]", 1);
-}
-
-inline void psyc_initTextState2 (psycTextState* state,
-                                 char *template, size_t tlen,
-                                 char *buffer, size_t blen,
-                                 char *open, size_t openlen,
-                                 char *close, size_t closelen)
-{
-	state->template = psyc_newString(template, tlen);
-	state->buffer = psyc_newString(buffer, blen);
-	state->open = psyc_newString(open, openlen);
-	state->close = psyc_newString(close, closelen);
-}
-
-inline void psyc_setTextBuffer (psycTextState* state, psycString buffer)
-{
-	state->buffer = buffer;
-	state->written = 0;
-}
-
-inline void psyc_setTextBuffer2 (psycTextState* state, char *buffer, size_t length)
-{
-	psyc_setTextBuffer(state, psyc_newString(buffer, length));
-}
-
 psycTextRC psyc_text (psycTextState *state, psycTextCB getValue)
 {
-	char *start = state->template.ptr, *end; // start & end of variable name
-	char *prev = state->template.ptr + state->cursor;
+	const char *start = state->template.ptr, *end; // start & end of variable name
+	const char *prev = state->template.ptr + state->cursor;
 	psycString value;
 	int ret;
 	size_t len;
