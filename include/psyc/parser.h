@@ -7,7 +7,7 @@
 */
 
 /**
- * @defgroup parsing Parsing Functions
+ * @defgroup parser Parsing Functions
  *
  * This module contains all parsing functions.
  * @{
@@ -126,9 +126,9 @@ typedef struct
 } psycParseListState;
 
 /**
- * Initiates the state struct.
+ * Initializes the state struct.
  *
- * @param state Pointer to the state struct that should be initiated.
+ * @param state Pointer to the state struct that should be initialized.
  */
 static inline
 void psyc_initParseState (psycParseState* state)
@@ -137,9 +137,9 @@ void psyc_initParseState (psycParseState* state)
 }
 
 /**
- * Initiates the state struct with flags.
+ * Initializes the state struct with flags.
  *
- * @param state Pointer to the state struct that should be initiated.
+ * @param state Pointer to the state struct that should be initialized.
  * @param flags Flags to be set for the parser, see psycParseFlag.
  */
 static inline
@@ -187,9 +187,9 @@ void psyc_setParseBuffer2 (psycParseState* state, char *buffer, size_t length)
 }
 
 /**
- * Initiates the list state struct.
+ * Initializes the list state struct.
  *
- * @param state Pointer to the list state struct that should be initiated.
+ * @param state Pointer to the list state struct that should be initialized.
  */
 static inline
 void psyc_initParseListState (psycParseListState* state)
@@ -241,4 +241,4 @@ psycParseListRC psyc_parseList (psycParseListState* state, psycString *name, psy
 
 #endif // PSYC_PARSER_H
 
-/** @} */ // end of parsing group
+/** @} */ // end of parser group
