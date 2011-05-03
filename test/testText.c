@@ -36,7 +36,7 @@ int testText (char *template, size_t tmplen, char *buffer, size_t buflen, psycSt
 	do
 	{
 		ret = psyc_text(&state, getValue);
-		length += state.written;
+		length += psyc_getTextBytesWritten(&state);
 		switch (ret)
 		{
 			case PSYC_TEXT_INCOMPLETE:

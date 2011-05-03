@@ -233,7 +233,7 @@ int main (int argc, char **argv)
 									if (ret == PSYC_PARSE_ENTITY)
 									{
 										packets[i].entity.lines++;
-										mod->flag = parsers[i].valueLength ?
+										mod->flag = psyc_getParseValueLength(&parsers[i]) ?
 											PSYC_MODIFIER_NEED_LENGTH : PSYC_MODIFIER_NO_LENGTH;
 									}
 									break;
@@ -246,7 +246,7 @@ int main (int argc, char **argv)
 
 								case PSYC_PARSE_COMPLETE:
 									printf("# Done parsing.\n");
-									packets[i].flag = parsers[i].contentLengthFound ?
+									packets[i].flag = psyc_isParseContentLengthFound(&parsers[i]) ?
 										PSYC_PACKET_NEED_LENGTH : PSYC_PACKET_NO_LENGTH;
 
 									psyc_setPacketLength(&packets[i]);
@@ -261,12 +261,12 @@ int main (int argc, char **argv)
 									if (verbose)
 										printf("# Insufficient data.\n");
 
-									contbytes = parsers[i].buffer.length - parsers[i].cursor;
+									contbytes = psyc_getParseRemainingLength(&parsers[i]);
 
 									if (contbytes > 0) // copy end of parsebuf before start of recvbuf
 									{
 										assert(recvbuf - contbytes >= buf); // make sure it's still in the buffer
-										memcpy(recvbuf - contbytes, parsebuf + parsers[i].cursor, contbytes);
+										memcpy(recvbuf - contbytes, psyc_getParseRemainingBuffer(&parsers[i]), contbytes);
 									}
 									ret = 0;
 									break;
