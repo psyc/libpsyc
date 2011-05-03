@@ -140,15 +140,25 @@ inline void psyc_initParseState (psycParseState* state);
 inline void psyc_initParseState2 (psycParseState* state, uint8_t flags);
 
 /**
+ * Sets a new buffer in the parser state struct with data to be parsed.
+ */
+inline void psyc_setParseBuffer (psycParseState* state, psycString buffer);
+
+inline void psyc_setParseBuffer2 (psycParseState* state, char *buffer, size_t length);
+
+/**
  * Initiates the list state struct.
  *
  * @param state Pointer to the list state struct that should be initiated.
  */
 inline void psyc_initParseListState (psycParseListState* state);
 
-inline void psyc_nextParseBuffer (psycParseState* state, psycString newBuf);
+/**
+ * Sets a new buffer in the list parser state struct with data to be parsed.
+ */
+inline void psyc_setParseListBuffer (psycParseListState* state, psycString buffer);
 
-inline void psyc_nextParseListBuffer (psycParseListState* state, psycString newBuf);
+inline void psyc_setParseListBuffer2 (psycParseListState* state, char *buffer, size_t length);
 
 inline size_t psyc_getContentLength (psycParseState* s);
 
@@ -165,12 +175,12 @@ inline size_t psyc_getContentLength (psycParseState* s);
  * @param value A pointer to a psycString. It will point to the
  *              value/body the variable/method and its length will be set accordingly
  */
-psycParseRC psyc_parse(psycParseState* state, char* oper, psycString* name, psycString* value);
+psycParseRC psyc_parse (psycParseState* state, char* oper, psycString* name, psycString* value);
 
 /**
  * List value parser.
  */
-psycParseListRC psyc_parseList(psycParseListState* state, psycString *name, psycString* value, psycString* elem);
+psycParseListRC psyc_parseList (psycParseListState* state, psycString *name, psycString* value, psycString* elem);
 
 #endif // PSYC_PARSER_H
 

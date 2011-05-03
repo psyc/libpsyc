@@ -23,11 +23,13 @@ int main(int argc, char **argv)
 		write(1, buffer, idx);
 		write(1, ">> PARSE\n", 9);
 	}
+
 	if (routing_only)
 		psyc_initParseState2(&state, PSYC_PARSE_ROUTING_ONLY);
 	else
 		psyc_initParseState(&state);
-	psyc_nextParseBuffer(&state, psyc_newString(buffer, idx));
+
+	psyc_setParseBuffer(&state, psyc_newString(buffer, idx));
 
 	// try parsing that now
 //	while ((ret = psyc_parse(&state, &oper, &name, &value)))
@@ -58,8 +60,10 @@ int main(int argc, char **argv)
 				{
 					if (verbose)
 						write(1, ">>> LIST START\n", 15);
+
 					psyc_initParseListState(&listState);
-					psyc_nextParseListBuffer(&listState, value);
+					psyc_setParseListBuffer(&listState, value);
+
 					while ((ret = psyc_parseList(&listState, &name, &value, &elem)))
 					{
 						switch (ret)
