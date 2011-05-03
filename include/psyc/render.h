@@ -12,7 +12,7 @@
  */
 
 /**
- * @defgroup rendering Rendering Functions
+ * @defgroup render Rendering Functions
  *
  * This module contains all rendering functions.
  * @{
@@ -40,4 +40,4 @@ psycRenderRC psyc_renderList (psycList *list, char *buffer, size_t buflen);
 
 #endif // PSYC_RENDER_H
 
-/** @} */ // end of rendering group
+/** @} */ // end of render group
