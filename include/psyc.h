@@ -149,7 +149,7 @@ typedef struct
 	psycListFlag flag;
 } psycList;
 
-/* intermediate struct for a PSYC packet */
+/** intermediate struct for a PSYC packet */
 typedef struct
 {
 	psycHeader routing;	///< Routing header.
@@ -233,35 +233,5 @@ int psyc_inherits(char *sho, size_t slen,
  */
 int psyc_matches(char *sho, size_t slen,
                  char *lon, size_t llen);
-
-/**
- * Callback for psyc_text() that produces a value for a match.
- *
- * The application looks up a match such as _fruit from [_fruit] and
- * if found writes its current value from its variable store into the
- * outgoing buffer.. "Apple" for example. The template returns the
- * number of bytes written. 0 is a legal return value. Should the
- * callback return -1, psyc_text leaves the original template text as is.
- */
-typedef int (*psyctextCB)(char *match, size_t  mlen,
-                           char **buffer, size_t *blen);
-
-/**
- * Fills out text templates by asking a callback for content.
- *
- * Copies the contents of the template into the buffer while looking
- * for braceOpen and braceClose strings and calling the callback for
- * each enclosed string between these braces. Should the callback
- * return -1, the original template text is copied as is.
- *
- * By default PSYC's "[" and "]" are used but you can provide any other
- * brace strings such as "${" and "}" or "<!--" and "-->".
- *
- * See also http://about.psyc.eu/psyctext
- */
-int psyc_text(char *template, size_t  tlen,
-              char **buffer, size_t *blen,
-              psyctextCB lookupValue,
-              char *braceOpen, char *braceClose);
 
 #endif // PSYC_H

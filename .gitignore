@@ -7,6 +7,7 @@ test/testMatch
 test/testParser
 test/testRender
 test/testServer
+test/testText
 test/isRoutingVar
 test/getVarType
 
