@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <fcntl.h>
 
-#include <psyc/lib.h>
+#include <psyc.h>
 #include <psyc/parser.h>
 
-int main(int argc, char **argv)
+int main (int argc, char **argv)
 {
 	int idx, ret, routing_only = argc > 2, verbose = argc > 3;
 	char buffer[2048], oper;
@@ -19,9 +19,9 @@ int main(int argc, char **argv)
 	idx = read(file,(void*)buffer,sizeof(buffer));
 
 	if (verbose) {
-		write(1, ">> INPUT\n", 9);
-		write(1, buffer, idx);
-		write(1, ">> PARSE\n", 9);
+		printf(">> INPUT\n");
+		printf("%.*s\n", (int)idx, buffer);
+		printf(">> PARSE\n");
 	}
 
 	if (routing_only)
@@ -32,9 +32,8 @@ int main(int argc, char **argv)
 	psyc_setParseBuffer(&state, psyc_newString(buffer, idx));
 
 	// try parsing that now
-//	while ((ret = psyc_parse(&state, &oper, &name, &value)))
-//	{
-	do {
+	do
+	{
 		oper = 0;
 		name.length = 0;
 		value.length = 0;
@@ -42,24 +41,24 @@ int main(int argc, char **argv)
 		ret = psyc_parse(&state, &oper, &name, &value);
 		if (verbose)
 			printf(">> ret = %d\n", ret);
+
 		switch (ret)
 		{
 			case PSYC_PARSE_ROUTING:
 			case PSYC_PARSE_ENTITY:
 				if (verbose)
-					write(1, &oper, 1);
+					printf("%c", oper);
 			case PSYC_PARSE_BODY:
 				// printf("the string is '%.*s'\n", name);
-				if (verbose) {
-					write(1, name.ptr, name.length);
-					write(1, " = ", 3);
-					write(1, value.ptr, value.length);
-					write(1, "\n", 1);
-				}
+				if (verbose)
+					printf("%.*s = %.*s\n",
+					       (int)name.length, name.ptr,
+					       (int)value.length, value.ptr);
+
 				if (memcmp(name.ptr, "_list", 5) == 0)
 				{
 					if (verbose)
-						write(1, ">>> LIST START\n", 15);
+						printf(">> LIST START\n");
 
 					psyc_initParseListState(&listState);
 					psyc_setParseListBuffer(&listState, value);
@@ -70,11 +69,8 @@ int main(int argc, char **argv)
 						{
 							case PSYC_PARSE_LIST_END:
 							case PSYC_PARSE_LIST_ELEM:
-								if (verbose) {
-									write(1, "|", 1);
-									write(1, elem.ptr, elem.length);
-									write(1, "\n", 1);
-								}
+								if (verbose)
+									printf("|%.*s\n", (int)elem.length, elem.ptr);
 								break;
 							default:
 								printf("Error while parsing list: %i\n", ret);
@@ -84,7 +80,7 @@ int main(int argc, char **argv)
 						if (ret == PSYC_PARSE_LIST_END)
 						{
 							if (verbose)
-								write(1, ">>> LIST END\n", 13);
+								printf(">> LIST END\n");
 							break;
 						}
 					}
@@ -101,7 +97,8 @@ int main(int argc, char **argv)
 				printf("Error while parsing: %i\n", ret);
 				return 1;
 		}
-	} while (ret);
+	}
+	while (ret);
 
 	return 0;
 }

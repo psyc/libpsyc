@@ -1,6 +1,8 @@
 #ifndef PSYC_RENDER_H
 # define PSYC_RENDER_H
 
+#include <psyc/packet.h>
+
 /**
  * @file psyc/render.h
  * @brief Interface for PSYC packet rendering.
@@ -29,12 +31,12 @@ typedef enum
 /**
  * Render a PSYC packet into a buffer.
  */
-psycRenderRC psyc_render(psycPacket *packet, char *buffer, size_t buflen);
+psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen);
 
 /**
  * Render a PSYC list into a buffer.
  */
-psycRenderRC psyc_renderList(psycList *list, char *buffer, size_t buflen);
+psycRenderRC psyc_renderList (psycList *list, char *buffer, size_t buflen);
 
 #endif // PSYC_RENDER_H
 

@@ -24,6 +24,9 @@
 
 #define PSYC_EPOCH      1440444041      // 2015-08-24 21:20:41 CET (Monday)
 
+#define	PSYC_C2STR(string) {sizeof(string)-1, string}
+#define	PSYC_C2ARG(string) string, sizeof(string)-1
+
 typedef enum
 {
 	PSYC_FALSE = 0,
@@ -79,28 +82,6 @@ typedef enum
 	PSYC_LIST_BINARY = 2,
 } psycListType;
 
-typedef enum
-{
-	PSYC_MODIFIER_CHECK_LENGTH = 0,
-	PSYC_MODIFIER_NEED_LENGTH = 1,
-	PSYC_MODIFIER_NO_LENGTH = 2,
-	PSYC_MODIFIER_ROUTING = 3,
-} psycModifierFlag;
-
-typedef enum
-{
-	PSYC_LIST_CHECK_LENGTH = 0,
-	PSYC_LIST_NEED_LENGTH = 1,
-	PSYC_LIST_NO_LENGTH = 2,
-} psycListFlag;
-
-typedef enum
-{
-	PSYC_PACKET_CHECK_LENGTH = 0,
-	PSYC_PACKET_NEED_LENGTH = 1,
-	PSYC_PACKET_NO_LENGTH = 2,
-} psycPacketFlag;
-
 typedef struct
 {
 	size_t length;
@@ -121,92 +102,18 @@ typedef struct
  *
  * @return An instance of the psycString struct.
  */
-inline psycString psyc_newString (const char *str, size_t strlen);
-
-#define	PSYC_C2STR(string) {sizeof(string)-1, string}
-#define	PSYC_C2ARG(string) string, sizeof(string)-1
-
-/* intermediate struct for a PSYC variable modification */
-typedef struct
+static inline
+psycString psyc_newString (const char *str, size_t strlen)
 {
-	char oper;  // not call it 'operator' as C++ may not like that..
-	psycString name;
-	psycString value;
-	psycModifierFlag flag;
-} psycModifier;
+	psycString s = {strlen, str};
+	return s;
+}
 
-typedef struct
+static inline
+unsigned int psyc_version ()
 {
-	size_t lines;
-	psycModifier *modifiers;
-} psycHeader;
-
-typedef struct
-{
-	size_t num_elems;
-	psycString *elems;
-	size_t length;
-	psycListFlag flag;
-} psycList;
-
-/** intermediate struct for a PSYC packet */
-typedef struct
-{
-	psycHeader routing;	///< Routing header.
-	psycHeader entity;	///< Entity header.
-	psycString method;
-	psycString data;
-	size_t routingLength;	///< Length of routing part.
-	size_t contentLength;	///< Length of content part.
-	size_t length;		///< Total length of packet.
-	psycPacketFlag flag;
-} psycPacket;
-
-inline int psyc_version();
-
-/** Check if a modifier needs length */
-inline psycModifierFlag psyc_checkModifierLength(psycModifier *m);
-
-/** Get the total length of a modifier. */
-inline size_t psyc_getModifierLength(psycModifier *m);
-
-/** Create new modifier */
-inline psycModifier psyc_newModifier(char oper, psycString *name, psycString *value,
-                                     psycModifierFlag flag);
-
-/** Create new modifier */
-inline psycModifier psyc_newModifier2(char oper,
-                                      const char *name, size_t namelen,
-                                      const char *value, size_t valuelen,
-                                      psycModifierFlag flag);
-
-/** Check if a list needs length */
-inline psycListFlag psyc_checkListLength(psycList *list);
-
-/** Get the total length of a list. */
-inline psycListFlag psyc_getListLength(psycList *list);
-
-/** Check if a packet needs length */
-inline psycPacketFlag psyc_checkPacketLength(psycPacket *p);
-
-/** Calculate and set the length of packet parts and total packet length  */
-inline size_t psyc_setPacketLength(psycPacket *p);
-
-/** Create new list */
-inline psycList psyc_newList(psycString *elems, size_t num_elems, psycListFlag flag);
-
-/** Create new packet */
-inline psycPacket psyc_newPacket(psycHeader *routing,
-                                 psycHeader *entity,
-                                 psycString *method, psycString *data,
-                                 psycPacketFlag flag);
-
-/** Create new packet */
-inline psycPacket psyc_newPacket2(psycModifier *routing, size_t routinglen,
-                                  psycModifier *entity, size_t entitylen,
-                                  const char *method, size_t methodlen,
-                                  const char *data, size_t datalen,
-                                  psycPacketFlag flag);
+	return 1;
+}
 
 /// Routing vars in alphabetical order.
 extern const psycString PSYC_routingVars[];

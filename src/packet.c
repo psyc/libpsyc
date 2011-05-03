@@ -1,63 +1,11 @@
 #include <psyc/lib.h>
 #include <psyc/syntax.h>
+#include <psyc/packet.h>
 
 #include <math.h>
 
-inline psycString psyc_newString(const char *str, size_t strlen)
-{
-	psycString s = {strlen, str};
-	return s;
-}
-
-inline psycModifierFlag psyc_checkModifierLength(psycModifier *m)
-{
-	psycModifierFlag flag;
-
-	if (m->value.length > PSYC_MODIFIER_SIZE_THRESHOLD)
-		flag = PSYC_MODIFIER_NEED_LENGTH;
-	else if (memchr(m->value.ptr, (int)'\n', m->value.length))
-		flag = PSYC_MODIFIER_NEED_LENGTH;
-	else
-		flag = PSYC_MODIFIER_NO_LENGTH;
-
-	return flag;
-}
-
-inline size_t psyc_getModifierLength(psycModifier *m)
-{
-	size_t length = 1 + // oper
-		m->name.length + 1 + // name\t
-		m->value.length + 1; // value\n
-
-	if (m->flag == PSYC_MODIFIER_NEED_LENGTH) // add length of length if needed
-		length += log10((double)m->value.length) + 2; // SP length
-
-	return length;
-}
-
-inline psycModifier psyc_newModifier(char oper, psycString *name, psycString *value,
-                                     psycModifierFlag flag)
-{
-	psycModifier m = {oper, *name, *value, flag};
-
-	if (flag == PSYC_MODIFIER_CHECK_LENGTH) // find out if it needs a length
-		m.flag = psyc_checkModifierLength(&m);
-
-	return m;
-}
-
-inline psycModifier psyc_newModifier2(char oper,
-                                      const char *name, size_t namelen,
-                                      const char *value, size_t valuelen,
-                                      psycModifierFlag flag)
-{
-	psycString n = {namelen, name};
-	psycString v = {valuelen, value};
-
-	return psyc_newModifier(oper, &n, &v, flag);
-}
-
-inline psycListFlag psyc_checkListLength(psycList *list)
+inline
+psycListFlag psyc_checkListLength (psycList *list)
 {
 	psycListFlag flag = PSYC_LIST_NO_LENGTH;
 	size_t i, length = 0;
@@ -78,7 +26,8 @@ inline psycListFlag psyc_checkListLength(psycList *list)
 	return flag;
 }
 
-inline psycListFlag psyc_getListLength(psycList *list)
+inline
+psycListFlag psyc_getListLength (psycList *list)
 {
 	size_t i, length = 0;
 
@@ -100,7 +49,8 @@ inline psycListFlag psyc_getListLength(psycList *list)
 	return length;
 }
 
-inline psycList psyc_newList(psycString *elems, size_t num_elems, psycListFlag flag)
+inline
+psycList psyc_newList(psycString *elems, size_t num_elems, psycListFlag flag)
 {
 	psycList list = {num_elems, elems, 0, flag};
 
@@ -111,7 +61,22 @@ inline psycList psyc_newList(psycString *elems, size_t num_elems, psycListFlag f
 	return list;
 }
 
-inline psycPacketFlag psyc_checkPacketLength(psycPacket *p)
+
+inline
+size_t psyc_getModifierLength (psycModifier *m)
+{
+	size_t length = 1 + // oper
+		m->name.length + 1 + // name\t
+		m->value.length + 1; // value\n
+
+	if (m->flag == PSYC_MODIFIER_NEED_LENGTH) // add length of length if needed
+		length += log10((double)m->value.length) + 2; // SP length
+
+	return length;
+}
+
+inline
+psycPacketFlag psyc_checkPacketLength(psycPacket *p)
 {
 	if (p->data.length == 1 && p->data.ptr[0] == C_GLYPH_PACKET_DELIMITER)
 		return PSYC_PACKET_NEED_LENGTH;
@@ -132,7 +97,8 @@ inline psycPacketFlag psyc_checkPacketLength(psycPacket *p)
 	return PSYC_PACKET_NO_LENGTH;
 }
 
-inline size_t psyc_setPacketLength(psycPacket *p)
+inline
+size_t psyc_setPacketLength(psycPacket *p)
 {
 	size_t i;
 	p->routingLength = 0;
@@ -165,10 +131,10 @@ inline size_t psyc_setPacketLength(psycPacket *p)
 	return p->length;
 }
 
-inline psycPacket psyc_newPacket(psycHeader *routing,
-                                 psycHeader *entity,
-                                 psycString *method, psycString *data,
-                                 psycPacketFlag flag)
+inline
+psycPacket psyc_newPacket (psycHeader *routing, psycHeader *entity,
+                           psycString *method, psycString *data,
+                           psycPacketFlag flag)
 {
 	psycPacket p = {*routing, *entity, *method, *data, 0, 0, flag};
 
@@ -179,11 +145,12 @@ inline psycPacket psyc_newPacket(psycHeader *routing,
 	return p;
 }
 
-inline psycPacket psyc_newPacket2(psycModifier *routing, size_t routinglen,
-                                  psycModifier *entity, size_t entitylen,
-                                  const char *method, size_t methodlen,
-                                  const char *data, size_t datalen,
-                                  psycPacketFlag flag)
+inline
+psycPacket psyc_newPacket2 (psycModifier *routing, size_t routinglen,
+                            psycModifier *entity, size_t entitylen,
+                            const char *method, size_t methodlen,
+                            const char *data, size_t datalen,
+                            psycPacketFlag flag)
 {
 	psycHeader r = {routinglen, routing};
 	psycHeader e = {entitylen, entity};

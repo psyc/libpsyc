@@ -2,7 +2,7 @@
 #include "psyc/render.h"
 #include "psyc/syntax.h"
 
-psycRenderRC psyc_renderList(psycList *list, char *buffer, size_t buflen)
+psycRenderRC psyc_renderList (psycList *list, char *buffer, size_t buflen)
 {
 	size_t i, cur = 0;
 	psycString *elem;
@@ -37,7 +37,8 @@ psycRenderRC psyc_renderList(psycList *list, char *buffer, size_t buflen)
 	return PSYC_RENDER_SUCCESS;
 }
 
-inline size_t psyc_renderModifier(psycModifier *mod, char *buffer)
+static inline
+size_t psyc_renderModifier (psycModifier *mod, char *buffer)
 {
 	size_t cur = 0;
 
@@ -58,7 +59,7 @@ inline size_t psyc_renderModifier(psycModifier *mod, char *buffer)
 	return cur;
 }
 
-psycRenderRC psyc_render(psycPacket *packet, char *buffer, size_t buflen)
+psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen)
 {
 	size_t i, cur = 0;
 

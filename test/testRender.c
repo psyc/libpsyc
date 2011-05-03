@@ -1,13 +1,15 @@
-#include <stdlib.h>
-#include <unistd.h>
-#include "../include/psyc/lib.h"
-#include "../include/psyc/render.h"
-#include "../include/psyc/syntax.h"
+#include <stdio.h>
+
+#include <psyc/lib.h>
+#include <psyc/render.h>
+#include <psyc/syntax.h>
 
 #define myUNI	"psyc://10.100.1000/~ludwig"
 
 /* example renderer generating a presence packet */
-int testPresence(const char *avail, int availlen, const char *desc, int desclen, const char *rendered, uint8_t verbose)
+int testPresence (const char *avail, int availlen,
+                  const char *desc, int desclen,
+                  const char *rendered, uint8_t verbose)
 {
 	psycModifier routing[] = {
 		psyc_newModifier2(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_context"), PSYC_C2ARG(myUNI),
@@ -31,11 +33,11 @@ int testPresence(const char *avail, int availlen, const char *desc, int desclen,
 	char buffer[512];
 	psyc_render(&packet, buffer, sizeof(buffer));
 	if (verbose)
-		write(0, buffer, packet.length);
+		printf("%.*s\n", (int)packet.length, buffer);
 	return strncmp(rendered, buffer, packet.length);
 }
 
-int testList(const char *rendered, uint8_t verbose)
+int testList (const char *rendered, uint8_t verbose)
 {
 	psycModifier routing[] = {
 		psyc_newModifier2(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_source"), PSYC_C2ARG(myUNI),
@@ -80,11 +82,11 @@ int testList(const char *rendered, uint8_t verbose)
 	char buffer[512];
 	psyc_render(&packet, buffer, sizeof(buffer));
 	if (verbose)
-		write(0, buffer, packet.length);
+		printf("%.*s\n", (int)packet.length, buffer);
 	return strncmp(rendered, buffer, packet.length);
 }
 
-int main(int argc, char **argv) {
+int main (int argc, char **argv) {
 	uint8_t verbose = argc > 1;
 
 	if (testPresence(PSYC_C2ARG("_here"), PSYC_C2ARG("I'm omnipresent right now"), "\
