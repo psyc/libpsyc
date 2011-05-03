@@ -2,7 +2,7 @@
 #include "psyc/render.h"
 #include "psyc/syntax.h"
 
-inline psycRenderRC psyc_renderList(psycList *list, char *buffer, size_t buflen)
+psycRenderRC psyc_renderList(psycList *list, char *buffer, size_t buflen)
 {
 	size_t i, cur = 0;
 	psycString *elem;
