@@ -130,7 +130,8 @@ typedef struct
  *
  * @param state Pointer to the state struct that should be initiated.
  */
-static inline void psyc_initParseState (psycParseState* state)
+static inline
+void psyc_initParseState (psycParseState* state)
 {
 	memset(state, 0, sizeof(psycParseState));
 }
@@ -141,7 +142,8 @@ static inline void psyc_initParseState (psycParseState* state)
  * @param state Pointer to the state struct that should be initiated.
  * @param flags Flags to be set for the parser, see psycParseFlag.
  */
-static inline void psyc_initParseState2 (psycParseState* state, uint8_t flags)
+static inline
+void psyc_initParseState2 (psycParseState* state, uint8_t flags)
 {
 	memset(state, 0, sizeof(psycParseState));
 	state->flags = flags;
@@ -157,7 +159,8 @@ static inline void psyc_initParseState2 (psycParseState* state, uint8_t flags)
  * @param buffer the buffer that should be parsed now
  * @see psycString
  */
-static inline void psyc_setParseBuffer (psycParseState* state, psycString buffer)
+static inline
+void psyc_setParseBuffer (psycParseState* state, psycString buffer)
 {
 	state->buffer = buffer;
 	state->cursor = 0;
@@ -177,7 +180,8 @@ static inline void psyc_setParseBuffer (psycParseState* state, psycString buffer
  * @param length length of the data in bytes 
  * @see psycString
  */
-static inline void psyc_setParseBuffer2 (psycParseState* state, char *buffer, size_t length)
+static inline
+void psyc_setParseBuffer2 (psycParseState* state, char *buffer, size_t length)
 {
 	psyc_setParseBuffer(state, psyc_newString(buffer, length));
 }
@@ -187,7 +191,8 @@ static inline void psyc_setParseBuffer2 (psycParseState* state, char *buffer, si
  *
  * @param state Pointer to the list state struct that should be initiated.
  */
-static inline void psyc_initParseListState (psycParseListState* state)
+static inline
+void psyc_initParseListState (psycParseListState* state)
 {
 	memset(state, 0, sizeof(psycParseListState));
 }
@@ -195,18 +200,21 @@ static inline void psyc_initParseListState (psycParseListState* state)
 /**
  * Sets a new buffer in the list parser state struct with data to be parsed.
  */
-static inline void psyc_setParseListBuffer (psycParseListState* state, psycString buffer)
+static inline
+void psyc_setParseListBuffer (psycParseListState* state, psycString buffer)
 {
 	state->buffer = buffer;
 	state->cursor = 0;
 }
 
-static inline void psyc_setParseListBuffer2 (psycParseListState* state, char *buffer, size_t length)
+static inline
+void psyc_setParseListBuffer2 (psycParseListState* state, char *buffer, size_t length)
 {
 	psyc_setParseListBuffer(state, psyc_newString(buffer, length));
 }
 
-static inline size_t psyc_getContentLength (psycParseState* s)
+static inline
+size_t psyc_getContentLength (psycParseState* s)
 {
 	return s->contentLength;
 }
