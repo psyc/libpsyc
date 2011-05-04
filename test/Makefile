@@ -40,14 +40,16 @@ netstartv:
 netstartrv:
 	./testServer ${PORT} -rv
 
-nettest:
+nettest: nettestfull nettestsplit
+
+nettestfull:
 	for f in packets/[0-9]*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | diff -u $$f -; done
+
+nettestsplit:
+	for f in packets/[0-9]*; do echo ">> $$f"; ./splittest.pl $$f ${PORT} | diff -u $$f -; done
 
 nettesterr:
 	for f in packets/err-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT}; done
-
-splittest:
-	for f in packets/[0-9]*; do echo ">> $$f"; ./splittest.pl $$f ${PORT} | diff -u $$f -; done
 
 clean:
 	rm -f ${TARGETS}
