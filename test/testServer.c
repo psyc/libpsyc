@@ -234,7 +234,7 @@ int main (int argc, char **argv)
 									if (ret == PSYC_PARSE_ENTITY)
 									{
 										packets[i].entity.lines++;
-										mod->flag = psyc_getParseValueLength(&parsers[i]) ?
+										mod->flag = psyc_isParseValueLengthFound(&parsers[i]) ?
 											PSYC_MODIFIER_NEED_LENGTH : PSYC_MODIFIER_NO_LENGTH;
 									}
 									break;

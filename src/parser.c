@@ -140,6 +140,7 @@ psycParseRC psyc_parseModifier (psycParseState *state, char *oper,
 	size_t length = 0;
 	value->length = 0;
 	state->valueLength = 0;
+	state->valueLengthFound = 0;
 	state->valueParsed = 0;
 
 	// Parse the value.
@@ -150,6 +151,7 @@ psycParseRC psyc_parseModifier (psycParseState *state, char *oper,
 
 		if (isNumeric(state->buffer.ptr[state->cursor]))
 		{
+			state->valueLengthFound = 1;
 			do
 			{
 				length = 10 * length + state->buffer.ptr[state->cursor] - '0';
