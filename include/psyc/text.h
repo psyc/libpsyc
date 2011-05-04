@@ -99,7 +99,7 @@ void psyc_initTextState (psycTextState *state,
  * @param closelen Length of closing brace.
  */
 static inline
-void psyc_initTextState2 (psycTextState* state,
+void psyc_initTextState2 (psycTextState *state,
                           char *template, size_t tlen,
                           char *buffer, size_t blen,
                           char *open, size_t openlen,
@@ -115,7 +115,7 @@ void psyc_initTextState2 (psycTextState* state,
  * Sets a new buffer in the PSYC text state struct.
  */
 static inline
-void psyc_setTextBuffer (psycTextState* state, psycString buffer)
+void psyc_setTextBuffer (psycTextState *state, psycString buffer)
 {
 	state->buffer = buffer;
 	state->written = 0;
@@ -125,10 +125,16 @@ void psyc_setTextBuffer (psycTextState* state, psycString buffer)
  * Sets a new buffer in the PSYC text state struct.
  */
 static inline
-void psyc_setTextBuffer2 (psycTextState* state,
+void psyc_setTextBuffer2 (psycTextState *state,
                           char *buffer, size_t length)
 {
 	psyc_setTextBuffer(state, psyc_newString(buffer, length));
+}
+
+static inline
+size_t psyc_getTextBytesWritten (psycTextState *state)
+{
+	return state->written;
 }
 
 /**
