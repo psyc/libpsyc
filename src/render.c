@@ -45,6 +45,9 @@ size_t psyc_renderModifier (psycModifier *mod, char *buffer)
 	buffer[cur++] = mod->oper;
 	memcpy(buffer + cur, mod->name.ptr, mod->name.length);
 	cur += mod->name.length;
+	if (cur <= 1)
+		return cur; // error, name can't be empty
+
 	if (mod->flag == PSYC_MODIFIER_NEED_LENGTH)
 	{
 		buffer[cur++] = ' ';
@@ -61,14 +64,19 @@ size_t psyc_renderModifier (psycModifier *mod, char *buffer)
 
 psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen)
 {
-	size_t i, cur = 0;
+	size_t i, cur = 0, len;
 
 	if (packet->length > buflen)
 		return PSYC_RENDER_ERROR; // return error if packet doesn't fit in buffer
 
 	// render routing modifiers
 	for (i = 0; i < packet->routing.lines; i++)
-		cur += psyc_renderModifier(&packet->routing.modifiers[i], buffer + cur);
+	{
+		len = psyc_renderModifier(&packet->routing.modifiers[i], buffer + cur);
+		cur += len;
+		if (len <= 1)
+			return PSYC_RENDER_ERROR_MODIFIER_NAME_MISSING;
+	}
 
 	// add length if needed
 	if (packet->flag == PSYC_PACKET_NEED_LENGTH)
@@ -86,14 +94,16 @@ psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen)
 		memcpy(buffer + cur, packet->method.ptr, packet->method.length);
 		cur += packet->method.length;
 		buffer[cur++] = '\n';
-	}
+		if (packet->data.length) // add data\n
+		{
+			memcpy(buffer + cur, packet->data.ptr, packet->data.length);
+			cur += packet->data.length;
 
-	if (packet->data.length) // add data\n
-	{
-		memcpy(buffer + cur, packet->data.ptr, packet->data.length);
-		cur += packet->data.length;
-		buffer[cur++] = '\n';
+			buffer[cur++] = '\n';
+		}
 	}
+	else if (packet->data.length) // error, we have data but no modifier
+		return PSYC_RENDER_ERROR_METHOD_MISSING;
 
 	// add packet delimiter
 	buffer[cur++] = C_GLYPH_PACKET_DELIMITER;
