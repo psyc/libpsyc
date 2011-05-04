@@ -109,6 +109,7 @@ typedef struct
 	psycBool contentLengthFound; ///< is there a length given for this packet?
 	size_t valueParsed; ///< number of bytes parsed from the value so far
 	size_t valueLength; ///< expected length of the value
+	psycBool valueLengthFound; ///< is there a length given for this modifier?
 } psycParseState;
 
 /**
@@ -229,6 +230,12 @@ static inline
 size_t psyc_getParseValueLength (psycParseState *state)
 {
 	return state->valueLength;
+}
+
+static inline
+psycBool psyc_isParseValueLengthFound (psycParseState *state)
+{
+	return state->valueLengthFound;
 }
 
 static inline

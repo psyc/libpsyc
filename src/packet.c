@@ -75,7 +75,7 @@ size_t psyc_getModifierLength (psycModifier *m)
 		m->name.length + 1 + // name\t
 		m->value.length + 1; // value\n
 
-	if (m->flag == PSYC_MODIFIER_NEED_LENGTH && m->value.length) // add length of length if needed
+	if (m->flag == PSYC_MODIFIER_NEED_LENGTH) // add length of length if needed
 		length += psyc_getNumLength(m->value.length) + 1; // SP length
 
 	return length;
