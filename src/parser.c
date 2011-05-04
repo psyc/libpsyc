@@ -381,8 +381,11 @@ psycParseRC psyc_parse (psycParseState* state, char* oper,
 			{
 				if (state->contentParsed < state->contentLength &&
 				    psyc_parseBinaryValue(state, value, &(state->contentLength),
-						                      &(state->contentParsed)) == PSYC_PARSE_INCOMPLETE)
+				                          &(state->contentParsed)) == PSYC_PARSE_INCOMPLETE)
 					return PSYC_PARSE_BODY_INCOMPLETE;
+
+				if (value->length)
+					value->length--; // \n at the end is not part of the body
 
 				if (state->cursor >= state->buffer.length)
 					return PSYC_PARSE_BODY;
