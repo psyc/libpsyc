@@ -73,7 +73,7 @@ char isKwChar (uint8_t c)
  * @return PSYC_PARSE_ERROR or PSYC_PARSE_SUCCESS
  */
 static inline
-psycParseRC psyc_parseKeyword (psycParseState* state, psycString* name)
+psycParseRC psyc_parseKeyword (psycParseState *state, psycString *name)
 {
 	name->ptr = state->buffer.ptr + state->cursor;
 	name->length = 0;
@@ -104,8 +104,8 @@ psycParseRC psyc_parseBinaryValue (psycParseState *state, psycString *value,
 	size_t remaining = *length - *parsed;
 	value->ptr = state->buffer.ptr + state->cursor;
 
-	if (state->cursor + remaining > state->buffer.length) // is the length larger than this buffer?
-	{
+	if (state->cursor + remaining > state->buffer.length)
+	{ // value doesn't fit in the buffer completely
 		value->length = state->buffer.length - state->cursor;
 		state->cursor += value->length;
 		*parsed += value->length;
@@ -168,7 +168,7 @@ psycParseRC psyc_parseModifier (psycParseState *state, char *oper,
 			return PSYC_PARSE_ERROR_MOD_TAB;
 
 		if (++(state->cursor) >= state->buffer.length)
-			return PSYC_PARSE_INCOMPLETE;
+			return length ? PSYC_PARSE_INCOMPLETE : PSYC_PARSE_SUCCESS; // if length=0 we're done
 
 		ret = psyc_parseBinaryValue(state, value, &(state->valueLength), &(state->valueParsed));
 		if (ret == PSYC_PARSE_INCOMPLETE)
@@ -197,8 +197,8 @@ psycParseRC psyc_parseModifier (psycParseState *state, char *oper,
  * Parse PSYC packets.
  * Generalized line-based parser.
  */
-psycParseRC psyc_parse (psycParseState* state, char* oper,
-                        psycString* name, psycString* value)
+psycParseRC psyc_parse (psycParseState *state, char *oper,
+                        psycString *name, psycString *value)
 {
 #ifdef DEBUG
 	if (state->flags & PSYC_PARSE_ROUTING_ONLY &&
@@ -298,7 +298,7 @@ psycParseRC psyc_parse (psycParseState* state, char* oper,
 
 		case PSYC_PART_CONTENT:
 			// In case of an incomplete binary variable resume parsing it.
-			if (state->valueParsed < state->valueLength) 
+			if (state->valueParsed < state->valueLength)
 			{
 				ret = psyc_parseBinaryValue(state, value, &(state->valueLength), &(state->valueParsed));
 				state->contentParsed += value->length;
@@ -453,8 +453,8 @@ psycParseRC psyc_parse (psycParseState* state, char* oper,
  * List value parser.
  * @return see psycListRC.
  */
-psycParseListRC psyc_parseList (psycParseListState* state, psycString *name,
-                                psycString* value, psycString* elem)
+psycParseListRC psyc_parseList (psycParseListState *state, psycString *name,
+                                psycString *value, psycString *elem)
 {
 	if (state->cursor >= state->buffer.length)
 		return PSYC_PARSE_LIST_INCOMPLETE;
