@@ -4,6 +4,12 @@
 
 #include <math.h>
 
+static inline
+size_t psyc_getNumLength(size_t n)
+{
+	return n < 10 ? 1 : log10(n) + 1;
+}
+
 inline
 psycListFlag psyc_checkListLength (psycList *list)
 {
@@ -37,7 +43,7 @@ psycListFlag psyc_getListLength (psycList *list)
 		{
 			if (i > 0)
 				length++; // |
-			length += log10((double)list->elems[i].length) + 2 + list->elems[i].length; // length SP elem
+			length += psyc_getNumLength(list->elems[i].length) + 1 + list->elems[i].length; // length SP elem
 		}
 	}
 	else
@@ -69,8 +75,8 @@ size_t psyc_getModifierLength (psycModifier *m)
 		m->name.length + 1 + // name\t
 		m->value.length + 1; // value\n
 
-	if (m->flag == PSYC_MODIFIER_NEED_LENGTH) // add length of length if needed
-		length += log10((double)m->value.length) + 2; // SP length
+	if (m->flag == PSYC_MODIFIER_NEED_LENGTH && m->value.length) // add length of length if needed
+		length += psyc_getNumLength(m->value.length) + 1; // SP length
 
 	return length;
 }
@@ -121,12 +127,11 @@ size_t psyc_setPacketLength(psycPacket *p)
 	// set total length: routing-header content |\n
 	p->length = p->routingLength + p->contentLength + 2;
 
-	if (p->contentLength > 0)
-	{
+	if (p->contentLength > 0 || p->flag == PSYC_PACKET_NEED_LENGTH)
 		p->length++; // add \n at the start of the content part
-		if (p->flag == PSYC_PACKET_NEED_LENGTH) // add length of length if needed
-			p->length += log10((double)p->contentLength) + 1;
-	}
+
+	if (p->flag == PSYC_PACKET_NEED_LENGTH) // add length of length if needed
+		p->length += psyc_getNumLength(p->contentLength);
 
 	return p->length;
 }

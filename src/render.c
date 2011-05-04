@@ -82,8 +82,9 @@ psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen)
 	if (packet->flag == PSYC_PACKET_NEED_LENGTH)
 		cur += itoa(packet->contentLength, buffer + cur, 10);
 
-	if (packet->entity.lines || packet->method.length || packet->data.length)
-		buffer[cur++] = '\n'; // start of content part if there's content
+	if (packet->flag == PSYC_PACKET_NEED_LENGTH ||
+	    packet->entity.lines || packet->method.length || packet->data.length)
+		buffer[cur++] = '\n'; // start of content part if there's content or length
 
 	// render entity modifiers
 	for (i = 0; i < packet->entity.lines; i++)
@@ -94,11 +95,11 @@ psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen)
 		memcpy(buffer + cur, packet->method.ptr, packet->method.length);
 		cur += packet->method.length;
 		buffer[cur++] = '\n';
+
 		if (packet->data.length) // add data\n
 		{
 			memcpy(buffer + cur, packet->data.ptr, packet->data.length);
 			cur += packet->data.length;
-
 			buffer[cur++] = '\n';
 		}
 	}
