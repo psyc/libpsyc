@@ -23,8 +23,8 @@ test: ${TARGETS}
 	./testText
 	./isRoutingVar
 	./getVarType
-	for f in packets/full-*; do echo ">> $$f"; ./testParser $$f; done
-	for f in packets/full-*; do echo ">> $$f"; ./testParser $$f -r; done
+	for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f; done
+	for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f -r; done
 
 testServer: CFLAGS := $(subst -std=c99,,${CFLAGS})
 
@@ -41,19 +41,13 @@ netstartrv:
 	./testServer ${PORT} -rv
 
 nettest:
-	for f in packets/full-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | diff -u $$f -; done
+	for f in packets/[0-9]*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | diff -u $$f -; done
 
 nettesterr:
-	for f in packets/error-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT}; done
+	for f in packets/err-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT}; done
 
 splittest:
-	for f in packets/full-*; do echo ">> $$f"; ./splittest.pl $$f ${PORT} | diff -u $$f -; done
-
-nettestp1:
-	(for f in packets/part-1-p*; do cat $$f; done) | nc localhost ${PORT} | diff -u packets/full-1 -
-
-nettestp2:
-	(for f in packets/part-1-length-p*; do cat $$f; done) | nc localhost ${PORT} | diff -u packets/full-1-length -
+	for f in packets/[0-9]*; do echo ">> $$f"; ./splittest.pl $$f ${PORT} | diff -u $$f -; done
 
 clean:
 	rm -f ${TARGETS}
