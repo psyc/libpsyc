@@ -42,7 +42,8 @@ void *get_in_addr (struct sockaddr *sa)
 int main (int argc, char **argv)
 {
 	char *port = argc > 1 ? argv[1] : "4440";
-	uint8_t routing_only = argc > 2, verbose = argc > 3;
+	uint8_t routing_only = argc > 2 && memchr(argv[2], (int)'r', strlen(argv[2]));
+	uint8_t verbose = argc > 2 && memchr(argv[2], (int)'v', strlen(argv[2]));
 
 	fd_set master;    // master file descriptor list
 	fd_set read_fds;  // temp file descriptor list for select()
@@ -249,11 +250,18 @@ int main (int argc, char **argv)
 									packets[i].flag = psyc_isParseContentLengthFound(&parsers[i]) ?
 										PSYC_PACKET_NEED_LENGTH : PSYC_PACKET_NO_LENGTH;
 
-									psyc_setPacketLength(&packets[i]);
-									psyc_render(&packets[i], sendbuf, SEND_BUF_SIZE);
+									if (routing_only)
+										packets[i].method = psyc_newString(PSYC_C2ARG("_packet_content"));
 
-									if (send(i, sendbuf, packets[i].length, 0) == -1)
-										perror("send");
+									psyc_setPacketLength(&packets[i]);
+
+									if (psyc_render(&packets[i], sendbuf, SEND_BUF_SIZE) == PSYC_RENDER_SUCCESS)
+									{
+										if (send(i, sendbuf, packets[i].length, 0) == -1)
+											perror("send error");
+									}
+									else
+										perror("render error");
 
 									ret = -1;
 									break;
@@ -314,7 +322,7 @@ int main (int argc, char **argv)
 
 										if (verbose)
 										{
-											printf("%.*s", (int)pvalue->length, pvalue->ptr);
+											printf("[%.*s]", (int)pvalue->length, pvalue->ptr);
 											if (parsers[i].valueLength > pvalue->length)
 												printf("...");
 											printf("\n");

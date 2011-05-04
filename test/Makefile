@@ -24,6 +24,7 @@ test: ${TARGETS}
 	./isRoutingVar
 	./getVarType
 	for f in packets/full-*; do echo ">> $$f"; ./testParser $$f; done
+	for f in packets/full-*; do echo ">> $$f"; ./testParser $$f -r; done
 
 testServer: CFLAGS := $(subst -std=c99,,${CFLAGS})
 
@@ -37,7 +38,7 @@ netstartv:
 	./testServer ${PORT} -v
 
 netstartrv:
-	./testServer ${PORT} -r -v
+	./testServer ${PORT} -rv
 
 nettest:
 	for f in packets/full-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | diff -u $$f -; done

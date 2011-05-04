@@ -23,7 +23,8 @@
  */
 typedef enum
 {
-	//PSYC_RENDER_ERROR_ROUTING = -2,
+	PSYC_RENDER_ERROR_METHOD_MISSING = -3, ///< method missing, but data present
+	PSYC_RENDER_ERROR_MODIFIER_NAME_MISSING = -2, ///< modifier name missing
 	PSYC_RENDER_ERROR = -1,
 	PSYC_RENDER_SUCCESS = 0,
 } psycRenderRC;

@@ -7,12 +7,16 @@
 
 int main (int argc, char **argv)
 {
-	int idx, ret, routing_only = argc > 2, verbose = argc > 3;
+	uint8_t routing_only = argc > 2 && memchr(argv[2], (int)'r', strlen(argv[2]));
+	uint8_t verbose = argc > 2 && memchr(argv[2], (int)'v', strlen(argv[2]));
+	int idx, ret;
 	char buffer[2048], oper;
 	psycString name, value, elem;
 	psycParseState state;
 	psycParseListState listState;
 
+	if (argc < 2)
+		return -1;
 	int file = open(argv[1],O_RDONLY);
 	if (file < 0)
 		return -1;
@@ -55,7 +59,7 @@ int main (int argc, char **argv)
 					       (int)name.length, name.ptr,
 					       (int)value.length, value.ptr);
 
-				if (memcmp(name.ptr, "_list", 5) == 0)
+				if (name.length >= 5 && memcmp(name.ptr, "_list", 5) == 0)
 				{
 					if (verbose)
 						printf(">> LIST START\n");
