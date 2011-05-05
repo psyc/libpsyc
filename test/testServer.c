@@ -11,8 +11,11 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/select.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#define __USE_POSIX
 #include <netdb.h>
 #include <math.h>
 #include <assert.h>
@@ -22,13 +25,23 @@
 #include <psyc/render.h>
 #include <psyc/syntax.h>
 
-const size_t RECV_BUF_SIZE = 256;
-const size_t CONT_BUF_SIZE = 512;
-const size_t SEND_BUF_SIZE = 1024;
+const size_t RECV_BUF_SIZE = 8 * 1024;
+const size_t CONT_BUF_SIZE = 8 * 1024;
+const size_t SEND_BUF_SIZE = 8 * 1024;
 const size_t NUM_PARSERS = 100;
 // max size for routing & entity header
 const size_t ROUTING_LINES = 16;
 const size_t ENTITY_LINES = 32;
+
+static inline
+void resetString (psycString *s, uint8_t freeptr)
+{
+	if (freeptr && s->length)
+		free((void*)s->ptr);
+
+	s->ptr = NULL;
+	s->length = 0;
+}
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr (struct sockaddr *sa)
@@ -42,8 +55,14 @@ void *get_in_addr (struct sockaddr *sa)
 int main (int argc, char **argv)
 {
 	char *port = argc > 1 ? argv[1] : "4440";
-	uint8_t routing_only = argc > 2 && memchr(argv[2], (int)'r', strlen(argv[2]));
-	uint8_t verbose = argc > 2 && memchr(argv[2], (int)'v', strlen(argv[2]));
+	uint8_t routing_only   = argc > 2 && memchr(argv[2], (int)'r', strlen(argv[2]));
+	uint8_t verbose        = argc > 2 && memchr(argv[2], (int)'v', strlen(argv[2]));
+	uint8_t parse_multiple = argc > 2 && memchr(argv[2], (int)'m', strlen(argv[2]));
+	uint8_t progress       = argc > 2 && memchr(argv[2], (int)'p', strlen(argv[2]));
+	uint8_t stats          = argc > 2 && memchr(argv[2], (int)'s', strlen(argv[2]));
+	size_t recv_buf_size   = argc > 3 ? atoi(argv[3]) : 0;
+	if (recv_buf_size <= 0)
+		recv_buf_size = RECV_BUF_SIZE;
 
 	fd_set master;    // master file descriptor list
 	fd_set read_fds;  // temp file descriptor list for select()
@@ -63,7 +82,7 @@ int main (int argc, char **argv)
 	char remoteIP[INET6_ADDRSTRLEN];
 
 	int yes = 1;        // for setsockopt() SO_REUSEADDR, below
-	int i, rv;
+	int i, j, rv;
 
 	struct addrinfo hints, *ai, *p;
 
@@ -72,6 +91,8 @@ int main (int argc, char **argv)
 	psycModifier routing[NUM_PARSERS][ROUTING_LINES];
 	psycModifier entity[NUM_PARSERS][ENTITY_LINES];
 	psycModifier *mod = NULL;
+
+	struct timeval start[NUM_PARSERS], end[NUM_PARSERS];
 
 	int ret, retl;
 	char oper;
@@ -182,13 +203,19 @@ int main (int argc, char **argv)
 						                 get_in_addr((struct sockaddr*)&remoteaddr),
 						                 remoteIP, INET6_ADDRSTRLEN),
 						       newfd);
+
+						if (stats)
+							gettimeofday(&start[newfd], NULL);
 					}
 				}
 				else
 				{
 					// handle data from a client
-					if ((nbytes = recv(i, recvbuf, RECV_BUF_SIZE, 0)) <= 0)
+					if ((nbytes = recv(i, recvbuf, recv_buf_size, 0)) <= 0)
 					{
+						if (stats)
+							printf("%ld ms\n", (end[i].tv_sec * 1000000 + end[i].tv_usec - start[i].tv_sec * 1000000 - start[i].tv_usec) / 1000);
+
 						// got error or connection closed by client
 						if (nbytes == 0) // connection closed
 							printf("socket %d hung up\n", i);
@@ -246,25 +273,70 @@ int main (int argc, char **argv)
 									break;
 
 								case PSYC_PARSE_COMPLETE:
-									printf("# Done parsing.\n");
+									if (verbose)
+										printf("# Done parsing.\n");
+									else if (progress)
+										write(1, ".", 1);
+									if (!parse_multiple) // parse multiple packets?
+										ret = -1;
+
 									packets[i].flag = psyc_isParseContentLengthFound(&parsers[i]) ?
 										PSYC_PACKET_NEED_LENGTH : PSYC_PACKET_NO_LENGTH;
 
 									if (routing_only)
-										packets[i].method = psyc_newString(PSYC_C2ARG("_packet_content"));
+									{
+										packets[i].content = packets[i].data;
+										resetString(&packets[i].data, 0);
+									}
 
 									psyc_setPacketLength(&packets[i]);
 
 									if (psyc_render(&packets[i], sendbuf, SEND_BUF_SIZE) == PSYC_RENDER_SUCCESS)
 									{
 										if (send(i, sendbuf, packets[i].length, 0) == -1)
+										{
 											perror("send error");
+											ret = -1;
+										}
 									}
 									else
+									{
 										perror("render error");
+										ret = -1;
+									}
 
-									ret = -1;
+									// reset packet
+									packets[i].routingLength = 0;
+									packets[i].contentLength = 0;
+									packets[i].length = 0;
+									packets[i].flag = 0;
+
+									for (j = 0; j < packets[i].routing.lines; j++)
+									{
+										resetString(&packets[i].routing.modifiers[j].name, 1);
+										resetString(&packets[i].routing.modifiers[j].value, 1);
+									}
+									packets[i].routing.lines = 0;
+
+									if (routing_only)
+									{
+										resetString(&packets[i].content, 1);
+									}
+									else
+									{
+										for (j = 0; j < packets[i].entity.lines; j++)
+										{
+											resetString(&packets[i].entity.modifiers[j].name, 1);
+											resetString(&packets[i].entity.modifiers[j].value, 1);
+										}
+										packets[i].entity.lines = 0;
+
+										resetString(&packets[i].method, 1);
+										resetString(&packets[i].data, 1);
+									}
+
 									break;
+
 								case PSYC_PARSE_INSUFFICIENT:
 									if (verbose)
 										printf("# Insufficient data.\n");
@@ -274,7 +346,7 @@ int main (int argc, char **argv)
 									if (contbytes > 0) // copy end of parsebuf before start of recvbuf
 									{
 										assert(recvbuf - contbytes >= buf); // make sure it's still in the buffer
-										memcpy(recvbuf - contbytes, psyc_getParseRemainingBuffer(&parsers[i]), contbytes);
+										memmove(recvbuf - contbytes, psyc_getParseRemainingBuffer(&parsers[i]), contbytes);
 									}
 									ret = 0;
 									break;
@@ -313,7 +385,7 @@ int main (int argc, char **argv)
 									}
 
 									if (value.length) {
-										if (!pvalue->ptr)
+										if (!pvalue->length)
 											pvalue->ptr = malloc(parsers[i].valueLength ? parsers[i].valueLength : value.length);
 										assert(pvalue->ptr != NULL);
 										memcpy((void*)pvalue->ptr + pvalue->length, value.ptr, value.length);
@@ -375,6 +447,12 @@ int main (int argc, char **argv)
 							}
 						}
 						while (ret > 0);
+
+						if (progress)
+							write(1, " ", 1);
+
+						if (stats)
+							gettimeofday(&end[i], NULL);
 
 						if (ret < 0)
 						{
