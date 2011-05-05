@@ -4,7 +4,7 @@
  *
  * All parsing functions and the definitions they use are
  * defined in this file.
-*/
+ */
 
 /**
  * @defgroup parser Parsing Functions

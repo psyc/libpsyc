@@ -82,29 +82,37 @@ psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen)
 	if (packet->flag == PSYC_PACKET_NEED_LENGTH)
 		cur += itoa(packet->contentLength, buffer + cur, 10);
 
-	if (packet->flag == PSYC_PACKET_NEED_LENGTH ||
+	if (packet->flag == PSYC_PACKET_NEED_LENGTH || packet->content.length ||
 	    packet->entity.lines || packet->method.length || packet->data.length)
 		buffer[cur++] = '\n'; // start of content part if there's content or length
 
-	// render entity modifiers
-	for (i = 0; i < packet->entity.lines; i++)
-		cur += psyc_renderModifier(&packet->entity.modifiers[i], buffer + cur);
-
-	if (packet->method.length) // add method\n
+	if (packet->content.length) // render raw content if present
 	{
-		memcpy(buffer + cur, packet->method.ptr, packet->method.length);
-		cur += packet->method.length;
-		buffer[cur++] = '\n';
-
-		if (packet->data.length) // add data\n
-		{
-			memcpy(buffer + cur, packet->data.ptr, packet->data.length);
-			cur += packet->data.length;
-			buffer[cur++] = '\n';
-		}
+		memcpy(buffer + cur, packet->content.ptr, packet->content.length);
+		cur += packet->content.length;
 	}
-	else if (packet->data.length) // error, we have data but no modifier
-		return PSYC_RENDER_ERROR_METHOD_MISSING;
+	else
+	{
+		// render entity modifiers
+		for (i = 0; i < packet->entity.lines; i++)
+			cur += psyc_renderModifier(&packet->entity.modifiers[i], buffer + cur);
+
+		if (packet->method.length) // add method\n
+		{
+			memcpy(buffer + cur, packet->method.ptr, packet->method.length);
+			cur += packet->method.length;
+			buffer[cur++] = '\n';
+
+			if (packet->data.length) // add data\n
+			{
+				memcpy(buffer + cur, packet->data.ptr, packet->data.length);
+				cur += packet->data.length;
+				buffer[cur++] = '\n';
+			}
+		}
+		else if (packet->data.length) // error, we have data but no modifier
+			return PSYC_RENDER_ERROR_METHOD_MISSING;
+	}
 
 	// add packet delimiter
 	buffer[cur++] = C_GLYPH_PACKET_DELIMITER;

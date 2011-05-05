@@ -56,6 +56,7 @@ typedef struct
 	psycHeader entity;	///< Entity header.
 	psycString method;
 	psycString data;
+	psycString content;
 	size_t routingLength;	///< Length of routing part.
 	size_t contentLength;	///< Length of content part.
 	size_t length;		///< Total length of packet.
@@ -134,5 +135,12 @@ psycPacket psyc_newPacket2 (psycModifier *routing, size_t routinglen,
                             const char *method, size_t methodlen,
                             const char *data, size_t datalen,
                             psycPacketFlag flag);
+
+psycPacket psyc_newPacketContent (psycHeader *routing, psycString *content,
+                                  psycPacketFlag flag);
+
+psycPacket psyc_newPacketContent2 (psycModifier *routing, size_t routinglen,
+                                   const char *content, size_t contentlen,
+                                   psycPacketFlag flag);
 
 #endif // PSYC_PACKET_H

@@ -222,6 +222,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 		case PSYC_PART_RESET: // New packet starts here, reset state.
 			state->valueParsed = 0;
 			state->valueLength = 0;
+			state->valueLengthFound = 0;
 			state->routingLength = 0;
 			state->contentParsed = 0;
 			state->contentLength = 0;
@@ -354,6 +355,10 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 				if (state->buffer.ptr[state->cursor] != '\n')
 					return PSYC_PARSE_ERROR_METHOD;
 
+				state->valueLengthFound = 0;
+				state->valueParsed = 0;
+				state->valueLength = 0;
+
 				if (state->contentLengthFound)
 				{ // if length was found set start position to the beginning of data
 					state->cursor++;
@@ -362,7 +367,9 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 					state->part = PSYC_PART_DATA;
 				}
 				else // otherwise keep it at the beginning of method
+				{
 					ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+				}
 
 				// fall thru
 			}
@@ -380,19 +387,21 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 
 			if (state->contentLengthFound) // We know the length of the packet.
 			{
-				if (state->contentParsed < state->contentLength &&
-				    psyc_parseBinaryValue(state, value, &(state->contentLength),
-				                          &(state->contentParsed)) == PSYC_PARSE_INCOMPLETE)
-					return PSYC_PARSE_BODY_INCOMPLETE;
+				if (!state->valueLengthFound) // start of data
+				{
+					state->valueLengthFound = 1;
+					state->valueLength = state->contentLength - state->contentParsed; // length of data
+					if (state->valueLength && !(state->flags & PSYC_PARSE_ROUTING_ONLY))
+						state->valueLength--; // \n at the end is not part of data
+				}
+				if (state->valueParsed < state->valueLength)
+				{
+					ret = psyc_parseBinaryValue(state, value, &(state->valueLength), &(state->valueParsed));
+					state->contentParsed += value->length;
 
-				if (value->length)
-					value->length--; // \n at the end is not part of the body
-
-				if (state->cursor >= state->buffer.length)
-					return PSYC_PARSE_BODY;
-
-				if (state->buffer.ptr[state->cursor] != '|')
-					return PSYC_PARSE_ERROR_BODY;
+					if (ret == PSYC_PARSE_INCOMPLETE)
+						return PSYC_PARSE_BODY_INCOMPLETE;
+				}
 
 				state->part = PSYC_PART_END;
 				return PSYC_PARSE_BODY;
@@ -415,6 +424,9 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 						if (state->buffer.ptr[state->cursor+nl] == '|' &&
 								state->buffer.ptr[state->cursor+1+nl] == '\n') // packet ends here
 						{
+							if (state->flags & PSYC_PARSE_ROUTING_ONLY)
+								value->length++;
+
 							state->contentParsed += state->cursor - pos;
 							state->cursor += nl;
 							state->part = PSYC_PART_END;
@@ -428,6 +440,19 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 
 		case PSYC_PART_END:
 		PSYC_PART_END:
+			if (state->contentLengthFound && state->valueLengthFound && state->valueLength &&
+			    !(state->flags & PSYC_PARSE_ROUTING_ONLY))
+			{ // if data was not empty next is the \n at the end of data
+				state->valueLength = 0;
+				state->valueLengthFound = 0;
+
+				if (state->buffer.ptr[state->cursor] != '\n')
+					return PSYC_PARSE_ERROR_END;
+
+				state->contentParsed++;
+				state->cursor++;
+			}
+
 			// End of packet, at this point we have already passed a \n
 			// and the cursor should point to |
 			if (state->cursor+1 >= state->buffer.length) // incremented cursor inside length?
