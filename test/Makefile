@@ -17,6 +17,11 @@ debug: CFLAGS += -DDEBUG=${DEBUG} -g
 debug: CFLAGS := $(subst ${OPT},-O0,${CFLAGS})
 debug: all
 
+clean:
+	rm -f ${TARGETS}
+
+it: all
+
 test: ${TARGETS}
 	./testRender
 	./testMatch
@@ -26,7 +31,16 @@ test: ${TARGETS}
 	for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f; done
 	for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f -r; done
 
-testServer: CFLAGS := $(subst -std=c99,,${CFLAGS})
+nettest: nettestfull nettestsplit
+
+nettestfull:
+	for f in packets/[0-9]*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | diff -u $$f -; done
+
+nettestsplit:
+	for f in packets/[0-9]*; do echo ">> $$f"; ./splittest.pl $$f ${PORT} | diff -u $$f -; done
+
+nettesterr:
+	for f in packets/err-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT}; done
 
 netstart:
 	./testServer ${PORT}
@@ -40,18 +54,20 @@ netstartv:
 netstartrv:
 	./testServer ${PORT} -rv
 
-nettest: nettestfull nettestsplit
+netstartm:
+	./testServer ${PORT} -m
 
-nettestfull:
-	for f in packets/[0-9]*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | diff -u $$f -; done
+netstartmr:
+	./testServer ${PORT} -mr
 
-nettestsplit:
-	for f in packets/[0-9]*; do echo ">> $$f"; ./splittest.pl $$f ${PORT} | diff -u $$f -; done
+netstartms:
+	./testServer ${PORT} -ms
 
-nettesterr:
-	for f in packets/err-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT}; done
+netstartmsp:
+	./testServer ${PORT} -msp
 
-clean:
-	rm -f ${TARGETS}
+netstartmv:
+	./testServer ${PORT} -mv
 
-it: all
+netstartmrv:
+	./testServer ${PORT} -mrv
