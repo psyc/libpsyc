@@ -114,15 +114,20 @@ size_t psyc_setPacketLength(psycPacket *p)
 	for (i = 0; i < p->routing.lines; i++)
 		p->routingLength += psyc_getModifierLength(&(p->routing.modifiers[i]));
 
-	// add entity header length
-	for (i = 0; i < p->entity.lines; i++)
-		p->contentLength += psyc_getModifierLength(&(p->entity.modifiers[i]));
+	if (p->content.length)
+		p->contentLength = p->content.length;
+	else
+	{
+		// add entity header length
+		for (i = 0; i < p->entity.lines; i++)
+			p->contentLength += psyc_getModifierLength(&(p->entity.modifiers[i]));
 
-	// add length of method, data & delimiter
-	if (p->method.length)
-		p->contentLength += p->method.length + 1; // method\n
-	if (p->data.length)
-		p->contentLength += p->data.length + 1; // data\n
+		// add length of method, data & delimiter
+		if (p->method.length)
+			p->contentLength += p->method.length + 1; // method\n
+		if (p->data.length)
+			p->contentLength += p->data.length + 1; // data\n
+	}
 
 	// set total length: routing-header content |\n
 	p->length = p->routingLength + p->contentLength + 2;
@@ -141,7 +146,7 @@ psycPacket psyc_newPacket (psycHeader *routing, psycHeader *entity,
                            psycString *method, psycString *data,
                            psycPacketFlag flag)
 {
-	psycPacket p = {*routing, *entity, *method, *data, 0, 0, flag};
+	psycPacket p = {*routing, *entity, *method, *data, {0,0}, 0, 0, flag};
 
 	if (flag == PSYC_PACKET_CHECK_LENGTH) // find out if it needs a length
 		p.flag = psyc_checkPacketLength(&p);
@@ -163,4 +168,28 @@ psycPacket psyc_newPacket2 (psycModifier *routing, size_t routinglen,
 	psycString d = {datalen, data};
 
 	return psyc_newPacket(&r, &e, &m, &d, flag);
+}
+
+inline
+psycPacket psyc_newPacketContent (psycHeader *routing, psycString *content,
+                                  psycPacketFlag flag)
+{
+	psycPacket p = {*routing, {0,0}, {0,0}, {0,0}, *content, 0, 0, flag};
+
+	if (flag == PSYC_PACKET_CHECK_LENGTH) // find out if it needs a length
+		p.flag = psyc_checkPacketLength(&p);
+
+	psyc_setPacketLength(&p);
+	return p;
+}
+
+inline
+psycPacket psyc_newPacketContent2 (psycModifier *routing, size_t routinglen,
+                                   const char *content, size_t contentlen,
+                                   psycPacketFlag flag)
+{
+	psycHeader r = {routinglen, routing};
+	psycString c = {contentlen, content};
+
+	return psyc_newPacketContent(&r, &c, flag);
 }
