@@ -136,11 +136,11 @@ psycPacket psyc_newPacket2 (psycModifier *routing, size_t routinglen,
                             const char *data, size_t datalen,
                             psycPacketFlag flag);
 
-psycPacket psyc_newPacketContent (psycHeader *routing, psycString *content,
-                                  psycPacketFlag flag);
+psycPacket psyc_newRawPacket (psycHeader *routing, psycString *content,
+                              psycPacketFlag flag);
 
-psycPacket psyc_newPacketContent2 (psycModifier *routing, size_t routinglen,
-                                   const char *content, size_t contentlen,
-                                   psycPacketFlag flag);
+psycPacket psyc_newRawPacket2 (psycModifier *routing, size_t routinglen,
+                               const char *content, size_t contentlen,
+                               psycPacketFlag flag);
 
 #endif // PSYC_PACKET_H

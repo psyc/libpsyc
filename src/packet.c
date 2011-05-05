@@ -171,8 +171,8 @@ psycPacket psyc_newPacket2 (psycModifier *routing, size_t routinglen,
 }
 
 inline
-psycPacket psyc_newPacketContent (psycHeader *routing, psycString *content,
-                                  psycPacketFlag flag)
+psycPacket psyc_newRawPacket (psycHeader *routing, psycString *content,
+                              psycPacketFlag flag)
 {
 	psycPacket p = {*routing, {0,0}, {0,0}, {0,0}, *content, 0, 0, flag};
 
@@ -184,12 +184,12 @@ psycPacket psyc_newPacketContent (psycHeader *routing, psycString *content,
 }
 
 inline
-psycPacket psyc_newPacketContent2 (psycModifier *routing, size_t routinglen,
-                                   const char *content, size_t contentlen,
-                                   psycPacketFlag flag)
+psycPacket psyc_newRawPacket2 (psycModifier *routing, size_t routinglen,
+                               const char *content, size_t contentlen,
+                               psycPacketFlag flag)
 {
 	psycHeader r = {routinglen, routing};
 	psycString c = {contentlen, content};
 
-	return psyc_newPacketContent(&r, &c, flag);
+	return psyc_newRawPacket(&r, &c, flag);
 }
