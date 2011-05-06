@@ -31,43 +31,26 @@ test: ${TARGETS}
 	for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f; done
 	for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f -r; done
 
-nettest: nettestfull nettestsplit
+# test packet parsing & rendering with the test server
+nettest: srvstart pkt pktsplit srvkill
 
-nettestfull:
+# same test but parse routing headers only
+nettestr: srvstartr pkt pktsplit srvkill
+
+pkt:
 	for f in packets/[0-9]*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | diff -u $$f -; done
 
-nettestsplit:
+pktsplit:
 	for f in packets/[0-9]*; do echo ">> $$f"; ./splittest.pl $$f ${PORT} | diff -u $$f -; done
 
-nettesterr:
+pkterr:
 	for f in packets/err-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT}; done
 
-netstart:
-	./testServer ${PORT}
+srvstart:
+	./testServer ${PORT} &
 
-netstartr:
-	./testServer ${PORT} -r
+srvstartr:
+	./testServer ${PORT} -r &
 
-netstartv:
-	./testServer ${PORT} -v
-
-netstartrv:
-	./testServer ${PORT} -rv
-
-netstartm:
-	./testServer ${PORT} -m
-
-netstartmr:
-	./testServer ${PORT} -mr
-
-netstartms:
-	./testServer ${PORT} -ms
-
-netstartmsp:
-	./testServer ${PORT} -msp
-
-netstartmv:
-	./testServer ${PORT} -mv
-
-netstartmrv:
-	./testServer ${PORT} -mrv
+srvkill:
+	killall testServer
