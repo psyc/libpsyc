@@ -33,7 +33,7 @@ int main (int argc, char **argv)
 	else
 		psyc_initParseState(&state);
 
-	psyc_setParseBuffer(&state, psyc_newString(buffer, idx));
+	psyc_setParseBuffer2(&state, buffer, idx);
 
 	// try parsing that now
 	do

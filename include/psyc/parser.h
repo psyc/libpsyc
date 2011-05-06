@@ -184,7 +184,8 @@ void psyc_setParseBuffer (psycParseState *state, psycString buffer)
 static inline
 void psyc_setParseBuffer2 (psycParseState *state, char *buffer, size_t length)
 {
-	psyc_setParseBuffer(state, psyc_newString(buffer, length));
+	psycString buf = {length, buffer};
+	psyc_setParseBuffer(state, buf);
 }
 
 /**
@@ -211,7 +212,8 @@ void psyc_setParseListBuffer (psycParseListState *state, psycString buffer)
 static inline
 void psyc_setParseListBuffer2 (psycParseListState *state, char *buffer, size_t length)
 {
-	psyc_setParseListBuffer(state, psyc_newString(buffer, length));
+	psycString buf = {length, buffer};
+	psyc_setParseListBuffer(state, buf);
 }
 
 static inline
