@@ -234,7 +234,7 @@ int main (int argc, char **argv)
 					{
 						// we got some data from a client
 						parsebuf = recvbuf - contbytes;
-						psyc_setParseBuffer(&parsers[i], psyc_newString(parsebuf, contbytes + nbytes));
+						psyc_setParseBuffer2(&parsers[i], parsebuf, contbytes + nbytes);
 						contbytes = 0;
 						oper = 0;
 						name.length = 0;
