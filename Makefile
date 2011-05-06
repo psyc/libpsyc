@@ -13,6 +13,8 @@ diet:
 
 test:
 	${MAKE} -C test test
+	${MAKE} -C test nettest
+	${MAKE} -C test nettestr
 
 doc:
 	doxygen
