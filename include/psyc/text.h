@@ -78,12 +78,12 @@ void psyc_initTextState (psycTextState *state,
                          char *template, size_t tlen,
                          char *buffer, size_t blen)
 {
-	state->cursor = 0;
-	state->written = 0;
-	state->template = {tlen, template};
-	state->buffer = {blen, buffer};
-	state->open = {1, "["};
-	state->close = {1, "]"};
+	state->cursor   = 0;
+	state->written  = 0;
+	state->template = (psycString) {tlen, template};
+	state->buffer   = (psycString) {blen, buffer};
+	state->open     = (psycString) {1, "["};
+	state->close    = (psycString) {1, "]"};
 }
 
 /**
@@ -106,10 +106,10 @@ void psyc_initTextState2 (psycTextState *state,
                           char *open, size_t openlen,
                           char *close, size_t closelen)
 {
-	state->template = {tlen, template};
-	state->buffer = {blen, buffer};
-	state->open = {openlen, open};
-	state->close = {closelen, close};
+	state->template = (psycString) {tlen, template};
+	state->buffer   = (psycString) {blen, buffer};
+	state->open     = (psycString) {openlen, open};
+	state->close    = (psycString) {closelen, close};
 }
 
 /**
