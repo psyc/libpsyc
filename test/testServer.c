@@ -55,11 +55,15 @@ void *get_in_addr (struct sockaddr *sa)
 int main (int argc, char **argv)
 {
 	char *port = argc > 1 ? argv[1] : "4440";
-	uint8_t routing_only   = argc > 2 && memchr(argv[2], (int)'r', strlen(argv[2]));
-	uint8_t verbose        = argc > 2 && memchr(argv[2], (int)'v', strlen(argv[2]));
-	uint8_t parse_multiple = argc > 2 && memchr(argv[2], (int)'m', strlen(argv[2]));
-	uint8_t progress       = argc > 2 && memchr(argv[2], (int)'p', strlen(argv[2]));
-	uint8_t stats          = argc > 2 && memchr(argv[2], (int)'s', strlen(argv[2]));
+	char *opts = argc > 2 ? argv[2] : NULL;
+	char *v, *w;
+	uint8_t verbose = opts && (v = memchr(opts, (int)'v', strlen(opts))) ?
+		v - opts > 0 && (w = memchr(v+1, (int)'v', strlen(opts) - (v - opts))) ?
+		w - v > 0 && memchr(w+1, (int)'v', strlen(opts) - (w - opts)) ? 3 : 2 : 1 : 0;
+	uint8_t routing_only   = opts && memchr(opts, (int)'r', strlen(opts));
+	uint8_t parse_multiple = opts && memchr(opts, (int)'m', strlen(opts));
+	uint8_t progress       = opts && memchr(opts, (int)'p', strlen(opts));
+	uint8_t stats          = opts && memchr(opts, (int)'s', strlen(opts));
 	size_t recv_buf_size   = argc > 3 ? atoi(argv[3]) : 0;
 	if (recv_buf_size <= 0)
 		recv_buf_size = RECV_BUF_SIZE;
@@ -198,11 +202,12 @@ int main (int argc, char **argv)
 						packets[newfd].routing.modifiers = routing[newfd];
 						packets[newfd].entity.modifiers = entity[newfd];
 
-						printf("# New connection from %s on socket %d\n",
-						       inet_ntop(remoteaddr.ss_family,
-						                 get_in_addr((struct sockaddr*)&remoteaddr),
-						                 remoteIP, INET6_ADDRSTRLEN),
-						       newfd);
+						if (verbose)
+							printf("# New connection from %s on socket %d\n",
+						         inet_ntop(remoteaddr.ss_family,
+						                   get_in_addr((struct sockaddr*)&remoteaddr),
+						                   remoteIP, INET6_ADDRSTRLEN),
+							       newfd);
 
 						if (stats)
 							gettimeofday(&start[newfd], NULL);
@@ -218,7 +223,7 @@ int main (int argc, char **argv)
 
 						// got error or connection closed by client
 						if (nbytes == 0) // connection closed
-							printf("socket %d hung up\n", i);
+							printf("# Socket %d hung up\n", i);
 						else
 							perror("recv");
 
@@ -238,7 +243,7 @@ int main (int argc, char **argv)
 						do
 						{
 							ret = psyc_parse(&parsers[i], &oper, &name, &value);
-							if (verbose)
+							if (verbose >= 2)
 								printf("# ret = %d\n", ret);
 
 							switch (ret) {
@@ -338,7 +343,7 @@ int main (int argc, char **argv)
 									break;
 
 								case PSYC_PARSE_INSUFFICIENT:
-									if (verbose)
+									if (verbose >= 2)
 										printf("# Insufficient data.\n");
 
 									contbytes = psyc_getParseRemainingLength(&parsers[i]);
@@ -367,7 +372,7 @@ int main (int argc, char **argv)
 									if (oper)
 									{
 										mod->oper = oper;
-										if (verbose)
+										if (verbose >= 2)
 											printf("%c", oper);
 									}
 
@@ -380,7 +385,7 @@ int main (int argc, char **argv)
 										memcpy((void*)pname->ptr, name.ptr, name.length);
 										name.length = 0;
 
-										if (verbose)
+										if (verbose >= 2)
 											printf("%.*s = ", (int)pname->length, pname->ptr);
 									}
 
@@ -392,7 +397,7 @@ int main (int argc, char **argv)
 										pvalue->length += value.length;
 										value.length = 0;
 
-										if (verbose)
+										if (verbose >= 2)
 										{
 											printf("[%.*s]", (int)pvalue->length, pvalue->ptr);
 											if (parsers[i].valueLength > pvalue->length)
@@ -403,7 +408,7 @@ int main (int argc, char **argv)
 									else if (verbose)
 										printf("\n");
 
-									if (verbose)
+									if (verbose >= 3)
 										printf("\t\t\t\t\t\t\t\t# n:%ld v:%ld c:%ld r:%ld\n",
 										       pname->length, pvalue->length,
 										       parsers[i].contentParsed, parsers[i].routingLength);
@@ -415,7 +420,7 @@ int main (int argc, char **argv)
 								case PSYC_PARSE_ENTITY:
 									if (pname->length >= 5 && memcmp(pname->ptr, "_list", 5) == 0)
 									{
-										if (verbose)
+										if (verbose >= 2)
 											printf("## LIST START\n");
 
 										psyc_initParseListState(&listState);
@@ -429,7 +434,7 @@ int main (int argc, char **argv)
 												case PSYC_PARSE_LIST_END:
 													retl = 0;
 												case PSYC_PARSE_LIST_ELEM:
-													if (verbose)
+													if (verbose >= 2)
 													{
 														printf("|%.*s\n", (int)elem.length, elem.ptr);
 														if (ret == PSYC_PARSE_LIST_END)
@@ -456,7 +461,8 @@ int main (int argc, char **argv)
 
 						if (ret < 0)
 						{
-							printf("# Closing connection: %i\n", i);
+							if (verbose)
+								printf("# Closing connection: %i\n", i);
 							close(i); // bye!
 							FD_CLR(i, &master); // remove from master set
 						}
