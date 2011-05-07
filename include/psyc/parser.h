@@ -34,15 +34,23 @@ typedef enum
  */
 typedef enum
 {
-	PSYC_PARSE_ERROR_END = -9,
-	PSYC_PARSE_ERROR_BODY = -8,
+/// Error, packet is not ending with a valid delimiter.
+	PSYC_PARSE_ERROR_END = -8,
+/// Error, expected NL after the method.
 	PSYC_PARSE_ERROR_METHOD = -7,
+/// Error, expected NL after a modifier.
 	PSYC_PARSE_ERROR_MOD_NL = -6,
+/// Error, modifier length is not numeric.
 	PSYC_PARSE_ERROR_MOD_LEN = -5,
+/// Error, expected TAB before modifier value.
 	PSYC_PARSE_ERROR_MOD_TAB = -4,
+/// Error, modifier name is missing.
 	PSYC_PARSE_ERROR_MOD_NAME = -3,
+/// Error, expected NL after the content length.
 	PSYC_PARSE_ERROR_LENGTH = -2,
+/// Error in packet.
 	PSYC_PARSE_ERROR = -1,
+// Success, used internally.
 	PSYC_PARSE_SUCCESS = 0,
 /// Buffer contains insufficient amount of data.
 /// Fill another buffer and concatenate it with the end of the current buffer,
@@ -51,31 +59,40 @@ typedef enum
 /// Routing modifier parsing done.
 /// Operator, name & value contains the respective parts.
 	PSYC_PARSE_ROUTING = 2,
-/// Entity modifier parsing done.
-/// Operator, name & value contains the respective parts.
-	PSYC_PARSE_ENTITY = 3,
-/// Entity modifier parsing is incomplete.
+/// Start of an incomplete entity modifier.
 /// Operator & name are complete, value is incomplete.
-	PSYC_PARSE_ENTITY_START = 4,
-	PSYC_PARSE_ENTITY_CONT = 5,
-	PSYC_PARSE_ENTITY_END = 6,
-/// Body parsing done, name contains method, value contains body.
-	PSYC_PARSE_BODY = 7,
-/// Body parsing is incomplete, name contains method, value contains part of the body.
-	PSYC_PARSE_BODY_START = 8,
-	PSYC_PARSE_BODY_CONT = 9,
-	PSYC_PARSE_BODY_END = 10,
-/// Content parsing done, value contains the whole content.
+	PSYC_PARSE_ENTITY_START = 3,
+/// Continuation of an incomplete entity modifier.
+	PSYC_PARSE_ENTITY_CONT = 4,
+/// End of an incomplete entity modifier.
+	PSYC_PARSE_ENTITY_END = 5,
+/// Entity modifier parsing done in one go.
+/// Operator, name & value contains the respective parts.
+	PSYC_PARSE_ENTITY = 6,
+/// Start of an incomplete body.
+/// Name contains method, value contains part of the body.
+	PSYC_PARSE_BODY_START = 7,
+/// Continuation of an incomplete body.
+	PSYC_PARSE_BODY_CONT = 8,
+/// End of an incomplete body.
+	PSYC_PARSE_BODY_END = 9,
+/// Body parsing done in one go, name contains method, value contains body.
+	PSYC_PARSE_BODY = 10,
+/// Start of an incomplete content, value contains part of content.
 /// Used when PSYC_PARSE_ROUTING_ONLY is set.
-	PSYC_PARSE_CONTENT = 7,
-/// Content parsing is incomplete, value contains part of content.
+	PSYC_PARSE_CONTENT_START = 7,
+/// Continuation of an incomplete body.
 /// Used when PSYC_PARSE_ROUTING_ONLY is set.
-	PSYC_PARSE_CONTENT_START = 8,
-	PSYC_PARSE_CONTENT_CONT = 9,
-	PSYC_PARSE_CONTENT_END = 10,
-/// Reached end of packet, parsing done.
+	PSYC_PARSE_CONTENT_CONT = 8,
+/// End of an incomplete body.
+/// Used when PSYC_PARSE_ROUTING_ONLY is set.
+	PSYC_PARSE_CONTENT_END = 9,
+/// Content parsing done in one go, value contains the whole content.
+/// Used when PSYC_PARSE_ROUTING_ONLY is set.
+	PSYC_PARSE_CONTENT = 10,
+// Binary value parsing complete, used internally.
 	PSYC_PARSE_COMPLETE = 11,
-/// Binary value parsing incomplete, used internally.
+// Binary value parsing incomplete, used internally.
 	PSYC_PARSE_INCOMPLETE = 12,
 } psycParseRC;
 
