@@ -103,6 +103,7 @@ int main (int argc, char **argv)
 	psycString name, value, elem;
 	psycString *pname = NULL, *pvalue = NULL;
 	psycParseListState listState;
+	size_t len;
 
 	FD_ZERO(&master);    // clear the master and temp sets
 	FD_ZERO(&read_fds);
@@ -256,14 +257,16 @@ int main (int argc, char **argv)
 									packets[i].routing.lines++;
 									break;
 
-								case PSYC_PARSE_ENTITY_INCOMPLETE:
+								case PSYC_PARSE_ENTITY_START:
+								case PSYC_PARSE_ENTITY_CONT:
+								case PSYC_PARSE_ENTITY_END:
 								case PSYC_PARSE_ENTITY:
 									assert(packets[i].entity.lines < ENTITY_LINES);
 									mod = &(packets[i].entity.modifiers[packets[i].entity.lines]);
 									pname = &mod->name;
 									pvalue = &mod->value;
 
-									if (ret == PSYC_PARSE_ENTITY)
+									if (ret == PSYC_PARSE_ENTITY || ret == PSYC_PARSE_ENTITY_END)
 									{
 										packets[i].entity.lines++;
 										mod->flag = psyc_isParseValueLengthFound(&parsers[i]) ?
@@ -271,7 +274,9 @@ int main (int argc, char **argv)
 									}
 									break;
 
-								case PSYC_PARSE_BODY_INCOMPLETE:
+								case PSYC_PARSE_BODY_START:
+								case PSYC_PARSE_BODY_CONT:
+								case PSYC_PARSE_BODY_END:
 								case PSYC_PARSE_BODY:
 									pname = &(packets[i].method);
 									pvalue = &(packets[i].data);
@@ -363,12 +368,16 @@ int main (int argc, char **argv)
 
 							switch (ret)
 							{
-								case PSYC_PARSE_ENTITY_INCOMPLETE:
-								case PSYC_PARSE_BODY_INCOMPLETE:
+								case PSYC_PARSE_ENTITY_START:
+								case PSYC_PARSE_ENTITY_CONT:
+								case PSYC_PARSE_BODY_START:
+								case PSYC_PARSE_BODY_CONT:
 									ret = 0;
 								case PSYC_PARSE_ENTITY:
+								case PSYC_PARSE_ENTITY_END:
 								case PSYC_PARSE_ROUTING:
 								case PSYC_PARSE_BODY:
+								case PSYC_PARSE_BODY_END:
 									if (oper)
 									{
 										mod->oper = oper;
@@ -391,7 +400,13 @@ int main (int argc, char **argv)
 
 									if (value.length) {
 										if (!pvalue->length)
-											pvalue->ptr = malloc(parsers[i].valueLength ? parsers[i].valueLength : value.length);
+										{
+											if (psyc_isParseValueLengthFound(&parsers[i]))
+												len = psyc_getParseValueLength(&parsers[i]);
+											else
+												len = value.length;
+											pvalue->ptr = malloc(len);
+										}
 										assert(pvalue->ptr != NULL);
 										memcpy((void*)pvalue->ptr + pvalue->length, value.ptr, value.length);
 										pvalue->length += value.length;
@@ -418,6 +433,7 @@ int main (int argc, char **argv)
 							{
 								case PSYC_PARSE_ROUTING:
 								case PSYC_PARSE_ENTITY:
+								case PSYC_PARSE_ENTITY_END:
 									if (pname->length >= 5 && memcmp(pname->ptr, "_list", 5) == 0)
 									{
 										if (verbose >= 2)

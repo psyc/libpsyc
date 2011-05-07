@@ -305,9 +305,9 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 				state->contentParsed += value->length;
 
 				if (ret == PSYC_PARSE_INCOMPLETE)
-					return PSYC_PARSE_ENTITY_INCOMPLETE;
+					return PSYC_PARSE_ENTITY_CONT;
 
-				return PSYC_PARSE_ENTITY;
+				return PSYC_PARSE_ENTITY_END;
 			}
 
 			pos = state->cursor;
@@ -330,7 +330,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 				state->contentParsed += state->cursor - pos;
 
 				if (ret == PSYC_PARSE_INCOMPLETE)
-					return PSYC_PARSE_ENTITY_INCOMPLETE;
+					return PSYC_PARSE_ENTITY_START;
 				else if (ret == PSYC_PARSE_SUCCESS)
 					return PSYC_PARSE_ENTITY;
 
@@ -400,11 +400,11 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 					state->contentParsed += value->length;
 
 					if (ret == PSYC_PARSE_INCOMPLETE)
-						return PSYC_PARSE_BODY_INCOMPLETE;
+						return state->valueParsed == value->length ? PSYC_PARSE_BODY_START : PSYC_PARSE_BODY_CONT;
 				}
 
 				state->part = PSYC_PART_END;
-				return PSYC_PARSE_BODY;
+				return state->valueLength == value->length ? PSYC_PARSE_BODY : PSYC_PARSE_BODY_END;
 			}
 			else // Search for the terminator.
 			{
