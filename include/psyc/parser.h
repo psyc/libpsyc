@@ -56,21 +56,27 @@ typedef enum
 	PSYC_PARSE_ENTITY = 3,
 /// Entity modifier parsing is incomplete.
 /// Operator & name are complete, value is incomplete.
-	PSYC_PARSE_ENTITY_INCOMPLETE = 4,
+	PSYC_PARSE_ENTITY_START = 4,
+	PSYC_PARSE_ENTITY_CONT = 5,
+	PSYC_PARSE_ENTITY_END = 6,
 /// Body parsing done, name contains method, value contains body.
-	PSYC_PARSE_BODY = 5,
+	PSYC_PARSE_BODY = 7,
 /// Body parsing is incomplete, name contains method, value contains part of the body.
-	PSYC_PARSE_BODY_INCOMPLETE = 6,
+	PSYC_PARSE_BODY_START = 8,
+	PSYC_PARSE_BODY_CONT = 9,
+	PSYC_PARSE_BODY_END = 10,
 /// Content parsing done, value contains the whole content.
 /// Used when PSYC_PARSE_ROUTING_ONLY is set.
-	PSYC_PARSE_CONTENT = 5,
+	PSYC_PARSE_CONTENT = 7,
 /// Content parsing is incomplete, value contains part of content.
 /// Used when PSYC_PARSE_ROUTING_ONLY is set.
-	PSYC_PARSE_CONTENT_INCOMPLETE = 6,
+	PSYC_PARSE_CONTENT_START = 8,
+	PSYC_PARSE_CONTENT_CONT = 9,
+	PSYC_PARSE_CONTENT_END = 10,
 /// Reached end of packet, parsing done.
-	PSYC_PARSE_COMPLETE = 7,
+	PSYC_PARSE_COMPLETE = 11,
 /// Binary value parsing incomplete, used internally.
-	PSYC_PARSE_INCOMPLETE = 8,
+	PSYC_PARSE_INCOMPLETE = 12,
 } psycParseRC;
 
 /**
