@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include "../include/psyc/lib.h"
+#include <lib.h>
 
 int main() {
 	unless (psyc_getVarType(PSYC_C2ARG("_list"))) return 1;
