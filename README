@@ -10,9 +10,20 @@ See http://about.psyc.eu for information on PSYC in general.
 The plain C API located in the include/psyc directory along with the file psyc.h
 is primarily intended to be used for binding with other languages and frameworks.
 
-Available bindings are located in include/<name> where name is the lanugage or
+Available bindings are located in include/<name> where name is the language or
 framework.
 
+== C API ==
+
+The "plain C API" is a very low-level API intended to be used for bindings.
+To access a certain module of the library, just include the according header
+file from the psyc directory:
+
+parser.h -- parse psyc packets
+render.h -- render psyc packets
+text.h   -- text template functions 
+packet.h -- structures for render.h and functions to initialize them
+syntax.h -- definitions and constants related to parsing and rendering
 
 == Directory Overview ==
 
