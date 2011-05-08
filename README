@@ -45,14 +45,8 @@ libpsyc is currently known to compile under Linux and SunOS.
 The library is being developed by 
 
 * tg     -- psyc://psyced.org/~tg 
-           xmpp:tg@psyced.org
-           irc://psyced.org/~tg
 * lynx   -- psyc://psyced.org/~lynx
-           xmpp:lynx@psyced.org
-           irc://psyced.org/~lynX
 * Marenz -- psyc://supraverse.net/~marenz
-           xmpp:marenz@supraverse.net
-           irc://supraverse.net/~marenz
 
 If you created new bindings, patches or anything other that you think should go
 into the library, contact either anyone of us directly or just join the
