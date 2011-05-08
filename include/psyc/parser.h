@@ -20,7 +20,7 @@
  * @endcode
  *
  * Note that there is also psyc_initParseState2 if you want to fine-tune what
- * should be parsed.
+ * part of the packet should be parsed. @see psycParseFlag
  *
  * Next, you have to tell the parser what it should parse. Assuming the variable
  * raw_data points to our packet and raw_len contains the length, you can pass
@@ -69,7 +69,7 @@
  * 			printf("Variable: %.*s  Value: %.*s Operator: %c\n", 
  * 			        name.length, name.ptr,
  * 			        value.length, value.ptr,
- * 			        operator);
+ * 			        oper);
  * 			// Note that the .ptr member still points at your original buffer. If
  * 			// you want to reuse that buffer for the next packet, you better copy it
  * 			// before passing it to the parser or you copy each variable now.
@@ -94,7 +94,7 @@
  * recieve incomplete packets but still want to access the data. This code would
  * simply reject incomplete packets as error. A more detailed tutorial for
  * incomplete packets will follow, in the mean time, have look at the return
- * codes in psycParseRC and their explainations.
+ * codes in psycParseRC and their explainations. @see psycParseRC
  */
 
 /** @{ */ // end of parser group
@@ -109,7 +109,7 @@ typedef enum
 {
 	/// Parse only the header
 	PSYC_PARSE_ROUTING_ONLY = 1,
-	/// Expects only the content part of a packet. The buffer should contain the whole content in this case.
+	/// Parse only the content. This means that there is no header and parsing will fail if there is one. The beginning of the content is expected.
 	PSYC_PARSE_START_AT_CONTENT = 2,
 } psycParseFlag;
 
