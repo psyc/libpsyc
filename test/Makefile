@@ -2,16 +2,18 @@ OPT = -O2
 DEBUG = 2
 CFLAGS = -I../include -Wall -std=c99 ${OPT}
 LDFLAGS = -L../lib
+LOADLIBES = -lpsyc -lm
+LOADLIBES_NET = ${LOADLIBES}
 TARGETS = testServer testParser testMatch testRender testText isRoutingVar getVarType
 WRAPPER =
 DIET = diet
 PORT = 4440
+NC = nc
+DIFF = diff
 
-LOADLIBES = -lpsyc -lm
 ifeq ($(shell uname),SunOS)
-  LOADLIBES_NET = ${LOADLIBES} -lsocket -lnsl
-else
-  LOADLIBES_NET = ${LOADLIBES}
+  LOADLIBES_NET := ${LOADLIBES_NET} -lsocket -lnsl
+  DIFF = gdiff
 endif
 
 all: ${TARGETS}

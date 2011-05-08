@@ -434,6 +434,10 @@ int main (int argc, char **argv)
 								case PSYC_PARSE_ROUTING:
 								case PSYC_PARSE_ENTITY:
 								case PSYC_PARSE_ENTITY_END:
+									oper = 0;
+									name.length = 0;
+									value.length = 0;
+
 									if (pname->length >= 5 && memcmp(pname->ptr, "_list", 5) == 0)
 									{
 										if (verbose >= 2)
