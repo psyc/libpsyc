@@ -2,7 +2,6 @@ module psyc.parser;
 
 import psyc.common;
 
-
 extern (C):
 
 enum ParseFlag
