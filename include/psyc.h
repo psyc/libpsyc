@@ -82,10 +82,17 @@ typedef enum
 	PSYC_LIST_BINARY = 2,
 } psycListType;
 
+/**
+ * String struct.
+ *
+ * Contains pointer and length for a buffer.
+ */
 typedef struct
 {
-	size_t length;
-	const char *ptr;
+	/// Length of the data pointed to by ptr
+	size_t length; 	
+	/// pointer to the data
+	const char *ptr;  
 } psycString;
 
 typedef struct
