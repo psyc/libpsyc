@@ -11,7 +11,7 @@ import psyc.common;
 */
 
 /**
- * @defgroup parsing-d D Parsing Functions
+ * @defgroup parsing-d Parsing Functions
  *
  * This module contains all parsing functions.
  * @{
