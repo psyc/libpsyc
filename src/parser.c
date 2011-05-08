@@ -5,7 +5,7 @@
 #include <stdio.h>
 #endif
 
-#include <psyc/lib.h>
+#include "lib.h"
 #include <psyc/parser.h>
 
 #define ADVANCE_CURSOR_OR_RETURN(ret)            \

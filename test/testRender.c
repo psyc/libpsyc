@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include <psyc/lib.h>
+#include <lib.h>
 #include <psyc/render.h>
 #include <psyc/syntax.h>
 

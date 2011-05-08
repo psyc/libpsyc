@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "../include/psyc/lib.h"
+#include <lib.h>
 
 int main() {
 	if (psyc_matches(PSYC_C2ARG("_failure_delivery"), PSYC_C2ARG("_failure_unsuccessful_delivery_death"))) return 1;
