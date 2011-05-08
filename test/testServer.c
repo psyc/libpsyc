@@ -233,6 +233,11 @@ int main (int argc, char **argv)
 					}
 					else
 					{
+						if (verbose >= 2)
+							printf("> %ld bytes\n", nbytes);
+						if (verbose >= 3)
+							printf("> [%.*s]", (int)nbytes, recvbuf);
+
 						// we got some data from a client
 						parsebuf = recvbuf - contbytes;
 						psyc_setParseBuffer2(&parsers[i], parsebuf, contbytes + nbytes);
