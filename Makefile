@@ -11,7 +11,12 @@ debug:
 diet:
 	${MAKE} -C src diet
 
-test:
+debugtest: testdebug test
+
+testdebug: debug
+	${MAKE} -C test debug
+
+test: all
 	${MAKE} -C test test
 	${MAKE} -C test nettest
 	${MAKE} -C test nettestr
