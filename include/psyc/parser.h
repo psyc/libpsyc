@@ -106,7 +106,7 @@ typedef enum
 	PSYC_PARSE_LIST_ERROR_LEN = -4,
 	PSYC_PARSE_LIST_ERROR_TYPE = -3,
 	PSYC_PARSE_LIST_ERROR_NAME = -2,
-	PSYC_PARSE_LIST_ERROR= -1,
+	PSYC_PARSE_LIST_ERROR = -1,
 /// Completed parsing a list element.
 	PSYC_PARSE_LIST_ELEM = 1,
 /// Reached end of buffer.
@@ -293,8 +293,8 @@ const char * psyc_getParseRemainingBuffer (psycParseState *state)
  * Generalized line-based packet parser.
  *
  * @param state An initialized psycParseState
- * @param operator A pointer to a character. In case of a variable, it will
- *                 be set to the operator of that variable
+ * @param oper A pointer to a character. In case of a variable, it will
+ *             be set to the operator of that variable
  * @param name A pointer to a psycString. It will point to the name of
  *             the variable or method and its length will be set accordingly
  * @param value A pointer to a psycString. It will point to the
