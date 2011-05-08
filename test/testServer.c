@@ -233,6 +233,11 @@ int main (int argc, char **argv)
 					}
 					else
 					{
+						if (verbose >= 2)
+							printf("> %ld bytes\n", nbytes);
+						if (verbose >= 3)
+							printf("> [%.*s]", (int)nbytes, recvbuf);
+
 						// we got some data from a client
 						parsebuf = recvbuf - contbytes;
 						psyc_setParseBuffer2(&parsers[i], parsebuf, contbytes + nbytes);
@@ -434,6 +439,10 @@ int main (int argc, char **argv)
 								case PSYC_PARSE_ROUTING:
 								case PSYC_PARSE_ENTITY:
 								case PSYC_PARSE_ENTITY_END:
+									oper = 0;
+									name.length = 0;
+									value.length = 0;
+
 									if (pname->length >= 5 && memcmp(pname->ptr, "_list", 5) == 0)
 									{
 										if (verbose >= 2)
