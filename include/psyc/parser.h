@@ -79,7 +79,7 @@
  * 			        name.length, name.ptr,    // name of the method
  * 			        value.length, value.ptr); // valeu of the body
  * 			break;
- * 		case PSYC_PARSER_COMPLETE: // parsing of this packet is complete
+ * 		case PSYC_PARSE_COMPLETE: // parsing of this packet is complete
  * 			// You can simply continue parsing till you get the
  * 			// PSYC_PARSE_INSUFFICIENT code which means teh packet is incomplete.
  * 			continue;
@@ -97,7 +97,8 @@
  * codes in psycParseRC and their explainations. @see psycParseRC
  */
 
-/** @{ */ // end of parser group
+/** @{ */ // begin of parser group
+
 #ifndef PSYC_PARSER_H
 # define PSYC_PARSER_H
 
