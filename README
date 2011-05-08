@@ -40,14 +40,8 @@ Other possible targets include:
 The library is being developed by 
 
 * tg     — psyc://tgbit.net/~tg 
-           xmpp:tg@tgbit.net
-           irc://tgbit.net/~tg
 * lynx   — psyc://psyced.org/~lynx
-           xmpp:lynx@psyced.org
-           irc://psyced.org/~lynX
 * Marenz — psyc://supraverse.net/~marenz
-           xmpp:marenz@supraverse.net
-           irc://supraverse.net/~marenz
 
 If you created new bindings, patches or anything other that you think should go
 into the library, contact either anyone of us directly or just join the
