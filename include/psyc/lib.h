@@ -5,7 +5,6 @@
 
 #include "../psyc.h"
 #include "./debug.h"
-#include <sys/cdefs.h>
 #include <assert.h>
 
 /* perlisms for readability */
@@ -14,11 +13,11 @@
 
 #define PSYC_NUM_ELEM(a) (sizeof(a) / sizeof(*(a)))
 
-#if !defined(_GNU_SOURCE) && !defined(__FBSDID)
+#if !defined(__USE_GNU) && !(defined(__FBSDID) && defined(__BSD_VISIBLE))
 void * memmem(const void *l, size_t l_len, const void *s, size_t s_len);
 #endif
 
-#if !defined(_GNU_SOURCE) && !defined(__FBSDID)
+#if !defined(__USE_GNU) && !(defined(__FBSDID) && defined(__BSD_VISIBLE))
 int itoa(int number, char* out, int base);
 #endif
 

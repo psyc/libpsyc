@@ -25,8 +25,8 @@ doc:
 	doxygen
 
 clean:
-	make -C src clean
-	make -C test clean
+	${MAKE} -C src clean
+	${MAKE} -C test clean
 	rm -rf doc/html doc/latex doc/man
 
 help:
