@@ -2,20 +2,6 @@ module psyc.parser;
 
 import psyc.common;
 
-/**
- * @file d/psyc/parser.d
- * @brief D Interface for various PSYC parser functions.
- *
- * All parsing functions and the definitions they use are
- * defined in this file.
-*/
-
-/**
- * @defgroup parsing-d D Parsing Functions
- *
- * This module contains all parsing functions.
- * @{
- */
 
 extern (C):
 
@@ -27,7 +13,9 @@ enum ParseFlag
 
 /**
  * The return value definitions for the packet parsing function.
- * @see parse()
+ *
+ * See_Also:
+ * 	parse()
  */
 enum ParseRC
 {
@@ -95,7 +83,7 @@ enum ParseRC
 
 /**
  * The return value definitions for the list parsing function.
- * @see parseList()
+ * See_Also: parseList()
  */
 enum ParseListRC
 {
@@ -143,7 +131,8 @@ struct ParseState
 	/**
 	 * Initializes the state struct with flags.
 	 *
-	 * @param flags Flags to be set for the parser, see ParseFlag.
+	 * Params:
+	 * 	flags = Flags to be set for the parser, see ParseFlag.
 	 */
 	static ParseState opCall ( ubyte flags )
 	{
@@ -159,8 +148,10 @@ struct ParseState
 	/**
 	 * Sets a new buffer in the parser state struct with data to be parsed.
 	 *
-	 * @param buffer the buffer that should be parsed now
-	 * @see String
+	 * Params:
+	 * 	buffer the buffer that should be parsed now
+	 * 
+	 * See_Also: String
 	 */
 	void setParseBuffer ( String buffer )
 	{
@@ -177,8 +168,10 @@ struct ParseState
 	/**
 	 * Sets a new buffer in the parser state struct with data to be parsed.
 	 *
-	 * @param buffer the buffer that should be parsed now
-	 * @see String
+	 * Params:
+	 * 	buffer = the buffer that should be parsed now
+	 * 
+	 * See_Also: String
 	 */
 	void setParseBuffer ( ubyte[] buffer )
 	{
@@ -188,8 +181,9 @@ struct ParseState
 	/**
 	 * Sets a new buffer in the parser state struct with data to be parsed.
 	 *
-	 * @param buffer pointer to the buffer that should be parsed now
-	 * @param length length of the buffer
+	 * Params:
+	 * 	buffer = pointer to the buffer that should be parsed now
+	 * 	length = length of the buffer
 	 */
 	void setParseBuffer ( ubyte* buffer, size_t length )
 	{
@@ -258,7 +252,9 @@ struct ParseListState
 
 	/**
 	 * Sets a new buffer with data to be parsed
-	 * @param buffer the buffer to be parsed
+	 *
+	 * Params:
+	 * 	buffer = the buffer to be parsed
 	 */
 	void setBuffer ( String buffer )
 	{
@@ -268,7 +264,9 @@ struct ParseListState
 
 	/**
 	 * Sets a new buffer with data to be parsed
-	 * @param buffer the buffer to be parsed
+	 *
+	 * Params:
+	 * 	buffer = the buffer to be parsed
 	 */
 	void setBuffer ( ubyte[] buffer )
 	{
@@ -277,8 +275,10 @@ struct ParseListState
 
 	/**
 	 * Sets a new buffer with data to be parsed
-	 * @param buffer pointer to the buffer to be parsed
-	 * @param length size of the buffer
+	 *
+	 * Params:
+	 * 	buffer = pointer to the buffer to be parsed
+	 * 	length = size of the buffer
 	 */
 	void setBuffer ( ubyte* buffer, size_t length )
 	{
@@ -292,13 +292,14 @@ struct ParseListState
  *
  * Generalized line-based packet parser.
  *
- * @param state An initialized ParseState
- * @param oper  A pointer to a character. In case of a variable, it will
- *              be set to the operator of that variable
- * @param name A pointer to a String. It will point to the name of
- *             the variable or method and its length will be set accordingly
- * @param value A pointer to a String. It will point to the
- *              value/body the variable/method and its length will be set accordingly
+ * Params:
+ * 	state = An initialized ParseState
+ * 	oper  = A pointer to a character. In case of a variable, it will
+ *          be set to the operator of that variable
+ * 	name  = A pointer to a String. It will point to the name of
+ *          the variable or method and its length will be set accordingly
+ * 	value = A pointer to a String. It will point to the
+ *          value/body the variable/method and its length will be set accordingly
  */
 ParseRC psyc_parse(ParseState* state, char* oper, String* name, String* value);
 
