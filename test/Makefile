@@ -47,10 +47,10 @@ nettest: srvstart pkt pktsplit srvkill
 nettestr: srvstartr pkt pktsplit srvkill
 
 pkt:
-	for f in packets/[0-9]*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | diff -u $$f -; done
+	for f in packets/[0-9]*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | ${DIFF} -u $$f -; done
 
 pktsplit:
-	for f in packets/[0-9]*; do echo ">> $$f"; ./splittest.pl $$f ${PORT} | diff -u $$f -; done
+	for f in packets/[0-9]*; do echo ">> $$f"; ./splittest.pl $$f ${PORT} | ${DIFF} -u $$f -; done
 
 pkterr:
 	for f in packets/err-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT}; done
