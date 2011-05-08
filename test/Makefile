@@ -45,11 +45,12 @@ nettest: nettestfull nettestsplit
 nettestrun: srvstart pkt srvkill
 
 nettestfull:
-	${MAKE} nettestrun
-	${MAKE} nettestrun srv_args=r
+	${MAKE} nettestrun; x=$$?; pkill -x testServer; exit $$x
+	${MAKE} nettestrun srv_args=r; x=$$?; pkill -x testServer; exit $$x
 
+split_max = 10
 nettestsplit:
-	for n in 1 2 3 4 5; do ${MAKE} nettestrun srv_recvbuf=$$n && ${MAKE} nettestrun srv_args=r srv_recvbuf=$$n || exit $$?; done
+	x=0; for n in `seq 1 ${split_max}`; do ${MAKE} nettestrun srv_recvbuf=$$n && ${MAKE} nettestrun srv_args=r srv_recvbuf=$$n || break; done; x=$$?; pkill -x testServer; exit $$x
 
 pkt:
 	x=0; for f in packets/[0-9]*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
