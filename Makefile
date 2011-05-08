@@ -17,9 +17,7 @@ testdebug: debug
 	${MAKE} -C test debug
 
 test: all
-	${MAKE} -C test test
-	${MAKE} -C test nettest
-	${MAKE} -C test nettestr
+	${MAKE} -C test test nettest
 
 doc:
 	doxygen
