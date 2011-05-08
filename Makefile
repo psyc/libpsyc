@@ -1,6 +1,4 @@
-.PHONY: doc
-.PHONY: test
-.PHONY: lib
+.PHONY: doc test
 
 all:
 	${MAKE} -C src
