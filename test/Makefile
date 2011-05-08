@@ -40,6 +40,8 @@ test: ${TARGETS}
 	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f; x=$$((x+$$?)); done; exit $$x
 	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f -r; x=$$((x+$$?)); done; exit $$x
 
+.NOTPARALLEL: nettestrun
+
 nettest: nettestfull nettestsplit
 
 nettestrun: srvstart pkt srvkill
