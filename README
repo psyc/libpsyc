@@ -15,11 +15,11 @@ framework.
 
 == Directory Overview ==
 
-doc     — where the documentation will be put after generation
-include — contains all bindings and the core C API for the library
-lib     — where the compiled library will be put
-src     — contains the sourcecode of the library
-test    — contains test sourcecodes and test input files
+doc     - where the documentation will be put after generation
+include - contains all bindings and the core C API for the library
+lib     - where the compiled library will be put
+src     - contains the sourcecode of the library
+test    - contains test sourcecodes and test input files
 
 == Compiling libpsyc ==
 
@@ -30,18 +30,18 @@ Type
 and you are done.
 Other possible targets include:
 
-  make diet   — compile with diet libc
-  make test   — compile and run the test
-  make doc    — generate the API documentation (will be put in the doc folder)
-  make help   — display the possible targets
+  make diet   - compile with diet libc
+  make test   - compile and run the test
+  make doc    - generate the API documentation (will be put in the doc folder)
+  make help   - display the possible targets
 
 == Contributors And Contribution ==
 
 The library is being developed by 
 
-* tg     — psyc://tgbit.net/~tg 
-* lynx   — psyc://psyced.org/~lynx
-* Marenz — psyc://supraverse.net/~marenz
+* tg     - psyc://tgbit.net/~tg 
+* lynx   - psyc://psyced.org/~lynx
+* Marenz - psyc://supraverse.net/~marenz
 
 If you created new bindings, patches or anything other that you think should go
 into the library, contact either anyone of us directly or just join the
@@ -53,4 +53,4 @@ developement room at
 
 == Licence ==
 
-— To be discussed —
+- To be discussed -
