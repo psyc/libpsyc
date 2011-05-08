@@ -135,8 +135,6 @@ typedef enum
 	PSYC_PARSE_ERROR_LENGTH = -2,
 /// Error in packet.
 	PSYC_PARSE_ERROR = -1,
-// Success, used internally.
-	PSYC_PARSE_SUCCESS = 0,
 /// Buffer contains insufficient amount of data.
 /// Fill another buffer and concatenate it with the end of the current buffer,
 /// from the cursor position to the end.
@@ -175,10 +173,8 @@ typedef enum
 /// Content parsing done in one go, value contains the whole content.
 /// Used when PSYC_PARSE_ROUTING_ONLY is set.
 	PSYC_PARSE_CONTENT = 10,
-// Binary value parsing complete, used internally.
+/// Finished parsing packet.
 	PSYC_PARSE_COMPLETE = 11,
-// Binary value parsing incomplete, used internally.
-	PSYC_PARSE_INCOMPLETE = 12,
 } psycParseRC;
 
 /**
