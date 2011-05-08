@@ -1,13 +1,14 @@
 = libpsyc Readme File =
 
 libpsyc implements various functions required to use psyc. 
-See http://about.psyc.eu/libpsyc for more information on the library
-See http://about.psyc.eu/Specification for more information on the new psyc
-specification
-See http://about.psyc.eu for information on psyc in general.
+
+See http://about.psyc.eu/libpsyc for more information on the library.
+See http://about.psyc.eu/Specification for more information
+    on the new PSYC specification.
+See http://about.psyc.eu for information on PSYC in general.
 
 The plain C API located in the include/psyc directory along with the file psyc.h
-is primary intended to be used for binding with other languages and frameworks.
+is primarily intended to be used for binding with other languages and frameworks.
 
 Available bindings are located in include/<name> where name is the lanugage or
 framework.
@@ -15,11 +16,11 @@ framework.
 
 == Directory Overview ==
 
-doc     — where the documentation will be put after generation
-include — contains all bindings and the core C API for the library
-lib     — where the compiled library will be put
-src     — contains the sourcecode of the library
-test    — contains test sourcecodes and test input files
+doc     -- where the documentation will be put after generation
+include -- contains all bindings and the core C API for the library
+lib     -- where the compiled library will be put
+src     -- contains the sourcecode of the library
+test    -- contains test sourcecodes and test input files
 
 == Compiling libpsyc ==
 
@@ -30,22 +31,26 @@ Type
 and you are done.
 Other possible targets include:
 
-  make diet   — compile with diet libc
-  make test   — compile and run the test
-  make doc    — generate the API documentation (will be put in the doc folder)
-  make help   — display the possible targets
+  make diet   -- compile with diet libc
+  make test   -- compile and run the test
+  make doc    -- generate the API documentation (will be put in the doc folder)
+  make help   -- display the possible targets
+
+== Requirements ==
+
+libpsyc is currently known to compile under Linux and SunOS.
 
 == Contributors And Contribution ==
 
 The library is being developed by 
 
-* tg     — psyc://tgbit.net/~tg 
+* tg     -- psyc://tgbit.net/~tg 
            xmpp:tg@tgbit.net
            irc://tgbit.net/~tg
-* lynx   — psyc://psyced.org/~lynx
+* lynx   -- psyc://psyced.org/~lynx
            xmpp:lynx@psyced.org
            irc://psyced.org/~lynX
-* Marenz — psyc://supraverse.net/~marenz
+* Marenz -- psyc://supraverse.net/~marenz
            xmpp:marenz@supraverse.net
            irc://supraverse.net/~marenz
 
@@ -59,4 +64,4 @@ developement room at
 
 == Licence ==
 
-— To be discussed —
+-- To be discussed --
