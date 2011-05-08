@@ -179,6 +179,9 @@ void psyc_initParseState2 (psycParseState *state, uint8_t flags)
 /**
  * Sets a new buffer in the parser state struct with data to be parsed.
  *
+ * This function does NOT copy the buffer. It will parse whatever is
+ * at the memory pointed to by buffer.
+ *
  * @param state Pointer to the initialized state of the parser
  * @param buffer the buffer that should be parsed now
  * @see psycString
@@ -198,6 +201,9 @@ void psyc_setParseBuffer (psycParseState *state, psycString buffer)
 
 /**
  * Sets a new buffer in the parser state struct with data to be parsed.
+ *
+ * This function does NOT copy the buffer. It will parse whatever is
+ * at the memory pointed to by buffer.
  *
  * @param state Pointer to the initialized state of the parser
  * @param buffer pointer to the data that should be parsed
@@ -291,6 +297,8 @@ const char * psyc_getParseRemainingBuffer (psycParseState *state)
  * Parse PSYC packets.
  *
  * Generalized line-based packet parser.
+ *
+ * This function will never allocate heap memory.
  *
  * @param state An initialized psycParseState
  * @param oper A pointer to a character. In case of a variable, it will
