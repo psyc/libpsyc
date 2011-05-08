@@ -2,13 +2,22 @@ OPT = -O2
 DEBUG = 2
 CFLAGS = -I../include -Wall -std=c99 ${OPT}
 LDFLAGS = -L../lib
-LOADLIBES = -lpsyc -lm
 TARGETS = testServer testParser testMatch testRender testText isRoutingVar getVarType
 WRAPPER =
 DIET = diet
 PORT = 4440
 
+LOADLIBES = -lpsyc -lm
+ifeq ($(shell uname),SunOS)
+  LOADLIBES_NET = ${LOADLIBES} -lsocket -lnsl
+else
+  LOADLIBES_NET = ${LOADLIBES}
+endif
+
 all: ${TARGETS}
+it: all
+
+testServer: LOADLIBES := ${LOADLIBES_NET}
 
 diet: WRAPPER = ${DIET}
 diet: all
@@ -19,8 +28,6 @@ debug: all
 
 clean:
 	rm -f ${TARGETS}
-
-it: all
 
 test: ${TARGETS}
 	./testRender
@@ -53,4 +60,4 @@ srvstartr:
 	./testServer ${PORT} -r &
 
 srvkill:
-	killall testServer
+	pkill -x testServer
