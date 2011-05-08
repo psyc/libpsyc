@@ -2,16 +2,18 @@ OPT = -O2
 DEBUG = 2
 CFLAGS = -I../include -Wall -std=c99 ${OPT}
 LDFLAGS = -L../lib
+LOADLIBES = -lpsyc -lm
+LOADLIBES_NET = ${LOADLIBES}
 TARGETS = testServer testParser testMatch testRender testText isRoutingVar getVarType
 WRAPPER =
 DIET = diet
 PORT = 4440
+NC = nc
+DIFF = diff
 
-LOADLIBES = -lpsyc -lm
 ifeq ($(shell uname),SunOS)
-  LOADLIBES_NET = ${LOADLIBES} -lsocket -lnsl
-else
-  LOADLIBES_NET = ${LOADLIBES}
+  LOADLIBES_NET := ${LOADLIBES_NET} -lsocket -lnsl
+  DIFF = gdiff
 endif
 
 all: ${TARGETS}
@@ -35,29 +37,32 @@ test: ${TARGETS}
 	./testText
 	./isRoutingVar
 	./getVarType
-	for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f; done
-	for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f -r; done
+	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f; x=$$((x+$$?)); done; exit $$x
+	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f -r; x=$$((x+$$?)); done; exit $$x
 
-# test packet parsing & rendering with the test server
-nettest: srvstart pkt pktsplit srvkill
+nettest: nettestfull nettestsplit
 
-# same test but parse routing headers only
-nettestr: srvstartr pkt pktsplit srvkill
+nettestrun: srvstart pkt srvkill
+
+nettestfull:
+	${MAKE} nettestrun
+	${MAKE} nettestrun srv_args=r
+
+nettestsplit:
+	for n in 1 2 3 4 5; do ${MAKE} nettestrun srv_recvbuf=$$n && ${MAKE} nettestrun srv_args=r srv_recvbuf=$$n || exit $$?; done
 
 pkt:
-	for f in packets/[0-9]*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | diff -u $$f -; done
+	x=0; for f in packets/[0-9]*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
 
 pktsplit:
-	for f in packets/[0-9]*; do echo ">> $$f"; ./splittest.pl $$f ${PORT} | diff -u $$f -; done
+	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./splittest.pl $$f ${PORT} | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
 
 pkterr:
 	for f in packets/err-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT}; done
 
 srvstart:
-	./testServer ${PORT} &
-
-srvstartr:
-	./testServer ${PORT} -r &
+	pkill -x testServer; exit 0
+	./testServer ${PORT} -${srv_args} ${srv_recvbuf} &
 
 srvkill:
 	pkill -x testServer

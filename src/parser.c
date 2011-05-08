@@ -409,6 +409,9 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 			else // Search for the terminator.
 			{
 				size_t datac = state->cursor; // start of data
+				if (state->flags & PSYC_PARSE_ROUTING_ONLY)
+					state->startc = datac; // in routing-only mode restart from the start of data
+
 				while (1)
 				{
 					uint8_t nl = state->buffer.ptr[state->cursor] == '\n';
