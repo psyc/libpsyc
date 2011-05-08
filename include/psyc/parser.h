@@ -9,10 +9,95 @@
 /**
  * @defgroup parser Parsing Functions
  *
- * This module contains all parsing functions.
- * @{
+ * This module contains packet and list parsing functions.
+ *
+ * To parse a packet you first have to initialize a state:
+ *
+ * @code
+ * psycParseState state;
+ *
+ * psyc_initParseState(&state);
+ * @endcode
+ *
+ * Note that there is also psyc_initParseState2 if you want to fine-tune what
+ * should be parsed.
+ *
+ * Next, you have to tell the parser what it should parse. Assuming the variable
+ * raw_data points to our packet and raw_len contains the length, you can pass
+ * it to the parser as follows:
+ *
+ * @code
+ * char* raw_data; // points to our (possibly incomplete) packet
+ * size_t raw_len; // how many bytes of data
+ *
+ * psyc_setParseBuffer(&state, // our initialized state from before
+ *                      raw_data,
+ *                      raw_len);
+ * @endcode
+ *
+ * Now the the variables that will save the output of the parser need to be
+ * declared:
+ *
+ * @code
+ * psycString name,  // Name of the variable or method
+ *            value; // Value of the variable or body
+ * char       oper;  // operator of the variable (if any)
+ * @endcode
+ *
+ * They will be passd to the parsing function which will set them to
+ * the according positions and lengths.
+ *
+ * Now the real parsing begins. The parsing function needs to be called
+ * repeatedly with various actions in between, depending on the return values:
+ *
+ * @code
+ *
+ * int res;
+ *
+ * do // run the parsing in a loop, each time parsing one line
+ * {
+ * 	name.length = value.length = oper = 0; // reset the output variables
+ *
+ * 	ret = psyc_parse(&state, &oper, &name, &value); // call the parsing function
+ *
+ * 	switch (ret) // look at the return value
+ * 	{
+ * 		case PSYC_PARSE_ROUTING: // it is a routing variable
+ * 		case PSYC_PARSE_ENTITY:  // it is a entity variable
+ * 			// Name, value and operator of the variable can now be found in the
+ * 			// respective variables:
+ * 			printf("Variable: %.*s  Value: %.*s Operator: %c\n", 
+ * 			        name.length, name.ptr,
+ * 			        value.length, value.ptr,
+ * 			        operator);
+ * 			// Note that the .ptr member still points at your original buffer. If
+ * 			// you want to reuse that buffer for the next packet, you better copy it
+ * 			// before passing it to the parser or you copy each variable now.
+ * 			break;
+ * 		case PSYC_PARSE_BODY: // it is the method and the body of the packet.
+ * 			printf("Method Name: %.*s  Body: %.*s\n", 
+ * 			        name.length, name.ptr,    // name of the method
+ * 			        value.length, value.ptr); // valeu of the body
+ * 			break;
+ * 		case PSYC_PARSER_COMPLETE: // parsing of this packet is complete
+ * 			// You can simply continue parsing till you get the
+ * 			// PSYC_PARSE_INSUFFICIENT code which means teh packet is incomplete.
+ * 			continue;
+ * 		default: // 
+ * 			perror("Error %i happened :(\n", res);
+ * 			return res;
+ * 	}
+ * }
+ * @endcode
+ *
+ * This simple example does not consider some more complex cases for when you
+ * recieve incomplete packets but still want to access the data. This code would
+ * simply reject incomplete packets as error. A more detailed tutorial for
+ * incomplete packets will follow, in the mean time, have look at the return
+ * codes in psycParseRC and their explainations.
  */
 
+/** @{ */ // end of parser group
 #ifndef PSYC_PARSER_H
 # define PSYC_PARSER_H
 
@@ -149,6 +234,7 @@ typedef struct
  * Initializes the state struct.
  *
  * @param state Pointer to the state struct that should be initialized.
+ * @see psyc_initParseState2
  */
 static inline
 void psyc_initParseState (psycParseState *state)
@@ -161,6 +247,8 @@ void psyc_initParseState (psycParseState *state)
  *
  * @param state Pointer to the state struct that should be initialized.
  * @param flags Flags to be set for the parser, see psycParseFlag.
+ * @see psyc_initParseState
+ * @see psycParseFlag
  */
 static inline
 void psyc_initParseState2 (psycParseState *state, uint8_t flags)
@@ -294,7 +382,7 @@ const char * psyc_getParseRemainingBuffer (psycParseState *state)
  *
  * Generalized line-based packet parser.
  *
- * This function will never allocate heap memory.
+ * This function never allocates heap memory.
  *
  * @param state An initialized psycParseState
  * @param oper A pointer to a character. In case of a variable, it will
