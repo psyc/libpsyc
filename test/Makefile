@@ -1,6 +1,6 @@
 OPT = -O2
 DEBUG = 2
-CFLAGS = -I../include -Wall -std=c99 ${OPT}
+CFLAGS = -I../include -I../src -Wall -std=c99 ${OPT}
 LDFLAGS = -L../lib
 LOADLIBES = -lpsyc -lm
 LOADLIBES_NET = ${LOADLIBES}

@@ -1,6 +1,6 @@
-#include "psyc/lib.h"
-#include "psyc/render.h"
-#include "psyc/syntax.h"
+#include "lib.h"
+#include <psyc/render.h>
+#include <psyc/syntax.h>
 
 psycRenderRC psyc_renderList (psycList *list, char *buffer, size_t buflen)
 {

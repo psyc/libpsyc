@@ -1,4 +1,4 @@
-#include <psyc/lib.h>
+#include "lib.h"
 #include <psyc/text.h>
 
 psycTextRC psyc_text (psycTextState *state, psycTextCB getValue)

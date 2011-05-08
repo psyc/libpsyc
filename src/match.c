@@ -1,4 +1,4 @@
-#include "psyc/lib.h"
+#include "lib.h"
 
 int psyc_inherits(char* sho, size_t slen,
 		  char* lon, size_t llen) {

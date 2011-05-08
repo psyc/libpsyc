@@ -1,4 +1,4 @@
-#include <psyc/lib.h>
+#include "lib.h"
 #include <stdint.h>
 
 /// Routing variables in alphabetical order.

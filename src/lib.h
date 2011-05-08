@@ -3,7 +3,7 @@
 #ifndef PSYC_LIB_H
 # define PSYC_LIB_H
 
-#include "../psyc.h"
+#include <psyc.h>
 #include "./debug.h"
 #include <assert.h>
 
