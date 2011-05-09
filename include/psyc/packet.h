@@ -55,7 +55,7 @@ typedef enum
 
 /** Structure for a modifier. */
 typedef struct
-t{
+{
 	char oper;
 	psycString name;
 	psycString value;
