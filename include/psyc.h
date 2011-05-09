@@ -7,7 +7,7 @@
  *
  * @section intro_sec Introduction
  *
- * Welcome to the libpsyc Documentation!
+ * Welcome to the libpsyc documentation!
  *
  * @section install_sec Installation
  *
