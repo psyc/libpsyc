@@ -1,7 +1,10 @@
-lib
+lib/libpsyc.a
 doc/html
 doc/latex
 doc/man
+d/doc/html
+d/doc/latex
+d/doc/man
 src/match
 test/testMatch
 test/testParser

@@ -2,3 +2,6 @@
 
 doc:
 	doxygen
+
+install:
+	${MAKE} -C include install
