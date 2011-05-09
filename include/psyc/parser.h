@@ -10,6 +10,15 @@
  * @defgroup parser Parsing Functions
  *
  * This module contains packet and list parsing functions.
+ * The parser adheres to the definition of a packet found at 
+ * 
+ *   http://about.psyc.eu/Spec:Packet
+ *
+ * and the according terms are used throughout this documentation and in the
+ * return codes. You should be at least
+ * vaguely familiar with what the difference between "body" and "content" as
+ * well as "routing variable" and "entity variable" is.
+ *
  *
  * To parse a packet you first have to initialize a state:
  *
@@ -77,7 +86,7 @@
  * 		case PSYC_PARSE_BODY: // it is the method and the body of the packet.
  * 			printf("Method Name: %.*s  Body: %.*s\n", 
  * 			        name.length, name.ptr,    // name of the method
- * 			        value.length, value.ptr); // valeu of the body
+ * 			        value.length, value.ptr); // value of the body
  * 			break;
  * 		case PSYC_PARSE_COMPLETE: // parsing of this packet is complete
  * 			// You can simply continue parsing till you get the
@@ -110,7 +119,7 @@ typedef enum
 {
 	/// Parse only the header
 	PSYC_PARSE_ROUTING_ONLY = 1,
-	/// Parse only the content. This means that there is no header and parsing will fail if there is one. The beginning of the content is expected.
+	/// Parse only the content. Parsing starts at the content and the content must be complete.
 	PSYC_PARSE_START_AT_CONTENT = 2,
 } psycParseFlag;
 
