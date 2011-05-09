@@ -48,9 +48,9 @@ typedef enum
  * The packet structure should contain the packet parts, either routing, entity,
  * method & data, or routing & content when rendering raw content.
  * It should also contain the contentLength & total length of the packet,
- * you can use psyc_setPacketLength for calculating & setting these values.
- * This function renders packet->length bytes to buffer,
- * if it doesn't fit in the buffer an error is returned.
+ * you can use psyc_setPacketLength() for calculating & setting these values.
+ * This function renders packet->length bytes to the buffer,
+ * if buflen is less than that an error is returned.
  *
  * @see psyc_newPacket
  * @see psyc_newPacket2
