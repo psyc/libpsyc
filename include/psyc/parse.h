@@ -2,10 +2,9 @@
 
 /**
  * @file psyc/parse.h
- * @brief Interface for various PSYC parsing functions.
+ * @brief Interface for PSYC packet parsing.
  *
- * All parsing functions and the definitions they use are
- * defined in this file.
+ * All parsing functions and the definitions they use are defined here.
  */
 
 /**

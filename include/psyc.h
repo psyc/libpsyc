@@ -1,20 +1,18 @@
-/** @file psyc.h
- *
+/**
+ * @file psyc.h
  * @brief Main PSYC interface providing crucial functionality.
-*/
+ */
 
-/** @mainpage PSYC Core Library
+/**
+ * @mainpage PSYC Core Library
  *
  * @section intro_sec Introduction
  *
  * Welcome to the libpsyc documentation!
  *
  * @section install_sec Installation
- *
- * @subsection step1 Step 1: Opening the box
- *
- * etc...
  */
+// * @subsection step1 Step 1: Opening the box
 
 #ifndef PSYC_H
 

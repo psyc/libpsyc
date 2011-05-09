@@ -1,5 +1,20 @@
 #ifndef PSYC_PACKET_H
 
+/**
+ * @file psyc/packet.h
+ * @brief Interface for PSYC packet data structures.
+ *
+ * Packet data structures and functions for creating them are defined here.
+ */
+
+/**
+ * @defgroup packet Packet data structures
+ *
+ * This module contains definitions of packet data structures and functions for
+ * creating them.
+ * @{
+ */
+
 #include <psyc.h>
 #include <psyc/syntax.h>
 
@@ -141,6 +156,8 @@ psycPacket psyc_newRawPacket (psycHeader *routing, psycString *content,
 psycPacket psyc_newRawPacket2 (psycModifier *routing, size_t routinglen,
                                const char *content, size_t contentlen,
                                psycPacketFlag flag);
+
+/** @} */ // end of packet group
 
 #define PSYC_PACKET_H
 #endif
