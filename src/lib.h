@@ -4,8 +4,8 @@
 # define PSYC_LIB_H
 
 #include <psyc.h>
-#include "./debug.h"
 #include <assert.h>
+#include "debug.h"
 
 /* perlisms for readability */
 #define unless(COND)    if (!(COND))

@@ -3,7 +3,7 @@
 #include <fcntl.h>
 
 #include <psyc.h>
-#include <psyc/parser.h>
+#include <psyc/parse.h>
 
 int main (int argc, char **argv)
 {

@@ -1,5 +1,4 @@
 #ifndef PSYC_RENDER_H
-# define PSYC_RENDER_H
 
 #include <psyc/packet.h>
 
@@ -39,6 +38,7 @@ psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen);
  */
 psycRenderRC psyc_renderList (psycList *list, char *buffer, size_t buflen);
 
-#endif // PSYC_RENDER_H
-
 /** @} */ // end of render group
+
+#define PSYC_RENDER_H
+#endif

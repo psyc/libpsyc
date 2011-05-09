@@ -17,7 +17,6 @@
  */
 
 #ifndef PSYC_H
-# define PSYC_H
 
 #include <stdint.h>
 #include <string.h>
@@ -148,4 +147,5 @@ int psyc_inherits(char *sho, size_t slen,
 int psyc_matches(char *sho, size_t slen,
                  char *lon, size_t llen);
 
-#endif // PSYC_H
+#define PSYC_H
+#endif
