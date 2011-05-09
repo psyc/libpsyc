@@ -2,13 +2,13 @@
 #include <psyc/render.h>
 #include <psyc/syntax.h>
 
-psycRenderRC psyc_renderList (psycList *list, char *buffer, size_t buflen)
+psycRenderListRC psyc_renderList (psycList *list, char *buffer, size_t buflen)
 {
 	size_t i, cur = 0;
 	psycString *elem;
 
-	if (list->length > buflen)
-		return PSYC_RENDER_ERROR; // return error if list doesn't fit in buffer
+	if (list->length > buflen) // return error if list doesn't fit in buffer
+		return PSYC_RENDER_LIST_ERROR;
 
 	if (list->flag == PSYC_LIST_NEED_LENGTH)
 	{
@@ -34,7 +34,7 @@ psycRenderRC psyc_renderList (psycList *list, char *buffer, size_t buflen)
 		}
 	}
 
-	return PSYC_RENDER_SUCCESS;
+	return PSYC_RENDER_LIST_SUCCESS;
 }
 
 static inline
@@ -66,8 +66,8 @@ psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen)
 {
 	size_t i, cur = 0, len;
 
-	if (packet->length > buflen)
-		return PSYC_RENDER_ERROR; // return error if packet doesn't fit in buffer
+	if (packet->length > buflen) // return error if packet doesn't fit in buffer
+		return PSYC_RENDER_ERROR;
 
 	// render routing modifiers
 	for (i = 0; i < packet->routing.lines; i++)
