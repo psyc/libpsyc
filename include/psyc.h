@@ -134,6 +134,25 @@ psycBool psyc_isRoutingVar(const char *name, size_t len);
 psycType psyc_getVarType(const char *name, size_t len);
 
 /**
+ * Is this a list variable name?
+ */
+static inline
+psycBool psyc_isListVar(psycString *name)
+{
+	return name->length < 5 || memcmp(name->ptr, "_list", 5) != 0 ||
+		(name->length > 5 && name->ptr[5] != '_') ? PSYC_FALSE : PSYC_TRUE;
+}
+
+/**
+ * Is this a list variable name?
+ */
+static inline
+psycBool psyc_isListVar2(const char *name, size_t len)
+{
+	return psyc_isListVar(&(psycString){len, name});
+}
+
+/**
  * Checks if long keyword string inherits from short keyword string.
  */
 int psyc_inherits(char *sho, size_t slen,

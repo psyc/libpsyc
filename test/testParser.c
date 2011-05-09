@@ -59,7 +59,7 @@ int main (int argc, char **argv)
 					       (int)name.length, name.ptr,
 					       (int)value.length, value.ptr);
 
-				if (name.length >= 5 && memcmp(name.ptr, "_list", 5) == 0)
+				if (psyc_isListVar(&name))
 				{
 					if (verbose)
 						printf(">> LIST START\n");
@@ -67,7 +67,7 @@ int main (int argc, char **argv)
 					psyc_initParseListState(&listState);
 					psyc_setParseListBuffer(&listState, value);
 
-					while ((ret = psyc_parseList(&listState, &name, &value, &elem)))
+					while ((ret = psyc_parseList(&listState, &value, &elem)))
 					{
 						switch (ret)
 						{
