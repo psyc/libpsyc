@@ -9,7 +9,7 @@
  */
 
 /**
- * @defgroup PSYC Parsing Functions
+ * @defgroup parse Parsing Functions
  *
  * This module contains packet and list parsing functions.
  * The parser adheres to the definition of a packet found at 
@@ -410,7 +410,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 psycParseListRC psyc_parseList (psycParseListState *state, psycString *name,
                                 psycString *value, psycString *elem);
 
-/** @} */ // end of parser group
+/** @} */ // end of parse group
 
 #define PSYC_PARSE_H
 #endif
