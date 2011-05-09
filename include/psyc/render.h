@@ -6,8 +6,7 @@
  * @file psyc/render.h
  * @brief Interface for PSYC packet rendering.
  *
- * All rendering functions and the definitions they use are
- * defined in this file.
+ * All rendering functions and the definitions they use are defined here.
  */
 
 /**
@@ -38,7 +37,7 @@ psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen);
  */
 psycRenderRC psyc_renderList (psycList *list, char *buffer, size_t buflen);
 
-/** @} */ // end of renderer group
+/** @} */ // end of render group
 
 #define PSYC_RENDER_H
 #endif
