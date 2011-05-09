@@ -1,4 +1,4 @@
-module psyc.parser;
+module psyc.parse;
 
 import psyc.common;
 

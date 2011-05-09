@@ -2,7 +2,7 @@ prefix = /usr
 includedir = ${prefix}/include/d
 
 INSTALL = install
-HEADERS = common.d parser.d
+HEADERS = common.d parse.d
 
 install: ${HEADERS}
 
