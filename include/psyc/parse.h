@@ -9,7 +9,7 @@
  */
 
 /**
- * @defgroup parser Parsing Functions
+ * @defgroup PSYC Parsing Functions
  *
  * This module contains packet and list parsing functions.
  * The parser adheres to the definition of a packet found at 
@@ -101,11 +101,11 @@
  * }
  * @endcode
  *
- * This simple example does not consider some more complex cases for when you
- * recieve incomplete packets but still want to access the data. This code would
+ * This simple example does not consider some more complex cases when you
+ * receive incomplete packets but still want to access the data. This code would
  * simply reject incomplete packets as error. A more detailed tutorial for
- * incomplete packets will follow, in the mean time, have look at the return
- * codes in psycParseRC and their explainations. @see psycParseRC
+ * incomplete packets will follow. In the mean time, have look at the return
+ * codes in psycParseRC and their explanations. @see psycParseRC
  */
 
 /** @{ */ // begin of parser group

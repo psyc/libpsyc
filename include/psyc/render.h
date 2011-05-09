@@ -38,7 +38,7 @@ psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen);
  */
 psycRenderRC psyc_renderList (psycList *list, char *buffer, size_t buflen);
 
-/** @} */ // end of render group
+/** @} */ // end of renderer group
 
 #define PSYC_RENDER_H
 #endif
