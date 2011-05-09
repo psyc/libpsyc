@@ -1,5 +1,7 @@
+#ifndef PSYC_PARSE_H
+
 /**
- * @file psyc/parser.h
+ * @file psyc/parse.h
  * @brief Interface for various PSYC parser functions.
  *
  * All parsing functions and the definitions they use are
@@ -107,9 +109,6 @@
  */
 
 /** @{ */ // begin of parser group
-
-#ifndef PSYC_PARSER_H
-# define PSYC_PARSER_H
 
 #include <stdint.h>
 #include <string.h>
@@ -411,6 +410,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 psycParseListRC psyc_parseList (psycParseListState *state, psycString *name,
                                 psycString *value, psycString *elem);
 
-#endif // PSYC_PARSER_H
-
 /** @} */ // end of parser group
+
+#define PSYC_PARSE_H
+#endif

@@ -6,7 +6,7 @@
 #endif
 
 #include "lib.h"
-#include <psyc/parser.h>
+#include <psyc/parse.h>
 
 #define ADVANCE_CURSOR_OR_RETURN(ret)            \
 	if (++(state->cursor) >= state->buffer.length) \

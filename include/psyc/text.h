@@ -1,3 +1,5 @@
+#ifndef PSYC_TEXT_H
+
 /**
  * @file psyc/text.h
  * @brief Interface for text template rendering.
@@ -157,3 +159,6 @@ size_t psyc_getTextBytesWritten (psycTextState *state)
 psycTextRC psyc_text (psycTextState *state, psycTextCB getValue);
 
 /** @} */ // end of text group
+
+#define PSYC_TEXT_H
+#endif

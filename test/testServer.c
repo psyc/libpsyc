@@ -21,7 +21,7 @@
 #include <assert.h>
 
 #include <psyc.h>
-#include <psyc/parser.h>
+#include <psyc/parse.h>
 #include <psyc/render.h>
 #include <psyc/syntax.h>
 

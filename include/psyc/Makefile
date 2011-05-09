@@ -1,8 +1,10 @@
+# Why do we have a Makefile in the include directory?
+
 prefix = /usr
 includedir = ${prefix}/include
 
 INSTALL = install
-HEADERS = packet.h parser.h render.h syntax.h text.h
+HEADERS = packet.h parse.h render.h syntax.h text.h
 
 install: ${HEADERS}
 

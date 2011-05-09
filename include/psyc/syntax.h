@@ -1,5 +1,4 @@
 #ifndef PSYC_SYNTAX_H
-#define PSYC_SYNTAX_H
 
 #ifndef PSYC_LIST_SIZE_LIMIT
 # define PSYC_LIST_SIZE_LIMIT 404
@@ -42,4 +41,5 @@
 #define PSYC_ROUTING_MERGE		2
 #define PSYC_ROUTING_RENDER		4
 
-#endif /* PSYC_SYNTAX_H */
+#define PSYC_SYNTAX_H
+#endif

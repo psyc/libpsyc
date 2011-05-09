@@ -1,5 +1,4 @@
 #ifndef PSYC_PACKET_H
-# define PSYC_PACKET_H
 
 #include <psyc.h>
 #include <psyc/syntax.h>
@@ -143,4 +142,5 @@ psycPacket psyc_newRawPacket2 (psycModifier *routing, size_t routinglen,
                                const char *content, size_t contentlen,
                                psycPacketFlag flag);
 
-#endif // PSYC_PACKET_H
+#define PSYC_PACKET_H
+#endif
