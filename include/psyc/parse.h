@@ -54,7 +54,7 @@
  * char       oper;  // operator of the variable (if any)
  * @endcode
  *
- * They will be passd to the parsing function which will set them to
+ * They will be passed to the parsing function which will set them to
  * the according positions and lengths.
  *
  * Now the real parsing begins. The parsing function needs to be called
@@ -91,7 +91,7 @@
  * 			break;
  * 		case PSYC_PARSE_COMPLETE: // parsing of this packet is complete
  * 			// You can simply continue parsing till you get the
- * 			// PSYC_PARSE_INSUFFICIENT code which means teh packet is incomplete.
+ * 			// PSYC_PARSE_INSUFFICIENT code which means the line is incomplete.
  * 			continue;
  * 		default: // 
  * 			perror("Error %i happened :(\n", res);
@@ -192,10 +192,9 @@ typedef enum
  */
 typedef enum
 {
-	PSYC_PARSE_LIST_ERROR_DELIM = -5,
-	PSYC_PARSE_LIST_ERROR_LEN = -4,
-	PSYC_PARSE_LIST_ERROR_TYPE = -3,
-	PSYC_PARSE_LIST_ERROR_NAME = -2,
+	PSYC_PARSE_LIST_ERROR_DELIM = -4,
+	PSYC_PARSE_LIST_ERROR_LEN = -3,
+	PSYC_PARSE_LIST_ERROR_TYPE = -2,
 	PSYC_PARSE_LIST_ERROR = -1,
 	/// Completed parsing a list element.
 	PSYC_PARSE_LIST_ELEM = 1,
@@ -389,26 +388,36 @@ const char * psyc_getParseRemainingBuffer (psycParseState *state)
 /**
  * Parse PSYC packets.
  *
- * Generalized line-based packet parser.
+ * This function parses a full or partial PSYC packet while keeping parsing
+ * state in a state variable that you have to pass in every time, and returns
+ * whenever a modifier or the body is found. See psycParseRC for the possible
+ * return codes. When it returns oper, name & value will point to the respective
+ * parts of the buffer, no memory allocation is done.
  *
- * This function never allocates heap memory.
- *
- * @param state An initialized psycParseState
- * @param oper A pointer to a character. In case of a variable, it will
- *             be set to the operator of that variable
- * @param name A pointer to a psycString. It will point to the name of
- *             the variable or method and its length will be set accordingly
- * @param value A pointer to a psycString. It will point to the
- *              value/body the variable/method and its length will be set accordingly
+ * @param state An initialized psycParseState.
+ * @param oper In case of a modifier it will be set to the operator.
+ * @param name In case of a modifier it will point to the name,
+ *             in case of the body it will point to the method.
+ * @param value In case of a modifier it will point to the value,
+ *              in case of the body it will point to the data.
  */
 psycParseRC psyc_parse (psycParseState *state, char *oper,
                         psycString *name, psycString *value);
 
 /**
- * List value parser.
+ * List parser.
+ *
+ * This function parses a _list modifier value and returns one element a time
+ * while keeping parsing state in a state variable that you have to pass in
+ * every time. When it returns elem will point to the next element in value, no
+ * memory allocation is done.
+ *
+ * @param state An initialized psycParseListState.
+ * @param value Contains the list to be parsed.
+ * @param elem It will point to the next element in the list.
  */
-psycParseListRC psyc_parseList (psycParseListState *state, psycString *name,
-                                psycString *value, psycString *elem);
+psycParseListRC psyc_parseList (psycParseListState *state, psycString *value,
+                                psycString *elem);
 
 /** @} */ // end of parse group
 

@@ -201,10 +201,7 @@ parseRC psyc_parseModifier (psycParseState *state, char *oper,
 		return PSYC_PARSE_ERROR_MOD_TAB;
 }
 
-/**
- * Parse PSYC packets.
- * Generalized line-based parser.
- */
+/** Parse PSYC packets. */
 psycParseRC psyc_parse (psycParseState *state, char *oper,
                         psycString *name, psycString *value)
 {
@@ -485,12 +482,9 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 	return PSYC_PARSE_ERROR; // should not be reached
 }
 
-/**
- * List value parser.
- * @return see psycListRC.
- */
-psycParseListRC psyc_parseList (psycParseListState *state, psycString *name,
-                                psycString *value, psycString *elem)
+/** List parser. */
+psycParseListRC psyc_parseList (psycParseListState *state, psycString *value,
+                                psycString *elem)
 {
 	if (state->cursor >= state->buffer.length)
 		return PSYC_PARSE_LIST_INCOMPLETE;
@@ -499,10 +493,6 @@ psycParseListRC psyc_parseList (psycParseListState *state, psycString *name,
 
 	if (!state->type) // If type is not set we're at the start
 	{
-		if (name->length < 5 || memcmp(name->ptr, "_list", 5) != 0 ||
-		    (name->length > 5 && name->ptr[5] != '_')) // name should be _list or should start with _list_
-			return PSYC_PARSE_LIST_ERROR_NAME;
-
 		// First character is either | for text lists, or a number for binary lists
 		if (state->buffer.ptr[state->cursor] == '|')
 		{

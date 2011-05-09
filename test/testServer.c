@@ -443,7 +443,7 @@ int main (int argc, char **argv)
 									name.length = 0;
 									value.length = 0;
 
-									if (pname->length >= 5 && memcmp(pname->ptr, "_list", 5) == 0)
+									if (psyc_isListVar(pname))
 									{
 										if (verbose >= 2)
 											printf("## LIST START\n");
@@ -453,7 +453,7 @@ int main (int argc, char **argv)
 
 										do
 										{
-											retl = psyc_parseList(&listState, pname, pvalue, &elem);
+											retl = psyc_parseList(&listState, pvalue, &elem);
 											switch (retl)
 											{
 												case PSYC_PARSE_LIST_END:
