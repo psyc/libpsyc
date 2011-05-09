@@ -117,7 +117,8 @@ typedef enum
 {
 	/// Parse only the header
 	PSYC_PARSE_ROUTING_ONLY = 1,
-	/// Parse only the content. Parsing starts at the content and the content must be complete.
+	/// Parse only the content.
+	/// Parsing starts at the content and the content must be complete.
 	PSYC_PARSE_START_AT_CONTENT = 2,
 } psycParseFlag;
 
@@ -127,61 +128,61 @@ typedef enum
  */
 typedef enum
 {
-/// Error, packet is not ending with a valid delimiter.
+	/// Error, packet is not ending with a valid delimiter.
 	PSYC_PARSE_ERROR_END = -8,
-/// Error, expected NL after the method.
+	/// Error, expected NL after the method.
 	PSYC_PARSE_ERROR_METHOD = -7,
-/// Error, expected NL after a modifier.
+	/// Error, expected NL after a modifier.
 	PSYC_PARSE_ERROR_MOD_NL = -6,
-/// Error, modifier length is not numeric.
+	/// Error, modifier length is not numeric.
 	PSYC_PARSE_ERROR_MOD_LEN = -5,
-/// Error, expected TAB before modifier value.
+	/// Error, expected TAB before modifier value.
 	PSYC_PARSE_ERROR_MOD_TAB = -4,
-/// Error, modifier name is missing.
+	/// Error, modifier name is missing.
 	PSYC_PARSE_ERROR_MOD_NAME = -3,
-/// Error, expected NL after the content length.
+	/// Error, expected NL after the content length.
 	PSYC_PARSE_ERROR_LENGTH = -2,
-/// Error in packet.
+	/// Error in packet.
 	PSYC_PARSE_ERROR = -1,
-/// Buffer contains insufficient amount of data.
-/// Fill another buffer and concatenate it with the end of the current buffer,
-/// from the cursor position to the end.
+	/// Buffer contains insufficient amount of data.
+	/// Fill another buffer and concatenate it with the end of the current buffer,
+	/// from the cursor position to the end.
 	PSYC_PARSE_INSUFFICIENT = 1,
-/// Routing modifier parsing done.
-/// Operator, name & value contains the respective parts.
+	/// Routing modifier parsing done.
+	/// Operator, name & value contains the respective parts.
 	PSYC_PARSE_ROUTING = 2,
-/// Start of an incomplete entity modifier.
-/// Operator & name are complete, value is incomplete.
+	/// Start of an incomplete entity modifier.
+	/// Operator & name are complete, value is incomplete.
 	PSYC_PARSE_ENTITY_START = 3,
-/// Continuation of an incomplete entity modifier.
+	/// Continuation of an incomplete entity modifier.
 	PSYC_PARSE_ENTITY_CONT = 4,
-/// End of an incomplete entity modifier.
+	/// End of an incomplete entity modifier.
 	PSYC_PARSE_ENTITY_END = 5,
-/// Entity modifier parsing done in one go.
-/// Operator, name & value contains the respective parts.
+	/// Entity modifier parsing done in one go.
+	/// Operator, name & value contains the respective parts.
 	PSYC_PARSE_ENTITY = 6,
-/// Start of an incomplete body.
-/// Name contains method, value contains part of the body.
+	/// Start of an incomplete body.
+	/// Name contains method, value contains part of the body.
 	PSYC_PARSE_BODY_START = 7,
-/// Continuation of an incomplete body.
+	/// Continuation of an incomplete body.
 	PSYC_PARSE_BODY_CONT = 8,
-/// End of an incomplete body.
+	/// End of an incomplete body.
 	PSYC_PARSE_BODY_END = 9,
-/// Body parsing done in one go, name contains method, value contains body.
+	/// Body parsing done in one go, name contains method, value contains body.
 	PSYC_PARSE_BODY = 10,
-/// Start of an incomplete content, value contains part of content.
-/// Used when PSYC_PARSE_ROUTING_ONLY is set.
+	/// Start of an incomplete content, value contains part of content.
+	/// Used when PSYC_PARSE_ROUTING_ONLY is set.
 	PSYC_PARSE_CONTENT_START = 7,
-/// Continuation of an incomplete body.
-/// Used when PSYC_PARSE_ROUTING_ONLY is set.
+	/// Continuation of an incomplete body.
+	/// Used when PSYC_PARSE_ROUTING_ONLY is set.
 	PSYC_PARSE_CONTENT_CONT = 8,
-/// End of an incomplete body.
-/// Used when PSYC_PARSE_ROUTING_ONLY is set.
+	/// End of an incomplete body.
+	/// Used when PSYC_PARSE_ROUTING_ONLY is set.
 	PSYC_PARSE_CONTENT_END = 9,
-/// Content parsing done in one go, value contains the whole content.
-/// Used when PSYC_PARSE_ROUTING_ONLY is set.
+	/// Content parsing done in one go, value contains the whole content.
+	/// Used when PSYC_PARSE_ROUTING_ONLY is set.
 	PSYC_PARSE_CONTENT = 10,
-/// Finished parsing packet.
+	/// Finished parsing packet.
 	PSYC_PARSE_COMPLETE = 11,
 } psycParseRC;
 
@@ -196,11 +197,11 @@ typedef enum
 	PSYC_PARSE_LIST_ERROR_TYPE = -3,
 	PSYC_PARSE_LIST_ERROR_NAME = -2,
 	PSYC_PARSE_LIST_ERROR = -1,
-/// Completed parsing a list element.
+	/// Completed parsing a list element.
 	PSYC_PARSE_LIST_ELEM = 1,
-/// Reached end of buffer.
+	/// Reached end of buffer.
 	PSYC_PARSE_LIST_END = 2,
-/// Binary list is incomplete.
+	/// Binary list is incomplete.
 	PSYC_PARSE_LIST_INCOMPLETE = 3,
 } psycParseListRC;
 
@@ -209,19 +210,19 @@ typedef enum
  */
 typedef struct
 {
-	size_t cursor; ///< current position in buffer
-	size_t startc; ///< position where the parsing would be resumed
-	psycString buffer; ///< buffer with data to be parsed
-	uint8_t flags; ///< flags for the parser, see psycParseFlag
-	psycPart part; ///< part of the packet being parsed currently
+	size_t cursor; ///< Current position in buffer.
+	size_t startc; ///< Position where the parsing would be resumed.
+	psycString buffer; ///< Buffer with data to be parsed.
+	uint8_t flags; ///< Flags for the parser, see psycParseFlag.
+	psycPart part; ///< Part of the packet being parsed currently.
 
-	size_t routingLength; ///< length of routing part parsed so far
-	size_t contentParsed; ///< number of bytes parsed from the content so far
-	size_t contentLength; ///< expected length of the content
-	psycBool contentLengthFound; ///< is there a length given for this packet?
-	size_t valueParsed; ///< number of bytes parsed from the value so far
-	size_t valueLength; ///< expected length of the value
-	psycBool valueLengthFound; ///< is there a length given for this modifier?
+	size_t routingLength; ///< Length of routing part parsed so far.
+	size_t contentParsed; ///< Number of bytes parsed from the content so far.
+	size_t contentLength; ///< Expected length of the content.
+	psycBool contentLengthFound; ///< Is there a length given for this packet?
+	size_t valueParsed; ///< Number of bytes parsed from the value so far.
+	size_t valueLength; ///< Expected length of the value.
+	psycBool valueLengthFound; ///< Is there a length given for this modifier?
 } psycParseState;
 
 /**
@@ -229,13 +230,13 @@ typedef struct
  */
 typedef struct
 {
-	size_t cursor; ///< current position in buffer
-	size_t startc; ///< line start position
-	psycString buffer;
-	psycListType type; ///< list type
+	size_t cursor; ///< Current position in buffer.
+	size_t startc; ///< Line start position.
+	psycString buffer; ///< Buffer with data to be parsed.
+	psycListType type; ///< List type.
 
-	size_t elemParsed; ///< number of bytes parsed from the elem so far
-	size_t elemLength; ///< expected length of the elem
+	size_t elemParsed; ///< Number of bytes parsed from the elem so far.
+	size_t elemLength; ///< Expected length of the elem.
 } psycParseListState;
 
 /**
