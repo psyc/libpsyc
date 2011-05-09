@@ -119,7 +119,7 @@ typedef enum
 {
 	/// Parse only the header
 	PSYC_PARSE_ROUTING_ONLY = 1,
-	/// Parse only the content. Parsing starts at the content and the content must be complete. "content" means the definition used in the packet specification.
+	/// Parse only the content. Parsing starts at the content and the content must be complete.
 	PSYC_PARSE_START_AT_CONTENT = 2,
 } psycParseFlag;
 
