@@ -5,6 +5,7 @@ DIET = diet
 
 S = packet.c parse.c match.c render.c memmem.c itoa.c variable.c text.c
 O = packet.o parse.o match.o render.o memmem.o itoa.o variable.o text.o
+P = match itoa
 
 all: CC := ${WRAPPER} ${CC}
 all: lib
@@ -30,7 +31,7 @@ itoa: itoa.c
 it: match
 
 clean:
-	rm -f $O ../lib/libpsyc.a
+	rm -f $O $P
 
 help:
 	@/bin/echo -e "Usage:\n\tmake - compile\n\tmake diet - compile with diet libc"

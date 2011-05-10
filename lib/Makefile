@@ -11,3 +11,6 @@ libdir:
 
 ${LIBS}: libdir
 	${INSTALL} $@ ${libdir}
+
+clean:
+	rm -f ${LIBS}
