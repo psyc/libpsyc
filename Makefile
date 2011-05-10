@@ -3,6 +3,8 @@
 all:
 	${MAKE} -C src
 
+it: all
+
 install: install-lib install-inc install-d
 
 install-lib: all
@@ -33,6 +35,7 @@ doc:
 
 clean:
 	${MAKE} -C src clean
+	${MAKE} -C lib clean
 	${MAKE} -C test clean
 	rm -rf doc/html doc/latex doc/man
 
