@@ -62,6 +62,7 @@ int main (int argc, char **argv)
 		w - v > 0 && memchr(w+1, (int)'v', strlen(opts) - (w - opts)) ? 3 : 2 : 1 : 0;
 	uint8_t routing_only   = opts && memchr(opts, (int)'r', strlen(opts));
 	uint8_t parse_multiple = opts && memchr(opts, (int)'m', strlen(opts));
+	uint8_t no_render      = opts && memchr(opts, (int)'n', strlen(opts));
 	uint8_t progress       = opts && memchr(opts, (int)'p', strlen(opts));
 	uint8_t stats          = opts && memchr(opts, (int)'s', strlen(opts));
 	size_t recv_buf_size   = argc > 3 ? atoi(argv[3]) : 0;
@@ -114,7 +115,7 @@ int main (int argc, char **argv)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 	if ((rv = getaddrinfo(NULL, port, &hints, &ai)) != 0)
-{
+	{
 		fprintf(stderr, "error: %s\n", gai_strerror(rv));
 		exit(1);
 	}
@@ -295,29 +296,32 @@ int main (int argc, char **argv)
 									if (!parse_multiple) // parse multiple packets?
 										ret = -1;
 
-									packets[i].flag = psyc_isParseContentLengthFound(&parsers[i]) ?
-										PSYC_PACKET_NEED_LENGTH : PSYC_PACKET_NO_LENGTH;
-
-									if (routing_only)
+									if (!no_render)
 									{
-										packets[i].content = packets[i].data;
-										resetString(&packets[i].data, 0);
-									}
+										packets[i].flag = psyc_isParseContentLengthFound(&parsers[i]) ?
+											PSYC_PACKET_NEED_LENGTH : PSYC_PACKET_NO_LENGTH;
 
-									psyc_setPacketLength(&packets[i]);
-
-									if (psyc_render(&packets[i], sendbuf, SEND_BUF_SIZE) == PSYC_RENDER_SUCCESS)
-									{
-										if (send(i, sendbuf, packets[i].length, 0) == -1)
+										if (routing_only)
 										{
-											perror("send error");
+											packets[i].content = packets[i].data;
+											resetString(&packets[i].data, 0);
+										}
+
+										psyc_setPacketLength(&packets[i]);
+
+										if (psyc_render(&packets[i], sendbuf, SEND_BUF_SIZE) == PSYC_RENDER_SUCCESS)
+										{
+											if (send(i, sendbuf, packets[i].length, 0) == -1)
+											{
+												perror("send error");
+												ret = -1;
+											}
+										}
+										else
+										{
+											perror("render error");
 											ret = -1;
 										}
-									}
-									else
-									{
-										perror("render error");
-										ret = -1;
 									}
 
 									// reset packet
