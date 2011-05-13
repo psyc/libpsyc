@@ -20,7 +20,7 @@ diet: lib
 
 lib: $O
 	@mkdir -p ../lib
-	${WRAPPER} ar rcs ../lib/libpsyc.a $O
+	${WRAPPER} ${AR} rcs ../lib/libpsyc.a $O
 
 match: match.c
 	${CC} -o $@ -DDEBUG=4 -DCMDTOOL -DTEST $<
