@@ -416,8 +416,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
  * @param value Contains the list to be parsed.
  * @param elem It will point to the next element in the list.
  */
-psycParseListRC psyc_parseList (psycParseListState *state, psycString *value,
-                                psycString *elem);
+psycParseListRC psyc_parseList (psycParseListState *state, psycString *elem);
 
 /** @} */ // end of parse group
 

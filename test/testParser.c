@@ -67,7 +67,7 @@ int main (int argc, char **argv)
 					psyc_initParseListState(&listState);
 					psyc_setParseListBuffer(&listState, value);
 
-					while ((ret = psyc_parseList(&listState, &value, &elem)))
+					while ((ret = psyc_parseList(&listState, &elem)))
 					{
 						switch (ret)
 						{

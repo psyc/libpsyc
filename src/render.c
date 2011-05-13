@@ -34,6 +34,8 @@ psycRenderListRC psyc_renderList (psycList *list, char *buffer, size_t buflen)
 		}
 	}
 
+	// actual length should be equal to pre-calculated length at this point
+	assert(cur == list->length);
 	return PSYC_RENDER_LIST_SUCCESS;
 }
 

@@ -483,8 +483,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 }
 
 /** List parser. */
-psycParseListRC psyc_parseList (psycParseListState *state, psycString *value,
-                                psycString *elem)
+psycParseListRC psyc_parseList (psycParseListState *state, psycString *elem)
 {
 	if (state->cursor >= state->buffer.length)
 		return PSYC_PARSE_LIST_INCOMPLETE;

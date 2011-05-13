@@ -453,7 +453,7 @@ int main (int argc, char **argv)
 
 										do
 										{
-											retl = psyc_parseList(&listState, pvalue, &elem);
+											retl = psyc_parseList(&listState, &elem);
 											switch (retl)
 											{
 												case PSYC_PARSE_LIST_END:
@@ -468,7 +468,7 @@ int main (int argc, char **argv)
 													break;
 
 												default:
-													printf("# Error while parsing list: %i\n", ret);
+													printf("# Error while parsing list: %i\n", retl);
 													ret = retl = -1;
 											}
 										}
