@@ -1,0 +1,53 @@
+= libpsyc Performance Benchmarks =
+
+In this document we present the results of performance benchmarks
+of libpsyc compared with libjson-glib and libxml2.
+
+== Procedure ==
+
+We'll use typical messages from the XMPP ("stanzas" in Jabber
+lingo) and compare them with equivalent PSYC packets and
+JSON encodings.
+
+In some cases we will additionally compare PSYC packets to
+a more efficient XML encoding based on PSYC methods, to have
+a more accurate comparison of the actual PSYC and XML
+syntaxes, rather than the protocol structures of PSYC and XMPP.
+
+== Caveats ==
+
+In every case we'll compare performance of parsing and re-rendering
+these messages, but consider also that the applicative processing
+of an XML DOM tree is more complicated than just accessing
+certain elements in a JSON data structure or PSYC variable
+mapping.
+
+For a speed check in real world conditions which also consider the
+complexity of processing incoming messages we should compare
+the performance of a chat client using the two protocols,
+for instance by using libpurple with XMPP and PSYC accounts.
+To this purpose we first need to integrate libpsyc into libpurple.
+
+== The Benchmarks ==
+
+=== A presence packet ===
+
+Since presence packets are by far the dominant messaging content
+in the XMPP network, we'll start with one of them.
+
+<pre>
+...
+</pre>
+
+and here's the same information in a JSON rendition:
+
+<pre>
+...
+</pre>
+
+=== An average chat message ===
+=== A social network activity ===
+=== A message with JSON-unfriendly characters ===
+=== A message with XML-unfriendly characters ===
+=== A packet containing a JPEG photograph ===
+
