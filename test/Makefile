@@ -39,8 +39,8 @@ test: ${TARGETS}
 	./testText
 	./isRoutingVar
 	./getVarType
-	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testPsyc $$f -f | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
-	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testPsyc $$f -fr | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
+	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testPsyc -f $$f | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
+	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testPsyc -rf $$f | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
 
 .NOTPARALLEL: nettestrun
 
@@ -50,11 +50,11 @@ nettestrun: srvstart pkt srvkill
 
 nettestfull:
 	${MAKE} nettestrun; x=$$?; pkill -x testPsyc; exit $$x
-	${MAKE} nettestrun srv_args=r; x=$$?; pkill -x testPsyc; exit $$x
+	${MAKE} nettestrun srv_args=-r; x=$$?; pkill -x testPsyc; exit $$x
 
 split_max = 10
 nettestsplit:
-	x=0; for n in `seq 1 ${split_max}`; do ${MAKE} nettestrun srv_recvbuf=$$n && ${MAKE} nettestrun srv_args=r srv_recvbuf=$$n || break; done; x=$$?; pkill -x testPsyc; exit $$x
+	x=0; for n in `seq 1 ${split_max}`; do ${MAKE} nettestrun srv_args="-b $$n" && ${MAKE} nettestrun srv_args="-r -b $$n" || break; done; x=$$?; pkill -x testPsyc; exit $$x
 
 pkt:
 	x=0; for f in packets/[0-9]*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
@@ -67,7 +67,7 @@ pkterr:
 
 srvstart:
 	pkill -x testPsyc; exit 0
-	./testPsyc ${PORT} -${srv_args} ${srv_recvbuf} &
+	./testPsyc -p ${PORT} ${srv_args} &
 
 srvkill:
 	pkill -x testPsyc
