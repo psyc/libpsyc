@@ -77,7 +77,6 @@ void test_init (int i) {
 }
 
 int test_input (int i, char *recvbuf, size_t nbytes) {
-	// we got some data from a client
 	int j;
 	char *parsebuf = recvbuf - contbytes;
 	char sendbuf[SEND_BUF_SIZE];

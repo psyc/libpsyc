@@ -158,6 +158,7 @@ void test_server(const char* port, size_t recv_buf_size) {
 						close(i); // bye!
 						FD_CLR(i, &master); // remove from master set
 					} else {
+						// we got some data from a client
 						if (verbose >= 2)
 							printf("> %ld bytes\n", nbytes);
 						if (verbose >= 3)
