@@ -1,5 +1,5 @@
 /**
- * libpsyc test server for packet parsing & rendering
+ * test server for packet parsing & rendering
  *
  * based on selectserver.c from http://beej.us/guide/bgnet/
  *	"The C source code presented in this document is hereby granted to the public domain, and is completely free of any license restriction."
@@ -17,54 +17,30 @@
 #include <arpa/inet.h>
 #define __USE_POSIX
 #include <netdb.h>
-#include <math.h>
-#include <assert.h>
 
-#include <psyc.h>
-#include <psyc/parse.h>
-#include <psyc/render.h>
-#include <psyc/syntax.h>
-
-const size_t RECV_BUF_SIZE = 8 * 1024;
-const size_t CONT_BUF_SIZE = 8 * 1024;
-const size_t SEND_BUF_SIZE = 8 * 1024;
-const size_t NUM_PARSERS = 100;
-// max size for routing & entity header
-const size_t ROUTING_LINES = 16;
-const size_t ENTITY_LINES = 32;
-
-static inline
-void resetString (psycString *s, uint8_t freeptr)
-{
-	if (freeptr && s->length)
-		free((void*)s->ptr);
-
-	s->ptr = NULL;
-	s->length = 0;
-}
+#include "testServer.h"
+#include "testServerPsyc.c"
 
 // get sockaddr, IPv4 or IPv6:
-void *get_in_addr (struct sockaddr *sa)
-{
+void *get_in_addr (struct sockaddr *sa) {
 	if (sa->sa_family == AF_INET)
 		return &(((struct sockaddr_in*)sa)->sin_addr);
 
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-int main (int argc, char **argv)
-{
+int main (int argc, char **argv) {
 	char *port = argc > 1 ? argv[1] : "4440";
 	char *opts = argc > 2 ? argv[2] : NULL;
 	char *v, *w;
-	uint8_t verbose = opts && (v = memchr(opts, (int)'v', strlen(opts))) ?
+	verbose = opts && (v = memchr(opts, (int)'v', strlen(opts))) ?
 		v - opts > 0 && (w = memchr(v+1, (int)'v', strlen(opts) - (v - opts))) ?
 		w - v > 0 && memchr(w+1, (int)'v', strlen(opts) - (w - opts)) ? 3 : 2 : 1 : 0;
-	uint8_t routing_only   = opts && memchr(opts, (int)'r', strlen(opts));
-	uint8_t parse_multiple = opts && memchr(opts, (int)'m', strlen(opts));
-	uint8_t no_render      = opts && memchr(opts, (int)'n', strlen(opts));
-	uint8_t progress       = opts && memchr(opts, (int)'p', strlen(opts));
-	uint8_t stats          = opts && memchr(opts, (int)'s', strlen(opts));
+	routing_only   = opts && memchr(opts, (int)'r', strlen(opts));
+	parse_multiple = opts && memchr(opts, (int)'m', strlen(opts));
+	no_render      = opts && memchr(opts, (int)'n', strlen(opts));
+	progress       = opts && memchr(opts, (int)'p', strlen(opts));
+	stats          = opts && memchr(opts, (int)'s', strlen(opts));
 	size_t recv_buf_size   = argc > 3 ? atoi(argv[3]) : 0;
 	if (recv_buf_size <= 0)
 		recv_buf_size = RECV_BUF_SIZE;
@@ -78,33 +54,13 @@ int main (int argc, char **argv)
 	struct sockaddr_storage remoteaddr; // client address
 	socklen_t addrlen;
 
-	char buf[CONT_BUF_SIZE + RECV_BUF_SIZE];  // cont buf + recv buf: [  ccrrrr]
-	char *recvbuf = buf + CONT_BUF_SIZE;      // recv buf:                 ^^^^
-	char *parsebuf;                           // parse buf:              ^^^^^^
-	char sendbuf[SEND_BUF_SIZE];
-	size_t nbytes, contbytes = 0;
-
 	char remoteIP[INET6_ADDRSTRLEN];
 
 	int yes = 1;        // for setsockopt() SO_REUSEADDR, below
-	int i, j, rv;
+	int i, rv, ret;
 
 	struct addrinfo hints, *ai, *p;
-
-	psycParseState parsers[NUM_PARSERS];
-	psycPacket packets[NUM_PARSERS];
-	psycModifier routing[NUM_PARSERS][ROUTING_LINES];
-	psycModifier entity[NUM_PARSERS][ENTITY_LINES];
-	psycModifier *mod = NULL;
-
 	struct timeval start[NUM_PARSERS], end[NUM_PARSERS];
-
-	int ret, retl;
-	char oper;
-	psycString name, value, elem;
-	psycString *pname = NULL, *pvalue = NULL;
-	psycParseListState listState;
-	size_t len;
 
 	FD_ZERO(&master);    // clear the master and temp sets
 	FD_ZERO(&read_fds);
@@ -114,14 +70,12 @@ int main (int argc, char **argv)
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-	if ((rv = getaddrinfo(NULL, port, &hints, &ai)) != 0)
-	{
+	if ((rv = getaddrinfo(NULL, port, &hints, &ai)) != 0) {
 		fprintf(stderr, "error: %s\n", gai_strerror(rv));
 		exit(1);
 	}
 	
-	for (p = ai; p != NULL; p = p->ai_next)
-	{
+	for (p = ai; p != NULL; p = p->ai_next) {
 		listener = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
 		if (listener < 0)
 			continue;
@@ -129,8 +83,7 @@ int main (int argc, char **argv)
 		// lose the pesky "address already in use" error message
 		setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 
-		if (bind(listener, p->ai_addr, p->ai_addrlen) < 0)
-		{
+		if (bind(listener, p->ai_addr, p->ai_addrlen) < 0) {
 			close(listener);
 			continue;
 		}
@@ -139,8 +92,7 @@ int main (int argc, char **argv)
 	}
 
 	// if we got here, it means we didn't get bound
-	if (p == NULL)
-	{
+	if (p == NULL) {
 		fprintf(stderr, "failed to bind\n");
 		exit(2);
 	}
@@ -148,8 +100,7 @@ int main (int argc, char **argv)
 	freeaddrinfo(ai); // all done with this
 
 	// listen
-	if (listen(listener, 10) == -1)
-	{
+	if (listen(listener, 10) == -1) {
 		perror("listen");
 		exit(3);
 	}
@@ -161,22 +112,17 @@ int main (int argc, char **argv)
 	fdmax = listener; // so far, it's this one
 
 	// main loop
-	for (;;)
-	{
+	for (;;) {
 		read_fds = master; // copy it
-		if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1)
-		{
+		if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1) {
 			perror("select");
 			exit(4);
 		}
 
 		// run through the existing connections looking for data to read
-		for (i = 0; i <= fdmax; i++)
-		{
-			if (FD_ISSET(i, &read_fds)) // we got one!!
-			{
-				if (i == listener)
-				{
+		for (i = 0; i <= fdmax; i++) {
+			if (FD_ISSET(i, &read_fds)) { // we got one!!
+				if (i == listener) {
 					// handle new connections
 					if (fdmax == NUM_PARSERS - 1)
 						continue; // ignore if there's too many
@@ -184,25 +130,14 @@ int main (int argc, char **argv)
 					addrlen = sizeof remoteaddr;
 					newfd = accept(listener, (struct sockaddr *)&remoteaddr, &addrlen);
 
-					if (newfd == -1)
+					if (newfd == -1) {
 						perror("accept");
-					else
-					{
+					} else {
 						FD_SET(newfd, &master); // add to master set
 						if (newfd > fdmax) // keep track of the max
 							fdmax = newfd;
 
-						// reset parser state & packet
-						if (routing_only)
-							psyc_initParseState2(&parsers[newfd], PSYC_PARSE_ROUTING_ONLY);
-						else
-							psyc_initParseState(&parsers[newfd]);
-
-						memset(&packets[newfd], 0, sizeof(psycPacket));
-						memset(&routing[newfd], 0, sizeof(psycModifier) * ROUTING_LINES);
-						memset(&entity[newfd], 0, sizeof(psycModifier) * ENTITY_LINES);
-						packets[newfd].routing.modifiers = routing[newfd];
-						packets[newfd].entity.modifiers = entity[newfd];
+						test_init(newfd);
 
 						if (verbose)
 							printf("# New connection from %s on socket %d\n",
@@ -214,12 +149,9 @@ int main (int argc, char **argv)
 						if (stats)
 							gettimeofday(&start[newfd], NULL);
 					}
-				}
-				else
-				{
+				} else {
 					// handle data from a client
-					if ((nbytes = recv(i, recvbuf, recv_buf_size, 0)) <= 0)
-					{
+					if ((nbytes = recv(i, recvbuf, recv_buf_size, 0)) <= 0) {
 						if (stats)
 							printf("%ld ms\n", (end[i].tv_sec * 1000000 + end[i].tv_usec - start[i].tv_sec * 1000000 - start[i].tv_usec) / 1000);
 
@@ -231,256 +163,13 @@ int main (int argc, char **argv)
 
 						close(i); // bye!
 						FD_CLR(i, &master); // remove from master set
-					}
-					else
-					{
+					} else {
 						if (verbose >= 2)
 							printf("> %ld bytes\n", nbytes);
 						if (verbose >= 3)
 							printf("> [%.*s]", (int)nbytes, recvbuf);
 
-						// we got some data from a client
-						parsebuf = recvbuf - contbytes;
-						psyc_setParseBuffer2(&parsers[i], parsebuf, contbytes + nbytes);
-						contbytes = 0;
-						oper = 0;
-						name.length = 0;
-						value.length = 0;
-
-						do
-						{
-							ret = psyc_parse(&parsers[i], &oper, &name, &value);
-							if (verbose >= 2)
-								printf("# ret = %d\n", ret);
-
-							switch (ret) {
-								case PSYC_PARSE_ROUTING:
-									assert(packets[i].routing.lines < ROUTING_LINES);
-									mod = &(packets[i].routing.modifiers[packets[i].routing.lines]);
-									pname = &mod->name;
-									pvalue = &mod->value;
-									mod->flag = PSYC_MODIFIER_ROUTING;
-									packets[i].routing.lines++;
-									break;
-
-								case PSYC_PARSE_ENTITY_START:
-								case PSYC_PARSE_ENTITY_CONT:
-								case PSYC_PARSE_ENTITY_END:
-								case PSYC_PARSE_ENTITY:
-									assert(packets[i].entity.lines < ENTITY_LINES);
-									mod = &(packets[i].entity.modifiers[packets[i].entity.lines]);
-									pname = &mod->name;
-									pvalue = &mod->value;
-
-									if (ret == PSYC_PARSE_ENTITY || ret == PSYC_PARSE_ENTITY_END)
-									{
-										packets[i].entity.lines++;
-										mod->flag = psyc_isParseValueLengthFound(&parsers[i]) ?
-											PSYC_MODIFIER_NEED_LENGTH : PSYC_MODIFIER_NO_LENGTH;
-									}
-									break;
-
-								case PSYC_PARSE_BODY_START:
-								case PSYC_PARSE_BODY_CONT:
-								case PSYC_PARSE_BODY_END:
-								case PSYC_PARSE_BODY:
-									pname = &(packets[i].method);
-									pvalue = &(packets[i].data);
-									break;
-
-								case PSYC_PARSE_COMPLETE:
-									if (verbose)
-										printf("# Done parsing.\n");
-									else if (progress)
-										write(1, ".", 1);
-									if (!parse_multiple) // parse multiple packets?
-										ret = -1;
-
-									if (!no_render)
-									{
-										packets[i].flag = psyc_isParseContentLengthFound(&parsers[i]) ?
-											PSYC_PACKET_NEED_LENGTH : PSYC_PACKET_NO_LENGTH;
-
-										if (routing_only)
-										{
-											packets[i].content = packets[i].data;
-											resetString(&packets[i].data, 0);
-										}
-
-										psyc_setPacketLength(&packets[i]);
-
-										if (psyc_render(&packets[i], sendbuf, SEND_BUF_SIZE) == PSYC_RENDER_SUCCESS)
-										{
-											if (send(i, sendbuf, packets[i].length, 0) == -1)
-											{
-												perror("send error");
-												ret = -1;
-											}
-										}
-										else
-										{
-											perror("render error");
-											ret = -1;
-										}
-									}
-
-									// reset packet
-									packets[i].routingLength = 0;
-									packets[i].contentLength = 0;
-									packets[i].length = 0;
-									packets[i].flag = 0;
-
-									for (j = 0; j < packets[i].routing.lines; j++)
-									{
-										resetString(&packets[i].routing.modifiers[j].name, 1);
-										resetString(&packets[i].routing.modifiers[j].value, 1);
-									}
-									packets[i].routing.lines = 0;
-
-									if (routing_only)
-									{
-										resetString(&packets[i].content, 1);
-									}
-									else
-									{
-										for (j = 0; j < packets[i].entity.lines; j++)
-										{
-											resetString(&packets[i].entity.modifiers[j].name, 1);
-											resetString(&packets[i].entity.modifiers[j].value, 1);
-										}
-										packets[i].entity.lines = 0;
-
-										resetString(&packets[i].method, 1);
-										resetString(&packets[i].data, 1);
-									}
-
-									break;
-
-								case PSYC_PARSE_INSUFFICIENT:
-									if (verbose >= 2)
-										printf("# Insufficient data.\n");
-
-									contbytes = psyc_getParseRemainingLength(&parsers[i]);
-
-									if (contbytes > 0) // copy end of parsebuf before start of recvbuf
-									{
-										assert(recvbuf - contbytes >= buf); // make sure it's still in the buffer
-										memmove(recvbuf - contbytes, psyc_getParseRemainingBuffer(&parsers[i]), contbytes);
-									}
-									ret = 0;
-									break;
-
-								default:
-									printf("# Error while parsing: %i\n", ret);
-									ret = -1;
-							}
-
-							switch (ret)
-							{
-								case PSYC_PARSE_ENTITY_START:
-								case PSYC_PARSE_ENTITY_CONT:
-								case PSYC_PARSE_BODY_START:
-								case PSYC_PARSE_BODY_CONT:
-									ret = 0;
-								case PSYC_PARSE_ENTITY:
-								case PSYC_PARSE_ENTITY_END:
-								case PSYC_PARSE_ROUTING:
-								case PSYC_PARSE_BODY:
-								case PSYC_PARSE_BODY_END:
-									if (oper)
-									{
-										mod->oper = oper;
-										if (verbose >= 2)
-											printf("%c", oper);
-									}
-
-									if (name.length)
-									{
-										pname->ptr = malloc(name.length);
-										pname->length = name.length;
-
-										assert(pname->ptr != NULL);
-										memcpy((void*)pname->ptr, name.ptr, name.length);
-										name.length = 0;
-
-										if (verbose >= 2)
-											printf("%.*s = ", (int)pname->length, pname->ptr);
-									}
-
-									if (value.length) {
-										if (!pvalue->length)
-										{
-											if (psyc_isParseValueLengthFound(&parsers[i]))
-												len = psyc_getParseValueLength(&parsers[i]);
-											else
-												len = value.length;
-											pvalue->ptr = malloc(len);
-										}
-										assert(pvalue->ptr != NULL);
-										memcpy((void*)pvalue->ptr + pvalue->length, value.ptr, value.length);
-										pvalue->length += value.length;
-										value.length = 0;
-
-										if (verbose >= 2)
-										{
-											printf("[%.*s]", (int)pvalue->length, pvalue->ptr);
-											if (parsers[i].valueLength > pvalue->length)
-												printf("...");
-											printf("\n");
-										}
-									}
-									else if (verbose)
-										printf("\n");
-
-									if (verbose >= 3)
-										printf("\t\t\t\t\t\t\t\t# n:%ld v:%ld c:%ld r:%ld\n",
-										       pname->length, pvalue->length,
-										       parsers[i].contentParsed, parsers[i].routingLength);
-							}
-
-							switch (ret)
-							{
-								case PSYC_PARSE_ROUTING:
-								case PSYC_PARSE_ENTITY:
-								case PSYC_PARSE_ENTITY_END:
-									oper = 0;
-									name.length = 0;
-									value.length = 0;
-
-									if (psyc_isListVar(pname))
-									{
-										if (verbose >= 2)
-											printf("## LIST START\n");
-
-										psyc_initParseListState(&listState);
-										psyc_setParseListBuffer(&listState, *pvalue);
-
-										do
-										{
-											retl = psyc_parseList(&listState, &elem);
-											switch (retl)
-											{
-												case PSYC_PARSE_LIST_END:
-													retl = 0;
-												case PSYC_PARSE_LIST_ELEM:
-													if (verbose >= 2)
-													{
-														printf("|%.*s\n", (int)elem.length, elem.ptr);
-														if (ret == PSYC_PARSE_LIST_END)
-															printf("## LIST END");
-													}
-													break;
-
-												default:
-													printf("# Error while parsing list: %i\n", retl);
-													ret = retl = -1;
-											}
-										}
-										while (retl > 0);
-									}
-							}
-						}
-						while (ret > 0);
+						ret = test_input(i);
 
 						if (progress)
 							write(1, " ", 1);
@@ -488,8 +177,7 @@ int main (int argc, char **argv)
 						if (stats)
 							gettimeofday(&end[i], NULL);
 
-						if (ret < 0)
-						{
+						if (ret < 0) {
 							if (verbose)
 								printf("# Closing connection: %i\n", i);
 							close(i); // bye!
