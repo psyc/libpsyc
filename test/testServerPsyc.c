@@ -10,10 +10,14 @@
 #include <psyc/syntax.h>
 
 #include "testServer.h"
+//#include "testServer.c"
 
 // max size for routing & entity header
 #define ROUTING_LINES 16
 #define ENTITY_LINES 32
+
+// cmd line args
+uint8_t verbose, stats;
 
 psycParseState parsers[NUM_PARSERS];
 psycPacket packets[NUM_PARSERS];
@@ -21,12 +25,33 @@ psycModifier routing[NUM_PARSERS][ROUTING_LINES];
 psycModifier entity[NUM_PARSERS][ENTITY_LINES];
 psycModifier *mod = NULL;
 
+uint8_t routing_only, parse_multiple, no_render, progress;
+
 int ret, retl, contbytes = 0;
 char oper;
 psycString name, value, elem;
 psycString *pname = NULL, *pvalue = NULL;
 psycParseListState listState;
 size_t len;
+
+int main (int argc, char **argv) {
+	char *port = argc > 1 ? argv[1] : "4440";
+	char *opts = argc > 2 ? argv[2] : NULL;
+	char *v, *w;
+	verbose = opts && (v = memchr(opts, (int)'v', strlen(opts))) ?
+		v - opts > 0 && (w = memchr(v+1, (int)'v', strlen(opts) - (v - opts))) ?
+		w - v > 0 && memchr(w+1, (int)'v', strlen(opts) - (w - opts)) ? 3 : 2 : 1 : 0;
+	stats          = opts && memchr(opts, (int)'s', strlen(opts));
+
+	routing_only   = opts && memchr(opts, (int)'r', strlen(opts));
+	parse_multiple = opts && memchr(opts, (int)'m', strlen(opts));
+	no_render      = opts && memchr(opts, (int)'n', strlen(opts));
+	progress       = opts && memchr(opts, (int)'p', strlen(opts));
+	size_t recv_buf_size   = argc > 3 ? atoi(argv[3]) : 0;
+
+	test_server(port, recv_buf_size);
+	return 0;
+}
 
 static inline
 void resetString (psycString *s, uint8_t freeptr) {
@@ -51,10 +76,12 @@ void test_init (int i) {
 	packets[i].entity.modifiers = entity[i];
 }
 
-int test_input (int i) {
+int test_input (int i, char *recvbuf, size_t nbytes) {
 	// we got some data from a client
 	int j;
 	char *parsebuf = recvbuf - contbytes;
+	char sendbuf[SEND_BUF_SIZE];
+
 	psyc_setParseBuffer2(&parsers[i], parsebuf, contbytes + nbytes);
 	contbytes = 0;
 	oper = 0;
@@ -164,7 +191,7 @@ int test_input (int i) {
 				contbytes = psyc_getParseRemainingLength(&parsers[i]);
 
 				if (contbytes > 0) { // copy end of parsebuf before start of recvbuf
-					assert(recvbuf - contbytes >= buf); // make sure it's still in the buffer
+					assert(contbytes <= CONT_BUF_SIZE); // make sure it's still in the buffer
 					memmove(recvbuf - contbytes, psyc_getParseRemainingBuffer(&parsers[i]), contbytes);
 				}
 				ret = 0;
@@ -271,5 +298,9 @@ int test_input (int i) {
 		}
 	}
 	while (ret > 0);
+
+	if (progress)
+		write(1, " ", 1);
+
 	return ret;
 }

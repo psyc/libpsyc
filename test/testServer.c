@@ -19,7 +19,9 @@
 #include <netdb.h>
 
 #include "testServer.h"
-#include "testServerPsyc.c"
+
+// cmd line args
+extern uint8_t verbose, stats;
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr (struct sockaddr *sa) {
@@ -29,21 +31,9 @@ void *get_in_addr (struct sockaddr *sa) {
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-int main (int argc, char **argv) {
-	char *port = argc > 1 ? argv[1] : "4440";
-	char *opts = argc > 2 ? argv[2] : NULL;
-	char *v, *w;
-	verbose = opts && (v = memchr(opts, (int)'v', strlen(opts))) ?
-		v - opts > 0 && (w = memchr(v+1, (int)'v', strlen(opts) - (v - opts))) ?
-		w - v > 0 && memchr(w+1, (int)'v', strlen(opts) - (w - opts)) ? 3 : 2 : 1 : 0;
-	routing_only   = opts && memchr(opts, (int)'r', strlen(opts));
-	parse_multiple = opts && memchr(opts, (int)'m', strlen(opts));
-	no_render      = opts && memchr(opts, (int)'n', strlen(opts));
-	progress       = opts && memchr(opts, (int)'p', strlen(opts));
-	stats          = opts && memchr(opts, (int)'s', strlen(opts));
-	size_t recv_buf_size   = argc > 3 ? atoi(argv[3]) : 0;
-	if (recv_buf_size <= 0)
-		recv_buf_size = RECV_BUF_SIZE;
+void test_server(const char* port, size_t recv_buf_size) {
+	char buf[CONT_BUF_SIZE + RECV_BUF_SIZE];  // cont buf + recv buf: [  ccrrrr]
+	char *recvbuf = buf + CONT_BUF_SIZE;      // recv buf:                 ^^^^
 
 	fd_set master;    // master file descriptor list
 	fd_set read_fds;  // temp file descriptor list for select()
@@ -53,6 +43,7 @@ int main (int argc, char **argv) {
 	int newfd;        // newly accept()ed socket descriptor
 	struct sockaddr_storage remoteaddr; // client address
 	socklen_t addrlen;
+	size_t nbytes;
 
 	char remoteIP[INET6_ADDRSTRLEN];
 
@@ -61,6 +52,9 @@ int main (int argc, char **argv) {
 
 	struct addrinfo hints, *ai, *p;
 	struct timeval start[NUM_PARSERS], end[NUM_PARSERS];
+
+	if (recv_buf_size <= 0)
+		recv_buf_size = RECV_BUF_SIZE;
 
 	FD_ZERO(&master);    // clear the master and temp sets
 	FD_ZERO(&read_fds);
@@ -169,10 +163,7 @@ int main (int argc, char **argv) {
 						if (verbose >= 3)
 							printf("> [%.*s]", (int)nbytes, recvbuf);
 
-						ret = test_input(i);
-
-						if (progress)
-							write(1, " ", 1);
+						ret = test_input(i, recvbuf, nbytes);
 
 						if (stats)
 							gettimeofday(&end[i], NULL);
@@ -188,6 +179,4 @@ int main (int argc, char **argv) {
 			} // END got new incoming connection
 		} // END looping through file descriptors
 	} // END for(;;)--and you thought it would never end!
-
-	return 0;
 }
