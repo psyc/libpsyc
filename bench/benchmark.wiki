@@ -6,8 +6,8 @@ of libpsyc compared with libjson-glib and libxml2.
 == Procedure ==
 
 We'll use typical messages from the XMPP ("stanzas" in Jabber
-lingo) and compare them with equivalent PSYC packets and
-JSON encodings.
+lingo) and compare them with equivalent JSON encodings,
+verbose and compact PSYC formats.
 
 In some cases we will additionally compare PSYC packets to
 a more efficient XML encoding based on PSYC methods, to have
@@ -34,20 +34,107 @@ To this purpose we first need to integrate libpsyc into libpurple.
 
 Since presence packets are by far the dominant messaging content
 in the XMPP network, we'll start with one of them.
+Here's an example from paragraph 4.4.2 of RFC 6121.
 
-<pre>
-...
-</pre>
+{{{
+<presence from='juliet@example.com/balcony'
+            to='benvolio@example.net'>
+	<show>away</show>
+</presence>
 
-and here's the same information in a JSON rendition:
+}}}
 
-<pre>
-...
-</pre>
+And here's the same information in a JSON rendition:
+
+{{{
+... <insert jsonRender>
+}}}
+
+Here's the equivalent PSYC packet in verbose form
+(since it is a multicast, the single recipients do not
+need to be mentioned):
+
+{{{
+:_context	psyc://example.com/~juliet
+
+=_degree_availability	4
+_notice_presence
+|
+}}}
+
+And the same in compact form:
+
+{{{
+:c	psyc://example.com/~juliet
+
+=da	4
+np
+|
+}}}
 
 === An average chat message ===
 === A social network activity ===
 === A message with JSON-unfriendly characters ===
 === A message with XML-unfriendly characters ===
 === A packet containing a JPEG photograph ===
+
+=== A random data structure ===
+
+In this test we'll not consider XMPP at all and simply compare the
+efficiency of the three syntaxes at serializing a typical user data base
+storage information. We'll again start with XML:
+
+{{{
+<UserProfile>
+    <Name>Silvio Berlusconi</Name>
+    <JobTitle>Premier</JobTitle>
+    <Country>I</Country>
+    <Address>
+	    <Street>Via del Colosseo, 1</Street>
+	    <PostalCode>00100</PostalCode>
+	    <City>Roma</City>
+    </Address>
+    <Page>http://example.org</Page>
+</UserProfile>
+}}}
+
+In JSON this would look like this:
+
+{{{
+... <insert json rendering of DOM tree?>
+}}}
+
+Here's a way to model this in PSYC:
+
+{{{
+:_name	Silvio Berlusconi
+:_title_job	Premier
+:_country	I
+:_address_street	Via del Colosseo, 1
+:_address_code_postal	00100
+:_address_city	Roma
+:_page	http://example.org
+_profile_user
+|
+}}}
+
+== Conclusions ==
+
+== Criticism ==
+
+Are we comparing apples and oranges? Yes and no, depends on what you
+need. XML is a syntax best suited for complex structured data in
+well-defined formats - especially good for text mark-up. JSON is a syntax
+intended to hold arbitrarily structured data suitable for immediate
+inclusion in javascript source codes. The PSYC syntax is an evolved
+derivate of RFC 822, the syntax used by HTTP and E-Mail, and is therefore
+limited in the kind and depth of data structures that can be represented
+with it, but in exchange it is highly performant at doing just that.
+
+So it is up to you to find out which of the three formats fulfils your
+requirements the best. We use PSYC for the majority of messaging where
+JSON and XMPP aren't efficient and opaque enough, but we employ XML and
+JSON as payloads within PSYC for data that doesn't fit the PSYC model.
+For some reason all three formats are being used for messaging, although
+only PSYC was actually designed for that purpose.
 
