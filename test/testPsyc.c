@@ -43,7 +43,7 @@ int main (int argc, char **argv) {
 	size_t recv_buf_size   = argc > 3 ? atoi(argv[3]) : 0;
 
 	if (file)
-		test_file(argv[1]);
+		test_file(argv[1], recv_buf_size);
 	else
 		test_server(port, recv_buf_size);
 
