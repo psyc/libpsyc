@@ -1,7 +1,9 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <unistd.h>
+#include <getopt.h>
 #include <sys/socket.h>
 
 #include <psyc.h>
@@ -16,8 +18,10 @@
 #define ENTITY_LINES 32
 
 // cmd line args
-uint8_t verbose, stats, file;
+uint8_t verbose, stats;
 uint8_t routing_only, parse_multiple, no_render, progress;
+char *filename, *port = "4440";
+size_t recv_buf_size = RECV_BUF_SIZE;
 
 psycParseState parsers[NUM_PARSERS];
 psycPacket packets[NUM_PARSERS];
@@ -27,23 +31,29 @@ psycModifier entity[NUM_PARSERS][ENTITY_LINES];
 int contbytes = 0, last_ret = 0;
 
 int main (int argc, char **argv) {
-	char *port = argc > 1 ? argv[1] : "4440";
-	char *opts = argc > 2 ? argv[2] : NULL;
-	char *v, *w;
-	verbose = opts && (v = memchr(opts, (int)'v', strlen(opts))) ?
-		v - opts > 0 && (w = memchr(v+1, (int)'v', strlen(opts) - (v - opts))) ?
-		w - v > 0 && memchr(w+1, (int)'v', strlen(opts) - (w - opts)) ? 3 : 2 : 1 : 0;
-	stats          = opts && memchr(opts, (int)'s', strlen(opts));
+	int c;
+	while ((c = getopt (argc, argv, "f:p:b:mnrsvP")) != -1) {
+		switch (c) {
+			case 'f': filename = optarg; break;
+			case 'p': port = optarg;
+				if (atoi(optarg) <= 0) { printf("-p: error, should be > 0\n"); exit(-1); }
+				break;
+			case 'b': recv_buf_size = atoi(optarg);
+				if (atoi(optarg) <= 0) { printf("-b: error, should be > 0\n"); exit(-1); }
+				break;
+			case 'm': parse_multiple = 1; break;
+			case 'n': no_render = 1; break;
+			case 'r': routing_only = 1; break;
+			case 's': stats = 1; break;
+			case 'v': verbose++; break;
+			case 'P': progress = 1; break;
+			case '?': exit(-1);
+			default:  abort();
+		}
+	}
 
-	routing_only   = opts && memchr(opts, (int)'r', strlen(opts));
-	parse_multiple = opts && memchr(opts, (int)'m', strlen(opts));
-	no_render      = opts && memchr(opts, (int)'n', strlen(opts));
-	progress       = opts && memchr(opts, (int)'p', strlen(opts));
-	file           = opts && memchr(opts, (int)'f', strlen(opts));
-	size_t recv_buf_size   = argc > 3 ? atoi(argv[3]) : RECV_BUF_SIZE;
-
-	if (file)
-		test_file(argv[1], recv_buf_size);
+	if (filename)
+		test_file(filename, recv_buf_size);
 	else
 		test_server(port, recv_buf_size);
 
@@ -150,10 +160,10 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 					psyc_setPacketLength(&packets[i]);
 
 					if (psyc_render(&packets[i], sendbuf, SEND_BUF_SIZE) == PSYC_RENDER_SUCCESS) {
-						if (file && write(1, sendbuf, packets[i].length) == -1) {
+						if (filename && write(1, sendbuf, packets[i].length) == -1) {
 							perror("write");
 							ret = -1;
-						} else if (!file && send(i, sendbuf, packets[i].length, 0) == -1) {
+						} else if (!filename && send(i, sendbuf, packets[i].length, 0) == -1) {
 							perror("send");
 							ret = -1;
 						}
