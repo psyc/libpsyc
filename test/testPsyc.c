@@ -40,7 +40,7 @@ int main (int argc, char **argv) {
 	no_render      = opts && memchr(opts, (int)'n', strlen(opts));
 	progress       = opts && memchr(opts, (int)'p', strlen(opts));
 	file           = opts && memchr(opts, (int)'f', strlen(opts));
-	size_t recv_buf_size   = argc > 3 ? atoi(argv[3]) : 0;
+	size_t recv_buf_size   = argc > 3 ? atoi(argv[3]) : RECV_BUF_SIZE;
 
 	if (file)
 		test_file(argv[1], recv_buf_size);
