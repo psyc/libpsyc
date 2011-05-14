@@ -35,9 +35,6 @@ void *get_in_addr (struct sockaddr *sa) {
 }
 
 void test_file(const char* filename, size_t recv_buf_size) {
-	if (recv_buf_size <= 0)
-		recv_buf_size = RECV_BUF_SIZE;
-
 	char buf[CONT_BUF_SIZE + RECV_BUF_SIZE];  // cont buf + recv buf: [  ccrrrr]
 	char *recvbuf = buf + CONT_BUF_SIZE;      // recv buf:                 ^^^^
 	size_t nbytes;
@@ -55,9 +52,6 @@ void test_file(const char* filename, size_t recv_buf_size) {
 }
 
 void test_server(const char* port, size_t recv_buf_size) {
-	if (recv_buf_size <= 0)
-		recv_buf_size = RECV_BUF_SIZE;
-
 	char buf[CONT_BUF_SIZE + RECV_BUF_SIZE];  // cont buf + recv buf: [  ccrrrr]
 	char *recvbuf = buf + CONT_BUF_SIZE;      // recv buf:                 ^^^^
 
