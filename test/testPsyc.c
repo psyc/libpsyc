@@ -28,7 +28,7 @@ psycPacket packets[NUM_PARSERS];
 psycModifier routing[NUM_PARSERS][ROUTING_LINES];
 psycModifier entity[NUM_PARSERS][ENTITY_LINES];
 
-int contbytes = 0, last_ret = 0;
+int contbytes, last_ret;
 
 int main (int argc, char **argv) {
 	int c;
@@ -36,10 +36,10 @@ int main (int argc, char **argv) {
 		switch (c) {
 			case 'f': filename = optarg; break;
 			case 'p': port = optarg;
-				if (atoi(optarg) <= 0) { printf("-p: error, should be > 0\n"); exit(-1); }
+				if (atoi(optarg) <= 0) { printf("-%c: error, should be > 0\n", c); exit(-1); }
 				break;
 			case 'b': recv_buf_size = atoi(optarg);
-				if (atoi(optarg) <= 0) { printf("-b: error, should be > 0\n"); exit(-1); }
+				if (atoi(optarg) <= 0) { printf("-%c: error, should be > 0\n", c); exit(-1); }
 				break;
 			case 'm': parse_multiple = 1; break;
 			case 'n': no_render = 1; break;
