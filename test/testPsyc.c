@@ -9,30 +9,22 @@
 #include <psyc/render.h>
 #include <psyc/syntax.h>
 
-#include "testServer.h"
-//#include "testServer.c"
+#include "test.h"
 
 // max size for routing & entity header
 #define ROUTING_LINES 16
 #define ENTITY_LINES 32
 
 // cmd line args
-uint8_t verbose, stats;
+uint8_t verbose, stats, file;
+uint8_t routing_only, parse_multiple, no_render, progress;
 
 psycParseState parsers[NUM_PARSERS];
 psycPacket packets[NUM_PARSERS];
 psycModifier routing[NUM_PARSERS][ROUTING_LINES];
 psycModifier entity[NUM_PARSERS][ENTITY_LINES];
-psycModifier *mod = NULL;
 
-uint8_t routing_only, parse_multiple, no_render, progress;
-
-int ret, retl, contbytes = 0;
-char oper;
-psycString name, value, elem;
-psycString *pname = NULL, *pvalue = NULL;
-psycParseListState listState;
-size_t len;
+int contbytes = 0, last_ret = 0;
 
 int main (int argc, char **argv) {
 	char *port = argc > 1 ? argv[1] : "4440";
@@ -47,10 +39,15 @@ int main (int argc, char **argv) {
 	parse_multiple = opts && memchr(opts, (int)'m', strlen(opts));
 	no_render      = opts && memchr(opts, (int)'n', strlen(opts));
 	progress       = opts && memchr(opts, (int)'p', strlen(opts));
+	file           = opts && memchr(opts, (int)'f', strlen(opts));
 	size_t recv_buf_size   = argc > 3 ? atoi(argv[3]) : 0;
 
-	test_server(port, recv_buf_size);
-	return 0;
+	if (file)
+		test_file(argv[1]);
+	else
+		test_server(port, recv_buf_size);
+
+	return last_ret;
 }
 
 static inline
@@ -77,9 +74,16 @@ void test_init (int i) {
 }
 
 int test_input (int i, char *recvbuf, size_t nbytes) {
-	int j;
+	int j, ret, retl, r;
 	char *parsebuf = recvbuf - contbytes;
 	char sendbuf[SEND_BUF_SIZE];
+
+	char oper;
+	psycString name, value, elem;
+	psycString *pname = NULL, *pvalue = NULL;
+	psycModifier *mod = NULL;
+	psycParseListState listState;
+	size_t len;
 
 	psyc_setParseBuffer2(&parsers[i], parsebuf, contbytes + nbytes);
 	contbytes = 0;
@@ -88,7 +92,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	value.length = 0;
 
 	do {
-		ret = psyc_parse(&parsers[i], &oper, &name, &value);
+		ret = last_ret = psyc_parse(&parsers[i], &oper, &name, &value);
 		if (verbose >= 2)
 			printf("# ret = %d\n", ret);
 
@@ -130,7 +134,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 				if (verbose)
 					printf("# Done parsing.\n");
 				else if (progress)
-					write(1, ".", 1);
+					r = write(1, ".", 1);
 				if (!parse_multiple) // parse multiple packets?
 					ret = -1;
 
@@ -146,12 +150,15 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 					psyc_setPacketLength(&packets[i]);
 
 					if (psyc_render(&packets[i], sendbuf, SEND_BUF_SIZE) == PSYC_RENDER_SUCCESS) {
-						if (send(i, sendbuf, packets[i].length, 0) == -1) {
-							perror("send error");
+						if (file && write(1, sendbuf, packets[i].length) == -1) {
+							perror("write");
+							ret = -1;
+						} else if (!file && send(i, sendbuf, packets[i].length, 0) == -1) {
+							perror("send");
 							ret = -1;
 						}
 					} else {
-						perror("render error");
+						printf("# Render error");
 						ret = -1;
 					}
 				}
@@ -299,7 +306,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	while (ret > 0);
 
 	if (progress)
-		write(1, " ", 1);
+		r = write(1, " ", 1);
 
 	return ret;
 }

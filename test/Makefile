@@ -4,8 +4,8 @@ CFLAGS = -I../include -I../src -Wall -std=c99 ${OPT}
 LDFLAGS = -L../lib
 LOADLIBES = -lpsyc -lm
 LOADLIBES_NET = ${LOADLIBES}
-TARGETS = testServerPsyc testParser testMatch testRender testText isRoutingVar getVarType
-O = testServer.o
+TARGETS = testPsyc testParser testMatch testRender testText isRoutingVar getVarType
+O = test.o
 WRAPPER =
 DIET = diet
 PORT = 4440
@@ -20,8 +20,8 @@ endif
 all: ${TARGETS}
 it: all
 
-testServerPsyc: LOADLIBES := ${LOADLIBES_NET}
-testServerPsyc: testServer.o
+testPsyc: LOADLIBES := ${LOADLIBES_NET}
+testPsyc: test.o
 
 diet: WRAPPER = ${DIET}
 diet: all
@@ -39,8 +39,8 @@ test: ${TARGETS}
 	./testText
 	./isRoutingVar
 	./getVarType
-	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f; x=$$((x+$$?)); done; exit $$x
-	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testParser $$f -r; x=$$((x+$$?)); done; exit $$x
+	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testPsyc $$f -f | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
+	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testPsyc $$f -fr | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
 
 .NOTPARALLEL: nettestrun
 
@@ -49,12 +49,12 @@ nettest: nettestfull nettestsplit
 nettestrun: srvstart pkt srvkill
 
 nettestfull:
-	${MAKE} nettestrun; x=$$?; pkill -x testServerPsyc; exit $$x
-	${MAKE} nettestrun srv_args=r; x=$$?; pkill -x testServerPsyc; exit $$x
+	${MAKE} nettestrun; x=$$?; pkill -x testPsyc; exit $$x
+	${MAKE} nettestrun srv_args=r; x=$$?; pkill -x testPsyc; exit $$x
 
 split_max = 10
 nettestsplit:
-	x=0; for n in `seq 1 ${split_max}`; do ${MAKE} nettestrun srv_recvbuf=$$n && ${MAKE} nettestrun srv_args=r srv_recvbuf=$$n || break; done; x=$$?; pkill -x testServerPsyc; exit $$x
+	x=0; for n in `seq 1 ${split_max}`; do ${MAKE} nettestrun srv_recvbuf=$$n && ${MAKE} nettestrun srv_args=r srv_recvbuf=$$n || break; done; x=$$?; pkill -x testPsyc; exit $$x
 
 pkt:
 	x=0; for f in packets/[0-9]*; do echo ">> $$f"; cat $$f | nc localhost ${PORT} | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
@@ -66,8 +66,8 @@ pkterr:
 	for f in packets/err-*; do echo ">> $$f"; cat $$f | nc localhost ${PORT}; done
 
 srvstart:
-	pkill -x testServerPsyc; exit 0
-	./testServerPsyc ${PORT} -${srv_args} ${srv_recvbuf} &
+	pkill -x testPsyc; exit 0
+	./testPsyc ${PORT} -${srv_args} ${srv_recvbuf} &
 
 srvkill:
-	pkill -x testServerPsyc
+	pkill -x testPsyc

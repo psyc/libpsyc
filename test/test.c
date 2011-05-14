@@ -9,16 +9,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/select.h>
 #include <sys/time.h>
+
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #define __USE_POSIX
 #include <netdb.h>
 
-#include "testServer.h"
+#include "test.h"
 
 // cmd line args
 extern uint8_t verbose, stats;
@@ -29,6 +32,22 @@ void *get_in_addr (struct sockaddr *sa) {
 		return &(((struct sockaddr_in*)sa)->sin_addr);
 
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+void test_file(const char* filename) {
+	char buf[CONT_BUF_SIZE + RECV_BUF_SIZE];  // cont buf + recv buf: [  ccrrrr]
+	char *recvbuf = buf + CONT_BUF_SIZE;      // recv buf:                 ^^^^
+	size_t nbytes;
+
+	int fd = open(filename, O_RDONLY);
+	if (fd < 0) {
+		perror("open");
+		exit(1);
+	}
+
+	test_init(0);
+	while ((nbytes = read(fd, (void*)recvbuf, RECV_BUF_SIZE)))
+		test_input(0, recvbuf, nbytes);
 }
 
 void test_server(const char* port, size_t recv_buf_size) {
@@ -150,10 +169,12 @@ void test_server(const char* port, size_t recv_buf_size) {
 							printf("%ld ms\n", (end[i].tv_sec * 1000000 + end[i].tv_usec - start[i].tv_sec * 1000000 - start[i].tv_usec) / 1000);
 
 						// got error or connection closed by client
-						if (nbytes == 0) // connection closed
-							printf("# Socket %d hung up\n", i);
-						else
+						if (nbytes == 0) { // connection closed
+							if (verbose)
+								printf("# Socket %d hung up\n", i);
+						} else {
 							perror("recv");
+						}
 
 						close(i); // bye!
 						FD_CLR(i, &master); // remove from master set

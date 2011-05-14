@@ -9,7 +9,7 @@ src/match
 test/testMatch
 test/testParser
 test/testRender
-test/testServerPsyc
+test/testPsyc
 test/testText
 test/isRoutingVar
 test/getVarType
