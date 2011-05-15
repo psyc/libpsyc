@@ -31,63 +31,9 @@ psycModifier entity[NUM_PARSERS][ENTITY_LINES];
 
 int contbytes, exit_code;
 
-int main (int argc, char **argv) {
-	int c;
-	while ((c = getopt (argc, argv, "f:p:b:c:nmqrsvPSh")) != -1) {
-		switch (c) {
-			case 'f': filename = optarg; break;
-			case 'p': port = optarg; check_range(c, optarg, 1, 0); break;
-			case 'b': recv_buf_size = atoi(optarg); check_range(c, optarg, 1, RECV_BUF_SIZE); break;
-			case 'c': count = atoi(optarg); check_range(c, optarg, 1, 0); break;
-			case 'n': no_render = 1; break;
-			case 'm': multiple = 1; break;
-			case 'q': quiet = 1; break;
-			case 'r': routing_only = 1; break;
-			case 's': stats = 1; break;
-			case 'v': verbose++; break;
-			case 'P': progress = 1; break;
-			case 'S': single = 1; break;
-			case 'h':
-				printf(
-					"testPsyc -f <filename> [-b <read_buf_size>] [-c <count>] [-mnqrSsvP]\n"
-					"testPsyc [-p <port>] [-b <recv_buf_size>] [-nqrsvP]\n"
-					"  -f <filename>\tInput file name\n"
-					"  -p <port>\t\tListen on TCP port, default is %s\n"
-					"  -b <buf_size>\tRead/receive buffer size, default is %d\n"
-					"  -c <count>\t\tParse data from file <count> times\n"
-					"  -m\t\t\tParse multiple packets from file\n"
-					"  -n\t\t\tNo rendering, only parsing\n"
-					"  -r\t\t\tParse routing header only\n"
-					"  -q\t\t\tQuiet mode, don't output rendered string\n"
-					"  -S\t\t\tSingle packet mode, close connection after parsing one packet\n"
-					"  -s\t\t\tShow statistics at the end\n"
-					"  -v\t\t\tVerbose, can be specified multiple times for more verbosity\n"
-					"  -P\t\t\tShow progress\n"
-					"  -h\t\t\tShow this help\n",
-					port, RECV_BUF_SIZE);
-				exit(0);
-			case '?': exit(-1);
-			default:  abort();
-		}
-	}
-
-	if (filename)
-		test_file(filename, count, recv_buf_size);
-	else
-		test_server(port, count, recv_buf_size);
-
-	return exit_code;
-}
-
-static inline
-void resetString (psycString *s, uint8_t freeptr) {
-	if (freeptr && s->length)
-		free((void*)s->ptr);
-
-	s->ptr = NULL;
-	s->length = 0;
-}
-
+static inline void resetString (psycString *s, uint8_t freeptr);
+t
+// initialize parser & packet variables
 void test_init (int i) {
 	// reset parser state & packet
 	if (routing_only)
@@ -102,10 +48,21 @@ void test_init (int i) {
 	packets[i].entity.modifiers = entity[i];
 }
 
+// parse & render input
 int test_input (int i, char *recvbuf, size_t nbytes) {
 	int j, ret, retl, r;
-	char *parsebuf = recvbuf - contbytes;
 	char sendbuf[SEND_BUF_SIZE];
+	char *parsebuf = recvbuf - contbytes;
+	/* We have a buffer with pointers pointing to various parts of it:
+	 *   *contbuf-vv
+	 * buffer: [  ccrrrr]
+	 *   *recvbuf---^^^^
+	 *  *parsebuf-^^^^^^
+	 *
+	 * New data is in recvbuf, if it contains an incomplete packet then remaining
+	 * unparsed data is copied to contbuf that will be parsed during the next call
+	 * to this function together with the new data.
+	 */
 
 	char oper;
 	psycString name, value, elem;
@@ -114,6 +71,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	psycParseListState listState;
 	size_t len;
 
+	// Set buffer with data for the parser.
 	psyc_setParseBuffer2(&parsers[i], parsebuf, contbytes + nbytes);
 	contbytes = 0;
 	oper = 0;
@@ -121,6 +79,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	value.length = 0;
 
 	do {
+		// Parse the next part of the packet (a routing/entity modifier or the body)
 		ret = exit_code = psyc_parse(&parsers[i], &oper, &name, &value);
 		if (verbose >= 2)
 			printf("# ret = %d\n", ret);
@@ -340,4 +299,62 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 		r = write(1, " ", 1);
 
 	return ret;
+}
+
+static inline
+void resetString (psycString *s, uint8_t freeptr)
+{
+	if (freeptr && s->length)
+		free((void*)s->ptr);
+
+	s->ptr = NULL;
+	s->length = 0;
+}
+
+int main (int argc, char **argv) {
+	int c;
+	while ((c = getopt (argc, argv, "f:p:b:c:nmqrsvPSh")) != -1) {
+		switch (c) {
+			case 'f': filename = optarg; break;
+			case 'p': port = optarg; check_range(c, optarg, 1, 0); break;
+			case 'b': recv_buf_size = atoi(optarg); check_range(c, optarg, 1, RECV_BUF_SIZE); break;
+			case 'c': count = atoi(optarg); check_range(c, optarg, 1, 0); break;
+			case 'n': no_render = 1; break;
+			case 'm': multiple = 1; break;
+			case 'q': quiet = 1; break;
+			case 'r': routing_only = 1; break;
+			case 's': stats = 1; break;
+			case 'v': verbose++; break;
+			case 'P': progress = 1; break;
+			case 'S': single = 1; break;
+			case 'h':
+				printf(
+					"testPsyc -f <filename> [-b <read_buf_size>] [-c <count>] [-mnqrSsvP]\n"
+					"testPsyc [-p <port>] [-b <recv_buf_size>] [-nqrsvP]\n"
+					"  -f <filename>\tInput file name\n"
+					"  -p <port>\t\tListen on TCP port, default is %s\n"
+					"  -b <buf_size>\tRead/receive buffer size, default is %d\n"
+					"  -c <count>\t\tParse data from file <count> times\n"
+					"  -m\t\t\tParse multiple packets from file\n"
+					"  -n\t\t\tNo rendering, only parsing\n"
+					"  -r\t\t\tParse routing header only\n"
+					"  -q\t\t\tQuiet mode, don't output rendered string\n"
+					"  -S\t\t\tSingle packet mode, close connection after parsing one packet\n"
+					"  -s\t\t\tShow statistics at the end\n"
+					"  -v\t\t\tVerbose, can be specified multiple times for more verbosity\n"
+					"  -P\t\t\tShow progress\n"
+					"  -h\t\t\tShow this help\n",
+					port, RECV_BUF_SIZE);
+				exit(0);
+			case '?': exit(-1);
+			default:  abort();
+		}
+	}
+
+	if (filename)
+		test_file(filename, count, recv_buf_size);
+	else
+		test_server(port, count, recv_buf_size);
+
+	return exit_code;
 }

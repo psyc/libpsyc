@@ -58,11 +58,14 @@
  * the according positions and lengths.
  *
  * Now the real parsing begins. The parsing function needs to be called
- * repeatedly with various actions in between, depending on the return values:
+ * repeatedly with various actions in between, depending on the return values.
+ *
+ * A simplified example follows, see test/testPsyc.c for actual code that
+ * handles incomplete packets too.
  *
  * @code
  *
- * int res;
+ * int ret;
  *
  * do // run the parsing in a loop, each time parsing one line
  * {
