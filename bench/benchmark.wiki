@@ -14,20 +14,6 @@ a more efficient XML encoding based on PSYC methods, to have
 a more accurate comparison of the actual PSYC and XML
 syntaxes, rather than the protocol structures of PSYC and XMPP.
 
-== Caveats ==
-
-In every case we'll compare performance of parsing and re-rendering
-these messages, but consider also that the applicative processing
-of an XML DOM tree is more complicated than just accessing
-certain elements in a JSON data structure or PSYC variable
-mapping.
-
-For a speed check in real world conditions which also consider the
-complexity of processing incoming messages we should compare
-the performance of a chat client using the two protocols,
-for instance by using libpurple with XMPP and PSYC accounts.
-To this purpose we first need to integrate libpsyc into libpurple.
-
 == The Benchmarks ==
 
 === A presence packet ===
@@ -47,7 +33,7 @@ Here's an example from paragraph 4.4.2 of RFC 6121.
 And here's the same information in a JSON rendition:
 
 {{{
-... <insert jsonRender>
+["presence",{"from":"juliet@example.com/balcony","to":"benvolio@example.net"},{"show":"away"}]
 }}}
 
 Here's the equivalent PSYC packet in verbose form
@@ -101,7 +87,8 @@ storage information. We'll again start with XML:
 In JSON this would look like this:
 
 {{{
-... <insert json rendering of DOM tree?>
+["UserProfile",{"Name":"Silvio Berlusconi","JobTitle":"Premier","Country":"I","Address":
+{"Street":"Via del Colosseo, 1","PostalCode":"00100","City":"Roma"},"Page":"http://example.org"}]
 }}}
 
 Here's a way to model this in PSYC:
@@ -137,4 +124,18 @@ JSON and XMPP aren't efficient and opaque enough, but we employ XML and
 JSON as payloads within PSYC for data that doesn't fit the PSYC model.
 For some reason all three formats are being used for messaging, although
 only PSYC was actually designed for that purpose.
+
+== Caveats ==
+
+In every case we'll compare performance of parsing and re-rendering
+these messages, but consider also that the applicative processing
+of an XML DOM tree is more complicated than just accessing
+certain elements in a JSON data structure or PSYC variable
+mapping.
+
+For a speed check in real world conditions which also consider the
+complexity of processing incoming messages we should compare
+the performance of a chat client using the two protocols,
+for instance by using libpurple with XMPP and PSYC accounts.
+To this purpose we first need to integrate libpsyc into libpurple.
 

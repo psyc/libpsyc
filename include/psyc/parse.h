@@ -17,8 +17,8 @@
  *
  * and the according terms are used throughout this documentation and in the
  * return codes. You should be at least
- * vaguely familiar with what the difference between "body" and "content" as
- * well as "routing variable" and "entity variable" is.
+ * vaguely familiar with differences between "body" and "content" as
+ * well as "routing variable" and "entity variable".
  *
  *
  * To parse a packet you first have to initialize a state:
@@ -267,6 +267,27 @@ void psyc_initParseState2 (psycParseState *state, uint8_t flags)
 	if (flags & PSYC_PARSE_START_AT_CONTENT)
 		state->part = PSYC_PART_CONTENT;
 }
+
+/**
+ * Change parse flags in state
+ *
+ * @param state Pointer to the state struct that should be initialized.
+ * @param flags Flags to be set for the parser, see psycParseFlag.
+ * @see psyc_initParseState
+ * @see psycParseFlag
+ */
+static inline
+void psyc_setParseFlags (psycParseState *state, uint8_t flags)
+{
+	state->flags = flags;
+
+	if (flags & PSYC_PARSE_START_AT_CONTENT)
+		state->part = PSYC_PART_CONTENT;
+	else
+		state->part = 0;
+}
+
+
 
 /**
  * Sets a new buffer in the parser state struct with data to be parsed.
