@@ -26,6 +26,18 @@
 // cmd line args
 extern uint8_t verbose, stats;
 
+void check_range(char c, const char *s, int min, int max) {
+	int n = atoi(s);
+	if (n < min) {
+		printf("-%c: error, should be >= %d\n", c, min);
+		exit(-1);
+	}
+	if (max > min && n > max) {
+		printf("-%c: error, should be <= %d\n", c, max);
+		exit(-1);
+	}
+}
+
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr (struct sockaddr *sa) {
 	if (sa->sa_family == AF_INET)
@@ -34,10 +46,10 @@ void *get_in_addr (struct sockaddr *sa) {
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-void test_file(const char* filename, size_t recv_buf_size) {
+void test_file(const char* filename, size_t count, size_t recv_buf_size) {
 	char buf[CONT_BUF_SIZE + RECV_BUF_SIZE];  // cont buf + recv buf: [  ccrrrr]
 	char *recvbuf = buf + CONT_BUF_SIZE;      // recv buf:                 ^^^^
-	size_t nbytes;
+	size_t i, nbytes;
 	struct timeval start, end;
 
 	int fd = open(filename, O_RDONLY);
@@ -46,14 +58,14 @@ void test_file(const char* filename, size_t recv_buf_size) {
 		exit(1);
 	}
 
-
 	test_init(0);
 
 	if (stats)
 		gettimeofday(&start, NULL);
 
 	while ((nbytes = read(fd, (void*)recvbuf, recv_buf_size)))
-		test_input(0, recvbuf, nbytes);
+		for (i = 0; i < count; i++)
+			test_input(0, recvbuf, nbytes);
 
 	if (stats) {
 		gettimeofday(&end, NULL);
@@ -61,7 +73,7 @@ void test_file(const char* filename, size_t recv_buf_size) {
 	}
 }
 
-void test_server(const char* port, size_t recv_buf_size) {
+void test_server(const char* port, size_t count, size_t recv_buf_size) {
 	char buf[CONT_BUF_SIZE + RECV_BUF_SIZE];  // cont buf + recv buf: [  ccrrrr]
 	char *recvbuf = buf + CONT_BUF_SIZE;      // recv buf:                 ^^^^
 
@@ -125,6 +137,8 @@ void test_server(const char* port, size_t recv_buf_size) {
 		perror("listen");
 		exit(3);
 	}
+
+	printf("# Listening on TCP port %s\n", port);
 
 	// add the listener to the master set
 	FD_SET(listener, &master);
