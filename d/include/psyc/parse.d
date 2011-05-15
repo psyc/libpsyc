@@ -159,6 +159,8 @@ struct ParseState
 
 		if (flags & ParseFlag.START_AT_CONTENT)
 			this.part = Part.CONTENT;
+		else
+			this.part = 0;
 	}
 
 	/**
