@@ -10,8 +10,10 @@ See http://about.psyc.eu for information on PSYC in general.
 The plain C API located in the include/psyc directory along with the file psyc.h
 is primarily intended to be used for binding with other languages and frameworks.
 
-Available bindings are located directly in the root folder named according to
-the language or framework. Currently there exists only a binding for D
+The LPC binding for psyced is distributed with psyclpc since it is spread
+over several files (LPC has no simple approach to binding). Other bindings
+are located directly in the root folder named according to the language or
+framework. Currently there's only a binding for D.
 
 == C API ==
 
