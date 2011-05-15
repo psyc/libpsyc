@@ -133,15 +133,34 @@ struct ParseState
 	 * Params:
 	 * 	flags = Flags to be set for the parser, see ParseFlag.
 	 */
-	static ParseState opCall ( ubyte flags )
+	static ParseState opCall ( ParseFlag flags )
 	{
 		ParseState inst;
 		inst.flags = flags;
 
-		if (flags & ParseFlag.ROUTING_ONLY)
+		if (flags & ParseFlag.START_AT_CONTENT)
 			inst.part = Part.CONTENT;
 
 		return inst;
+	}
+
+	/**
+	 * Change parse flags in state
+	 *
+	 * Params:
+	 * 	state = Pointer to the state struct that should be initialized.
+	 *	flags = Flags to be set for the parser, see psycParseFlag.
+	 *
+	 * See_Also: psyc_initParseState psycParseFlag
+	 */
+	void setParseFlags (ParseFlag flags)
+	{
+		this.flags = flags;
+
+		if (flags & ParseFlag.START_AT_CONTENT)
+			this.part = Part.CONTENT;
+		else
+			this.part = 0;
 	}
 
 	/**
