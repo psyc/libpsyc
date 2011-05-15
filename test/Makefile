@@ -3,7 +3,6 @@ DEBUG = 2
 CFLAGS = -I../include -I../src -Wall -std=c99 ${OPT}
 LDFLAGS = -L../lib
 LOADLIBES = -lpsyc -lm
-LOADLIBES_NET = ${LOADLIBES}
 TARGETS = testPsyc testParser testMatch testRender testText isRoutingVar getVarType
 O = test.o
 WRAPPER =
@@ -13,14 +12,14 @@ NC = nc
 DIFF = diff
 
 ifeq ($(shell uname),SunOS)
-  LOADLIBES_NET := ${LOADLIBES_NET} -lsocket -lnsl
+  LOADLIBES_NET := -lsocket -lnsl
   DIFF = gdiff
 endif
 
 all: ${TARGETS}
 it: all
 
-testPsyc: LOADLIBES := ${LOADLIBES_NET}
+testPsyc: LOADLIBES := ${LOADLIBES} ${LOADLIBES_NET}
 testPsyc: test.o
 
 diet: WRAPPER = ${DIET}
@@ -67,7 +66,7 @@ pkterr:
 
 srvstart:
 	pkill -x testPsyc; exit 0
-	./testPsyc -p ${PORT} ${srv_args} &
+	./testPsyc -p ${PORT} -S ${srv_args} &
 
 srvkill:
 	pkill -x testPsyc

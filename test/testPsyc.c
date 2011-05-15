@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <assert.h>
 #include <unistd.h>
 #include <getopt.h>
@@ -18,46 +19,64 @@
 #define ENTITY_LINES 32
 
 // cmd line args
-uint8_t verbose, stats;
-uint8_t routing_only, parse_multiple, no_render, progress;
 char *filename, *port = "4440";
-size_t recv_buf_size = RECV_BUF_SIZE;
+uint8_t verbose, stats;
+uint8_t multiple, single, routing_only, no_render, quiet, progress;
+size_t count = 1, recv_buf_size = RECV_BUF_SIZE;
 
 psycParseState parsers[NUM_PARSERS];
 psycPacket packets[NUM_PARSERS];
 psycModifier routing[NUM_PARSERS][ROUTING_LINES];
 psycModifier entity[NUM_PARSERS][ENTITY_LINES];
 
-int contbytes, last_ret;
+int contbytes, exit_code;
 
 int main (int argc, char **argv) {
 	int c;
-	while ((c = getopt (argc, argv, "f:p:b:mnrsvP")) != -1) {
+	while ((c = getopt (argc, argv, "f:p:b:c:nmqrsvPSh")) != -1) {
 		switch (c) {
 			case 'f': filename = optarg; break;
-			case 'p': port = optarg;
-				if (atoi(optarg) <= 0) { printf("-%c: error, should be > 0\n", c); exit(-1); }
-				break;
-			case 'b': recv_buf_size = atoi(optarg);
-				if (atoi(optarg) <= 0) { printf("-%c: error, should be > 0\n", c); exit(-1); }
-				break;
-			case 'm': parse_multiple = 1; break;
+			case 'p': port = optarg; check_range(c, optarg, 1, 0); break;
+			case 'b': recv_buf_size = atoi(optarg); check_range(c, optarg, 1, RECV_BUF_SIZE); break;
+			case 'c': count = atoi(optarg); check_range(c, optarg, 1, 0); break;
 			case 'n': no_render = 1; break;
+			case 'm': multiple = 1; break;
+			case 'q': quiet = 1; break;
 			case 'r': routing_only = 1; break;
 			case 's': stats = 1; break;
 			case 'v': verbose++; break;
 			case 'P': progress = 1; break;
+			case 'S': single = 1; break;
+			case 'h':
+				printf(
+					"testPsyc -f <filename> [-b <read_buf_size>] [-c <count>] [-mnqrSsvP]\n"
+					"testPsyc [-p <port>] [-b <recv_buf_size>] [-nqrsvP]\n"
+					"  -f <filename>\tInput file name\n"
+					"  -p <port>\t\tListen on TCP port, default is %s\n"
+					"  -b <buf_size>\tRead/receive buffer size, default is %d\n"
+					"  -c <count>\t\tParse data from file <count> times\n"
+					"  -m\t\t\tParse multiple packets from file\n"
+					"  -n\t\t\tNo rendering, only parsing\n"
+					"  -r\t\t\tParse routing header only\n"
+					"  -q\t\t\tQuiet mode, don't output rendered string\n"
+					"  -S\t\t\tSingle packet mode, close connection after parsing one packet\n"
+					"  -s\t\t\tShow statistics at the end\n"
+					"  -v\t\t\tVerbose, can be specified multiple times for more verbosity\n"
+					"  -P\t\t\tShow progress\n"
+					"  -h\t\t\tShow this help\n",
+					port, RECV_BUF_SIZE);
+				exit(0);
 			case '?': exit(-1);
 			default:  abort();
 		}
 	}
 
 	if (filename)
-		test_file(filename, recv_buf_size);
+		test_file(filename, count, recv_buf_size);
 	else
-		test_server(port, recv_buf_size);
+		test_server(port, count, recv_buf_size);
 
-	return last_ret;
+	return exit_code;
 }
 
 static inline
@@ -102,7 +121,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	value.length = 0;
 
 	do {
-		ret = last_ret = psyc_parse(&parsers[i], &oper, &name, &value);
+		ret = exit_code = psyc_parse(&parsers[i], &oper, &name, &value);
 		if (verbose >= 2)
 			printf("# ret = %d\n", ret);
 
@@ -145,7 +164,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 					printf("# Done parsing.\n");
 				else if (progress)
 					r = write(1, ".", 1);
-				if (!parse_multiple) // parse multiple packets?
+				if ((filename && !multiple) || (!filename && single))
 					ret = -1;
 
 				if (!no_render) {
@@ -160,12 +179,14 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 					psyc_setPacketLength(&packets[i]);
 
 					if (psyc_render(&packets[i], sendbuf, SEND_BUF_SIZE) == PSYC_RENDER_SUCCESS) {
-						if (filename && write(1, sendbuf, packets[i].length) == -1) {
-							perror("write");
-							ret = -1;
-						} else if (!filename && send(i, sendbuf, packets[i].length, 0) == -1) {
-							perror("send");
-							ret = -1;
+						if (!quiet) {
+							if (filename && write(1, sendbuf, packets[i].length) == -1) {
+								perror("write");
+								ret = -1;
+							} else if (!filename && send(i, sendbuf, packets[i].length, 0) == -1) {
+								perror("send");
+								ret = -1;
+							}
 						}
 					} else {
 						printf("# Render error");
