@@ -145,6 +145,24 @@ struct ParseState
 	}
 
 	/**
+	 * Parse PSYC packets.
+	 *
+	 * Generalized line-based packet parser.
+	 *
+	 * Params:
+	 * 	oper  = A reference to a character. In case of a variable, it will
+	 *          be set to the operator of that variable
+	 * 	name  = A reference to a String. It will point to the name of
+	 *          the variable or method and its length will be set accordingly
+	 * 	value = A reference to a String. It will point to the
+	 *          value/body the variable/method and its length will be set accordingly
+	 */
+	ParseRC parse ( ref char oper, ref char[] name, ref char[] value )
+	{
+		return psyc_parse(this, &oper, cast(String*) &name, cast(String*) &value);
+	}
+
+	/**
 	 * Change parse flags in state
 	 *
 	 * Params:
@@ -160,7 +178,7 @@ struct ParseState
 		if (flags & ParseFlag.START_AT_CONTENT)
 			this.part = Part.CONTENT;
 		else
-			this.part = 0;
+			this.part = Part.ROUTING;
 	}
 
 	/**
@@ -304,6 +322,7 @@ struct ParseListState
 	}
 }
 
+private:
 
 /**
  * Parse PSYC packets.
