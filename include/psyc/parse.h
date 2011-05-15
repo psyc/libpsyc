@@ -100,7 +100,8 @@
  * 			perror("Error %i happened :(\n", res);
  * 			return res;
  * 	}
- * } while (ret > 0)
+ * } 
+ * while (ret > 0)
  * @endcode
  *
  * This simple example does not consider some more complex cases when you
