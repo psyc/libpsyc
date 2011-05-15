@@ -19,66 +19,62 @@ enum ParseFlag
  */
 enum ParseRC
 {
-/// Error, packet is not ending with a valid delimiter.
+	/// Error, packet is not ending with a valid delimiter.
 	ERROR_END = -8,
-/// Error, expected NL after the method.
+	/// Error, expected NL after the method.
 	ERROR_METHOD = -7,
-/// Error, expected NL after a modifier.
+	/// Error, expected NL after a modifier.
 	ERROR_MOD_NL = -6,
-/// Error, modifier length is not numeric.
+	/// Error, modifier length is not numeric.
 	ERROR_MOD_LEN = -5,
-/// Error, expected TAB before modifier value.
+	/// Error, expected TAB before modifier value.
 	ERROR_MOD_TAB = -4,
-/// Error, modifier name is missing.
+	/// Error, modifier name is missing.
 	ERROR_MOD_NAME = -3,
-/// Error, expected NL after the content length.
+	/// Error, expected NL after the content length.
 	ERROR_LENGTH = -2,
-/// Error in packet.
+	/// Error in packet.
 	ERROR = -1,
-// Success, used internally.
-	SUCCESS = 0,
-/// Buffer contains insufficient amount of data.
-/// Fill another buffer and concatenate it with the end of the current buffer,
-/// from the cursor position to the end.
+	/// Buffer contains insufficient amount of data.
+	/// Fill another buffer and concatenate it with the end of the current buffer,
+	/// from the cursor position to the end.
 	INSUFFICIENT = 1,
-/// Routing modifier parsing done.
-/// Operator, name & value contains the respective parts.
+	/// Routing modifier parsing done.
+	/// Operator, name & value contains the respective parts.
 	ROUTING = 2,
-/// Start of an incomplete entity modifier.
-/// Operator & name are complete, value is incomplete.
+	/// Start of an incomplete entity modifier.
+	/// Operator & name are complete, value is incomplete.
 	ENTITY_START = 3,
-/// Continuation of an incomplete entity modifier.
+	/// Continuation of an incomplete entity modifier.
 	ENTITY_CONT = 4,
-/// End of an incomplete entity modifier.
+	/// End of an incomplete entity modifier.
 	ENTITY_END = 5,
-/// Entity modifier parsing done in one go.
-/// Operator, name & value contains the respective parts.
+	/// Entity modifier parsing done in one go.
+	/// Operator, name & value contains the respective parts.
 	ENTITY = 6,
-/// Start of an incomplete body.
-/// Name contains method, value contains part of the body.
+	/// Start of an incomplete body.
+	/// Name contains method, value contains part of the body.
 	BODY_START = 7,
-/// Continuation of an incomplete body.
+	/// Continuation of an incomplete body.
 	BODY_CONT = 8,
-/// End of an incomplete body.
+	/// End of an incomplete body.
 	BODY_END = 9,
-/// Body parsing done in one go, name contains method, value contains body.
+	/// Body parsing done in one go, name contains method, value contains body.
 	BODY = 10,
-/// Start of an incomplete content, value contains part of content.
-/// Used when ROUTING_ONLY is set.
+	/// Start of an incomplete content, value contains part of content.
+	/// Used when ROUTING_ONLY is set.
 	CONTENT_START = 7,
-/// Continuation of an incomplete body.
-/// Used when ROUTING_ONLY is set.
+	/// Continuation of an incomplete body.
+	/// Used when ROUTING_ONLY is set.
 	CONTENT_CONT = 8,
-/// End of an incomplete body.
-/// Used when ROUTING_ONLY is set.
+	/// End of an incomplete body.
+	/// Used when ROUTING_ONLY is set.
 	CONTENT_END = 9,
-/// Content parsing done in one go, value contains the whole content.
-/// Used when ROUTING_ONLY is set.
+	/// Content parsing done in one go, value contains the whole content.
+	/// Used when ROUTING_ONLY is set.
 	CONTENT = 10,
-// Binary value parsing complete, used internally.
-	COMPLETE = 11,
-// Binary value parsing incomplete, used internally.
-	INCOMPLETE = 12,
+	/// Finished parsing packet.
+	COMPLETE = 11
 }
 
 /**
