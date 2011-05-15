@@ -6,6 +6,7 @@ extern (C):
 
 enum ParseFlag
 {
+	ALL = 0
 	ROUTING_ONLY = 1,
 	START_AT_CONTENT = 2,
 }
