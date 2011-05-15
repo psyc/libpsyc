@@ -17,8 +17,8 @@
  *
  * and the according terms are used throughout this documentation and in the
  * return codes. You should be at least
- * vaguely familiar with what the difference between "body" and "content" as
- * well as "routing variable" and "entity variable" is.
+ * vaguely familiar with differences between "body" and "content" as
+ * well as "routing variable" and "entity variable".
  *
  *
  * To parse a packet you first have to initialize a state:
