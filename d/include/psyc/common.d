@@ -90,12 +90,16 @@ extern (C) MatchVar varTypes[];
 /**
  * Get the type of variable name.
  */
-Bool isRoutingVar(char *name, size_t len);
+Bool psyc_isRoutingVar(char *name, size_t len);
+
+alias psyc_isRoutingVar isRoutingVar;
 
 /**
  * Get the type of variable name.
  */
-Type getVarType(char *name, size_t len);
+Type psyc_getVarType(char *name, size_t len);
+
+alias psyc_getVarType getVarType;
 
 /**
  * Checks if long keyword string inherits from short keyword string.
