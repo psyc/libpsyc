@@ -269,6 +269,25 @@ void psyc_initParseState2 (psycParseState *state, uint8_t flags)
 }
 
 /**
+ * Change parse flags in state
+ *
+ * @param state Pointer to the state struct that should be initialized.
+ * @param flags Flags to be set for the parser, see psycParseFlag.
+ * @see psyc_initParseState
+ * @see psycParseFlag
+ */
+static inline
+void psyc_setParseFlags (psycParseState *state, uint8_t flags)
+{
+	state->flags = flags;
+
+	if (flags & PSYC_PARSE_START_AT_CONTENT)
+		state->part = PSYC_PART_CONTENT;
+}
+
+
+
+/**
  * Sets a new buffer in the parser state struct with data to be parsed.
  *
  * This function does NOT copy the buffer. It will parse whatever is
