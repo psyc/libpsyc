@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <assert.h>
 #include <unistd.h>
 #include <getopt.h>
@@ -19,7 +20,7 @@
 
 // cmd line args
 uint8_t verbose, stats;
-uint8_t routing_only, parse_multiple, no_render, progress;
+uint8_t routing_only, parse_multiple, no_render, quiet, progress;
 char *filename, *port = "4440";
 size_t recv_buf_size = RECV_BUF_SIZE;
 
@@ -32,7 +33,7 @@ int contbytes, last_ret;
 
 int main (int argc, char **argv) {
 	int c;
-	while ((c = getopt (argc, argv, "f:p:b:mnrsvP")) != -1) {
+	while ((c = getopt (argc, argv, "f:p:b:mnqrsvP")) != -1) {
 		switch (c) {
 			case 'f': filename = optarg; break;
 			case 'p': port = optarg;
@@ -43,6 +44,7 @@ int main (int argc, char **argv) {
 				break;
 			case 'm': parse_multiple = 1; break;
 			case 'n': no_render = 1; break;
+			case 'q': quiet = 1; break;
 			case 'r': routing_only = 1; break;
 			case 's': stats = 1; break;
 			case 'v': verbose++; break;
@@ -160,12 +162,14 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 					psyc_setPacketLength(&packets[i]);
 
 					if (psyc_render(&packets[i], sendbuf, SEND_BUF_SIZE) == PSYC_RENDER_SUCCESS) {
-						if (filename && write(1, sendbuf, packets[i].length) == -1) {
-							perror("write");
-							ret = -1;
-						} else if (!filename && send(i, sendbuf, packets[i].length, 0) == -1) {
-							perror("send");
-							ret = -1;
+						if (!quiet) {
+							if (filename && write(1, sendbuf, packets[i].length) == -1) {
+								perror("write");
+								ret = -1;
+							} else if (!filename && send(i, sendbuf, packets[i].length, 0) == -1) {
+								perror("send");
+								ret = -1;
+							}
 						}
 					} else {
 						printf("# Render error");

@@ -38,6 +38,7 @@ void test_file(const char* filename, size_t recv_buf_size) {
 	char buf[CONT_BUF_SIZE + RECV_BUF_SIZE];  // cont buf + recv buf: [  ccrrrr]
 	char *recvbuf = buf + CONT_BUF_SIZE;      // recv buf:                 ^^^^
 	size_t nbytes;
+	struct timeval start, end;
 
 	int fd = open(filename, O_RDONLY);
 	if (fd < 0) {
@@ -45,10 +46,19 @@ void test_file(const char* filename, size_t recv_buf_size) {
 		exit(1);
 	}
 
+
 	test_init(0);
+
+	if (stats)
+		gettimeofday(&start, NULL);
 
 	while ((nbytes = read(fd, (void*)recvbuf, recv_buf_size)))
 		test_input(0, recvbuf, nbytes);
+
+	if (stats) {
+		gettimeofday(&end, NULL);
+		printf("%ld ms\n", (end.tv_sec * 1000000 + end.tv_usec - start.tv_sec * 1000000 - start.tv_usec) / 1000);
+	}
 }
 
 void test_server(const char* port, size_t recv_buf_size) {
