@@ -115,6 +115,8 @@
 
 typedef enum
 {
+	/// Default Flag. Parse everything.
+	PSYC_PARSE_ALL = 0,
 	/// Parse only the header
 	PSYC_PARSE_ROUTING_ONLY = 1,
 	/// Parse only the content.
