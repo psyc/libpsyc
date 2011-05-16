@@ -10,7 +10,7 @@
 - user_profile: 1806 ms
 - activity: 903 ms
 
-* libjson
+* json-c
 
 : ./testJson -snqc 1000000 -f $file
 
