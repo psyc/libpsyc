@@ -265,7 +265,7 @@ struct ParseState
 
 	void getRemainingBuffer ( ref ubyte[] buf )
 	{
-		buf = this.buffer.ptr[cursor .. getRemainingLength()];
+		buf = this.buffer.ptr[cursor .. cursor + getRemainingLength()];
 	}
 
 }
