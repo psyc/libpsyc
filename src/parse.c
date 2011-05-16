@@ -202,6 +202,9 @@ parseRC psyc_parseModifier (psycParseState *state, char *oper,
 }
 
 /** Parse PSYC packets. */
+#ifdef __INLINE_PSYC_PARSE
+static inline
+#endif
 psycParseRC psyc_parse (psycParseState *state, char *oper,
                         psycString *name, psycString *value)
 {
@@ -483,6 +486,9 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 }
 
 /** List parser. */
+#ifdef __INLINE_PSYC_PARSE
+static inline
+#endif
 psycParseListRC psyc_parseList (psycParseListState *state, psycString *elem)
 {
 	if (state->cursor >= state->buffer.length)

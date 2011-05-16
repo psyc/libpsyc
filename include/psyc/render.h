@@ -58,11 +58,17 @@ typedef enum
  * @see psyc_newRawPacket2
  * @see psyc_setPacketLength
  */
+#ifdef __INLINE_PSYC_RENDER
+static inline
+#endif
 psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen);
 
 /**
  * Render a PSYC list into a buffer.
  */
+#ifdef __INLINE_PSYC_RENDER
+static inline
+#endif
 psycRenderListRC psyc_renderList (psycList *list, char *buffer, size_t buflen);
 
 /** @} */ // end of render group

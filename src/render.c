@@ -2,6 +2,9 @@
 #include <psyc/render.h>
 #include <psyc/syntax.h>
 
+#ifdef __INLINE_PSYC_RENDER
+static inline
+#endif
 psycRenderListRC psyc_renderList (psycList *list, char *buffer, size_t buflen)
 {
 	size_t i, cur = 0;
@@ -64,6 +67,9 @@ size_t psyc_renderModifier (psycModifier *mod, char *buffer)
 	return cur;
 }
 
+#ifdef __INLINE_PSYC_RENDER
+static inline
+#endif
 psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen)
 {
 	size_t i, cur = 0, len;
