@@ -5,13 +5,13 @@
 
 Parsing time of 1 000 000 packets in milliseconds:
 
-|           | libpsyc | json-c | json-glib | libxml-sax | libxml | rapidxml-fast | rapidxml |
+|           | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml fast | rapidxml |
 |-----------+---------+--------+-----------+------------+--------+---------------+----------|
 | presence  |     597 |   3247 |     10197 |       4997 |   7557 |          1643 |     1719 |
 | chat msg  |     714 |        |           |       5997 |   9777 |          1799 |     1893 |
 | activity  |     903 |   5768 |     16846 |      13357 |  28858 |          4001 |     4419 |
 | user prof |    1806 |   5847 |     17468 |       7350 |  12377 |          2218 |     2477 |
-| /         |       < |        |           |            |        |               |        > |
+| /         |      <> | <      |         > | <          |      > | <             |        > |
 
 
 * Commands used

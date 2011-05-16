@@ -1,5 +1,12 @@
 ORG_PATH = /usr/share/emacs/site-lisp/org-mode
-INIT = (setq load-path (cons \"/usr/share/emacs/site-lisp/org-mode\" load-path)) (require 'org-install)
+INIT = (setq load-path (cons \"/usr/share/emacs/site-lisp/org-mode\" load-path) \
+             make-backup-files nil \
+             org-export-author-info nil \
+             org-export-creator-info nil \
+             org-export-html-validation-link nil \
+             org-babel-tangle-pad-newline nil \
+             org-src-preserve-indentation t) \
+       (require 'org-install)
 
 wiki2org:
 	perl -pe '\
@@ -13,7 +20,6 @@ wiki2org:
 tangle:
 	emacs -Q --batch --eval \
 		"(progn ${INIT} (find-file \"benchmark.org\") \
-			(setq org-babel-tangle-pad-newline nil org-src-preserve-indentation t) \
 			(org-babel-tangle) (kill-buffer))"
 	perl -pi -e 'print "\n" unless $$p; $$p=1' packets/user_profile.psyc
 
