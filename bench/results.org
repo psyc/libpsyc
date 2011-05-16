@@ -1,55 +1,24 @@
 #+TITLE: Benchmark results
-#+OPTIONS: ^:{}
+#+OPTIONS: ^:{} toc:nil
 
-* libpsyc
+* Results
 
-: ./testPsyc -snqc 1000000 -f $file
+Parsing time of 1 000 000 packets in milliseconds:
 
-- presence: 597 ms
-- chat_msg: 714 ms
-- user_profile: 1806 ms
-- activity: 903 ms
+|           | libpsyc | json-c | rapidxml | rapidxml-fast | libxml | libxml-sax |
+|-----------+---------+--------+----------+---------------+--------+------------|
+| presence  |     597 |   3247 |     1719 |          1643 |   7557 |       4997 |
+| chat msg  |     714 |        |     1893 |          1799 |   9777 |       5997 |
+| activity  |     903 |   5768 |     4419 |          4001 |  28858 |      13357 |
+| user prof |    1806 |   5847 |     2477 |          2218 |  12377 |       7350 |
+| /         |       < |        |          |               |      > |            |
 
-* json-c
 
-: ./testJson -snqc 1000000 -f $file
+* Commands used
 
-- presence: 3247 ms
-- user_profile: 5847 ms
-- activity: 5768 ms
-
-* rapidxml
-
+: ./testPsyc -snc 1000000 -f $file
+: ./testJson -snc 1000000 -f $file
 : ./rapidxml 1000000 $file
-
-- presence: 1719 ms
-- chat_msg: 1893 ms
-- user_profile: 2477 ms
-- activity: 4419 ms
-
-* rapidxml fast mode
-
 : fast_mode=1 ./rapidxml 1000000 $file
-
-- presence: 1643 ms
-- chat_msg: 1799 ms
-- user_profile: 2218 ms
-- activity: 4001 ms
-
-* libxml
-
 : ./libxml 1000000 $file
-
-- presence: 7557 ms
-- chat_msg: 9777 ms
-- user_profile: 12377 ms
-- activity: 28858 ms
-
-* libxml sax
-
 : ./libxml-sax 1000000 $file
-
-- presence: 4997 ms
-- chat_msg: 5997 ms
-- user_profile: 7350 ms
-- activity: 13357 ms
