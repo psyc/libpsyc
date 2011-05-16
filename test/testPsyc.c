@@ -313,37 +313,19 @@ inline void resetString (psycString *s, uint8_t freeptr)
 
 int main (int argc, char **argv) {
 	int c;
-	while ((c = getopt (argc, argv, "f:p:b:c:nmqrsvPSh")) != -1) {
+	while ((c = getopt (argc, argv, "f:p:b:c:mnqrsvPSh")) != -1) {
 		switch (c) {
-			case 'f': filename = optarg; break;
-			case 'p': port = optarg; check_range(c, optarg, 1, 0); break;
-			case 'b': recv_buf_size = atoi(optarg); check_range(c, optarg, 1, RECV_BUF_SIZE); break;
-			case 'c': count = atoi(optarg); check_range(c, optarg, 1, 0); break;
-			case 'n': no_render = 1; break;
-			case 'm': multiple = 1; break;
-			case 'q': quiet = 1; break;
-			case 'r': routing_only = 1; break;
-			case 's': stats = 1; break;
-			case 'v': verbose++; break;
-			case 'P': progress = 1; break;
-			case 'S': single = 1; break;
+			CASE_f CASE_p CASE_b CASE_c
+			CASE_m CASE_n CASE_q CASE_r
+			CASE_s CASE_v CASE_S CASE_P
 			case 'h':
 				printf(
-					"testPsyc -f <filename> [-b <read_buf_size>] [-c <count>] [-mnqrSsvP]\n"
-					"testPsyc [-p <port>] [-b <recv_buf_size>] [-nqrsvP]\n"
-					"  -f <filename>\tInput file name\n"
-					"  -p <port>\t\tListen on TCP port, default is %s\n"
-					"  -b <buf_size>\tRead/receive buffer size, default is %d\n"
-					"  -c <count>\t\tParse data from file <count> times\n"
-					"  -m\t\t\tParse multiple packets from file\n"
-					"  -n\t\t\tNo rendering, only parsing\n"
-					"  -r\t\t\tParse routing header only\n"
-					"  -q\t\t\tQuiet mode, don't output rendered string\n"
-					"  -S\t\t\tSingle packet mode, close connection after parsing one packet\n"
-					"  -s\t\t\tShow statistics at the end\n"
-					"  -v\t\t\tVerbose, can be specified multiple times for more verbosity\n"
-					"  -P\t\t\tShow progress\n"
-					"  -h\t\t\tShow this help\n",
+					HELP_FILE("testPsyc", "mnqrSsvP")
+					HELP_PORT("testPsyc", "nqrsvP")
+					HELP_f HELP_p HELP_b HELP_c
+					HELP_m HELP_n HELP_r
+					HELP_q HELP_S HELP_s
+					HELP_v HELP_P HELP_h,
 					port, RECV_BUF_SIZE);
 				exit(0);
 			case '?': exit(-1);

@@ -428,6 +428,9 @@ const char * psyc_getParseRemainingBuffer (psycParseState *state)
  * @param value In case of a modifier it will point to the value,
  *              in case of the body it will point to the data.
  */
+#ifdef __INLINE_PSYC_PARSE
+static inline
+#endif
 psycParseRC psyc_parse (psycParseState *state, char *oper,
                         psycString *name, psycString *value);
 
@@ -443,6 +446,9 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
  * @param value Contains the list to be parsed.
  * @param elem It will point to the next element in the list.
  */
+#ifdef __INLINE_PSYC_PARSE
+static inline
+#endif
 psycParseListRC psyc_parseList (psycParseListState *state, psycString *elem);
 
 /** @} */ // end of parse group
