@@ -10,7 +10,10 @@ test/testMatch
 test/testParser
 test/testRender
 test/testPsyc
-test/testPsycFast
+test/testPsycSpeed
+test/testJson
+test/testJsonGlib
+test/testStrlen
 test/testText
 test/isRoutingVar
 test/getVarType

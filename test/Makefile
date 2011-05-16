@@ -4,7 +4,7 @@ CFLAGS_COMMON = -Wall -std=c99 ${OPT}
 CFLAGS = -I../include -I../src ${CFLAGS_COMMON}
 LDFLAGS = -L../lib
 LOADLIBES = -lpsyc -lm
-TARGETS = testPsyc testPsycFast testParser testMatch testRender testText isRoutingVar getVarType
+TARGETS = testPsyc testPsycSpeed testParser testMatch testRender testText isRoutingVar getVarType
 O = test.o
 WRAPPER =
 DIET = diet
@@ -21,8 +21,15 @@ all: ${TARGETS}
 it: all
 
 testPsyc: LOADLIBES := ${LOADLIBES} ${LOADLIBES_NET}
-testPsycFast: LOADLIBES := ${LOADLIBES} ${LOADLIBES_NET}
-#testPsycFast: LOADLIBES := ${LOADLIBES_NET}
+testPsycSpeed: LOADLIBES := ${LOADLIBES} ${LOADLIBES_NET}
+#testPsycSpeed: LOADLIBES := ${LOADLIBES_NET}
+
+testJson: LOADLIBES := ${LOADLIBES_NET} -ljson
+
+testJsonGlib: CFLAGS = ${CFLAGS_COMMON} -I/usr/include/json-glib-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+testJsonGlib: LOADLIBES := ${LOADLIBES_NET} -ljson-glib-1.0
+
+testStrlen: LOADLIBES := ${LOADLIBES_NET}
 
 diet: WRAPPER = ${DIET}
 diet: all
