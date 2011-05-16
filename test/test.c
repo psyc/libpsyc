@@ -5,6 +5,10 @@
  *	"The C source code presented in this document is hereby granted to the public domain, and is completely free of any license restriction."
  */
 
+#ifndef __USE_POSIX
+# define __USE_POSIX
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,7 +22,6 @@
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#define __USE_POSIX
 #include <netdb.h>
 
 #include "test.h"
