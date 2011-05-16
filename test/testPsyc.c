@@ -12,7 +12,7 @@
 #include <psyc/render.h>
 #include <psyc/syntax.h>
 
-#include "test.h"
+#include "test.c"
 
 // max size for routing & entity header
 #define ROUTING_LINES 16
@@ -31,8 +31,9 @@ psycModifier entity[NUM_PARSERS][ENTITY_LINES];
 
 int contbytes, exit_code;
 
-static inline void resetString (psycString *s, uint8_t freeptr);
-t
+static inline
+void resetString (psycString *s, uint8_t freeptr);
+
 // initialize parser & packet variables
 void test_init (int i) {
 	// reset parser state & packet
@@ -301,8 +302,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	return ret;
 }
 
-static inline
-void resetString (psycString *s, uint8_t freeptr)
+inline void resetString (psycString *s, uint8_t freeptr)
 {
 	if (freeptr && s->length)
 		free((void*)s->ptr);

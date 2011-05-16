@@ -1,9 +1,10 @@
 OPT = -O2
 DEBUG = 2
-CFLAGS = -I../include -I../src -Wall -std=c99 ${OPT}
+CFLAGS_COMMON = -Wall -std=c99 ${OPT}
+CFLAGS = -I../include -I../src ${CFLAGS_COMMON}
 LDFLAGS = -L../lib
 LOADLIBES = -lpsyc -lm
-TARGETS = testPsyc testParser testMatch testRender testText isRoutingVar getVarType
+TARGETS = testPsyc testPsycFast testParser testMatch testRender testText isRoutingVar getVarType
 O = test.o
 WRAPPER =
 DIET = diet
@@ -20,7 +21,8 @@ all: ${TARGETS}
 it: all
 
 testPsyc: LOADLIBES := ${LOADLIBES} ${LOADLIBES_NET}
-testPsyc: test.o
+testPsycFast: LOADLIBES := ${LOADLIBES} ${LOADLIBES_NET}
+#testPsycFast: LOADLIBES := ${LOADLIBES_NET}
 
 diet: WRAPPER = ${DIET}
 diet: all
