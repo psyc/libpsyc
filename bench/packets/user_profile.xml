@@ -1,0 +1,11 @@
+<UserProfile>
+    <Name>Silvio Berlusconi</Name>
+    <JobTitle>Premier</JobTitle>
+    <Country>I</Country>
+    <Address>
+	    <Street>Via del Colosseo, 1</Street>
+	    <PostalCode>00100</PostalCode>
+	    <City>Roma</City>
+    </Address>
+    <Page>http://example.org</Page>
+</UserProfile>

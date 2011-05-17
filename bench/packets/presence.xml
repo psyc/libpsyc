@@ -1,0 +1,4 @@
+<presence from='juliet@example.com/balcony'
+            to='benvolio@example.net'>
+	<show>away</show>
+</presence>
