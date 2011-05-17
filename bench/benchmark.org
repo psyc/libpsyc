@@ -19,30 +19,17 @@ Since presence packets are by far the dominant messaging content
 in the XMPP network, we'll start with one of them.
 Here's an example from paragraph 4.4.2 of RFC 6121.
 
-#+BEGIN_SRC xml :tangle packets/presence.xml
-<presence from='juliet@example.com/balcony'
-            to='benvolio@example.net'>
-	<show>away</show>
-</presence>
-#+END_SRC
+#+INCLUDE: packets/presence.xml src xml
 
 And here's the same information in a JSON rendition:
 
-#+BEGIN_SRC js :tangle packets/presence.json
-["presence",{"from":"juliet@example.com/balcony","to":"benvolio@example.net"},{"show":"away"}]
-#+END_SRC
+#INCLUDE: packets/presence.json src js
 
 Here's the equivalent PSYC packet in verbose form
 (since it is a multicast, the single recipients do not
 need to be mentioned):
 
-#+BEGIN_SRC psyc :tangle packets/presence.psyc
-:_context	psyc://example.com/~juliet
-
-=_degree_availability	4
-_notice_presence
-|
-#+END_SRC
+#+INCLUDE: packets/presence.psyc src psyc
 
 And the same in compact form:
 
@@ -58,133 +45,38 @@ np
 
 XML:
 
-#+BEGIN_SRC xml :tangle packets/chat_msg.xml
-<message
-    from='juliet@example.com/balcony'
-    id='ktx72v49'
-    to='romeo@example.net'
-    type='chat'
-    xml:lang='en'>
-  <body>Art thou not Romeo, and a Montague?</body>
-</message>
-#+END_SRC
+#+INCLUDE: packets/chat_msg.xml src xml
 
 PSYC:
 
-#+BEGIN_SRC psyc :tangle packets/chat_msg.psyc
-:_source	psyc://example.com/~juliet
-:_target	psyc://example.net/~romeo
-
-_message_private
-Art thou not Romeo, and a Montague?
-|
-#+END_SRC
+#+INCLUDE: packets/chat_msg.psyc src psyc
 
 ** A new status updated activity
 Example taken from http://onesocialweb.org/spec/1.0/osw-activities.html
 You could call this XML namespace hell:
 
-#+BEGIN_SRC xml :tangle packets/activity.xml
-<iq type='set'
-    from='hamlet@denmark.lit/snsclient'
-    to='hamlet@denmark.lit'
-    id='osw1'>
- <pubsub xmlns='http://jabber.org/protocol/pubsub'>
-    <publish node='urn:xmpp:microblog:0'>
-      <item>
-        <entry xmlns="http://www.w3.org/2005/Atom" 
-               xmlns:activity="http://activitystrea.ms/spec/1.0/" 
-               xmlns:osw="http://onesocialweb.org/spec/1.0/">
-          <title>to be or not to be ?</title>
-          <activity:verb>http://activitystrea.ms/schema/1.0/post</activity:verb>
-          <activity:object>
-            <activity:object-type>http://onesocialweb.org/spec/1.0/object/status</activity:object-type>
-            <content type="text/plain">to be or not to be ?</content>
-          </activity:object>
-          <osw:acl-rule>
-            <osw:acl-action permission="http://onesocialweb.org/spec/1.0/acl/permission/grant">
-              http://onesocialweb.org/spec/1.0/acl/action/view
-            </osw:acl-action>
-            <osw:acl-subject type="http://onesocialweb.org/spec/1.0/acl/subject/everyone"/>
-          </osw:acl-rule>
-        </entry>
-      </item>
-    </publish>
-  </pubsub>
-</iq>
-#+END_SRC
+#+INCLUDE: packets/activity.xml src xml
 
 http://activitystrea.ms/head/json-activity.html proposes a JSON encoding
 of this. We'll have to add a routing header to it.
 
-#+BEGIN_SRC js :tangle packets/activity.json
-["activity",{"from":"hamlet@denmark.lit/snsclient"},{"verb":"post",
-"title":"to be or not to be ?","object":{"type":"status",
-"content":"to be or not to be ?","contentType":"text/plain"}}]
-#+END_SRC
+#+INCLUDE: packets/activity.json src js
 
 http://about.psyc.eu/Activity suggests a PSYC mapping for activity
 streams. Should a "status post" be considered equivalent to a presence
 description announcement or just a message in the "microblogging" channel?
 We'll use the latter here:
 
-#+BEGIN_SRC psyc :tangle packets/activity.psyc
-:_context	psyc://denmark.lit/~hamlet#_follow
-
-:_subject	to be or not to be ?
-:_type_content	text/plain
-_message
-to be or not to be ?
-|
-#+END_SRC
+#+INCLUDE: packets/activity.psyc src psyc
 
 ** A message with JSON-unfriendly characters
-#+BEGIN_SRC xml :tangle packets/json-unfriendly.xml
-<message
-    from='romeo@example.net/orchard'
-    id='sl3nx51f'
-    to='juliet@example.com/balcony'
-    type='chat'
-    xml:lang='en'>
-  <body>"Neither, fair saint, if either thee dislike.", he said.
-And
-the
-rest
-is
-history.</body>
-</message>
-#+END_SRC
+#+INCLUDE: packets/json-unfriendly.xml src xml
 
 ** A message with XML-unfriendly characters
-#+BEGIN_SRC xml :tangle packets/xml-unfriendly.xml
-<message
-    from='juliet@example.com/balcony'
-    id='z94nb37h'
-    to='romeo@example.net'
-    type='chat'
-    xml:lang='en'>
-  <body>Wherefore art thou, Romeo?</body>
-  <body xml:lang='cs'>
-     Pro&#x010D;e&#x017D; jsi ty, Romeo?
-   </body>
-</message>
-#+END_SRC
+#+INCLUDE: packets/xml-unfriendly.xml src xml
 
 ** A message with PSYC-unfriendly strings
-#+BEGIN_SRC xml :tangle packets/psyc-unfriendly.xml
-<message
-    from='juliet@example.com/balcony'
-    id='c8xg3nf8'
-    to='romeo@example.net'
-    type='chat'
-    xml:lang='en'>
-  <subject>I implore you with a pointless
-newline in a header variable</subject>
-  <body>Wherefore art thou, Romeo?
-|
-And for practicing purposes we added a PSYC packet delimiter.</body>
-</message>
-#+END_SRC
+#+INCLUDE: packets/psyc-unfriendly.xml src xml
 
 ** A packet containing a JPEG photograph
 ... TBD ...
@@ -194,41 +86,31 @@ In this test we'll not consider XMPP at all and simply compare the
 efficiency of the three syntaxes at serializing a typical user data base
 storage information. We'll again start with XML:
 
-#+BEGIN_SRC xml :tangle packets/user_profile.xml
-<UserProfile>
-    <Name>Silvio Berlusconi</Name>
-    <JobTitle>Premier</JobTitle>
-    <Country>I</Country>
-    <Address>
-	    <Street>Via del Colosseo, 1</Street>
-	    <PostalCode>00100</PostalCode>
-	    <City>Roma</City>
-    </Address>
-    <Page>http://example.org</Page>
-</UserProfile>
-#+END_SRC
+#+INCLUDE: packets/user_profile.xml src xml
 
 In JSON this would look like this:
 
-#+BEGIN_SRC js :tangle packets/user_profile.json
-["UserProfile",{"Name":"Silvio Berlusconi","JobTitle":"Premier","Country":"I","Address":
-{"Street":"Via del Colosseo, 1","PostalCode":"00100","City":"Roma"},"Page":"http://example.org"}]
-#+END_SRC
+#+INCLUDE: packets/user_profile.json src js
 
 Here's a way to model this in PSYC:
 
-#+BEGIN_SRC psyc :tangle packets/user_profile.psyc
+#+INCLUDE: packets/user_profile.psyc src psyc
 
-:_name	Silvio Berlusconi
-:_title_job	Premier
-:_country	I
-:_address_street	Via del Colosseo, 1
-:_address_code_postal	00100
-:_address_city	Roma
-:_page	http://example.org
-_profile_user
-|
-#+END_SRC
+* Results
+
+Parsing time of 1 000 000 packets in milliseconds:
+
+| input:    |   PSYC |         |   JSON |           |            |    XML |          |
+| parser:   | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
+|-----------+--------+---------+--------+-----------+------------+--------+----------|
+| presence  |     30 |     246 |   2463 |     10197 |       4997 |   7557 |     1719 |
+| chat msg  |     41 |     320 |        |           |       5997 |   9777 |     1893 |
+| activity  |     42 |     366 |   4666 |     16846 |      13357 |  28858 |     4419 |
+| user prof |     55 |     608 |   4715 |     17468 |       7350 |  12377 |     2477 |
+|-----------+--------+---------+--------+-----------+------------+--------+----------|
+| /         |      < |       > |      < |         > |          < |        |        > |
+
+These tests were performed on a 2.53 GHz Intel(R) Core(TM)2 Duo P9500 CPU.
 
 * Conclusions
 ... TBD ...
@@ -268,3 +150,19 @@ After a month of development libpsyc is already performing pretty
 well, but we presume various optimizations, like rewriting parts
 in assembler, are possible.
 
+
+* Appendix
+** Tools used
+
+libpsyc:
+
+: test/testStrlen -sc 1000000 -f $file
+: test/testPsycSpeed -sc 1000000 -f $file
+: test/testJson -snc 1000000 -f $file
+: test/testJsonGlib -snc 1000000 -f $file
+
+xmlbench:
+
+: parse/libxml-sax 1000000 $file
+: parse/libxml 1000000 $file
+: parse/rapidxml 1000000 $file

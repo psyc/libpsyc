@@ -1,0 +1,11 @@
+<message
+    from='juliet@example.com/balcony'
+    id='z94nb37h'
+    to='romeo@example.net'
+    type='chat'
+    xml:lang='en'>
+  <body>Wherefore art thou, Romeo?</body>
+  <body xml:lang='cs'>
+     Pro&#x010D;e&#x017D; jsi ty, Romeo?
+   </body>
+</message>

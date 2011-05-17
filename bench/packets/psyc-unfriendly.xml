@@ -1,0 +1,12 @@
+<message
+    from='juliet@example.com/balcony'
+    id='c8xg3nf8'
+    to='romeo@example.net'
+    type='chat'
+    xml:lang='en'>
+  <subject>I implore you with a pointless
+newline in a header variable</subject>
+  <body>Wherefore art thou, Romeo?
+|
+And for practicing purposes we added a PSYC packet delimiter.</body>
+</message>
