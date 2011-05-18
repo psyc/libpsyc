@@ -1,3 +1,3 @@
-["message",{"from":"juliet@example.com/balcony',"to":"romeo@example.net",
+["message",{"from":"juliet@example.com/balcony","to":"romeo@example.net",
 "subject":"I implore you with a pointless\nnewline in a header variable"},
-"Wherefore art thou, Romeo?\n|\nAnd for practicing purposes we added a PSYC packet delimiter.]
+"Wherefore art thou, Romeo?\n|\nAnd for practicing purposes we added a PSYC packet delimiter."]

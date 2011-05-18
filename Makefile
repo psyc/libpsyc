@@ -1,4 +1,4 @@
-.PHONY: doc test
+.PHONY: doc test bench
 
 all:
 	${MAKE} -C src
