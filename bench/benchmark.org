@@ -43,13 +43,24 @@ np
 
 ** An average chat message
 
-XML:
+XMPP:
 
 #+INCLUDE: packets/chat_msg.xml src xml
+
+JSON:
+
+#+INCLUDE: packets/chat_msg.json src js
 
 PSYC:
 
 #+INCLUDE: packets/chat_msg.psyc src psyc
+
+Why PSYC doesn't have an id? Because packet counting from contexts
+and circuits is automatic: The packet already has a number just by
+being there.
+
+Also, PSYC by default doesn't mention a "resource" in XMPP terms,
+instead it allows for more addressing schemes than just PSYC.
 
 ** A new status updated activity
 Example taken from http://onesocialweb.org/spec/1.0/osw-activities.html
@@ -71,12 +82,16 @@ We'll use the latter here:
 
 ** A message with JSON-unfriendly characters
 #+INCLUDE: packets/json-unfriendly.xml src xml
+#+INCLUDE: packets/json-unfriendly.json src js
+#+INCLUDE: packets/json-unfriendly.psyc src psyc
 
 ** A message with XML-unfriendly characters
 #+INCLUDE: packets/xml-unfriendly.xml src xml
 
 ** A message with PSYC-unfriendly strings
 #+INCLUDE: packets/psyc-unfriendly.xml src xml
+#+INCLUDE: packets/psyc-unfriendly.json src js
+#+INCLUDE: packets/psyc-unfriendly.psyc src psyc
 
 ** A packet containing a JPEG photograph
 ... TBD ...
