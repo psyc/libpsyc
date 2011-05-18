@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/select.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 
 #include <netinet/in.h>
@@ -50,10 +51,10 @@ void *get_in_addr (struct sockaddr *sa) {
 }
 
 void test_file(const char* filename, size_t count, size_t recv_buf_size) {
-	char buf[CONT_BUF_SIZE + RECV_BUF_SIZE];  // cont buf + recv buf: [  ccrrrr]
-	char *recvbuf = buf + CONT_BUF_SIZE;      // recv buf:                 ^^^^
+	char *buf, *recvbuf; // cont buf + recv buf: [  ccrrrr]
 	size_t i, nbytes;
 	struct timeval start, end;
+	struct stat st;
 
 	int fd = open(filename, O_RDONLY);
 	if (fd < 0) {
@@ -61,18 +62,38 @@ void test_file(const char* filename, size_t count, size_t recv_buf_size) {
 		exit(1);
 	}
 
+	fstat(fd, &st);
+
+	buf = malloc(CONT_BUF_SIZE + st.st_size);
+	if (!buf) {
+		perror("malloc");
+		exit(1);
+	}
+	recvbuf = buf + CONT_BUF_SIZE;
+
 	test_init(0);
 
-	if (stats)
-		gettimeofday(&start, NULL);
+	if (recv_buf_size) {
+		if (stats)
+			gettimeofday(&start, NULL);
 
-	while ((nbytes = read(fd, (void*)recvbuf, recv_buf_size)))
+		for (i = 0; i < count; i++)
+			while ((nbytes = read(fd, (void*)recvbuf, recv_buf_size)))
+				test_input(0, recvbuf, nbytes);
+
+	} else {
+		nbytes = read(fd, (void*)recvbuf, RECV_BUF_SIZE);
+
+		if (stats)
+			gettimeofday(&start, NULL);
+
 		for (i = 0; i < count; i++)
 			test_input(0, recvbuf, nbytes);
+	}
 
 	if (stats) {
 		gettimeofday(&end, NULL);
-		printf("%ld ms\n", (end.tv_sec * 1000000 + end.tv_usec - start.tv_sec * 1000000 - start.tv_usec) / 1000);
+		printf("%ld\n", (end.tv_sec * 1000000 + end.tv_usec - start.tv_sec * 1000000 - start.tv_usec) / 1000);
 	}
 }
 

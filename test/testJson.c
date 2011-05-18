@@ -18,43 +18,13 @@
 char *filename, *port = "4441";
 uint8_t verbose, stats;
 uint8_t multiple, single, no_render, quiet, progress;
-size_t count = 1, recv_buf_size = RECV_BUF_SIZE;
+size_t count = 1, recv_buf_size;
 
 int exit_code;
 
 json_object *obj;
 json_tokener *tok;
 enum json_tokener_error error;
-
-int main (int argc, char **argv) {
-	int c;
-
-	while ((c = getopt (argc, argv, "f:p:b:c:mnqsvPSh")) != -1) {
-		switch (c) {
-			CASE_f CASE_p CASE_b CASE_c
-			CASE_m CASE_n CASE_q CASE_s
-			CASE_v CASE_S CASE_P
-			case 'h':
-				printf(
-					HELP_FILE("testJson", "mnqSsvP")
-					HELP_PORT("testJson", "nqsvP")
-					HELP_f HELP_p HELP_b HELP_c
-					HELP_m HELP_n HELP_q HELP_S
-					HELP_s HELP_v HELP_P HELP_h,
-					port, RECV_BUF_SIZE);
-				exit(0);
-			case '?': exit(-1);
-			default:  abort();
-		}
-	}
-
-	if (filename)
-		test_file(filename, count, recv_buf_size);
-	else
-		test_server(port, count, recv_buf_size);
-
-	return exit_code;
-}
 
 void test_init (int i) {
 	tok = json_tokener_new();
@@ -110,4 +80,34 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	} while (cursor < nbytes);
 
 	return ret;
+}
+
+int main (int argc, char **argv) {
+	int c;
+
+	while ((c = getopt (argc, argv, "f:p:b:c:mnqsvPSh")) != -1) {
+		switch (c) {
+			CASE_f CASE_p CASE_b CASE_c
+			CASE_m CASE_n CASE_q CASE_s
+			CASE_v CASE_S CASE_P
+			case 'h':
+				printf(
+					HELP_FILE("testJson", "mnqSsvP")
+					HELP_PORT("testJson", "nqsvP")
+					HELP_f HELP_p HELP_b HELP_c
+					HELP_m HELP_n HELP_q HELP_S
+					HELP_s HELP_v HELP_P HELP_h,
+					port, RECV_BUF_SIZE);
+				exit(0);
+			case '?': exit(-1);
+			default:  abort();
+		}
+	}
+
+	if (filename)
+		test_file(filename, count, recv_buf_size);
+	else
+		test_server(port, count, recv_buf_size);
+
+	return exit_code;
 }

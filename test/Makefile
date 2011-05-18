@@ -2,6 +2,7 @@ OPT = -O2
 DEBUG = 2
 CFLAGS_COMMON = -Wall -std=c99 ${OPT}
 CFLAGS = -I../include -I../src ${CFLAGS_COMMON}
+CFLAGS_TEST = -Wall ${OPT}
 LDFLAGS = -L../lib
 LOADLIBES = -lpsyc -lm
 TARGETS = testPsyc testPsycSpeed testParser testMatch testRender testText isRoutingVar getVarType
@@ -11,6 +12,7 @@ DIET = diet
 PORT = 4440
 NC = nc
 DIFF = diff
+TEE = tee
 
 ifeq ($(shell uname),SunOS)
   LOADLIBES_NET := -lsocket -lnsl
@@ -20,7 +22,9 @@ endif
 all: ${TARGETS}
 it: all
 
+testPsyc: CFLAGS := ${CFLAGS_TEST}
 testPsyc: LOADLIBES := ${LOADLIBES} ${LOADLIBES_NET}
+testPsycSpeed: CFLAGS := ${CFLAGS_TEST}
 testPsycSpeed: LOADLIBES := ${LOADLIBES} ${LOADLIBES_NET}
 #testPsycSpeed: LOADLIBES := ${LOADLIBES_NET}
 
@@ -49,6 +53,23 @@ test: ${TARGETS}
 	./getVarType
 	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testPsyc -f $$f | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
 	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testPsyc -rf $$f | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
+
+bench: bench-psyc bench-json bench-xml
+
+bench-dir:
+	@mkdir -p ../bench/results
+
+bench-psyc: bench-dir testStrlen testPsycSpeed
+	for f in ../bench/packets/*.psyc; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
+	for f in ../bench/packets/*.psyc; do bf=`basename $$f`; echo libpsyc: $$f; ./testPsycSpeed -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
+
+bench-json: bench-dir testStrlen testJson testJsonGlib
+	for f in ../bench/packets/*.json; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
+	for f in ../bench/packets/*.json; do bf=`basename $$f`; echo json-c: $$bf; ./testJson -snc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
+	for f in ../bench/packets/*.json; do bf=`basename $$f`; echo json-glib: $$bf; ./testJsonGlib -snc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf-glib; done
+
+bench-xml: bench-dir testStrlen
+	for f in ../bench/packets/*.xml; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
 
 .NOTPARALLEL: nettestrun
 

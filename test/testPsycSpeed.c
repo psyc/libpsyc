@@ -21,7 +21,7 @@
 char *filename, *port = "4440";
 uint8_t verbose, stats;
 uint8_t routing_only;
-size_t count = 1, recv_buf_size = RECV_BUF_SIZE;
+size_t count = 1, recv_buf_size;
 
 psycParseState parser;
 

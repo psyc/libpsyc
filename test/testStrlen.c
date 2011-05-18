@@ -16,7 +16,7 @@
 char *filename, *port = "4443";
 uint8_t verbose, stats;
 uint8_t no_render, quiet, progress;
-size_t count = 1, recv_buf_size = RECV_BUF_SIZE;
+size_t count = 1, recv_buf_size;
 
 int exit_code;
 
