@@ -23,7 +23,7 @@ Here's an example from paragraph 4.4.2 of RFC 6121.
 
 And here's the same information in a JSON rendition:
 
-#INCLUDE: packets/presence.json src js
+#+INCLUDE: packets/presence.json src js
 
 Here's the equivalent PSYC packet in verbose form
 (since it is a multicast, the single recipients do not
