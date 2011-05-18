@@ -16,7 +16,7 @@
 
 #define CASE_f case 'f': filename = optarg; break;
 #define CASE_p case 'p': port = optarg; check_range(c, optarg, 1, 0); break;
-#define CASE_b case 'b': recv_buf_size = atoi(optarg); check_range(c, optarg, 1, RECV_BUF_SIZE); break;
+#define CASE_b case 'b': recv_buf_size = atoi(optarg); check_range(c, optarg, 1, 0); break;
 #define CASE_c case 'c': count = atoi(optarg); check_range(c, optarg, 1, 0); break;
 #define CASE_n case 'n': no_render = 1; break;
 #define CASE_m case 'm': multiple = 1; break;

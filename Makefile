@@ -30,6 +30,9 @@ testdebug: debug
 test: all
 	${MAKE} -C test test nettest
 
+bench: all
+	${MAKE} -C test bench
+
 doc:
 	doxygen
 
