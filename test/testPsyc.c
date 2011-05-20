@@ -302,7 +302,8 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	return ret;
 }
 
-inline void resetString (psycString *s, uint8_t freeptr)
+static inline
+void resetString (psycString *s, uint8_t freeptr)
 {
 	if (freeptr && s->length)
 		free((void*)s->ptr);

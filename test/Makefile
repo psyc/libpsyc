@@ -1,8 +1,6 @@
 OPT = -O2
 DEBUG = 2
-CFLAGS_COMMON = -Wall -std=c99 ${OPT}
-CFLAGS = -I../include -I../src ${CFLAGS_COMMON}
-CFLAGS_TEST = -Wall ${OPT}
+CFLAGS = -I../include -I../src -Wall -std=c99 ${OPT}
 LDFLAGS = -L../lib
 LOADLIBES = -lpsyc -lm
 TARGETS = testPsyc testPsycSpeed testParser testMatch testRender testText isRoutingVar getVarType
@@ -22,15 +20,13 @@ endif
 all: ${TARGETS}
 it: all
 
-testPsyc: CFLAGS := ${CFLAGS_TEST}
 testPsyc: LOADLIBES := ${LOADLIBES} ${LOADLIBES_NET}
-testPsycSpeed: CFLAGS := ${CFLAGS_TEST}
 testPsycSpeed: LOADLIBES := ${LOADLIBES} ${LOADLIBES_NET}
 #testPsycSpeed: LOADLIBES := ${LOADLIBES_NET}
 
 testJson: LOADLIBES := ${LOADLIBES_NET} -ljson
 
-testJsonGlib: CFLAGS = ${CFLAGS_COMMON} -I/usr/include/json-glib-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+testJsonGlib: CFLAGS := ${CFLAGS} -I/usr/include/json-glib-1.0 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
 testJsonGlib: LOADLIBES := ${LOADLIBES_NET} -ljson-glib-1.0
 
 testStrlen: LOADLIBES := ${LOADLIBES_NET}

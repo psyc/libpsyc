@@ -52,7 +52,7 @@ void *get_in_addr (struct sockaddr *sa) {
 
 void test_file(const char* filename, size_t count, size_t recv_buf_size) {
 	char *buf, *recvbuf; // cont buf + recv buf: [  ccrrrr]
-	size_t i, nbytes;
+	size_t i, nbytes, size = 0;
 	struct timeval start, end;
 	struct stat st;
 
@@ -82,13 +82,14 @@ void test_file(const char* filename, size_t count, size_t recv_buf_size) {
 				test_input(0, recvbuf, nbytes);
 
 	} else {
-		nbytes = read(fd, (void*)recvbuf, RECV_BUF_SIZE);
+		while ((nbytes = read(fd, (void*)recvbuf + size, RECV_BUF_SIZE)))
+			size += nbytes;
 
 		if (stats)
 			gettimeofday(&start, NULL);
 
 		for (i = 0; i < count; i++)
-			test_input(0, recvbuf, nbytes);
+			test_input(0, recvbuf, size);
 	}
 
 	if (stats) {
