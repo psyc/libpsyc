@@ -48,7 +48,8 @@ const size_t psyc_varTypesNum = PSYC_NUM_ELEM(psyc_varTypes);
 /**
  * Get the type of variable name.
  */
-psycBool psyc_isRoutingVar(const char *name, size_t len)
+inline
+psycBool psyc_isRoutingVar2(const char *name, size_t len)
 {
 	//return psyc_matchArray(psyc_routingVars, PSYC_NUM_ELEM(psyc_routingVars), name, len, 0);
 	size_t cursor = 1;
@@ -86,10 +87,16 @@ psycBool psyc_isRoutingVar(const char *name, size_t len)
 	return matching[0] >= 0 ? PSYC_TRUE : PSYC_FALSE;
 }
 
+psycBool psyc_isRoutingVar(psycString *name)
+{
+	return psyc_isRoutingVar2(name->ptr, name->length);
+}
+
 /**
  * Get the type of variable name.
  */
-psycType psyc_getVarType(const char *name, size_t len)
+inline
+psycType psyc_getVarType2(const char *name, size_t len)
 {
 	//return psyc_matchArray(psyc_varTypes, PSYC_NUM_ELEM(psyc_varTypes), name, len, 1);
 	size_t cursor = 1;
@@ -128,4 +135,9 @@ psycType psyc_getVarType(const char *name, size_t len)
 
 	// return first match if found
 	return matching[0] >= 0 ? psyc_varTypes[matching[0]].value : 0;
+}
+
+psycType psyc_getVarType(psycString *name)
+{
+	return psyc_getVarType2(name->ptr, name->length);
 }

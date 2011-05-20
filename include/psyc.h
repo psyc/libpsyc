@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <sys/types.h>
 
 #define PSYC_EPOCH      1440444041      // 2015-08-24 21:20:41 CET (Monday)
 
@@ -124,24 +125,22 @@ extern const psycString PSYC_routingVars[];
 extern const psycMatchVar PSYC_varTypes[];
 
 /**
- * Get the type of variable name.
+ * Is this a routing variable name?
  */
-psycBool psyc_isRoutingVar(const char *name, size_t len);
+psycBool psyc_isRoutingVar(psycString *name);
+/**
+ * Is this a routing variable name?
+ */
+psycBool psyc_isRoutingVar2(const char *name, size_t len);
 
 /**
  * Get the type of variable name.
  */
-psycType psyc_getVarType(const char *name, size_t len);
-
+psycType psyc_getVarType(psycString *name);
 /**
- * Is this a list variable name?
+ * Get the type of variable name.
  */
-static inline
-psycBool psyc_isListVar(psycString *name)
-{
-	return name->length < 5 || memcmp(name->ptr, "_list", 5) != 0 ||
-		(name->length > 5 && name->ptr[5] != '_') ? PSYC_FALSE : PSYC_TRUE;
-}
+psycType psyc_getVarType2(const char *name, size_t len);
 
 /**
  * Is this a list variable name?
@@ -149,7 +148,17 @@ psycBool psyc_isListVar(psycString *name)
 static inline
 psycBool psyc_isListVar2(const char *name, size_t len)
 {
-	return psyc_isListVar(&(psycString){len, name});
+	return len < 5 || memcmp(name, "_list", 5) != 0 ||
+		(len > 5 && name[5] != '_') ? PSYC_FALSE : PSYC_TRUE;
+}
+
+/**
+ * Is this a list variable name?
+ */
+static inline
+psycBool psyc_isListVar(psycString *name)
+{
+	return psyc_isListVar2(name->ptr, name->length);
 }
 
 /**
