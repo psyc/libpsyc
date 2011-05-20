@@ -451,6 +451,65 @@ static inline
 #endif
 psycParseListRC psyc_parseList (psycParseListState *state, psycString *elem);
 
+static inline
+psycBool psyc_parseNumber2 (const char *value, size_t len, ssize_t *n)
+{
+	size_t c = 0;
+	uint8_t neg = 0;
+
+	if (!value)
+		return PSYC_FALSE;
+
+	if (value[0] == '-')
+		neg = ++c;
+
+	*n = 0;
+	while (c < len && value[c] >= '0' && value[c] <= '9')
+		*n = 10 * *n + (value[c++] - '0');
+
+	if (c != len)
+		return PSYC_FALSE;
+
+	if (neg)
+		*n = 0 - *n;
+
+	return PSYC_TRUE;
+}
+
+static inline
+psycBool psyc_parseNumber (psycString *value, ssize_t *n)
+{
+	return psyc_parseNumber2(value->ptr, value->length, n);
+}
+
+static inline
+psycBool psyc_parseTime2 (const char *value, size_t len, time_t *t)
+{
+	return psyc_parseNumber2(value, len, t);
+}
+
+static inline
+psycBool psyc_parseTime (psycString *value, time_t *t)
+{
+	return psyc_parseNumber2(value->ptr, value->length, t);
+}
+
+static inline
+psycBool psyc_parseDate2 (const char *value, size_t len, time_t *t)
+{
+	if (psyc_parseNumber2(value, len, t)) {
+		*t += PSYC_EPOCH;
+		return PSYC_TRUE;
+	}
+	return PSYC_FALSE;
+}
+
+static inline
+psycBool psyc_parseDate (psycString *value, time_t *t)
+{
+	return psyc_parseDate2(value->ptr, value->length, t);
+}
+
 /** @} */ // end of parse group
 
 #define PSYC_PARSE_H
