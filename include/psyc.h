@@ -108,9 +108,9 @@ typedef struct
  * @return An instance of the psycString struct.
  */
 static inline
-psycString psyc_newString (const char *str, size_t strlen)
+psycString psyc_newString (const char *str, size_t slen)
 {
-	psycString s = {strlen, str};
+	psycString s = {slen, str};
 	return s;
 }
 
