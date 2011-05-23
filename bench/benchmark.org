@@ -216,13 +216,13 @@ in assembler, are possible.
 
 If this didn't help, you can also look into:
 
-** Adobe AMF
-** ASN.1
-** BSON
-** Cisco Etch
-** Efficient XML
-** Facebook Thrift
-** Google Protocol Buffers
+- Adobe AMF
+- ASN.1
+- BSON
+- Cisco Etch
+- Efficient XML
+- Facebook Thrift
+- Google Protocol Buffers
 
 The drawback of these binary formats is, unlike PSYC, JSON and XML
 you can't edit them manually and you can't produce valid messages
