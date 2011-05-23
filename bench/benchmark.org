@@ -3,17 +3,67 @@
 In this document we present the results of performance benchmarks
 of libpsyc compared with libjson-glib and libxml2.
 
-* Procedure
-We'll use typical messages from the XMPP ("stanzas" in Jabber
-lingo) and compare them with equivalent JSON encodings,
+* PSYC, JSON, XML Syntax Benchmarks
+First we look at the mere performance of the PSYC syntax
+compared to equivalent XML and JSON encodings. We'll
+look at actual XMPP messaging later.
+
+** User Profile
+In this test we'll compare the efficiency of the three
+syntaxes at serializing a typical user data base
+storage information. Let's start with XML:
+
+#+INCLUDE: packets/user_profile.xml src xml
+
+In JSON this could look like this:
+
+#+INCLUDE: packets/user_profile.json src js
+
+Here's a way to model this in PSYC:
+
+#+INCLUDE: packets/user_profile.psyc src psyc
+
+** A message with JSON-unfriendly characters
+This message contains some characters which are
+impractical to encode in JSON. Let's see how much
+performance impact this has.
+
+#+INCLUDE: packets/json-unfriendly.xml src xml
+#+INCLUDE: packets/json-unfriendly.json src js
+#+INCLUDE: packets/json-unfriendly.psyc src psyc
+
+** A message with XML-unfriendly characters
+Same test with characters which aren't practical
+in the XML syntax.
+
+#+INCLUDE: packets/xml-unfriendly.xml src xml
+
+** A message with PSYC-unfriendly strings
+PSYC prefixes data with length as soon as it
+exceeds certain sizes or contains certain strings.
+In the case of short messages this is less
+efficient than scanning the values without lengths.
+Also, lengths are harder to edit by hand.
+
+#+INCLUDE: packets/psyc-unfriendly.xml src xml
+#+INCLUDE: packets/psyc-unfriendly.json src js
+#+INCLUDE: packets/psyc-unfriendly.psyc src psyc
+
+** Packets containing binary data
+We'll use a generator of random binary data to
+see how well the formats behave with different
+sizes of data. We'll consider 7000 as a possible
+size of an icon, 70000 for an avatar, 700000
+for a photograph, 7000000 for a piece of music,
+70000000 for a large project and
+700000000 for the contents of a CD.
+
+* PSYC vs XMPP Protocol Benchmarks
+
+These tests use typical messages from the XMPP ("stanzas" in
+Jabber lingo) and compare them with equivalent JSON encodings,
 verbose and compact PSYC formats.
 
-In some cases we will additionally compare PSYC packets to
-a more efficient XML encoding based on PSYC methods, to have
-a more accurate comparison of the actual PSYC and XML
-syntaxes, rather than the protocol structures of PSYC and XMPP.
-
-* The Benchmarks
 ** A presence packet
 Since presence packets are by far the dominant messaging content
 in the XMPP network, we'll start with one of them.
@@ -80,37 +130,6 @@ We'll use the latter here:
 
 #+INCLUDE: packets/activity.psyc src psyc
 
-** A message with JSON-unfriendly characters
-#+INCLUDE: packets/json-unfriendly.xml src xml
-#+INCLUDE: packets/json-unfriendly.json src js
-#+INCLUDE: packets/json-unfriendly.psyc src psyc
-
-** A message with XML-unfriendly characters
-#+INCLUDE: packets/xml-unfriendly.xml src xml
-
-** A message with PSYC-unfriendly strings
-#+INCLUDE: packets/psyc-unfriendly.xml src xml
-#+INCLUDE: packets/psyc-unfriendly.json src js
-#+INCLUDE: packets/psyc-unfriendly.psyc src psyc
-
-** A packet containing a JPEG photograph
-... TBD ...
-
-** A random data structure
-In this test we'll not consider XMPP at all and simply compare the
-efficiency of the three syntaxes at serializing a typical user data base
-storage information. We'll again start with XML:
-
-#+INCLUDE: packets/user_profile.xml src xml
-
-In JSON this would look like this:
-
-#+INCLUDE: packets/user_profile.json src js
-
-Here's a way to model this in PSYC:
-
-#+INCLUDE: packets/user_profile.psyc src psyc
-
 * Results
 
 Parsing time of 1 000 000 packets in milliseconds:
@@ -118,10 +137,18 @@ Parsing time of 1 000 000 packets in milliseconds:
 | input:    |   PSYC |         |   JSON |           |            |    XML |          |
 | parser:   | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
 |-----------+--------+---------+--------+-----------+------------+--------+----------|
+| user prof |     55 |     608 |   4715 |     17468 |       7350 |  12377 |     2477 |
+|-----------+--------+---------+--------+-----------+------------+--------+----------|
+| /         |      < |       > |      < |         > |          < |        |        > |
+
+Pure syntax comparisons above, protocol performance comparisons below:
+
+| input:    |   PSYC |         |   JSON |           |            |   XMPP |          |
+| parser:   | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
+|-----------+--------+---------+--------+-----------+------------+--------+----------|
 | presence  |     30 |     246 |   2463 |     10197 |       4997 |   7557 |     1719 |
 | chat msg  |     41 |     320 |        |           |       5997 |   9777 |     1893 |
 | activity  |     42 |     366 |   4666 |     16846 |      13357 |  28858 |     4419 |
-| user prof |     55 |     608 |   4715 |     17468 |       7350 |  12377 |     2477 |
 |-----------+--------+---------+--------+-----------+------------+--------+----------|
 | /         |      < |       > |      < |         > |          < |        |        > |
 
