@@ -164,6 +164,7 @@ extensibility of text-based protocols and still provides for enough
 data structuring to rarely require the use of other data formats.
 
 * Criticism
+
 Are we comparing apples and oranges? Yes and no, depends on what you
 need. XML is a syntax best suited for complex structured data in
 well-defined formats - especially good for text mark-up. JSON is a syntax
@@ -173,14 +174,23 @@ derivate of RFC 822, the syntax used by HTTP and E-Mail, and is therefore
 limited in the kind and depth of data structures that can be represented
 with it, but in exchange it is highly performant at doing just that.
 
-So it is up to you to find out which of the three formats fulfils your
+So it is up to you to find out which format fulfils your
 requirements the best. We use PSYC for the majority of messaging where
 JSON and XMPP aren't efficient and opaque enough, but we employ XML and
 JSON as payloads within PSYC for data that doesn't fit the PSYC model.
 For some reason all three formats are being used for messaging, although
 only PSYC was actually designed for that purpose.
 
+Another aspect is the availability of these formats for spontaneous
+use. You could generate and parse JSON yourself but you have to be
+careful about escaping. XML can be rendered manually if you know your
+data will not break the syntax, but you can't really parse it without
+a bullet proof parser. PSYC is easy to render and parse yourself for
+simple tasks, as long as your body does not contain "\n|\n" and your
+variables do not contain newlines.
+
 * Caveats
+
 In every case we'll compare performance of parsing and re-rendering
 these messages, but consider also that the applicative processing
 of an XML DOM tree is more complicated than just accessing
@@ -194,9 +204,26 @@ for instance by using libpurple with XMPP and PSYC accounts.
 To this purpose we first need to integrate libpsyc into libpurple.
 
 * Futures
+
 After a month of development libpsyc is already performing pretty
 well, but we presume various optimizations, like rewriting parts
 in assembler, are possible.
+
+* Related Work
+
+If this didn't help, you can also look into:
+
+** Adobe AMF
+** ASN.1
+** BSON
+** Cisco Etch
+** Facebook Thrift
+** Google Protocol Buffers
+
+The drawback of these binary formats is, unlike PSYC, JSON and XML
+you can't edit them manually and you can't produce valid messages
+by replacing variables in a simple text template. You depend on
+specialized parsers and renderers to be provided.
 
 * Appendix
 ** Tools used
