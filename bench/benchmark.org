@@ -152,6 +152,8 @@ These tests were performed on a 2.53 GHz Intel(R) Core(TM)2 Duo P9500 CPU.
 
 The Internet has developed two major breeds of protocol formats.
 The binary ones are extremely efficient but usually not very flexible
+(unless you are willing to recompile all instances each time you
+change something)
 while the plain-text ones are reaching out for achieving perfection
 in data representation while leaving the path of efficiency. Some
 protocols such as HTTP and SIP are in-between these two schools,
@@ -217,6 +219,7 @@ If this didn't help, you can also look into:
 ** ASN.1
 ** BSON
 ** Cisco Etch
+** Efficient XML
 ** Facebook Thrift
 ** Google Protocol Buffers
 
