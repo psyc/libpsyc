@@ -126,7 +126,8 @@ We'll use the latter here:
 
 * Results
 
-Parsing time of 1 000 000 packets in milliseconds:
+Parsing time of 1 000 000 packets, in milliseconds.
+a simple strlen scan of the respective message is provided for comparison.
 
 | input:    |   PSYC |         |   JSON |           |            |    XML |          |
 | parser:   | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
