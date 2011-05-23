@@ -1,8 +1,8 @@
 #include "lib.h"
 #include <stdint.h>
 
-/// Routing variables in alphabetical order.
 
+/// Routing variables in alphabetical order.
 const psycString psyc_routingVars[] =
 {
 	PSYC_C2STR("_amount_fragments"),
@@ -26,6 +26,7 @@ const psycString psyc_routingVars[] =
 	//PSYC_C2STR("_using_modules"),		// older PSYC
 };
 
+// Variable types in alphabetical order.
 const psycMatchVar psyc_varTypes[] =
 {
 	{PSYC_C2STR("_amount"),   PSYC_TYPE_AMOUNT},

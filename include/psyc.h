@@ -120,9 +120,14 @@ unsigned int psyc_version ()
 	return 1;
 }
 
-/// Routing vars in alphabetical order.
-extern const psycString PSYC_routingVars[];
-extern const psycMatchVar PSYC_varTypes[];
+/// Routing variables in alphabetical order.
+extern const psycString psyc_routingVars[];
+
+// Variable types in alphabetical order.
+extern const psycMatchVar psyc_varTypes[];
+
+extern const size_t psyc_routingVarsNum;
+extern const size_t psyc_varTypesNum;
 
 /**
  * Is this a routing variable name?
