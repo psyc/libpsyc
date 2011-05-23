@@ -1,10 +1,5 @@
-<message
-    from='romeo@example.net/orchard'
-    id='sl3nx51f'
-    to='juliet@example.com/balcony'
-    type='chat'
-    xml:lang='en'>
-  <body>"Neither, fair saint, if either thee dislike.", he said.
+<message from='romeo@example.net/orchard' to='juliet@example.com/balcony'>
+<body>"Neither, fair saint, if either thee dislike.", he said.
 And
 the
 rest
