@@ -37,6 +37,8 @@ Same test with characters which aren't practical
 in the XML syntax.
 
 #+INCLUDE: packets/xml-unfriendly.xml src xml
+#+INCLUDE: packets/xml-unfriendly.json src js
+#+INCLUDE: packets/xml-unfriendly.psyc src psyc
 
 ** A message with PSYC-unfriendly strings
 PSYC prefixes data with length as soon as it
@@ -93,16 +95,8 @@ np
 
 ** An average chat message
 
-XMPP:
-
 #+INCLUDE: packets/chat_msg.xml src xml
-
-JSON:
-
 #+INCLUDE: packets/chat_msg.json src js
-
-PSYC:
-
 #+INCLUDE: packets/chat_msg.psyc src psyc
 
 Why PSYC doesn't have an id? Because packet counting from contexts
@@ -155,7 +149,19 @@ Pure syntax comparisons above, protocol performance comparisons below:
 These tests were performed on a 2.53 GHz Intel(R) Core(TM)2 Duo P9500 CPU.
 
 * Conclusions
-... TBD ...
+
+The Internet has developed two major breeds of protocol formats.
+The binary ones are extremely efficient but usually not very flexible
+while the plain-text ones are reaching out for achieving perfection
+in data representation while leaving the path of efficiency. Some
+protocols such as HTTP and SIP are in-between these two schools,
+offering both a text-based extensible syntax (it's actually easier to
+add a header to HTTP than to come up with a namespace for XMPP...)
+and the ability to deliver binary data. But these protocols do not
+come with native data structure support. PSYC is a protocol that
+combines the compactness and efficiency of binary protocols with the
+extensibility of text-based protocols and still provides for enough
+data structuring to rarely require the use of other data formats.
 
 * Criticism
 Are we comparing apples and oranges? Yes and no, depends on what you
@@ -192,7 +198,6 @@ After a month of development libpsyc is already performing pretty
 well, but we presume various optimizations, like rewriting parts
 in assembler, are possible.
 
-
 * Appendix
 ** Tools used
 
@@ -208,3 +213,5 @@ xmlbench:
 : parse/libxml-sax 1000000 $file
 : parse/libxml 1000000 $file
 : parse/rapidxml 1000000 $file
+
+See also "make bench"
