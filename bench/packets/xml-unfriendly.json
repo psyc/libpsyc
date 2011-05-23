@@ -1,3 +1,2 @@
-
 ["message",{"from":"juliet@example.com/balcony","to":"romeo@example.net"},
-"Pro\x010De\x017D jsi ty, Romeo?"]
+"Pro\u010de\u017d jsi ty, Romeo?"]
