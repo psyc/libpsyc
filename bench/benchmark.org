@@ -25,8 +25,9 @@ Here's a way to model this in PSYC:
 
 ** A message with JSON-unfriendly characters
 This message contains some characters which are
-impractical to encode in JSON. Let's see how much
-performance impact this has.
+impractical to encode in JSON. We should probably
+put a lot more inside to actually see an impact
+on performance.
 
 #+INCLUDE: packets/json-unfriendly.xml src xml
 #+INCLUDE: packets/json-unfriendly.json src js
@@ -34,7 +35,8 @@ performance impact this has.
 
 ** A message with XML-unfriendly characters
 Same test with characters which aren't practical
-in the XML syntax.
+in the XML syntax, yet we should put more of
+them inside.
 
 #+INCLUDE: packets/xml-unfriendly.xml src xml
 #+INCLUDE: packets/xml-unfriendly.json src js
@@ -129,25 +131,89 @@ We'll use the latter here:
 Parsing time of 1 000 000 packets, in milliseconds.
 a simple strlen scan of the respective message is provided for comparison.
 
-| input:    |   PSYC |         |   JSON |           |            |    XML |          |
-| parser:   | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
-|-----------+--------+---------+--------+-----------+------------+--------+----------|
-| user prof |     55 |     608 |   4715 |     17468 |       7350 |  12377 |     2477 |
-|-----------+--------+---------+--------+-----------+------------+--------+----------|
-| /         |      < |       > |      < |         > |          < |        |        > |
+| input:          |   PSYC |         |   JSON |           |            |    XML |          |
+| parser:         | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
+|-----------------+--------+---------+--------+-----------+------------+--------+----------|
+| user profile    |     55 |     608 |   4715 |     16503 |       7350 |  12377 |     2477 |
+| psyc-unfriendly |     70 |     286 |   2892 |     12567 |       5538 |   8659 |     1896 |
+| json-unfriendly |     49 |     430 |   2328 |     10006 |       5141 |   7875 |     1751 |
+| xml-unfriendly  |     37 |     296 |   2156 |      9591 |       5571 |   8769 |     1765 |
+|-----------------+--------+---------+--------+-----------+------------+--------+----------|
+| /               |      < |       > |      < |         > |          < |        |        > |
+|                 |    <r> |     <r> |    <r> |       <r> |        <r> |    <r> |      <r> |
 
 Pure syntax comparisons above, protocol performance comparisons below:
 
-| input:    |   PSYC |         |   JSON |           |            |   XMPP |          |
-| parser:   | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
-|-----------+--------+---------+--------+-----------+------------+--------+----------|
-| presence  |     30 |     246 |   2463 |     10197 |       4997 |   7557 |     1719 |
-| chat msg  |     41 |     320 |        |           |       5997 |   9777 |     1893 |
-| activity  |     42 |     366 |   4666 |     16846 |      13357 |  28858 |     4419 |
-|-----------+--------+---------+--------+-----------+------------+--------+----------|
-| /         |      < |       > |      < |         > |          < |        |        > |
+| input:          |   PSYC |         |   JSON |           |            |   XMPP |          |
+| parser:         | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
+|-----------------+--------+---------+--------+-----------+------------+--------+----------|
+| presence        |     30 |     236 |   2463 |     10016 |       4997 |   7557 |     1719 |
+| chat msg        |     40 |     295 |   2147 |      9526 |       5997 |   9777 |     1893 |
+| activity        |     42 |     353 |   4666 |     16327 |      13357 |  28858 |     4356 |
+|-----------------+--------+---------+--------+-----------+------------+--------+----------|
+| /               |      < |       > |      < |         > |          < |        |        > |
+
+Parsing large amounts of binary data. For JSON & XML base64 encoding was used.
+Note that the results below include only the parsing time, base64 decoding was
+not performed.
+
+| input:  |   PSYC |         |   JSON |            |            |       XML |          |
+| parser: | strlen | libpsyc | json-c |  json-glib | libxml sax |    libxml | rapidxml |
+|---------+--------+---------+--------+------------+------------+-----------+----------|
+| 7K      |     92 |      77 |  14459 |      98000 |      11445 |     19299 |     8701 |
+| 70K     |     53 |      77 |  14509 |    1003900 |      96209 |    167738 |    74296 |
+| 700K    |     42 |      77 |  14551 |   10616000 |     842025 |   1909428 |   729419 |
+| 7M      |    258 |      78 |  14555 |  120810000 |   12466610 |  16751363 |  7581169 |
+| 70M     |    304 |      80 |  14534 | 1241000000 |  169622110 | 296017820 | 75308906 |
+|---------+--------+---------+--------+------------+------------+-----------+----------|
+| /       |      < |       > |      < |          > |          < |           |        > |
+| <r>     |        |         |        |            |            |           |          |
+
 
 These tests were performed on a 2.53 GHz Intel(R) Core(TM)2 Duo P9500 CPU.
+
+* Criticism
+
+Are we comparing apples and oranges? Yes and no, depends on what you
+need. XML is a syntax best suited for complex structured data in
+well-defined formats - especially good for text mark-up. JSON is a syntax
+intended to hold arbitrarily structured data suitable for immediate
+inclusion in javascript source codes. The PSYC syntax is an evolved
+derivate of RFC 822, the syntax used by HTTP and E-Mail, and is therefore
+limited in the kind and depth of data structures that can be represented
+with it, but in exchange it is highly performant at doing just that.
+In fact we are looking into suitable syntax extensions to represent
+generic structures and semantic signatures, but for now PSYC only
+provides for simple typed values and lists of typed values.
+
+Another aspect is the availability of these formats for spontaneous
+use. You could generate and parse JSON yourself but you have to be
+careful about escaping. XML can be rendered manually if you know your
+data will not break the syntax, but you can't really parse it without
+a bullet proof parser. PSYC is easy to render and parse yourself for
+simple tasks, as long as your body does not contain "\n|\n" and your
+variables do not contain newlines.
+
+After all it is up to you to find out which format fulfils your
+requirements the best. We use PSYC for the majority of messaging where
+JSON and XMPP aren't efficient and opaque enough, but we employ XML and
+JSON as payloads within PSYC for data that doesn't fit the PSYC model.
+For some reason all three formats are being used for messaging, although
+only PSYC was actually designed for that purpose.
+
+* Caveats
+
+In every case we'll compare performance of parsing and re-rendering
+these messages, but consider also that the applicative processing
+of an XML DOM tree is more complicated than just accessing
+certain elements in a JSON data structure or PSYC variable
+mapping.
+
+For a speed check in real world conditions which also consider the
+complexity of processing incoming messages we should compare
+the performance of a chat client using the two protocols,
+for instance by using libpurple with XMPP and PSYC accounts.
+To this purpose we first need to integrate libpsyc into libpurple.
 
 * Conclusions
 
@@ -165,46 +231,6 @@ come with native data structure support. PSYC is a protocol that
 combines the compactness and efficiency of binary protocols with the
 extensibility of text-based protocols and still provides for enough
 data structuring to rarely require the use of other data formats.
-
-* Criticism
-
-Are we comparing apples and oranges? Yes and no, depends on what you
-need. XML is a syntax best suited for complex structured data in
-well-defined formats - especially good for text mark-up. JSON is a syntax
-intended to hold arbitrarily structured data suitable for immediate
-inclusion in javascript source codes. The PSYC syntax is an evolved
-derivate of RFC 822, the syntax used by HTTP and E-Mail, and is therefore
-limited in the kind and depth of data structures that can be represented
-with it, but in exchange it is highly performant at doing just that.
-
-So it is up to you to find out which format fulfils your
-requirements the best. We use PSYC for the majority of messaging where
-JSON and XMPP aren't efficient and opaque enough, but we employ XML and
-JSON as payloads within PSYC for data that doesn't fit the PSYC model.
-For some reason all three formats are being used for messaging, although
-only PSYC was actually designed for that purpose.
-
-Another aspect is the availability of these formats for spontaneous
-use. You could generate and parse JSON yourself but you have to be
-careful about escaping. XML can be rendered manually if you know your
-data will not break the syntax, but you can't really parse it without
-a bullet proof parser. PSYC is easy to render and parse yourself for
-simple tasks, as long as your body does not contain "\n|\n" and your
-variables do not contain newlines.
-
-* Caveats
-
-In every case we'll compare performance of parsing and re-rendering
-these messages, but consider also that the applicative processing
-of an XML DOM tree is more complicated than just accessing
-certain elements in a JSON data structure or PSYC variable
-mapping.
-
-For a speed check in real world conditions which also consider the
-complexity of processing incoming messages we should compare
-the performance of a chat client using the two protocols,
-for instance by using libpurple with XMPP and PSYC accounts.
-To this purpose we first need to integrate libpsyc into libpurple.
 
 * Futures
 
@@ -232,17 +258,19 @@ specialized parsers and renderers to be provided.
 * Appendix
 ** Tools used
 
-libpsyc:
+*** libpsyc
+
+: make bench
+
+which uses the following commands:
 
 : test/testStrlen -sc 1000000 -f $file
 : test/testPsycSpeed -sc 1000000 -f $file
 : test/testJson -snc 1000000 -f $file
 : test/testJsonGlib -snc 1000000 -f $file
 
-xmlbench:
+*** xmlbench
 
 : parse/libxml-sax 1000000 $file
 : parse/libxml 1000000 $file
 : parse/rapidxml 1000000 $file
-
-See also "make bench"
