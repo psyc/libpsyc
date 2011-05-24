@@ -89,7 +89,7 @@ And this is the same message in PSYC's compact form, but since compact mode
 hasn't been implemented nor deployed yet, we will not include it
 in the benchmarks:
 
-#+INCLUDE: packets/presence-compact.psyc src psyc
+#+INCLUDE: packets/presence-c.psyc src psyc
 
 ** An average chat message
 
