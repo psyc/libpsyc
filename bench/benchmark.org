@@ -253,17 +253,19 @@ specialized parsers and renderers to be provided.
 * Appendix
 ** Tools used
 
-libpsyc:
+*** libpsyc
+
+: make bench
+
+which uses the following commands:
 
 : test/testStrlen -sc 1000000 -f $file
 : test/testPsycSpeed -sc 1000000 -f $file
 : test/testJson -snc 1000000 -f $file
 : test/testJsonGlib -snc 1000000 -f $file
 
-xmlbench:
+*** xmlbench
 
 : parse/libxml-sax 1000000 $file
 : parse/libxml 1000000 $file
 : parse/rapidxml 1000000 $file
-
-See also "make bench"
