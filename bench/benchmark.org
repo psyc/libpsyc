@@ -87,13 +87,7 @@ need to be mentioned):
 
 And the same in compact form:
 
-#+BEGIN_SRC psyc
-:c	psyc://example.com/~juliet
-
-=da	4
-np
-|
-#+END_SRC
+#+INCLUDE: packets/presence-compact.psyc src psyc
 
 ** An average chat message
 
@@ -140,19 +134,19 @@ These tests were performed on a 2.53 GHz Intel(R) Core(TM)2 Duo P9500 CPU.
 | json-unfriendly |     49 |     430 |   2328 |     10006 |       5141 |   7875 |     1751 |
 | xml-unfriendly  |     37 |     296 |   2156 |      9591 |       5571 |   8769 |     1765 |
 |-----------------+--------+---------+--------+-----------+------------+--------+----------|
-| /               |      < |       > |      < |         > |          < |        |        > |
+| /               |      < |         |      < |         > |          < |        |        > |
 |                 |    <r> |     <r> |    <r> |       <r> |        <r> |    <r> |      <r> |
 
 Pure syntax comparisons above, protocol performance comparisons below:
 
-| input:          |   PSYC |         |   JSON |           |            |   XMPP |          |
-| parser:         | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
-|-----------------+--------+---------+--------+-----------+------------+--------+----------|
-| presence        |     30 |     236 |   2463 |     10016 |       4997 |   7557 |     1719 |
-| chat msg        |     40 |     295 |   2147 |      9526 |       5997 |   9777 |     1893 |
-| activity        |     42 |     353 |   4666 |     16327 |      13357 |  28858 |     4356 |
-|-----------------+--------+---------+--------+-----------+------------+--------+----------|
-| /               |      < |       > |      < |         > |          < |        |        > |
+| input:   |        |    PSYC |         |   JSON |           |            |   XMPP |          |
+| parser:  | strlen | libpsyc | compact | json-c | json-glib | libxml sax | libxml | rapidxml |
+|----------+--------+---------+---------+--------+-----------+------------+--------+----------|
+| presence |     30 |     236 | 122     |   2463 |     10016 |       4997 |   7557 |     1719 |
+| chat msg |     40 |     295 |         |   2147 |      9526 |       5997 |   9777 |     1893 |
+| activity |     42 |     353 |         |   4666 |     16327 |      13357 |  28858 |     4356 |
+|----------+--------+---------+---------+--------+-----------+------------+--------+----------|
+| /        |      < |         | >       |      < |         > |          < |        |        > |
 
 Parsing large amounts of binary data. For JSON & XML base64 encoding was used.
 Note that the results below include only the parsing time, base64 decoding was
