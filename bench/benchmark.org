@@ -218,9 +218,8 @@ For some reason all three formats are being used for messaging, although
 only PSYC was actually designed for that purpose.
 
 The Internet has developed two major breeds of protocol formats.
-The binary ones are extremely efficient but usually not very flexible
-(unless you are willing to recompile all instances each time you
-change something)
+The binary ones are extremely efficient but in most cases you have
+to recompile all instances each time you change something
 while the plain-text ones are reaching out for achieving perfection
 in data representation while leaving the path of efficiency. Some
 protocols such as HTTP and SIP are in-between these two schools,
@@ -254,6 +253,12 @@ The drawback of these binary formats is, unlike PSYC, JSON and XML
 you can't edit them manually and you can't produce valid messages
 by replacing variables in a simple text template. You depend on
 specialized parsers and renderers to be provided.
+
+* Further Reading
+
+http://about.psyc.eu/Spec:Syntax provides you with the ABNF grammar
+of the PSYC 1.0 syntax. You may also be interested in PSYC's decentralized
+state mechanism provided by the +/-/= operators.
 
 * Appendix
 ** Tools used
