@@ -166,6 +166,11 @@ not performed.
 |       / |        < |       > |         < |          > |          < |           |        > |
 |     <r> |          |         |           |            |            |           |          |
 
+In each case we compared performance of parsing and re-rendering
+these messages, but consider also that the applicative processing
+of an XML DOM tree is more complicated than just accessing
+certain elements in a JSON data structure or PSYC variable mapping.
+
 * Explanations
 
 As you can tell the PSYC data format outpaces its rivals in all circumstances.
@@ -202,13 +207,6 @@ data will not break the syntax, but you shouldn't dare to parse it without
 a bullet proof parser. PSYC is easy to render and parse yourself for
 simple tasks, as long as the body does not contain "\n|\n" and your
 variables do not contain newlines.
-
-* Caveats
-
-In every case we'll compare performance of parsing and re-rendering
-these messages, but consider also that the applicative processing
-of an XML DOM tree is more complicated than just accessing
-certain elements in a JSON data structure or PSYC variable mapping.
 
 * Conclusions
 
