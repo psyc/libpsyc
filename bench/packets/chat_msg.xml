@@ -1,8 +1,4 @@
-<message
-    from='juliet@example.com/balcony'
-    id='ktx72v49'
-    to='romeo@example.net'
-    type='chat'
-    xml:lang='en'>
-  <body>Art thou not Romeo, and a Montague?</body>
+<message from='juliet@example.com/balcony' to='romeo@example.net'
+	 id='ktx72v49' type='chat'>
+<body>Art thou not Romeo, and a Montague?</body>
 </message>
