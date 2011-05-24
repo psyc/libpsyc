@@ -258,6 +258,9 @@ specialized parsers and renderers to be provided.
 * Appendix
 ** Tools used
 
+This document and its benchmarks are distributed with libpsyc.
+See http://about.psyc.eu/libpsyc on how to obtain it.
+
 *** libpsyc
 
 : make bench
