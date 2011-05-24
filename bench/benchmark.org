@@ -129,12 +129,13 @@ We'll use the latter here:
 Parsing time of 1 000 000 packets, in milliseconds.
 a simple strlen scan of the respective message is provided for comparison.
 
-| input:       | PSYC   |         | JSON   |           |            | XML    |          |
+| input:       |   PSYC |         |   JSON |           |            |    XML |          |
 | parser:      | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
 |--------------+--------+---------+--------+-----------+------------+--------+----------|
-| user profile | 55     | 608     | 4715   | 16503     | 7350       | 12377  | 2477     |
+| user profile |     55 |     608 |   4715 |     16503 |       7350 |  12377 |     2477 |
 |--------------+--------+---------+--------+-----------+------------+--------+----------|
-| /            | <      | >       | <      | >         | <          |        | >        |
+| /            |      < |       > |      < |         > |          < |        |        > |
+|              |    <r> |     <r> |    <r> |       <r> |        <r> |    <r> |      <r> |
 
 Pure syntax comparisons above, protocol performance comparisons below:
 
@@ -154,16 +155,17 @@ Parsing large amounts of binary data. For JSON & XML base64 encoding was used.
 Note that the results below include only the parsing time, base64 decoding was
 not performed.
 
-| input:      |   PSYC |         |   JSON |            |            |       XML |          |
-| parser:     | strlen | libpsyc | json-c |  json-glib | libxml sax |    libxml | rapidxml |
-|-------------+--------+---------+--------+------------+------------+-----------+----------|
-| binary   7K |     92 |      77 |  14459 |      98000 |      11445 |     19299 |     8701 |
-| binary  70K |     53 |      77 |  14509 |    1003900 |      96209 |    167738 |    74296 |
-| binary 700K |     42 |      77 |  14551 |   10616000 |     842025 |   1909428 |   729419 |
-| binary   7M |    258 |      78 |  14555 |  120810000 |   12466610 |  16751363 |  7581169 |
-| binary  70M |    304 |      80 |  14534 | 1241000000 |  169622110 | 296017820 | 75308906 |
-|-------------+--------+---------+--------+------------+------------+-----------+----------|
-| /           |      < |       > |      < |          > |          < |           |        > |
+| input:  |   PSYC |         |   JSON |            |            |       XML |          |
+| parser: | strlen | libpsyc | json-c |  json-glib | libxml sax |    libxml | rapidxml |
+|---------+--------+---------+--------+------------+------------+-----------+----------|
+| 7K      |     92 |      77 |  14459 |      98000 |      11445 |     19299 |     8701 |
+| 70K     |     53 |      77 |  14509 |    1003900 |      96209 |    167738 |    74296 |
+| 700K    |     42 |      77 |  14551 |   10616000 |     842025 |   1909428 |   729419 |
+| 7M      |    258 |      78 |  14555 |  120810000 |   12466610 |  16751363 |  7581169 |
+| 70M     |    304 |      80 |  14534 | 1241000000 |  169622110 | 296017820 | 75308906 |
+|---------+--------+---------+--------+------------+------------+-----------+----------|
+| /       |      < |       > |      < |          > |          < |           |        > |
+| <r>     |        |         |        |            |            |           |          |
 
 
 These tests were performed on a 2.53 GHz Intel(R) Core(TM)2 Duo P9500 CPU.
