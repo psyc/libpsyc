@@ -80,23 +80,34 @@ srvstart:
 srvkill:
 	pkill -x testPsyc
 
-
-bench: bench-genpkts bench-psyc bench-json bench-xml
+bench: bench-genpkts bench-psyc bench-psyc-bin bench-json bench-json-bin bench-xml
 
 bench-dir:
 	@mkdir -p ../bench/results
 
 bench-psyc: bench-dir testStrlen testPsycSpeed
-	for f in ../bench/packets/*.psyc `ls ../bench/packets/binary/*.psyc | sort -r`; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
-	for f in ../bench/packets/*.psyc `ls ../bench/packets/binary/*.psyc | sort -r`; do bf=`basename $$f`; echo libpsyc: $$f; ./testPsycSpeed -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
+	for f in ../bench/packets/*.psyc; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
+	for f in ../bench/packets/*.psyc; do bf=`basename $$f`; echo libpsyc: $$f; ./testPsycSpeed -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
 
-bench-json: bench-dir testStrlen testJson testJsonGlib
-#	for f in ../bench/packets/*.json `ls ../bench/packets/binary/*.json | sort -r`; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
-	for f in ../bench/packets/*.json `ls ../bench/packets/binary/*.json | sort -r`; do bf=`basename $$f`; echo json-c: $$bf; ./testJson -snc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
+bench-psyc-bin: bench-dir testStrlen testPsycSpeed
+	for f in `ls ../bench/packets/binary/*.psyc | sort -r`; do bf=`basename $$f`; echo "libpsyc: $$f * 1000000"; ./testPsycSpeed -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
+	c=1000000; for f in `ls ../bench/packets/binary/*.psyc | sort -r`; do bf=`basename $$f`; echo "strlen: $$bf * $$c"; ./testStrlen -sc $$c -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; c=$$((c/10)); done
+
+bench-json: bench-dir testJson testJsonGlib
+#	for f in ../bench/packets/*.json; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
+	for f in ../bench/packets/*.json; do bf=`basename $$f`; echo json-c: $$bf; ./testJson -snc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
 	for f in ../bench/packets/*.json; do bf=`basename $$f`; echo json-glib: $$bf; ./testJsonGlib -snc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf-glib; done
 
-bench-xml: bench-dir testStrlen
-#	for f in ../bench/packets/*.xml `ls ../bench/packets/binary/*.xml | sort -r`; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
+bench-json-bin: bench-dir testJson testJsonGlib
+	c=1000000; for f in `ls ../bench/packets/binary/*.json | sort -r`; do bf=`basename $$f`; echo "json-c: $$bf * $$c"; ./testJson -snc $$c -f $$f | ${TEE} -a ../bench/results/$$bf; c=$$((c/10)); done
+	c=1000000; for f in `ls ../bench/packets/binary/*.json | sort -r`; do bf=`basename $$f`; echo "json-glib: $$bf * $$c"; ./testJsonGlib -snc $$c -f $$f | ${TEE} -a ../bench/results/$$bf-glib; c=$$((c/10)); done
+
+bench-xml: bench-dir
+	@[[ -n "${xmlbench}" ]] || (echo xmlbench path needs to be set with xmlbench=/path/to/xmlbench; exit 1)
+#	for f in ../bench/packets/*.xml; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
+	for f in ../bench/packets/*.xml; do bf=`basename $$f`; echo libxml: $$bf; ${xmlbench}/parse/libxml 1000000 $$f | ${TEE} -a ../bench/results/$$bf-libxml; done
+	for f in ../bench/packets/*.xml; do bf=`basename $$f`; echo libxml-sax: $$bf; ${xmlbench}/parse/libxml-sax 1000000 $$f | ${TEE} -a ../bench/results/$$bf-libxml-sax; done
+	for f in ../bench/packets/*.xml; do bf=`basename $$f`; echo rapidxml: $$bf; ${xmlbench}/parse/rapidxml 1000000 $$f | ${TEE} -a ../bench/results/$$bf-rapidxml; done
 
 bench-genpkts:
 	@${MAKE} genpkt header=../bench/packets/binary/psyc-header content=../bench/packets/binary/psyc-content bs=7000 of=../bench/packets/binary/7K.psyc
