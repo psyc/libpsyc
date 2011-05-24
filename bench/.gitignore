@@ -1,3 +1,4 @@
 *.html
 *.pdf
 results/
+packets/binary/[0-9]*

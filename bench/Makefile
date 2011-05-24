@@ -7,7 +7,7 @@ INIT = (setq load-path (cons \"/usr/share/emacs/site-lisp/org-mode\" load-path) 
              org-babel-tangle-pad-newline nil \
              org-src-preserve-indentation t) \
        (require 'org-install)
-
+#'
 ORG = benchmark.org
 
 html:
