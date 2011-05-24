@@ -32,7 +32,7 @@ void test_init (int i) {
 
 int test_input (int i, char *recvbuf, size_t nbytes) {
 	JsonNode *root;
-	GError *error;
+	GError *error = NULL;
 	char *str;
 	size_t len;
 	int r, ret;
@@ -41,8 +41,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 
 	if (!ret) {
 		printf("Parse error\n");
-		exit_code = 1;
-		return -1;
+		exit(1);
 	}
 
 	root = json_parser_get_root(parser);
