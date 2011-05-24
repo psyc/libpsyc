@@ -131,13 +131,16 @@ We'll use the latter here:
 Parsing time of 1 000 000 packets, in milliseconds.
 a simple strlen scan of the respective message is provided for comparison.
 
-| input:       |   PSYC |         |   JSON |           |            |    XML |          |
-| parser:      | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
-|--------------+--------+---------+--------+-----------+------------+--------+----------|
-| user profile |     55 |     608 |   4715 |     16503 |       7350 |  12377 |     2477 |
-|--------------+--------+---------+--------+-----------+------------+--------+----------|
-| /            |      < |       > |      < |         > |          < |        |        > |
-|              |    <r> |     <r> |    <r> |       <r> |        <r> |    <r> |      <r> |
+| input:          |   PSYC |         |   JSON |           |            |    XML |          |
+| parser:         | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
+|-----------------+--------+---------+--------+-----------+------------+--------+----------|
+| user profile    |     55 |     608 |   4715 |     16503 |       7350 |  12377 |     2477 |
+| psyc-unfriendly |     70 |     286 |   2892 |     12567 |       5538 |   8659 |     1896 |
+| json-unfriendly |     49 |     430 |   2328 |     10006 |       5141 |   7875 |     1751 |
+| xml-unfriendly  |     37 |     296 |   2156 |      9591 |       5571 |   8769 |     1765 |
+|-----------------+--------+---------+--------+-----------+------------+--------+----------|
+| /               |      < |       > |      < |         > |          < |        |        > |
+|                 |    <r> |     <r> |    <r> |       <r> |        <r> |    <r> |      <r> |
 
 Pure syntax comparisons above, protocol performance comparisons below:
 
@@ -147,9 +150,6 @@ Pure syntax comparisons above, protocol performance comparisons below:
 | presence        |     30 |     236 |   2463 |     10016 |       4997 |   7557 |     1719 |
 | chat msg        |     40 |     295 |   2147 |      9526 |       5997 |   9777 |     1893 |
 | activity        |     42 |     353 |   4666 |     16327 |      13357 |  28858 |     4356 |
-| psyc-unfriendly |     70 |     286 |   2892 |     12567 |       5538 |   8659 |     1896 |
-| json-unfriendly |     49 |     430 |   2328 |     10006 |       5141 |   7875 |     1751 |
-| xml-unfriendly  |     37 |     296 |   2156 |      9591 |       5571 |   8769 |     1765 |
 |-----------------+--------+---------+--------+-----------+------------+--------+----------|
 | /               |      < |       > |      < |         > |          < |        |        > |
 
