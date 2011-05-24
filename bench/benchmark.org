@@ -129,7 +129,8 @@ We'll use the latter here:
 * Results
 
 Parsing time of 1 000 000 packets, in milliseconds.
-a simple strlen scan of the respective message is provided for comparison.
+A simple strlen() scan of the respective message is provided for comparison.
+These tests were performed on a 2.53 GHz Intel(R) Core(TM)2 Duo P9500 CPU.
 
 | input:          |   PSYC |         |   JSON |           |            |    XML |          |
 | parser:         | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
@@ -169,8 +170,17 @@ not performed.
 |       / |        < |       > |         < |          > |          < |           |        > |
 |     <r> |          |         |           |            |            |           |          |
 
+* Explanations
 
-These tests were performed on a 2.53 GHz Intel(R) Core(TM)2 Duo P9500 CPU.
+As you can tell the PSYC data format outpaces its rivals in all circumstances.
+Extremely so when delivering binary data as PSYC simply returns the starting
+point and the length of the given buffer while the other parsers have to scan
+for the end of the transmission, but also with many simpler operations, when
+PSYC quickly figures out where the data starts and ends and passes such
+information back to the application while the other formats are forced to
+generate a copy of the data in order to process possibly embedded special
+character sequences. PSYC essentially operates like a binary data protocol
+even though it is actually still text-based.
 
 * Criticism
 
@@ -186,6 +196,8 @@ In fact we are looking into suitable syntax extensions to represent
 generic structures and semantic signatures, but for now PSYC only
 provides for simple typed values and lists of typed values.
 
+* Ease of implementation
+
 Another aspect is the availability of these formats for spontaneous
 use. You could generate and parse JSON yourself but you have to be
 careful about escaping. XML can be rendered manually if you know your
@@ -194,28 +206,21 @@ a bullet proof parser. PSYC is easy to render and parse yourself for
 simple tasks, as long as your body does not contain "\n|\n" and your
 variables do not contain newlines.
 
+* Caveats
+
+In every case we'll compare performance of parsing and re-rendering
+these messages, but consider also that the applicative processing
+of an XML DOM tree is more complicated than just accessing
+certain elements in a JSON data structure or PSYC variable mapping.
+
+* Conclusions
+
 After all it is up to you to find out which format fulfils your
 requirements the best. We use PSYC for the majority of messaging where
 JSON and XMPP aren't efficient and opaque enough, but we employ XML and
 JSON as payloads within PSYC for data that doesn't fit the PSYC model.
 For some reason all three formats are being used for messaging, although
 only PSYC was actually designed for that purpose.
-
-* Caveats
-
-In every case we'll compare performance of parsing and re-rendering
-these messages, but consider also that the applicative processing
-of an XML DOM tree is more complicated than just accessing
-certain elements in a JSON data structure or PSYC variable
-mapping.
-
-For a speed check in real world conditions which also consider the
-complexity of processing incoming messages we should compare
-the performance of a chat client using the two protocols,
-for instance by using libpurple with XMPP and PSYC accounts.
-To this purpose we first need to integrate libpsyc into libpurple.
-
-* Conclusions
 
 The Internet has developed two major breeds of protocol formats.
 The binary ones are extremely efficient but usually not very flexible
