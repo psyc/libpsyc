@@ -52,7 +52,7 @@ void *get_in_addr (struct sockaddr *sa) {
 
 void test_file(const char* filename, size_t count, size_t recv_buf_size) {
 	char *buf, *recvbuf; // cont buf + recv buf: [  ccrrrr]
-	size_t i, nbytes, size = 0;
+	size_t i, nbytes, size;
 	struct timeval start, end;
 	struct stat st;
 
@@ -64,7 +64,8 @@ void test_file(const char* filename, size_t count, size_t recv_buf_size) {
 
 	fstat(fd, &st);
 
-	buf = malloc(CONT_BUF_SIZE + st.st_size);
+	size = CONT_BUF_SIZE + st.st_size;
+	buf = malloc(size);
 	if (!buf) {
 		perror("malloc");
 		exit(1);
@@ -77,13 +78,26 @@ void test_file(const char* filename, size_t count, size_t recv_buf_size) {
 		if (stats)
 			gettimeofday(&start, NULL);
 
+#ifdef NOREAD
+		memset(buf, 1, size);
+#else
+		size = 0;
+#endif
+
 		for (i = 0; i < count; i++)
+#ifndef NOREAD
 			while ((nbytes = read(fd, (void*)recvbuf, recv_buf_size)))
+#endif
 				test_input(0, recvbuf, nbytes);
 
 	} else {
+#ifdef NOREAD
+		memset(buf, 1, size);
+#else
+		size = 0;
 		while ((nbytes = read(fd, (void*)recvbuf + size, RECV_BUF_SIZE)))
 			size += nbytes;
+#endif
 
 		if (stats)
 			gettimeofday(&start, NULL);
