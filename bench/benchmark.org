@@ -144,11 +144,11 @@ Pure syntax comparisons above, protocol performance comparisons below:
 | input:   |        |    PSYC |         |   JSON |           |            |   XMPP |          |
 | parser:  | strlen | libpsyc | compact | json-c | json-glib | libxml sax | libxml | rapidxml |
 |----------+--------+---------+---------+--------+-----------+------------+--------+----------|
-| presence |     30 |     236 | 122     |   2463 |     10016 |       4997 |   7557 |     1719 |
-| chat msg |     40 |     295 |         |   2147 |      9526 |       5997 |   9777 |     1893 |
-| activity |     42 |     353 |         |   4666 |     16327 |      13357 |  28858 |     4356 |
+| presence |     30 |     236 |     122 |   2463 |     10016 |       4997 |   7557 |     1719 |
+| chat msg |     40 |     295 |     258 |   2147 |      9526 |       5997 |   9777 |     1893 |
+| activity |     42 |     353 |     279 |   4666 |     16327 |      13357 |  28858 |     4356 |
 |----------+--------+---------+---------+--------+-----------+------------+--------+----------|
-| /        |      < |         | >       |      < |         > |          < |        |        > |
+| /        |      < |         |       > |      < |         > |          < |        |        > |
 
 Parsing large amounts of binary data. For JSON & XML base64 encoding was used.
 Note that the results below include only the parsing time, base64 decoding was
