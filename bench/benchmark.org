@@ -1,7 +1,7 @@
 #+TITLE: libpsyc Performance Benchmarks
 
 In this document we present the results of performance benchmarks
-of libpsyc compared with libjson-glib and libxml2.
+of libpsyc compared to json-c, libjson-glib, rapidxml and libxml2.
 
 * PSYC, JSON, XML Syntax Benchmarks
 First we look at the mere performance of the PSYC syntax
@@ -19,7 +19,7 @@ In JSON this could look like this:
 
 #+INCLUDE: packets/user_profile.json src js
 
-Here's a way to model this in PSYC:
+Here's a way to model this in PSYC (verbose mode):
 
 #+INCLUDE: packets/user_profile.psyc src psyc
 
@@ -27,7 +27,7 @@ Here's a way to model this in PSYC:
 This message contains some characters which are
 impractical to encode in JSON. We should probably
 put a lot more inside to actually see an impact
-on performance.
+on performance.   *TODO*
 
 #+INCLUDE: packets/json-unfriendly.xml src xml
 #+INCLUDE: packets/json-unfriendly.json src js
@@ -36,7 +36,7 @@ on performance.
 ** A message with XML-unfriendly characters
 Same test with characters which aren't practical
 in the XML syntax, yet we should put more of
-them inside.
+them inside.  *TODO*
 
 #+INCLUDE: packets/xml-unfriendly.xml src xml
 #+INCLUDE: packets/xml-unfriendly.json src js
@@ -65,8 +65,8 @@ for a photograph, 7000000 for a piece of music,
 * PSYC vs XMPP Protocol Benchmarks
 
 These tests use typical messages from the XMPP ("stanzas" in
-Jabber lingo) and compare them with equivalent JSON encodings,
-verbose and compact PSYC formats.
+Jabber lingo) and compare them with equivalent JSON encodings
+and PSYC formats.
 
 ** A presence packet
 Since presence packets are by far the dominant messaging content
@@ -79,13 +79,15 @@ And here's the same information in a JSON rendition:
 
 #+INCLUDE: packets/presence.json src js
 
-Here's the equivalent PSYC packet in verbose form
+Here's the equivalent PSYC packet in verbose mode
 (since it is a multicast, the single recipients do not
 need to be mentioned):
 
 #+INCLUDE: packets/presence.psyc src psyc
 
-And the same in compact form:
+And this is the same message in PSYC's compact form, but since compact mode
+hasn't been implemented nor deployed yet, we will not include it
+in the benchmarks:
 
 #+BEGIN_SRC psyc
 :c	psyc://example.com/~juliet
@@ -180,7 +182,7 @@ PSYC quickly figures out where the data starts and ends and passes such
 information back to the application while the other formats are forced to
 generate a copy of the data in order to process possibly embedded special
 character sequences. PSYC essentially operates like a binary data protocol
-even though it is actually still text-based.
+even though it is actually text-based.
 
 * Criticism
 
@@ -188,22 +190,23 @@ Are we comparing apples and oranges? Yes and no, depends on what you
 need. XML is a syntax best suited for complex structured data in
 well-defined formats - especially good for text mark-up. JSON is a syntax
 intended to hold arbitrarily structured data suitable for immediate
-inclusion in javascript source codes. The PSYC syntax is an evolved
-derivate of RFC 822, the syntax used by HTTP and E-Mail, and is therefore
+inclusion in Javascript source codes. The PSYC syntax is an evolved
+derivate of RFC 822, the syntax used by HTTP and E-Mail. It is currently
 limited in the kind and depth of data structures that can be represented
-with it, but in exchange it is highly performant at doing just that.
-In fact we are looking into suitable syntax extensions to represent
+with it, but it is highly efficient in exchange.
+
+In fact we are currently looking into suitable syntax extensions to represent
 generic structures and semantic signatures, but for now PSYC only
 provides for simple typed values and lists of typed values.
 
-* Ease of implementation
+* Ease of Implementation
 
 Another aspect is the availability of these formats for spontaneous
 use. You could generate and parse JSON yourself but you have to be
 careful about escaping. XML can be rendered manually if you know your
-data will not break the syntax, but you can't really parse it without
+data will not break the syntax, but you shouldn't dare to parse it without
 a bullet proof parser. PSYC is easy to render and parse yourself for
-simple tasks, as long as your body does not contain "\n|\n" and your
+simple tasks, as long as the body does not contain "\n|\n" and your
 variables do not contain newlines.
 
 * Caveats

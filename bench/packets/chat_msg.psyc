@@ -1,5 +1,5 @@
 :_source	psyc://example.com/~juliet
-:_target	psyc://example.net/~romeo
+:_target	xmpp:romeo@example.net
 
 _message
 Art thou not Romeo, and a Montague?
