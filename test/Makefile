@@ -50,23 +50,6 @@ test: ${TARGETS}
 	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testPsyc -f $$f | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
 	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./testPsyc -rf $$f | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
 
-bench: bench-psyc bench-json bench-xml
-
-bench-dir:
-	@mkdir -p ../bench/results
-
-bench-psyc: bench-dir testStrlen testPsycSpeed
-	for f in ../bench/packets/*.psyc; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
-	for f in ../bench/packets/*.psyc; do bf=`basename $$f`; echo libpsyc: $$f; ./testPsycSpeed -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
-
-bench-json: bench-dir testStrlen testJson testJsonGlib
-	for f in ../bench/packets/*.json; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
-	for f in ../bench/packets/*.json; do bf=`basename $$f`; echo json-c: $$bf; ./testJson -snc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
-	for f in ../bench/packets/*.json; do bf=`basename $$f`; echo json-glib: $$bf; ./testJsonGlib -snc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf-glib; done
-
-bench-xml: bench-dir testStrlen
-	for f in ../bench/packets/*.xml; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
-
 .NOTPARALLEL: nettestrun
 
 nettest: nettestfull nettestsplit
@@ -96,3 +79,60 @@ srvstart:
 
 srvkill:
 	pkill -x testPsyc
+
+
+bench: bench-genpkts bench-psyc bench-json bench-xml
+
+bench-dir:
+	@mkdir -p ../bench/results
+
+bench-psyc: bench-dir testStrlen testPsycSpeed
+	for f in ../bench/packets/*.psyc ../bench/packets/binary/*.psyc; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
+	for f in ../bench/packets/*.psyc ../bench/packets/binary/*.psyc; do bf=`basename $$f`; echo libpsyc: $$f; ./testPsycSpeed -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
+
+bench-json: bench-dir testStrlen testJson testJsonGlib
+	for f in ../bench/packets/*.json ../bench/packets/binary/*.json; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
+	for f in ../bench/packets/*.json ../bench/packets/binary/*.json; do bf=`basename $$f`; echo json-c: $$bf; ./testJson -snc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
+	for f in ../bench/packets/*.json; do bf=`basename $$f`; echo json-glib: $$bf; ./testJsonGlib -snc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf-glib; done
+
+bench-xml: bench-dir testStrlen
+	for f in ../bench/packets/*.xml ../bench/packets/binary/*.xml; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
+
+bench-genpkts:
+	@${MAKE} genpkt header=../bench/packets/binary/psyc-header content=../bench/packets/binary/psyc-content bs=7000 of=../bench/packets/binary/7K.psyc
+	@${MAKE} genpkt header=../bench/packets/binary/psyc-header content=../bench/packets/binary/psyc-content bs=70000 of=../bench/packets/binary/70K.psyc
+	@${MAKE} genpkt header=../bench/packets/binary/psyc-header content=../bench/packets/binary/psyc-content bs=700000 of=../bench/packets/binary/700K.psyc
+	@${MAKE} genpkt header=../bench/packets/binary/psyc-header content=../bench/packets/binary/psyc-content bs=7000000 of=../bench/packets/binary/7000K.psyc
+	@${MAKE} genpkt header=../bench/packets/binary/psyc-header content=../bench/packets/binary/psyc-content bs=7000000 count=10 of=../bench/packets/binary/70000K.psyc
+#	@${MAKE} genpkt header=../bench/packets/binary/psyc-header content=../bench/packets/binary/psyc-content bs=7000000 count=100 of=../bench/packets/binary/700000K.psyc
+
+	@${MAKE} genb64 header=../bench/packets/binary/json-header footer=../bench/packets/binary/json-footer bs=7000 of=../bench/packets/binary/7K.json
+	@${MAKE} genb64 header=../bench/packets/binary/json-header footer=../bench/packets/binary/json-footer bs=70000 of=../bench/packets/binary/70K.json
+	@${MAKE} genb64 header=../bench/packets/binary/json-header footer=../bench/packets/binary/json-footer bs=700000 of=../bench/packets/binary/700K.json
+	@${MAKE} genb64 header=../bench/packets/binary/json-header footer=../bench/packets/binary/json-footer bs=7000000 of=../bench/packets/binary/7000K.json
+	@${MAKE} genb64 header=../bench/packets/binary/json-header footer=../bench/packets/binary/json-footer bs=7000000 count=10 of=../bench/packets/binary/70000K.json
+#	@${MAKE} genb64 header=../bench/packets/binary/json-header footer=../bench/packets/binary/json-footer bs=7000000 count=100 of=../bench/packets/binary/700000K.json
+
+	@${MAKE} genb64 header=../bench/packets/binary/xml-header footer=../bench/packets/binary/xml-footer bs=7000 of=../bench/packets/binary/7K.xml
+	@${MAKE} genb64 header=../bench/packets/binary/xml-header footer=../bench/packets/binary/xml-footer bs=70000 of=../bench/packets/binary/70K.xml
+	@${MAKE} genb64 header=../bench/packets/binary/xml-header footer=../bench/packets/binary/xml-footer bs=700000 of=../bench/packets/binary/700K.xml
+	@${MAKE} genb64 header=../bench/packets/binary/xml-header footer=../bench/packets/binary/xml-footer bs=7000000 of=../bench/packets/binary/7000K.xml
+	@${MAKE} genb64 header=../bench/packets/binary/xml-header footer=../bench/packets/binary/xml-footer bs=7000000 count=10 of=../bench/packets/binary/70000K.xml
+#	@${MAKE} genb64 header=../bench/packets/binary/xml-header footer=../bench/packets/binary/xml-footer bs=7000000 count=100 of=../bench/packets/binary/700000K.xml
+
+bs = 1
+count = 1
+genpkt:
+	@[[ -n "${of}" ]]
+	[[ -f "${of}" ]] || ( \
+		cat ${header} >${of}; \
+		perl -le 'my @se=stat(q('${content}')); print $$se[7] + ${bs} * ${count} + 1' >>${of}; \
+		cat ${content} >>${of}; \
+		dd if=/dev/urandom of=${of} bs=${bs} count=${count} oflag=append conv=notrunc; \
+		echo -ne "\n|\n" >>${of} )
+
+bs = 1
+count = 1
+genb64:
+	@[[ -n "${of}" ]]
+	[[ -f "${of}" ]] || (cat ${header} >${of}; dd if=/dev/urandom bs=${bs} count=${count} | base64 -w0 >>${of}; cat ${footer} >>${of})
