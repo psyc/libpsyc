@@ -10,6 +10,7 @@
 #include <getopt.h>
 #include <sys/socket.h>
 
+#define NOREAD
 #include "test.c"
 
 // cmd line args

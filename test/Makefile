@@ -87,16 +87,16 @@ bench-dir:
 	@mkdir -p ../bench/results
 
 bench-psyc: bench-dir testStrlen testPsycSpeed
-	for f in ../bench/packets/*.psyc ../bench/packets/binary/*.psyc; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
-	for f in ../bench/packets/*.psyc ../bench/packets/binary/*.psyc; do bf=`basename $$f`; echo libpsyc: $$f; ./testPsycSpeed -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
+	for f in ../bench/packets/*.psyc `ls ../bench/packets/binary/*.psyc | sort -r`; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
+	for f in ../bench/packets/*.psyc `ls ../bench/packets/binary/*.psyc | sort -r`; do bf=`basename $$f`; echo libpsyc: $$f; ./testPsycSpeed -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
 
 bench-json: bench-dir testStrlen testJson testJsonGlib
-	for f in ../bench/packets/*.json ../bench/packets/binary/*.json; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
-	for f in ../bench/packets/*.json ../bench/packets/binary/*.json; do bf=`basename $$f`; echo json-c: $$bf; ./testJson -snc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
+#	for f in ../bench/packets/*.json `ls ../bench/packets/binary/*.json | sort -r`; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
+	for f in ../bench/packets/*.json `ls ../bench/packets/binary/*.json | sort -r`; do bf=`basename $$f`; echo json-c: $$bf; ./testJson -snc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf; done
 	for f in ../bench/packets/*.json; do bf=`basename $$f`; echo json-glib: $$bf; ./testJsonGlib -snc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf-glib; done
 
 bench-xml: bench-dir testStrlen
-	for f in ../bench/packets/*.xml ../bench/packets/binary/*.xml; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
+#	for f in ../bench/packets/*.xml `ls ../bench/packets/binary/*.xml | sort -r`; do bf=`basename $$f`; echo strlen: $$bf; ./testStrlen -sc 1000000 -f $$f | ${TEE} -a ../bench/results/$$bf.strlen; done
 
 bench-genpkts:
 	@${MAKE} genpkt header=../bench/packets/binary/psyc-header content=../bench/packets/binary/psyc-content bs=7000 of=../bench/packets/binary/7K.psyc
