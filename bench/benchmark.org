@@ -270,5 +270,3 @@ The benchmarks can be run with the following command
 (xmlbench is needed for the xml tests):
 
 : make bench
-
-
