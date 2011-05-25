@@ -254,6 +254,14 @@ you can't edit them manually and you can't produce valid messages
 by replacing variables in a simple text template. You depend on
 specialized parsers and renderers to be provided.
 
+There's also
+
+- Bittorrent's bencode
+
+This format is formally text-based, but not easy to read as it doesn't
+have any visual separators and isn't easy to edit as everything is
+prefixed by lengths even for very short items.
+
 * Further Reading
 
 http://about.psyc.eu/Spec:Syntax provides you with the ABNF grammar
