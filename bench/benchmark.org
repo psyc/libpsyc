@@ -274,19 +274,7 @@ state mechanism provided by the +/-/= operators.
 This document and its benchmarks are distributed with libpsyc.
 See http://about.psyc.eu/libpsyc on how to obtain it.
 
-*** libpsyc
+The benchmarks can be run with the following command
+(xmlbench is needed for the xml tests):
 
 : make bench
-
-which uses the following commands:
-
-: test/testStrlen -sc 1000000 -f $file
-: test/testPsycSpeed -sc 1000000 -f $file
-: test/testJson -snc 1000000 -f $file
-: test/testJsonGlib -snc 1000000 -f $file
-
-*** xmlbench
-
-: parse/libxml-sax 1000000 $file
-: parse/libxml 1000000 $file
-: parse/rapidxml 1000000 $file
