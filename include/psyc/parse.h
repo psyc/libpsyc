@@ -290,7 +290,7 @@ void psyc_setParseFlags (psycParseState *state, uint8_t flags)
 	if (flags & PSYC_PARSE_START_AT_CONTENT)
 		state->part = PSYC_PART_CONTENT;
 	else
-		state->part = 0;
+		state->part = PSYC_PART_ROUTING;
 }
 
 
