@@ -137,7 +137,10 @@ psycModifier psyc_newModifier2 (char oper,
 	return psyc_newModifier(oper, &n, &v, flag);
 }
 
-/** Get the total length of a modifier when rendered. */
+/**
+ * \internal
+ * Get the total length of a modifier when rendered.
+ */
 size_t psyc_getModifierLength (psycModifier *m);
 
 /**
@@ -146,7 +149,10 @@ size_t psyc_getModifierLength (psycModifier *m);
  */
 psycListFlag psyc_checkListLength (psycList *list);
 
-/** Get the total length of a list when rendered. */
+/**
+ * \internal
+ * Get the total length of a list when rendered.
+ */
 psycListFlag psyc_getListLength (psycList *list);
 
 /**
@@ -155,7 +161,9 @@ psycListFlag psyc_getListLength (psycList *list);
  */
 psycPacketFlag psyc_checkPacketLength (psycPacket *p);
 
-/** Calculate and set the rendered length of packet parts and total packet length.  */
+/**
+ * Calculate and set the rendered length of packet parts and total packet length.
+ */
 size_t psyc_setPacketLength (psycPacket *p);
 
 /** Create new list. */
