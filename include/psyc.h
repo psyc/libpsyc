@@ -88,9 +88,9 @@ typedef enum
 typedef struct
 {
 	/// Length of the data pointed to by ptr
-	size_t length; 	
+	size_t length;
 	/// pointer to the data
-	const char *ptr;  
+	const char *ptr;
 } psycString;
 
 typedef struct

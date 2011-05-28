@@ -26,7 +26,7 @@ typedef enum
 	/// Text template parsing & rendering complete.
 	PSYC_TEXT_COMPLETE = 0,
 	/// Text template parsing & rendering is incomplete, because the buffer was too small.
-	/// Another call is required to this function with a new buffer.
+	/// Another call is required to this function after setting a new buffer.
 	PSYC_TEXT_INCOMPLETE = 1,
 } psycTextRC;
 
@@ -48,8 +48,8 @@ typedef struct
 {
 	size_t cursor; ///< current position in the template
 	size_t written; ///< number of bytes written to buffer
-	psycString template; ///< template to parse
-	psycString buffer; ///< buffer for writing to
+	psycString tmpl; ///< input buffer with text template to parse
+	psycString buffer; ///< output buffer for rendered text
 	psycString open;
 	psycString close;
 } psycTextState;
@@ -70,32 +70,32 @@ typedef psycTextValueRC (*psycTextCB)(const char *name, size_t len, psycString *
  * Initializes the PSYC text state struct.
  *
  * @param state Pointer to the PSYC text state struct that should be initialized.
- * @param template Text template to be parsed.
- * @param tlen Length of template.
- * @param buffer Buffer where the rendered text is going to be written.
- * @param blen Length of buffer.
+ * @param tmpl Input buffer with text template to be parsed.
+ * @param tmplen Length of input buffer.
+ * @param buffer Output buffer where the rendered text is going to be written.
+ * @param buflen Length of output buffer.
  */
 static inline
 void psyc_initTextState (psycTextState *state,
-                         char *template, size_t tlen,
-                         char *buffer, size_t blen)
+                         const char *tmpl, size_t tmplen,
+                         char *buffer, size_t buflen)
 {
-	state->cursor   = 0;
-	state->written  = 0;
-	state->template = (psycString) {tlen, template};
-	state->buffer   = (psycString) {blen, buffer};
-	state->open     = (psycString) {1, "["};
-	state->close    = (psycString) {1, "]"};
+	state->cursor  = 0;
+	state->written = 0;
+	state->tmpl    = (psycString) {tmplen, tmpl};
+	state->buffer  = (psycString) {buflen, buffer};
+	state->open    = (psycString) {1, "["};
+	state->close   = (psycString) {1, "]"};
 }
 
 /**
- * Initializes the PSYC text state struct with custom open & closing braces.
+ * Initializes the PSYC text state struct with custom opening & closing braces.
  *
  * @param state Pointer to the PSYC text state struct that should be initialized.
- * @param template Text template to be parsed.
- * @param tlen Length of template.
- * @param buffer Buffer where the rendered text is going to be written.
- * @param blen Length of buffer.
+ * @param tmpl Input buffer with text template to be parsed.
+ * @param tmplen Length of input buffer.
+ * @param buffer Output buffer where the rendered text is going to be written.
+ * @param buflen Length of output buffer.
  * @param open Opening brace.
  * @param openlen Length of opening brace.
  * @param close Closing brace.
@@ -103,19 +103,21 @@ void psyc_initTextState (psycTextState *state,
  */
 static inline
 void psyc_initTextState2 (psycTextState *state,
-                          char *template, size_t tlen,
-                          char *buffer, size_t blen,
-                          char *open, size_t openlen,
-                          char *close, size_t closelen)
+                          const char *tmpl, size_t tmplen,
+                          char *buffer, size_t buflen,
+                          const char *open, size_t openlen,
+                          const char *close, size_t closelen)
 {
-	state->template = (psycString) {tlen, template};
-	state->buffer   = (psycString) {blen, buffer};
-	state->open     = (psycString) {openlen, open};
-	state->close    = (psycString) {closelen, close};
+	state->cursor  = 0;
+	state->written = 0;
+	state->tmpl    = (psycString) {tmplen, tmpl};
+	state->buffer  = (psycString) {buflen, buffer};
+	state->open    = (psycString) {openlen, open};
+	state->close   = (psycString) {closelen, close};
 }
 
 /**
- * Sets a new buffer in the PSYC text state struct.
+ * Sets a new output buffer in the PSYC text state struct.
  */
 static inline
 void psyc_setTextBuffer (psycTextState *state, psycString buffer)
@@ -149,10 +151,10 @@ size_t psyc_getTextBytesWritten (psycTextState *state)
  * string between these braces. Should the callback return
  * PSYC_TEXT_VALUE_NOT_FOUND, the original template text is copied as is.
  *
- * Before calling this function psyc_initTextState or psyc_initTextState should
- * be called to initialze the state struct. By default PSYC's "[" and "]" are
- * used but you can provide any other brace strings such as "${" and "}" or
- * "<!--" and "-->".
+ * Before calling this function psyc_initTextState should be called to initialize
+ * the state struct. By default PSYC's "[" and "]" are used but you can provide
+ * any other brace strings such as "${" and "}" or "<!--" and "-->" if you use
+ * the psyc_initTextState2 variant.
  *
  * @see http://about.psyc.eu/psyctext
  **/
