@@ -128,8 +128,7 @@ Parsing time of 1 000 000 packets, in milliseconds.
 A simple strlen() scan of the respective message is provided for comparison.
 These tests were performed on a 2.53 GHz Intel(R) Core(TM)2 Duo P9500 CPU.
 
-| input:          |   PSYC |         |   JSON |           |            |    XML |          |
-| parser:         | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
+|                 | strlen | libpsyc | json-c | json-glib | libxml sax | libxml | rapidxml |
 |-----------------+--------+---------+--------+-----------+------------+--------+----------|
 | user profile    |     55 |     608 |   4715 |     16503 |       7350 |  12377 |     2477 |
 | psyc-unfriendly |     70 |     286 |   2892 |     12567 |       5538 |   8659 |     1896 |
@@ -141,21 +140,20 @@ These tests were performed on a 2.53 GHz Intel(R) Core(TM)2 Duo P9500 CPU.
 
 Pure syntax comparisons above, protocol performance comparisons below:
 
-| input:   |        |    PSYC |         |   JSON |           |            |   XMPP |          |
-| parser:  | strlen | libpsyc | compact | json-c | json-glib | libxml sax | libxml | rapidxml |
-|----------+--------+---------+---------+--------+-----------+------------+--------+----------|
-| presence |     30 |     236 |     122 |   2463 |     10016 |       4997 |   7557 |     1719 |
-| chat msg |     40 |     295 |     258 |   2147 |      9526 |       5911 |   8999 |     1850 |
-| activity |     42 |     353 |     279 |   4666 |     16327 |      13357 |  28858 |     4356 |
-|----------+--------+---------+---------+--------+-----------+------------+--------+----------|
-| /        |      < |         |       > |      < |         > |          < |        |        > |
+|          | strlen | libpsyc | libpsyc compact | json-c | json-glib | libxml sax | libxml | rapidxml |
+|----------+--------+---------+-----------------+--------+-----------+------------+--------+----------|
+| presence |     30 |     236 | 122             |   2463 |     10016 |       4997 |   7557 |     1719 |
+| chat msg |     40 |     295 | 258             |   2147 |      9526 |       5911 |   8999 |     1850 |
+| activity |     42 |     353 | 279             |   4666 |     16327 |      13357 |  28858 |     4356 |
+|----------+--------+---------+-----------------+--------+-----------+------------+--------+----------|
+| /        |      < |         | >               |      < |         > |          < |        |        > |
+|          |        |         | <c>             |        |           |            |        |          |
 
 Parsing large amounts of binary data. For JSON & XML base64 encoding was used.
 Note that the results below include only the parsing time, base64 decoding was
 not performed.
 
-|  input: |     PSYC |         |      JSON |            |            |       XML |          |
-| parser: |   strlen | libpsyc |    json-c |  json-glib | libxml sax |    libxml | rapidxml |
+|         |   strlen | libpsyc |    json-c |  json-glib | libxml sax |    libxml | rapidxml |
 |---------+----------+---------+-----------+------------+------------+-----------+----------|
 |      7K |      978 |      77 |     18609 |      98000 |      11445 |     19299 |     8701 |
 |     70K |     9613 |      77 |    187540 |    1003900 |      96209 |    167738 |    74296 |
