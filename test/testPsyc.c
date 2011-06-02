@@ -190,6 +190,8 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 				contbytes = psyc_getParseRemainingLength(&parsers[i]);
 
 				if (contbytes > 0) { // copy end of parsebuf before start of recvbuf
+					if (verbose >= 3)
+						printf("# remaining = [%.*s]\n", (int)contbytes, psyc_getParseRemainingBuffer(&parsers[i]));
 					assert(contbytes <= CONT_BUF_SIZE); // make sure it's still in the buffer
 					memmove(recvbuf - contbytes, psyc_getParseRemainingBuffer(&parsers[i]), contbytes);
 				}
