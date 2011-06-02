@@ -80,6 +80,8 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	value.length = 0;
 
 	do {
+		if (verbose >= 3)
+			printf("\n# buffer = [%.*s]\n# part = %d\n", (int)parsers[i].buffer.length, parsers[i].buffer.ptr, parsers[i].part);
 		// Parse the next part of the packet (a routing/entity modifier or the body)
 		ret = exit_code = psyc_parse(&parsers[i], &oper, &name, &value);
 		if (verbose >= 2)
