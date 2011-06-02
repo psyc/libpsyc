@@ -40,9 +40,7 @@
  * char* raw_data; // points to our (possibly incomplete) packet
  * size_t raw_len; // how many bytes of data
  *
- * psyc_setParseBuffer(&state, // our initialized state from before
- *                      raw_data,
- *                      raw_len);
+ * psyc_setParseBuffer(&state, raw_data, raw_len); // state is our initialized state from before
  * @endcode
  *
  * Now the the variables that will save the output of the parser need to be
@@ -179,10 +177,10 @@ typedef enum
 	/// Start of an incomplete content, value contains part of content.
 	/// Used when PSYC_PARSE_ROUTING_ONLY is set.
 	PSYC_PARSE_CONTENT_START = 7,
-	/// Continuation of an incomplete body.
+	/// Continuation of an incomplete content.
 	/// Used when PSYC_PARSE_ROUTING_ONLY is set.
 	PSYC_PARSE_CONTENT_CONT = 8,
-	/// End of an incomplete body.
+	/// End of an incomplete content.
 	/// Used when PSYC_PARSE_ROUTING_ONLY is set.
 	PSYC_PARSE_CONTENT_END = 9,
 	/// Content parsing done in one go, value contains the whole content.
@@ -273,27 +271,6 @@ void psyc_initParseState2 (psycParseState *state, uint8_t flags)
 	if (flags & PSYC_PARSE_START_AT_CONTENT)
 		state->part = PSYC_PART_CONTENT;
 }
-
-/**
- * Change parse flags in state
- *
- * @param state Pointer to the state struct that should be initialized.
- * @param flags Flags to be set for the parser, see psycParseFlag.
- * @see psyc_initParseState
- * @see psycParseFlag
- */
-static inline
-void psyc_setParseFlags (psycParseState *state, uint8_t flags)
-{
-	state->flags = flags;
-
-	if (flags & PSYC_PARSE_START_AT_CONTENT)
-		state->part = PSYC_PART_CONTENT;
-	else
-		state->part = PSYC_PART_ROUTING;
-}
-
-
 
 /**
  * Sets a new buffer in the parser state struct with data to be parsed.
