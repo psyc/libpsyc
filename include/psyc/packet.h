@@ -92,7 +92,10 @@ typedef struct
 	psycPacketFlag flag; ///< Packet flag.
 } psycPacket;
 
-/** Check if a modifier needs length. */
+/**
+ * \internal
+ * Check if a modifier needs length.
+ */
 static inline
 psycModifierFlag psyc_checkModifierLength (psycModifier *m)
 {
@@ -134,19 +137,33 @@ psycModifier psyc_newModifier2 (char oper,
 	return psyc_newModifier(oper, &n, &v, flag);
 }
 
-/** Get the total length of a modifier when rendered. */
+/**
+ * \internal
+ * Get the total length of a modifier when rendered.
+ */
 size_t psyc_getModifierLength (psycModifier *m);
 
-/** Check if a list needs length. */
+/**
+ * \internal
+ * Check if a list needs length.
+ */
 psycListFlag psyc_checkListLength (psycList *list);
 
-/** Get the total length of a list when rendered. */
+/**
+ * \internal
+ * Get the total length of a list when rendered.
+ */
 psycListFlag psyc_getListLength (psycList *list);
 
-/** Check if a packet needs length. */
+/**
+ * \internal
+ * Check if a packet needs length.
+ */
 psycPacketFlag psyc_checkPacketLength (psycPacket *p);
 
-/** Calculate and set the rendered length of packet parts and total packet length.  */
+/**
+ * Calculate and set the rendered length of packet parts and total packet length.
+ */
 size_t psyc_setPacketLength (psycPacket *p);
 
 /** Create new list. */

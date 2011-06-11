@@ -160,25 +160,6 @@ struct ParseState
 	}
 
 	/**
-	 * Change parse flags in state
-	 *
-	 * Params:
-	 * 	state = Pointer to the state struct that should be initialized.
-	 *	flags = Flags to be set for the parser, see psycParseFlag.
-	 *
-	 * See_Also: psyc_initParseState psycParseFlag
-	 */
-	void setParseFlags (ParseFlag flags)
-	{
-		this.flags = flags;
-
-		if (flags & ParseFlag.START_AT_CONTENT)
-			this.part = Part.CONTENT;
-		else
-			this.part = Part.ROUTING;
-	}
-
-	/**
 	 * Sets a new buffer in the parser state struct with data to be parsed.
 	 *
 	 * Params:
@@ -265,6 +246,7 @@ struct ParseState
 
 	void getRemainingBuffer ( ref ubyte[] buf )
 	{
+
 		buf = this.buffer.ptr[cursor .. cursor + getRemainingLength()];
 	}
 
