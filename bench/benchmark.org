@@ -106,7 +106,7 @@ instead it allows for more addressing schemes than just PSYC.
 
 ** A new status updated activity
 Example taken from http://onesocialweb.org/spec/1.0/osw-activities.html
-You could call this XML namespace hell:
+You could call this XML namespace hell..  :-)
 
 #+INCLUDE: packets/activity.xml src xml
 
@@ -121,6 +121,16 @@ description announcement or just a message in the "microblogging" channel?
 We'll use the latter here:
 
 #+INCLUDE: packets/activity.psyc src psyc
+
+It's nice about XML namespaces how they can by definition never collide,
+but this degree of engineering perfection causes us a lot of overhead.
+The PSYC approach is to just extend the name of the method - as long as
+people use differing method names, protocol extensions can exist next
+to each other happily. Method name unicity cannot mathematically be ensured,
+but it's enough to append your company name to make it unlikely for anyone
+else on earth to have the same name. How this kind of safety is delivered
+when using the JSON syntax of ActivityStreams is unclear. Apparently it was
+no longer an important design criterion.
 
 * Results
 
