@@ -1,11 +1,14 @@
 OPT = -O2
 DEBUG = 2
-CFLAGS = -I../include -Wall -std=c99 ${OPT}
+CFLAGS = -I../include -Wall -std=c99 -fPIC ${OPT}
 DIET = diet
 
 S = packet.c parse.c match.c render.c memmem.c itoa.c variable.c text.c
 O = packet.o parse.o match.o render.o memmem.o itoa.o variable.o text.o
 P = match itoa
+
+A = ../lib/libpsyc.a
+SO = ../lib/libpsyc.so
 
 all: CC := ${WRAPPER} ${CC}
 all: lib
@@ -18,9 +21,15 @@ diet: WRAPPER = ${DIET}
 diet: CC := ${WRAPPER} ${CC}
 diet: lib
 
-lib: $O
+lib: $O $A ${SO}
+
+${SO}:
 	@mkdir -p ../lib
-	${WRAPPER} ${AR} rcs ../lib/libpsyc.a $O
+	${CC} ${CFLAGS} -shared -lm -o $@ $O
+
+$A:
+	@mkdir -p ../lib
+	${WRAPPER} ${AR} rcs $@ $O
 
 match: match.c
 	${CC} -o $@ -DDEBUG=4 -DCMDTOOL -DTEST $<
