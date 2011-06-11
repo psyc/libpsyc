@@ -276,6 +276,9 @@ http://about.psyc.eu/Spec:Syntax provides you with the ABNF grammar
 of the PSYC 1.0 syntax. You may also be interested in PSYC's decentralized
 state mechanism provided by the +/-/= operators.
 
+See http://about.psyc.eu/XML and http://about.psyc.eu/JSON for more
+biased information on the respective formats.
+
 * Appendix
 ** Tools used
 
