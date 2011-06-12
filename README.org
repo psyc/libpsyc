@@ -85,7 +85,7 @@ This library is distributed under the AGPL license with a linking exception, see
 
 * Style Wars
 
-This source code should follow the http://about.psyc.eu/Indent conventions.
+This source code should follow the [[http://about.psyc.eu/Indent]] conventions.
 (if you have good reasons to use another style, discuss it on the
 wiki page so that it becomes the general style convention for all
 of us, not just for you).
