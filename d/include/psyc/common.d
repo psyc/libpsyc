@@ -11,11 +11,15 @@ const EPOCH = 1440444041;      // 2015-08-24 21:20:41 CET (Monday)
 
 extern (C):
 
-enum Bool
+/+enum Bool
 {
 	FALSE = 0,
 	TRUE = 1,
-}
+}+/
+
+alias bool Bool;
+static const FALSE = false;
+static const TRUE  = true;
 
 /**
  * PSYC packet parts.
@@ -73,7 +77,7 @@ struct String
 	ubyte *ptr;
 }+/
 
-alias char[] String;
+alias ubyte[] String;
 
 struct MatchVar
 {
@@ -93,9 +97,12 @@ extern (C) MatchVar varTypes[];
 /**
  * Get the type of variable name.
  */
-Bool psyc_isRoutingVar(char *name, size_t len);
+Bool psyc_isRoutingVar (char[]* name);
 
-alias psyc_isRoutingVar isRoutingVar;
+bool isRoutingVar (char[] name)
+{
+	return psyc_isRoutingVar(&name);
+}
 
 /**
  * Get the type of variable name.

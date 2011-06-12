@@ -3,7 +3,7 @@ module psyc.syntax;
 const PSYC_LIST_SIZE_LIMIT = 404;
 
 /* beyond this a content length must be provided */
-const = PSYC_CONTENT_SIZE_THRESHOLD = 444;
+const PSYC_CONTENT_SIZE_THRESHOLD = 444;
 
 /* beyond this a modifier value length must be provided */
 const PSYC_MODIFIER_SIZE_THRESHOLD = 404;

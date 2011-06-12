@@ -51,10 +51,10 @@ enum RenderListRC
  * @see psyc_newRawPacket2
  * @see psyc_setPacketLength
  */
-RenderRC psyc_render (Packet *packet, char *buffer, size_t buflen);
+RenderRC psyc_render (Packet *packet, ubyte *buffer, size_t buflen);
 
 /**
  * Render a PSYC list into a buffer.
  */
-RenderListRC psyc_renderList (List *list, char *buffer, size_t buflen);
+RenderListRC psyc_renderList (List *list, ubyte *buffer, size_t buflen);
 

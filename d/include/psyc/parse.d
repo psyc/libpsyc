@@ -154,6 +154,24 @@ struct ParseState
 	 * 	value = A reference to a String. It will point to the
 	 *          value/body the variable/method and its length will be set accordingly
 	 */
+	ParseRC parse ( ref char oper, ref char[] name, ref ubyte[] value )
+	{
+		return psyc_parse(this, &oper, cast(String*) &name, cast(String*) &value);
+	}
+	
+	/**
+	 * Parse PSYC packets.
+	 *
+	 * Generalized line-based packet parser.
+	 *
+	 * Params:
+	 * 	oper  = A reference to a character. In case of a variable, it will
+	 *          be set to the operator of that variable
+	 * 	name  = A reference to a String. It will point to the name of
+	 *          the variable or method and its length will be set accordingly
+	 * 	value = A reference to a String. It will point to the
+	 *          value/body the variable/method and its length will be set accordingly
+	 */
 	ParseRC parse ( ref char oper, ref char[] name, ref char[] value )
 	{
 		return psyc_parse(this, &oper, cast(String*) &name, cast(String*) &value);
@@ -175,7 +193,7 @@ struct ParseState
 		if (this.flags & ParseFlag.START_AT_CONTENT)
 		{
 			this.contentLength      = buffer.length;
-			this.contentLengthFound = Bool.TRUE;
+			this.contentLengthFound = TRUE;
 		}
 	}
 
@@ -187,21 +205,9 @@ struct ParseState
 	 * 
 	 * See_Also: String
 	 */
-	void setParseBuffer ( ubyte[] buffer )
+	void setParseBuffer ( char[] buffer )
 	{
 		this.setParseBuffer(*(cast(String*) &buffer));
-	}
-
-	/**
-	 * Sets a new buffer in the parser state struct with data to be parsed.
-	 *
-	 * Params:
-	 * 	buffer = pointer to the buffer that should be parsed now
-	 * 	length = length of the buffer
-	 */
-	void setParseBuffer ( ubyte* buffer, size_t length )
-	{
-		this.setParseBuffer(String(length, cast(ubyte*)buffer));
 	}
 
 	size_t getContentLength ( )
@@ -211,7 +217,7 @@ struct ParseState
 
 	bool isContentLengthFound ( )
 	{
-		return this.contentLengthFound == Bool.TRUE;
+		return this.contentLengthFound == TRUE;
 	}
 
 	size_t getValueLength ( )
@@ -221,7 +227,7 @@ struct ParseState
 
 	bool isValueLengthFound ( )
 	{
-		return this.valueLengthFound == Bool.TRUE;
+		return this.valueLengthFound == true;
 	}
 
 	size_t getCursor ( )
@@ -241,13 +247,13 @@ struct ParseState
 
 	ubyte* getRemainingBuffer ( )
 	{
-		return this.buffer.ptr + this.cursor;
+		return cast(ubyte*)this.buffer.ptr + this.cursor;
 	}
 
 	void getRemainingBuffer ( ref ubyte[] buf )
 	{
 
-		buf = this.buffer.ptr[cursor .. cursor + getRemainingLength()];
+		buf = cast(ubyte[])this.buffer.ptr[cursor .. cursor + getRemainingLength()];
 	}
 
 }
@@ -283,21 +289,9 @@ struct ParseListState
 	 * Params:
 	 * 	buffer = the buffer to be parsed
 	 */
-	void setBuffer ( ubyte[] buffer )
+	void setBuffer ( char[] buffer )
 	{
 		this.setBuffer(*(cast(String*) &buffer));
-	}
-
-	/**
-	 * Sets a new buffer with data to be parsed
-	 *
-	 * Params:
-	 * 	buffer = pointer to the buffer to be parsed
-	 * 	length = size of the buffer
-	 */
-	void setBuffer ( ubyte* buffer, size_t length )
-	{
-		this.setBuffer(String(length, buffer));
 	}
 }
 
