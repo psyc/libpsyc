@@ -6,8 +6,9 @@ module psyc.packet;
 
 import psyc.common;
 import psyc.syntax;
+import psyc.render;
 
-
+import tango.stdc.string : memchr;
 extern (C):
 
 /** Modifier flags. */
@@ -49,11 +50,17 @@ enum PacketFlag
 struct Modifier
 {
 	char operator;
-	String name;
+	char[] name;
 	String value;
 	ModifierFlag flag;
 	
-	static Modifier opCall ( char op, char[] nam, char[] val )
+	static Modifier opCall ( char op, char[] nam, char[] val, 
+	                         ModifierFlag flg = ModifierFlag.CHECK_LENGTH )
+	{
+		return opCall(op, nam, cast(ubyte[])val, flg);
+	}
+	static Modifier opCall ( char op, char[] nam, ubyte[] val, 
+	                         ModifierFlag flg = ModifierFlag.CHECK_LENGTH )
 	{
 		Modifier v;
 
@@ -62,11 +69,18 @@ struct Modifier
 			operator = op;
 			name     = nam;
 			value    = val;
+			flag     = (flg == ModifierFlag.CHECK_LENGTH) ?
+			           checkLength(val) : flg;
 		}
 
 		return v;
 	}
 	
+	char[] valuestr ( )
+	{
+		return cast(char[]) value;
+	}
+
 	bool opEquals ( ref Modifier n )
 	{
 		return operator == n.operator &&
@@ -79,16 +93,28 @@ struct Modifier
 		auto v = M(operator, name.dup, value.dup);
 		return v;
 	}
+	
+	size_t length ( )
+	{
+		return psyc_getModifierLength (this);
+	}
+
+	private ModifierFlag checkLength ( ubyte[] value )
+	{
+		ModifierFlag flag;
+
+		if (value.length > PSYC_MODIFIER_SIZE_THRESHOLD)
+			flag = ModifierFlag.NEED_LENGTH;
+		else if (memchr(value.ptr, cast(int)'\n', value.length))
+			flag = ModifierFlag.NEED_LENGTH;
+		else
+			flag = ModifierFlag.NO_LENGTH;
+
+		return flag;
+	}
 };
 
 alias Modifier M;
-
-/** Structure for an entity or routing header. */
-struct Header
-{
-	size_t lines;
-	Modifier *modifiers;
-} ;
 
 /** Structure for a list. */
 struct List
@@ -102,66 +128,68 @@ struct List
 /** intermediate struct for a PSYC packet */
 struct Packet
 {
-	Header routing;	///< Routing header.
-	Header entity;	///< Entity header.
+	Modifier[] routing;	///< Routing header.
+	Modifier[] entity;	///< Entity header.
 	String method; ///< Contains the method.
 	String data; ///< Contains the data.
 	String content; ///< Contains the whole content.
 	size_t routingLength;	///< Length of routing part.
 	size_t contentLength;	///< Length of content part.
-	size_t length;		///< Total length of packet.
+	size_t _length;		///< Total length of packet.
 	PacketFlag flag; ///< Packet flag.
-} ;
+	
+	static Packet opCall (Modifier[] routing, Modifier[] entity,
+                        char[] method, ubyte[] data,
+                        PacketFlag flag = PacketFlag.CHECK_LENGTH)
+	{
+		return psyc_newPacket (&routing, &entity, cast(ubyte[]*)&method, &data, flag);
+	}
+
+	static Packet opCall (Modifier[] routing, ubyte[] content,
+	                      PacketFlag flag = PacketFlag.CHECK_LENGTH)
+	{
+		return psyc_newRawPacket (&routing, &content, flag);
+	}
+
+	size_t length ( )
+	{
+		psyc_setPacketLength(this);
+		return this._length;
+	}
+
+	ubyte[] render ( ubyte[] buffer )
+	{
+		psyc_setPacketLength(this);
+
+		with (RenderRC) 
+			switch (psyc_render(this, buffer.ptr, buffer.length))
+			{
+				case ERROR_METHOD_MISSING:
+					throw new Exception("Method missing");
+					break;
+					
+				case ERROR_MODIFIER_NAME_MISSING:
+					throw new Exception("Modifier name missing");
+					break;
+					
+				case ERROR:
+					throw new Exception("Buffer to small");
+					break;
+					
+				case SUCCESS:
+					return buffer[0 .. this._length];
+
+				default:
+					throw new Exception("Unknown Return Code");
+			}
+	}
+};
+
 
 /**
  * \internal
- * Check if a modifier needs length.
  */
-
-ModifierFlag psyc_checkModifierLength (Modifier *m)
-{
-	ModifierFlag flag;
-
-	if (m->value.length > PSYC_MODIFIER_SIZE_THRESHOLD)
-		flag = ModifierFlag.NEED_LENGTH;
-	else if (memchr(m->value.ptr, (int)'\n', m->value.length))
-		flag = ModifierFlag.NEED_LENGTH;
-	else
-		flag = ModifierFlag.NO_LENGTH;
-
-	return flag;
-}
-
-/** Create new modifier. */
-
-Modifier psyc_newModifier (char oper, String *name, String *value,
-                               ModifierFlag flag)
-{
-	Modifier m = {oper, *name, *value, flag};
-
-	if (flag == ModifierFlag.CHECK_LENGTH) // find out if it needs a length
-		m.flag = psyc_checkModifierLength(&m);
-
-	return m;
-}
-
-/** Create new modifier */
-Modifier psyc_newModifier2 (char oper,
-                                char *name, size_t namelen,
-                                char *value, size_t valuelen,
-                                ModifierFlag flag)
-{
-	String n = {namelen, name};
-	String v = {valuelen, value};
-
-	return psyc_newModifier(oper, &n, &v, flag);
-}
-
-/**
- * \internal
- * Get the total length of a modifier when rendered.
- */
-size_t psyc_getModifierLength (Modifier *m);
+private size_t psyc_getModifierLength (Modifier *m);
 
 /**
  * \internal
@@ -184,26 +212,29 @@ PacketFlag psyc_checkPacketLength (Packet *p);
 /**
  * Calculate and set the rendered length of packet parts and total packet length.
  */
-size_t psyc_setPacketLength (Packet *p);
+private size_t psyc_setPacketLength (Packet *p);
 
 /** Create new list. */
 List psyc_newList (String *elems, size_t num_elems, ListFlag flag);
 
 /** Create new packet. */
-Packet psyc_newPacket (Header *routing,
-                           Header *entity,
-                           String *method, String *data,
-                           PacketFlag flag);
+private Packet psyc_newPacket (Modifier[]* routing,
+                               Modifier[]* entity,
+                               String *method, String *data,
+                               PacketFlag flag);
+
+
+
 
 /** Create new packet. */
 Packet psyc_newPacket2 (Modifier *routing, size_t routinglen,
-                            Modifier *entity, size_t entitylen,
-                            char *method, size_t methodlen,
-                            char *data, size_t datalen,
-                            PacketFlag flag);
+                        Modifier *entity, size_t entitylen,
+                        char *method, size_t methodlen,
+                        char *data, size_t datalen,
+                        PacketFlag flag);
 
 /** Create new packet with raw content. */
-Packet psyc_newRawPacket (Header *routing, String *content,
+Packet psyc_newRawPacket (Modifier[] *routing, ubyte[] *content,
                               PacketFlag flag);
 
 /** Create new packet with raw content. */
