@@ -1,0 +1,209 @@
+#include "global.h"                                                                                                                            
+#include "interpret.h"                                                                                                                         
+#include "stralloc.h"                                                                                                                          
+#include "mapping.h"                                                                                                                           
+#include "svalue.h"                                                                                                                            
+#include "operators.h"                                                                                                                         
+#include "array.h"                                                                                                                             
+#include "builtin_functions.h" 
+#include "module.h"
+
+#include <stdlib.h>
+#ifndef DEFAULT_CMOD_STORAGE
+#define DEFAULT_CMOD_STORAGE
+#endif
+
+// libpsyc dependencies
+# include <psyc.h>
+# include <psyc/parse.h>
+# include <psyc/render.h>
+
+#define MODULE_NAME "PSYC"
+#define MODULE_MAJOR 0
+#define MODULE_MINOR 1
+#define MODULE_PATCH 0
+
+/*! @module PSYC
+ *!
+ *! Implements PSYC parsing and rendering based on libpsyc
+ *! FIXME: parser not implemented yet
+ *!
+ */
+
+/*! @decl string render(mapping rvars, mapping evars, string method, string|void body)
+ *! @param rvars
+ *!	FIXME
+ *! @param evars
+ *!	FIXME
+ *! @param method
+ *!	FIXME
+ *! @param data
+ *!	FIXME
+ *! @returns
+ *!	serialized packet as a string
+ */
+PIKEFUN string render(mapping rvars, mapping evars, string method, string|void body) {
+	char buffer[1024*1024]; // static buffer, FIXME
+	psycPacket packet;
+	psycHeader rheaders, eheaders;
+
+	struct keypair *k; // for mappings
+	INT32 e;
+
+	char oper = C_GLYPH_OPERATOR_SET;
+
+	// fill headers
+	rheaders.lines = 0;
+	rheaders.modifiers = malloc(sizeof(psycModifier) * rvars->data->size); 
+	NEW_MAPPING_LOOP(rvars->data) {
+		if (k->ind.type == PIKE_T_STRING) {
+			switch(k->val.type) {
+			case PIKE_T_INT:
+				printf("integer value %ld\n", k->val.u.integer);
+				break;
+			case PIKE_T_FLOAT:
+				printf("float value %f\n", k->val.u.float_number);
+				break;
+			case PIKE_T_STRING:
+				rheaders.modifiers[rheaders.lines++] = psyc_newModifier2(oper, 
+									 (char *)STR0(k->ind.u.string),
+									 k->ind.u.string->len,
+									 (char *)STR0(k->val.u.string),
+									 k->val.u.string->len, 
+									 PSYC_MODIFIER_ROUTING);
+				break;
+			case PIKE_T_MAPPING:
+				printf("mapping value length %d\n", k->val.u.mapping->data->size);
+				// another walk_mapping?
+				break;
+			case PIKE_T_ARRAY:
+				printf("array value length %d\n", k->val.u.array->size);
+				/*
+				for(e = 0; e < data->u.array->size; e++) {
+					struct svalue item = data->u.array->item[e];
+					inner_serialize2(&item, sb);
+				}
+				*/
+				break;
+			default:
+				break;
+			}
+		} else {
+			Pike_error("psyc render: unsupported non-string key in rvars\n");
+		}
+	}
+
+	eheaders.lines = 0;
+	eheaders.modifiers = malloc(sizeof(psycModifier) * evars->data->size); 
+	NEW_MAPPING_LOOP(evars->data) {
+		if (k->ind.type == PIKE_T_STRING) {
+			char *key;
+			size_t keylen;
+			char *val = NULL;
+			size_t vallen = 0;
+
+			key = (char *) STR0(k->ind.u.string);
+			keylen = k->ind.u.string->len; 
+
+			switch(k->val.type) {
+			case PIKE_T_INT:
+				printf("integer value %ld\n", k->val.u.integer);
+				break;
+			case PIKE_T_STRING:
+				val = (char *) STR0(k->ind.u.string);
+				vallen = k->ind.u.string->len;
+				break;
+			case PIKE_T_FLOAT:
+				printf("float value %f\n", k->val.u.float_number);
+				break;
+			case PIKE_T_MAPPING:
+				printf("mapping value length %d\n", k->val.u.mapping->data->size);
+				// another walk_mapping?
+				break;
+			case PIKE_T_ARRAY:
+				printf("array value length %d\n", k->val.u.array->size);
+				/*
+				for(e = 0; e < data->u.array->size; e++) {
+					struct svalue item = data->u.array->item[e];
+					inner_serialize2(&item, sb);
+				}
+				*/
+				break;
+			default:
+				break;
+			}
+			eheaders.modifiers[eheaders.lines++] = psyc_newModifier2(oper, 
+										 key, keylen,
+										 val, vallen,
+										 PSYC_MODIFIER_CHECK_LENGTH);
+		} else {
+			Pike_error("psyc render: unsupported non-string key in evars\n");
+		}
+	}
+
+	if (body != NULL) {
+		packet = psyc_newPacket2(rheaders.modifiers,
+					 rheaders.lines,
+					 eheaders.modifiers,
+					 eheaders.lines,
+					 (const char *)STR0(method), method->len, 
+					 (const char *)STR0(body), body->len,
+					 PSYC_PACKET_CHECK_LENGTH);
+	} else { // body arg was not given
+		packet = psyc_newPacket2(rheaders.modifiers,
+					 rheaders.lines,
+					 eheaders.modifiers,
+					 eheaders.lines,
+					 (const char *)STR0(method), method->len, 
+					 NULL, 0,
+					 PSYC_PACKET_CHECK_LENGTH);
+	}
+
+	/*
+	FIXME: how to allocate space and pass it to libpsyc?
+	string builder probably
+	*/
+	psyc_render(&packet, buffer, packet.length);
+	// pop_n_elems(args);
+	RETURN make_shared_binary_string(buffer, packet.length);
+}
+
+PIKECLASS Parser {
+	CVAR psycParseState parser;
+
+	INIT {
+		psyc_initParseState(&THIS->parser);
+	}
+
+	EXIT {
+
+	}
+
+	PIKEFUN void feed(string data) {
+		char oper;
+		psycString name, value;
+		int ret;
+
+		psyc_setParseBuffer2(&THIS->parser, 
+				     (char *) STR0(data), data->len);
+		for (;;) {
+			printf("looping...\n");
+			ret = psyc_parse(&THIS->parser, &oper, &name, &value);
+			if (ret == PSYC_PARSE_COMPLETE || ret < 0) {
+				break;
+			}
+		}
+		printf("down here\n");
+	}
+
+}
+
+INIT {
+
+}
+
+EXTRA {
+	add_integer_constant("__version_major", MODULE_MAJOR, 0);
+	add_integer_constant("__version_minor", MODULE_MAJOR, 0);
+	add_integer_constant("__version_patch", MODULE_MAJOR, 0);
+}
