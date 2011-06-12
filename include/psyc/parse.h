@@ -59,7 +59,7 @@
  * repeatedly with various actions in between, depending on the return values.
  *
  * A simplified example follows, see test/testPsyc.c for actual code that
- * handles incomplete packets too.
+ * handles incomplete packets as well.
  *
  * @code
  *
