@@ -1,0 +1,91 @@
+#+TITLE: libpsyc README file
+#+OPTIONS: toc:nil num:nil
+
+* About
+
+libpsyc implements various functions required to use PSYC.
+
+- See http://about.psyc.eu/libpsyc for more information on the library.
+- See http://lib.psyc.eu/doc/ for the API documentation.
+- See http://about.psyc.eu/Specification for more information on the new PSYC
+  specification.
+- See http://about.psyc.eu for information on PSYC in general.
+
+The plain C API located in the include/psyc directory along with the file psyc.h
+is primarily intended to be used for binding with other languages and frameworks.
+
+The LPC binding for psyced is distributed with psyclpc since it is spread
+over several files (LPC has no simple approach to binding). Other bindings
+are located directly in the root folder named according to the language or
+framework. Currently there's only a binding for D.
+
+* C API
+
+The "plain C API" is a very low-level API intended to be used for bindings.
+To access a certain module of the library, just include the according header
+file from the psyc directory:
+
+: #include <psyc.h>        // basic things for well-being
+: #include <psyc/parse.h>  // parse psyc packets
+: #include <psyc/render.h> // render psyc packets
+: #include <psyc/text.h>   // text template functions
+: #include <psyc/packet.h> // structures for render.h and functions to initialize them
+: #include <psyc/syntax.h> // definitions and constants related to parsing and rendering
+
+For more information see the API documentation at [[http://lib.psyc.eu/doc/]].
+
+* Directory Overview
+
+: doc/      # target folder for the documentation after generation (make doc)
+: include/  # the core C API for the library
+: lib/      # target folder for the compiled library (make)
+: src/      # the sourcecode of the library
+: test/     # test sourcecodes and test input files
+: d/        # the D binding
+
+* Compiling libpsyc
+
+Type
+: make
+
+and you are done.
+Other possible targets include:
+
+: make install [prefix=/usr]  # install into prefix
+: make diet                   # compile with diet libc
+: make test                   # compile and run the tests
+: make doc                    # generate the API documentation (will be put in the doc folder)
+: make help                   # display the possible targets
+
+* Requirements
+
+libpsyc is currently known to compile under Linux and SunOS.
+
+* Authors
+
+The library is being developed by
+
+- tg     -- psyc://psyced.org/~tg
+- lynx   -- psyc://psyced.org/~lynx
+- Marenz -- psyc://supraverse.net/~marenz
+
+* Contact
+
+If you created new bindings, patches or anything other that you think should go
+into the library, contact either anyone of us directly or just join the
+developement room at
+
+- psyc://psyced.org/@welcome
+- xmpp:*welcome@psyced.org
+- irc://psyced.org/welcome
+
+* License
+
+This library is distributed under the AGPL license with a linking exception, see the LICENSE file for details.
+
+* Style Wars
+
+This source code should follow the http://about.psyc.eu/Indent conventions.
+(if you have good reasons to use another style, discuss it on the
+wiki page so that it becomes the general style convention for all
+of us, not just for you).
