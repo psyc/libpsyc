@@ -10,6 +10,8 @@ P = match itoa
 A = ../lib/libpsyc.a
 SO = ../lib/libpsyc.so
 
+.NOTPARALLEL: clean
+
 all: CC := ${WRAPPER} ${CC}
 all: lib
 
@@ -21,13 +23,13 @@ diet: WRAPPER = ${DIET}
 diet: CC := ${WRAPPER} ${CC}
 diet: lib
 
-lib: $O $A ${SO}
+lib: $A ${SO}
 
-${SO}:
+${SO}: $O
 	@mkdir -p ../lib
 	${CC} ${CFLAGS} -shared -lm -o $@ $O
 
-$A:
+$A: $O
 	@mkdir -p ../lib
 	${WRAPPER} ${AR} rcs $@ $O
 
