@@ -64,7 +64,7 @@ typedef struct
  * PSYC_TEXT_VALUE_NOT_FOUND if no match found in which case psyc_text
  * leaves the original template text as is.
  */
-typedef psycTextValueRC (*psycTextCB)(const char *name, size_t len, psycString *value);
+typedef psycTextValueRC (*psycTextCB)(const char *name, size_t len, psycString *value, void *extra);
 
 /**
  * Initializes the PSYC text state struct.
@@ -158,7 +158,7 @@ size_t psyc_getTextBytesWritten (psycTextState *state)
  *
  * @see http://about.psyc.eu/psyctext
  **/
-psycTextRC psyc_text (psycTextState *state, psycTextCB getValue);
+psycTextRC psyc_text (psycTextState *state, psycTextCB getValue, void *extra);
 
 /** @} */ // end of text group
 
