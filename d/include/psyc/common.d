@@ -66,11 +66,14 @@ enum ListType
 	LIST_BINARY = 2,
 } 
 
+/+
 struct String
 {
 	size_t length;
 	ubyte *ptr;
-}
+}+/
+
+alias char[] String;
 
 struct MatchVar
 {

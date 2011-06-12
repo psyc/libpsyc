@@ -8,6 +8,8 @@ import psyc.common;
 import psyc.syntax;
 
 
+extern (C):
+
 /** Modifier flags. */
 enum ModifierFlag
 {
@@ -46,11 +48,40 @@ enum PacketFlag
 /** Structure for a modifier. */
 struct Modifier
 {
-	char oper;
+	char operator;
 	String name;
 	String value;
 	ModifierFlag flag;
-} ;
+	
+	static Modifier opCall ( char op, char[] nam, char[] val )
+	{
+		Modifier v;
+
+		with (v) 
+		{
+			operator = op;
+			name     = nam;
+			value    = val;
+		}
+
+		return v;
+	}
+	
+	bool opEquals ( ref Modifier n )
+	{
+		return operator == n.operator &&
+		       value == n.value &&
+		       name  == n.name;
+	}
+
+	Modifier dup ( )
+	{
+		auto v = M(operator, name.dup, value.dup);
+		return v;
+	}
+};
+
+alias Modifier M;
 
 /** Structure for an entity or routing header. */
 struct Header

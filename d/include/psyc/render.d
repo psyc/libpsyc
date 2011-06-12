@@ -2,6 +2,9 @@ module psyc.render;
 
 import psyc.packet;
 
+
+extern (C):
+
  /*
  * All rendering functions and the definitions they use are defined here.
  */
