@@ -165,12 +165,15 @@ typedef enum
 	/// Entity modifier parsing done in one go.
 	/// Operator, name & value contains the respective parts.
 	PSYC_PARSE_ENTITY = 6,
-	/// Start of an incomplete body.
+	/// Start of an incomplete body.	
 	/// Name contains method, value contains part of the body.
+	/// Used when packet length is given
 	PSYC_PARSE_BODY_START = 7,
 	/// Continuation of an incomplete body.
+	/// Used when packet length is given
 	PSYC_PARSE_BODY_CONT = 8,
 	/// End of an incomplete body.
+	/// Used when packet length is given
 	PSYC_PARSE_BODY_END = 9,
 	/// Body parsing done in one go, name contains method, value contains body.
 	PSYC_PARSE_BODY = 10,
