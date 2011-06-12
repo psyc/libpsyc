@@ -2,7 +2,7 @@ prefix = /usr
 libdir = ${prefix}/lib
 
 INSTALL = install
-LIBS = libpsyc.a
+LIBS = libpsyc.a libpsyc.so
 
 install: ${LIBS}
 
@@ -10,7 +10,7 @@ libdir:
 	${INSTALL} -d ${libdir}
 
 ${LIBS}: libdir
-	${INSTALL} $@ ${libdir}
+	-${INSTALL} $@ ${libdir}
 
 clean:
 	rm -f ${LIBS}

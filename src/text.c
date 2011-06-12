@@ -1,7 +1,7 @@
 #include "lib.h"
 #include <psyc/text.h>
 
-psycTextRC psyc_text (psycTextState *state, psycTextCB getValue)
+psycTextRC psyc_text (psycTextState *state, psycTextCB getValue, void* extra)
 {
 	const char *start = state->tmpl.ptr, *end; // start & end of variable name
 	const char *prev = state->tmpl.ptr + state->cursor;
@@ -35,7 +35,7 @@ psycTextRC psyc_text (psycTextState *state, psycTextCB getValue)
 			continue; // [] is invalid, name can't be empty
 		}
 
-		ret = getValue(start + state->open.length, end - start - state->open.length, &value);
+		ret = getValue(start + state->open.length, end - start - state->open.length, &value, extra);
 
 		if (ret < 0)
 			continue; // value not found, no substitution

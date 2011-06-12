@@ -7,7 +7,7 @@
 
 uint8_t verbose;
 
-psycTextValueRC getValueFooBar (const char *name, size_t len, psycString *value)
+psycTextValueRC getValueFooBar (const char *name, size_t len, psycString *value, void *extra)
 {
 	if (verbose)
 		printf("> getValue: %.*s\n", (int)len, name);
@@ -16,7 +16,7 @@ psycTextValueRC getValueFooBar (const char *name, size_t len, psycString *value)
 	return PSYC_TEXT_VALUE_FOUND;
 }
 
-psycTextValueRC getValueEmpty (const char *name, size_t len, psycString *value)
+psycTextValueRC getValueEmpty (const char *name, size_t len, psycString *value, void *extra)
 {
 	if (verbose)
 		printf("> getValue: %.*s\n", (int)len, name);
@@ -25,7 +25,7 @@ psycTextValueRC getValueEmpty (const char *name, size_t len, psycString *value)
 	return PSYC_TEXT_VALUE_FOUND;
 }
 
-psycTextValueRC getValueNotFound (const char *name, size_t len, psycString *value)
+psycTextValueRC getValueNotFound (const char *name, size_t len, psycString *value, void *extra)
 {
 	if (verbose)
 		printf("> getValue: %.*s\n", (int)len, name);
@@ -41,7 +41,7 @@ int testText (char *template, size_t tmplen, char *buffer, size_t buflen, psycSt
 	psyc_initTextState(&state, template, tmplen, buffer, buflen);
 	do
 	{
-		ret = psyc_text(&state, getValue);
+		ret = psyc_text(&state, getValue, NULL);
 		length += psyc_getTextBytesWritten(&state);
 		switch (ret)
 		{
