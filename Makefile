@@ -1,4 +1,5 @@
 .PHONY: doc test bench
+.NOTPARALLEL: clean
 
 all:
 	${MAKE} -C src
