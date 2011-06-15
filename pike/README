@@ -1,6 +1,6 @@
+needs latest libpsyc from git://supraverse.net/libpsyc
 to compile the cmod:
 pike -x module
 
 to run the code:
-pike -M. rendertest.pike
-pike -M. parsetest.pike
+pike -M. parserender.pike
