@@ -2,6 +2,7 @@
 #include "interpret.h"                                                                                                                         
 #include "stralloc.h"                                                                                                                          
 #include "mapping.h"                                                                                                                           
+#include "array.h"
 #include "svalue.h"                                                                                                                            
 #include "operators.h"                                                                                                                         
 #include "array.h"                                                                                                                             
@@ -14,36 +15,95 @@
 #endif
 
 // libpsyc dependencies
-# include <psyc.h>
-# include <psyc/parse.h>
-# include <psyc/render.h>
+#include <psyc.h>
+#include <psyc/parse.h>
+#include <psyc/render.h>
+#include <psyc/text.h>
 
 #define MODULE_NAME "PSYC"
 #define MODULE_MAJOR 0
-#define MODULE_MINOR 1
+#define MODULE_MINOR 2
 #define MODULE_PATCH 0
 
 /*! @module PSYC
  *!
  *! Implements PSYC parsing and rendering based on libpsyc
- *! FIXME: parser not implemented yet
  *!
  */
 
+// psyctext helper
+psycTextValueRC lookup_value_mapping(const char *name, size_t len, psycString *value, void *extra)
+{
+	printf("lookup_value_mapping called for %.*s\n", (int) len, name);
+	struct pike_string *key = make_shared_binary_string(name, len);
+	struct mapping *m = (struct mapping *) extra;
+	struct svalue *s = low_mapping_string_lookup(m, key); 
+	free_string(key);
+
+	if (s == NULL) {
+		return PSYC_TEXT_VALUE_NOT_FOUND;
+	}
+
+	switch(s->type) {
+	case PIKE_T_STRING:
+		//printf("lookup returned %.*s\n", (int) s->u.string->len, STR0(s->u.string));
+		value->ptr = (char *) STR0(s->u.string);
+		value->length = s->u.string->len;
+		break;
+	default:
+		printf("lookup did return !string\n");
+		// FIXME
+		value->ptr = "";
+		value->length = 0;
+	}
+	return PSYC_TEXT_VALUE_FOUND;
+}
+
+/*! @decl string psyc_text(string template, mapping vars)
+ *! @param template
+ *!	template to be filled
+ *! @param vars
+ *!	mapping(string:string) with substituions
+ *! @returns
+ *!	rendered string
+ */
+PIKEFUN string psyc_text(string template, mapping vars) {
+	psycTextState state;
+	psycTextRC ret;
+	size_t len = 0;
+	// FIXME:
+	char buffer[512];
+
+	psyc_initTextState(&state, (char *) STR0(template), template->len, buffer, 512);
+	do
+	{
+		ret = psyc_text(&state, lookup_value_mapping, vars);
+		len += psyc_getTextBytesWritten(&state);
+		switch (ret) {
+		case PSYC_TEXT_INCOMPLETE: // need to realloc buffer
+			//psyc_setTextBuffer2(&state, buffer + len, BUFSIZE - len);
+			break;
+		case PSYC_TEXT_COMPLETE: // we're done
+			RETURN make_shared_binary_string(buffer, len);
+		case PSYC_TEXT_NO_SUBST: // no substituions, return original string
+			RETURN template;
+		}
+	} while (ret == PSYC_TEXT_INCOMPLETE);
+}
+
 /*! @decl string render(mapping rvars, mapping evars, string method, string|void body)
  *! @param rvars
- *!	FIXME
+ *!	routing vars (mapping string:string)
  *! @param evars
- *!	FIXME
+ *!	entity vars (mapping string:mixed
  *! @param method
- *!	FIXME
+ *!	method name
  *! @param data
- *!	FIXME
+ *!	body
  *! @returns
  *!	serialized packet as a string
  */
 PIKEFUN string render(mapping rvars, mapping evars, string method, string|void body) {
-	char buffer[1024*1024]; // static buffer, FIXME
 	psycPacket packet;
 	psycHeader rheaders, eheaders;
 
@@ -58,12 +118,6 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 	NEW_MAPPING_LOOP(rvars->data) {
 		if (k->ind.type == PIKE_T_STRING) {
 			switch(k->val.type) {
-			case PIKE_T_INT:
-				printf("integer value %ld\n", k->val.u.integer);
-				break;
-			case PIKE_T_FLOAT:
-				printf("float value %f\n", k->val.u.float_number);
-				break;
 			case PIKE_T_STRING:
 				rheaders.modifiers[rheaders.lines++] = psyc_newModifier2(oper, 
 									 (char *)STR0(k->ind.u.string),
@@ -72,20 +126,8 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 									 k->val.u.string->len, 
 									 PSYC_MODIFIER_ROUTING);
 				break;
-			case PIKE_T_MAPPING:
-				printf("mapping value length %d\n", k->val.u.mapping->data->size);
-				// another walk_mapping?
-				break;
-			case PIKE_T_ARRAY:
-				printf("array value length %d\n", k->val.u.array->size);
-				/*
-				for(e = 0; e < data->u.array->size; e++) {
-					struct svalue item = data->u.array->item[e];
-					inner_serialize2(&item, sb);
-				}
-				*/
-				break;
 			default:
+				Pike_error("psyc render: unsupported non-string value in rvars\n");
 				break;
 			}
 		} else {
@@ -101,35 +143,61 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 			size_t keylen;
 			char *val = NULL;
 			size_t vallen = 0;
+			struct pike_string *s;
 
 			key = (char *) STR0(k->ind.u.string);
 			keylen = k->ind.u.string->len; 
 
 			switch(k->val.type) {
 			case PIKE_T_INT:
-				printf("integer value %ld\n", k->val.u.integer);
+				do {
+					struct string_builder b;
+					init_string_builder(&b, 0);
+					string_builder_append_integer(&b, k->val.u.integer,
+								      10, APPEND_SIGNED, 0, 0);
+					s = finish_string_builder(&b);
+					val = (char *) STR0(s);
+					vallen = s->len;
+					free_string(s);
+				} while (0);
 				break;
 			case PIKE_T_STRING:
-				val = (char *) STR0(k->ind.u.string);
-				vallen = k->ind.u.string->len;
+				val = (char *) STR0(k->val.u.string);
+				vallen = k->val.u.string->len;
 				break;
+				/*
 			case PIKE_T_FLOAT:
 				printf("float value %f\n", k->val.u.float_number);
 				break;
-			case PIKE_T_MAPPING:
-				printf("mapping value length %d\n", k->val.u.mapping->data->size);
-				// another walk_mapping?
-				break;
-			case PIKE_T_ARRAY:
-				printf("array value length %d\n", k->val.u.array->size);
-				/*
-				for(e = 0; e < data->u.array->size; e++) {
-					struct svalue item = data->u.array->item[e];
-					inner_serialize2(&item, sb);
-				}
 				*/
+			case PIKE_T_ARRAY:
+				do {
+					psycString *elems = xcalloc(k->val.u.array->size, sizeof(psycString));
+					psycList list;
+					// FIXME: check for out of memory
+					for(e = 0; e < k->val.u.array->size; e++) {
+						struct svalue item = k->val.u.array->item[e];
+						switch(item.type) {
+						case PIKE_T_STRING:
+							elems[e] = (psycString) { item.u.string->len, (char *) STR0(item.u.string) };
+							break;
+						default:
+							// FIXME: xfree(elems) ?
+							Pike_error("psyc_render: unsupported data type in list\n");
+						}
+					}
+					list = psyc_newList(elems, k->val.u.array->size, PSYC_LIST_CHECK_LENGTH);
+
+					struct pike_string *listbuf = begin_shared_string(list.length);
+					psyc_renderList(&list, (char *) STR0(listbuf), listbuf->len);
+					end_shared_string(listbuf);
+					val = (char *) STR0(listbuf);
+					vallen = listbuf->len;
+					xfree(elems);
+				} while (0);
 				break;
 			default:
+				Pike_error("psyc_render: unsupported value in evars\n");
 				break;
 			}
 			eheaders.modifiers[eheaders.lines++] = psyc_newModifier2(oper, 
@@ -159,41 +227,240 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 					 PSYC_PACKET_CHECK_LENGTH);
 	}
 
-	/*
-	FIXME: how to allocate space and pass it to libpsyc?
-	string builder probably
-	*/
-	psyc_render(&packet, buffer, packet.length);
+	struct pike_string *s = begin_shared_string(packet.length);
+	psyc_render(&packet, (char *) STR0(s), packet.length);
 	// pop_n_elems(args);
-	RETURN make_shared_binary_string(buffer, packet.length);
+	RETURN end_shared_string(s); 
 }
 
 PIKECLASS Parser {
 	CVAR psycParseState parser;
+	CVAR struct pike_string *buffer;
+	CVAR int handle_packet;
+	CVAR int handle_error;
+
+	// packet state
+	CVAR struct mapping *rvars;
+	CVAR struct mapping *evars;
+	CVAR struct pike_string *method;
+	CVAR struct pike_string *body;
+
+	// for incomplete length prefixed entity var data / body data
+	CVAR struct string_builder incomplete;
 
 	INIT {
 		psyc_initParseState(&THIS->parser);
+		THIS->buffer = NULL;
+		THIS->handle_packet = find_identifier("handle_packet", Pike_fp->current_object->prog);
+		THIS->handle_error = find_identifier("handle_error", Pike_fp->current_object->prog);
+		THIS->rvars = allocate_mapping(0);
+		THIS->evars = allocate_mapping(0);
+		THIS->method = NULL;
+		THIS->body = NULL;
+		//THIS->body_buffer = NULL;
 	}
 
 	EXIT {
-
+		if (THIS->buffer != NULL) {
+			free_string(THIS->buffer);
+		}
+		if (THIS->rvars != NULL) {
+			do_free_mapping(THIS->rvars);
+		}
+		// FIXME: free packet state
 	}
 
 	PIKEFUN void feed(string data) {
 		char oper;
 		psycString name, value;
 		int ret;
+		int err;
 
+		if (THIS->buffer != NULL) {
+			/* we have remaining buffer from previous input */
+			//printf("%d bytes remaining from previous read\n", THIS->buffer->len);
+			struct pike_string *tmp;
+			tmp = add_shared_strings(THIS->buffer, data);
+			free_string(THIS->buffer);
+			data = tmp;
+			THIS->buffer = NULL;
+		}
 		psyc_setParseBuffer2(&THIS->parser, 
 				     (char *) STR0(data), data->len);
-		for (;;) {
-			printf("looping...\n");
+		do {
 			ret = psyc_parse(&THIS->parser, &oper, &name, &value);
-			if (ret == PSYC_PARSE_COMPLETE || ret < 0) {
+			switch(ret) {
+			case PSYC_PARSE_ROUTING:
+				// printf("R %.*s -> %.*s\n", (int)name.length, name.ptr, (int)value.length, value.ptr);
+				mapping_string_insert_string(THIS->rvars,
+							     make_shared_binary_string(name.ptr, name.length),
+							     make_shared_binary_string(value.ptr, value.length));
 				break;
+			case PSYC_PARSE_ENTITY_START: // entity var with length
+				init_string_builder_alloc(&THIS->incomplete, psyc_getParseValueLength(&THIS->parser), 0);
+				// fall thru
+			case PSYC_PARSE_ENTITY_CONT:
+				string_builder_append(&THIS->incomplete, MKPCHARP(value.ptr, 0), value.length);
+				break;
+			case PSYC_PARSE_ENTITY_END:
+				string_builder_append(&THIS->incomplete, MKPCHARP(value.ptr, 0), value.length);
+				do {
+					struct pike_string *tmp = finish_string_builder(&THIS->incomplete);
+					value.length = tmp->len;
+					value.ptr = (char *) STR0(tmp);
+					// FIXME: not sure if this is really safe
+					free_string(tmp);
+				} while (0);
+				// fall thru
+			case PSYC_PARSE_ENTITY:
+				//printf("E %.*s -> %.*s\n", (int)name.length, name.ptr, (int)value.length, value.ptr);
+				do {
+					err = 0;
+					int type = psyc_getVarType(&name);
+					struct svalue sv;
+					time_t timmy;
+					switch(type) {
+					case PSYC_TYPE_DATE:
+						if (psyc_parseDate(&value, &timmy)) {
+							sv.type = PIKE_T_INT; sv.u.integer = timmy;
+							mapping_string_insert(THIS->evars,
+								     make_shared_binary_string(name.ptr, name.length),
+								     &sv);
+						} else {
+							err = 1;
+						}
+						break;
+					case PSYC_TYPE_TIME:
+						if (psyc_parseTime(&value, &timmy)) {
+							sv.type = PIKE_T_INT; sv.u.integer = timmy;
+							mapping_string_insert(THIS->evars,
+								     make_shared_binary_string(name.ptr, name.length),
+								     &sv);
+						} else {
+							err = 2;
+						}
+						break;
+					case PSYC_TYPE_AMOUNT:
+						break;
+					case PSYC_TYPE_DEGREE:
+						if (value.length && value.ptr[0] >= '0' && value.ptr[0] <= '9') {
+							sv.type = PIKE_T_FLOAT; sv.u.float_number = (float) (value.ptr[0] - '0') / 10.0;
+							mapping_string_insert(THIS->evars,
+								     make_shared_binary_string(name.ptr, name.length),
+								     &sv);
+						} else {
+							err = 3; 
+						}
+						break;
+					case PSYC_TYPE_FLAG:
+						if (value.length && value.ptr[0] >= '0' && value.ptr[0] <= '1') {
+							sv.type = PIKE_T_INT; sv.u.integer = value.ptr[0] - '0';
+							mapping_string_insert(THIS->evars,
+								     make_shared_binary_string(name.ptr, name.length),
+								     &sv);
+						} else {
+							err = 4;
+						}
+						break;
+					case PSYC_TYPE_LIST:
+						do {
+							struct array *elems = low_allocate_array(0, 32);
+							if (value.length > 0) {
+								int retl;
+								int count = 0;
+								psycParseListState listState;
+								psycString elem = (psycString) {0, 0};
+
+								psyc_initParseListState(&listState);
+								psyc_setParseListBuffer(&listState, value);
+								do {
+									retl = psyc_parseList(&listState, &elem);
+									switch(retl) {
+									case PSYC_PARSE_LIST_END: // last element
+										retl = 0;
+									case PSYC_PARSE_LIST_ELEM:
+										sv.type = PIKE_T_STRING; sv.u.string = make_shared_binary_string(elem.ptr, elem.length);
+										elems = array_insert(elems, &sv, count++);
+										break;
+									default:
+										err = 5;
+										break;
+									}
+								} while (retl > 0 && !err);
+							}
+							if (!err) {
+								sv.type = PIKE_T_ARRAY;
+								sv.u.array = elems;
+								mapping_string_insert(THIS->evars,
+									     make_shared_binary_string(name.ptr, name.length),
+									     &sv);
+							}
+							free_array(elems);
+						} while (0);
+						break;
+					default: // string
+						mapping_string_insert_string(THIS->evars,
+							     make_shared_binary_string(name.ptr, name.length),
+							     make_shared_binary_string(value.ptr, value.length));
+					}
+				} while (0);
+				if (err) { // there was an error while 
+					// FIXME
+					return;
+				}
+				break;
+			case PSYC_PARSE_BODY_START: // if length was given this is used for body
+				init_string_builder_alloc(&THIS->incomplete, psyc_getParseValueLength(&THIS->parser), 0);
+			case PSYC_PARSE_BODY_CONT:
+				string_builder_append(&THIS->incomplete, MKPCHARP(value.ptr, 0), value.length);
+				break;
+			case PSYC_PARSE_BODY_END:
+				string_builder_append(&THIS->incomplete, MKPCHARP(value.ptr, 0), value.length);
+				do {
+					struct pike_string *tmp = finish_string_builder(&THIS->incomplete);
+					value.length = tmp->len;
+					value.ptr = (char *) STR0(tmp);
+					// FIXME: not sure if this is really safe
+					free_string(tmp);
+				} while (0);
+				// fall thru
+			case PSYC_PARSE_BODY:
+				THIS->method = make_shared_binary_string(name.ptr, name.length);
+				THIS->body = make_shared_binary_string(value.ptr, value.length);
+				break;
+			case PSYC_PARSE_COMPLETE: // apply the callback
+				push_mapping(THIS->rvars);
+				push_mapping(THIS->evars);
+				if (THIS->method == NULL) {
+					apply_low(Pike_fp->current_object, THIS->handle_packet, 2); 
+				} else if (THIS->body == NULL) {
+					push_string(THIS->method);
+					apply_low(Pike_fp->current_object, THIS->handle_packet, 3); 
+				} else {
+					push_string(THIS->method);
+					push_string(THIS->body);
+					apply_low(Pike_fp->current_object, THIS->handle_packet, 4); 
+				}
+
+				// reset packet state
+				THIS->rvars = allocate_mapping(0);
+				THIS->evars = allocate_mapping(0);
+				THIS->method = NULL;
+				THIS->body = NULL;
+				break;
+			case PSYC_PARSE_INSUFFICIENT: // not enough data
+				if (psyc_getParseRemainingBuffer(&THIS->parser) > 0) {
+					THIS->buffer = make_shared_binary_string(psyc_getParseRemainingBuffer(&THIS->parser),
+										 psyc_getParseRemainingLength(&THIS->parser));
+				}
+				return;
+			default: // fatal error
+				push_int(ret);
+				apply_low(Pike_fp->current_object, THIS->handle_error, 1); 
+				// FIXME: free stuff? or do we kill the socket and parser anyway
+				return;
 			}
-		}
-		printf("down here\n");
+		} while (1);
 	}
 
 }
