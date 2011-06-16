@@ -34,7 +34,7 @@
 // psyctext helper
 psycTextValueRC lookup_value_mapping(const char *name, size_t len, psycString *value, void *extra)
 {
-	printf("lookup_value_mapping called for %.*s\n", (int) len, name);
+	//printf("lookup_value_mapping called for %.*s\n", (int) len, name);
 	struct pike_string *key = make_shared_binary_string(name, len);
 	struct mapping *m = (struct mapping *) extra;
 	struct svalue *s = low_mapping_string_lookup(m, key); 
@@ -52,7 +52,7 @@ psycTextValueRC lookup_value_mapping(const char *name, size_t len, psycString *v
 		break;
 	default:
 		printf("lookup did return !string\n");
-		// FIXME
+		// FIXME: we need the automagic value conversion
 		value->ptr = "";
 		value->length = 0;
 	}
