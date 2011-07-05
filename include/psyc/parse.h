@@ -423,7 +423,6 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
  * memory allocation is done.
  *
  * @param state An initialized psycParseListState.
- * @param value Contains the list to be parsed.
  * @param elem It will point to the next element in the list.
  */
 #ifdef __INLINE_PSYC_PARSE
