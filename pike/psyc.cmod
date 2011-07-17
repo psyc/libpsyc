@@ -91,6 +91,17 @@ PIKEFUN string psyc_text(string template, mapping vars) {
 	} while (ret == PSYC_TEXT_INCOMPLETE);
 }
 
+/*! @decl string is_routingvar(string name)
+ *! @param name
+ *!	name of the variable
+ *! @returns
+ *!	1 if it is a routing variable
+ *!	0 otherwise
+ */
+PIKEFUN int is_routingvar(string name) {
+	RETURN psyc_isRoutingVar2((char *) STR0(name), name->len);
+}
+
 /*! @decl string render(mapping rvars, mapping evars, string method, string|void body)
  *! @param rvars
  *!	routing vars (mapping string:string)
