@@ -86,8 +86,8 @@ need to be mentioned):
 #+INCLUDE: packets/presence.psyc src psyc
 
 And this is the same message in PSYC's compact form, but since compact mode
-hasn't been implemented nor deployed yet, we will not include it
-in the benchmarks:
+hasn't been implemented nor deployed yet, you should only consider this
+for future projects:
 
 #+INCLUDE: packets/presence-c.psyc src psyc
 
