@@ -18,6 +18,14 @@ test/testText
 test/isRoutingVar
 test/getVarType
 
+perl/*.c
+perl/*.so
+perl/*.pm
+
+python/*.c
+python/*.so
+python/*.py
+
 .config
 ~$*
 .DS_Store
