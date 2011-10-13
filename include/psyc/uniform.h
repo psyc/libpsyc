@@ -7,27 +7,47 @@
 #include <psyc.h>
 
 typedef enum {
+	PSYC_SCHEME_PSYC = 0,
+	PSYC_SCHEME_IRC = 1,
+	PSYC_SCHEME_XMPP = 2,
+	PSYC_SCHEME_SIP = 3,
+} psycScheme;
+
+typedef struct {
 // essential parts
-	PSYC_UNIFORM_SCHEME = 0,
-	PSYC_UNIFORM_USER = 1,
-	PSYC_UNIFORM_PASS = 2,
-	PSYC_UNIFORM_HOST = 3,
-	PSYC_UNIFORM_PORT = 4,
-	PSYC_UNIFORM_TRANSPORT = 5,
-	PSYC_UNIFORM_RESOURCE = 6,
-	PSYC_UNIFORM_QUERY = 7,
-	PSYC_UNIFORM_CHANNEL = 8,
+	psycScheme type;
+	psycString scheme;
+	psycString user;
+	psycString pass;
+	psycString host;
+	psycString port;
+	psycString transport;
+	psycString resource;
+	psycString query;
+	psycString channel;
 
 // convenient snippets of the URL
-	PSYC_UNIFORM_FULL = 9,        // the URL as such
-	PSYC_UNIFORM_BODY = 10,       // the URL without scheme and '//'
-	PSYC_UNIFORM_USERATHOST = 11,	// mailto and xmpp style
-	PSYC_UNIFORM_HOSTPORT = 12,   // just host:port (and transport)
-	PSYC_UNIFORM_ROOT = 13,       // root UNI of peer/server
-	PSYC_UNIFORM_SLASHES = 14,    // the // if the protocol has them
-	PSYC_UNIFORM_NICK = 15,       // whatever works as a nickname
-	PSYC_UNIFORM_SIZE = 16,
-} psycUniformField;
+	psycString full;       // the URL as such
+	psycString body;       // the URL without scheme and '//'
+	psycString user_host;  // mailto and xmpp style
+	psycString host_port;  // just host:port (and transport)
+	psycString root;       // root UNI of peer/server
+	psycString slashes;    // the // if the protocol has them
+	psycString nick;       // whatever works as a nickname
+} psycUniform;
+
+typedef enum {
+	PSYC_UNIFORM_SCHEME = 0,
+	PSYC_UNIFORM_SLASHES,
+	PSYC_UNIFORM_USER,
+	PSYC_UNIFORM_PASS,
+	PSYC_UNIFORM_HOST,
+	PSYC_UNIFORM_PORT,
+	PSYC_UNIFORM_TRANSPORT,
+	PSYC_UNIFORM_RESOURCE,
+	PSYC_UNIFORM_QUERY,
+	PSYC_UNIFORM_CHANNEL,
+} psycUniformPart;
 
 typedef enum {
 	PSYC_PARSE_UNIFORM_INVALID_SLASHES = -7,
@@ -38,13 +58,6 @@ typedef enum {
 	PSYC_PARSE_UNIFORM_INVALID_HOST = -2,
 	PSYC_PARSE_UNIFORM_INVALID_SCHEME = -1,
 } psycParseUniformRC;
-
-typedef enum {
-	PSYC_SCHEME_PSYC = 0,
-	PSYC_SCHEME_IRC = 1,
-	PSYC_SCHEME_XMPP = 2,
-	PSYC_SCHEME_SIP = 3,
-} psycScheme;
 
 typedef enum {
 	PSYC_TRANSPORT_TCP = 'c',
@@ -58,8 +71,6 @@ typedef enum {
 	PSYC_ENTITY_PLACE = '@',
 	PSYC_ENTITY_SERVICE = '$',
 } psycEntityType;
-
-typedef psycString psycUniform[PSYC_UNIFORM_SIZE];
 
 int psyc_parseUniform2(psycUniform *uni, const char *str, size_t length);
 
