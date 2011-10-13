@@ -65,6 +65,9 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	 * to this function together with the new data.
 	 */
 
+	psycParseState *parser = &parsers[i];
+	psycPacket *packet = &packets[i];
+
 	char oper;
 	psycString name, value, elem;
 	psycString *pname = NULL, *pvalue = NULL;
@@ -73,7 +76,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	size_t len;
 
 	// Set buffer with data for the parser.
-	psyc_setParseBuffer2(&parsers[i], parsebuf, contbytes + nbytes);
+	psyc_setParseBuffer2(parser, parsebuf, contbytes + nbytes);
 	contbytes = 0;
 	oper = 0;
 	name.length = 0;
@@ -81,34 +84,34 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 
 	do {
 		if (verbose >= 3)
-			printf("\n# buffer = [%.*s]\n# part = %d\n", (int)parsers[i].buffer.length, parsers[i].buffer.ptr, parsers[i].part);
+			printf("\n# buffer = [%.*s]\n# part = %d\n", (int)parser->buffer.length, parser->buffer.ptr, parser->part);
 		// Parse the next part of the packet (a routing/entity modifier or the body)
-		ret = exit_code = psyc_parse(&parsers[i], &oper, &name, &value);
+		ret = exit_code = psyc_parse(parser, &oper, &name, &value);
 		if (verbose >= 2)
 			printf("# ret = %d\n", ret);
 
 		switch (ret) {
 			case PSYC_PARSE_ROUTING:
-				assert(packets[i].routing.lines < ROUTING_LINES);
-				mod = &(packets[i].routing.modifiers[packets[i].routing.lines]);
+				assert(packet->routing.lines < ROUTING_LINES);
+				mod = &(packet->routing.modifiers[packet->routing.lines]);
 				pname = &mod->name;
 				pvalue = &mod->value;
 				mod->flag = PSYC_MODIFIER_ROUTING;
-				packets[i].routing.lines++;
+				packet->routing.lines++;
 				break;
 
 			case PSYC_PARSE_ENTITY_START:
 			case PSYC_PARSE_ENTITY_CONT:
 			case PSYC_PARSE_ENTITY_END:
 			case PSYC_PARSE_ENTITY:
-				assert(packets[i].entity.lines < ENTITY_LINES);
-				mod = &(packets[i].entity.modifiers[packets[i].entity.lines]);
+				assert(packet->entity.lines < ENTITY_LINES);
+				mod = &(packet->entity.modifiers[packet->entity.lines]);
 				pname = &mod->name;
 				pvalue = &mod->value;
 
 				if (ret == PSYC_PARSE_ENTITY || ret == PSYC_PARSE_ENTITY_END) {
-					packets[i].entity.lines++;
-					mod->flag = psyc_isParseValueLengthFound(&parsers[i]) ?
+					packet->entity.lines++;
+					mod->flag = psyc_isParseValueLengthFound(parser) ?
 						PSYC_MODIFIER_NEED_LENGTH : PSYC_MODIFIER_NO_LENGTH;
 				}
 				break;
@@ -117,8 +120,8 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 			case PSYC_PARSE_BODY_CONT:
 			case PSYC_PARSE_BODY_END:
 			case PSYC_PARSE_BODY:
-				pname = &(packets[i].method);
-				pvalue = &(packets[i].data);
+				pname = &(packet->method);
+				pvalue = &(packet->data);
 				break;
 
 			case PSYC_PARSE_COMPLETE:
@@ -130,22 +133,22 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 					ret = -1;
 
 				if (!no_render) {
-					packets[i].flag = psyc_isParseContentLengthFound(&parsers[i]) ?
+					packet->flag = psyc_isParseContentLengthFound(parser) ?
 						PSYC_PACKET_NEED_LENGTH : PSYC_PACKET_NO_LENGTH;
 
 					if (routing_only) {
-						packets[i].content = packets[i].data;
-						resetString(&packets[i].data, 0);
+						packet->content = packet->data;
+						resetString(&(packet->data), 0);
 					}
 
-					psyc_setPacketLength(&packets[i]);
+					psyc_setPacketLength(packet);
 
-					if (psyc_render(&packets[i], sendbuf, SEND_BUF_SIZE) == PSYC_RENDER_SUCCESS) {
+					if (psyc_render(packet, sendbuf, SEND_BUF_SIZE) == PSYC_RENDER_SUCCESS) {
 						if (!quiet) {
-							if (filename && write(1, sendbuf, packets[i].length) == -1) {
+							if (filename && write(1, sendbuf, packet->length) == -1) {
 								perror("write");
 								ret = -1;
-							} else if (!filename && send(i, sendbuf, packets[i].length, 0) == -1) {
+							} else if (!filename && send(i, sendbuf, packet->length, 0) == -1) {
 								perror("send");
 								ret = -1;
 							}
@@ -157,28 +160,28 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 				}
 
 				// reset packet
-				packets[i].routingLength = 0;
-				packets[i].contentLength = 0;
-				packets[i].length = 0;
-				packets[i].flag = 0;
+				packet->routingLength = 0;
+				packet->contentLength = 0;
+				packet->length = 0;
+				packet->flag = 0;
 
-				for (j = 0; j < packets[i].routing.lines; j++) {
-					resetString(&packets[i].routing.modifiers[j].name, 1);
-					resetString(&packets[i].routing.modifiers[j].value, 1);
+				for (j = 0; j < packet->routing.lines; j++) {
+					resetString(&(packet->routing.modifiers[j].name), 1);
+					resetString(&(packet->routing.modifiers[j].value), 1);
 				}
-				packets[i].routing.lines = 0;
+				packet->routing.lines = 0;
 
 				if (routing_only) {
-					resetString(&packets[i].content, 1);
+					resetString(&(packet->content), 1);
 				} else {
-					for (j = 0; j < packets[i].entity.lines; j++) {
-						resetString(&packets[i].entity.modifiers[j].name, 1);
-						resetString(&packets[i].entity.modifiers[j].value, 1);
+					for (j = 0; j < packet->entity.lines; j++) {
+						resetString(&(packet->entity.modifiers[j].name), 1);
+						resetString(&(packet->entity.modifiers[j].value), 1);
 					}
-					packets[i].entity.lines = 0;
+					packet->entity.lines = 0;
 
-					resetString(&packets[i].method, 1);
-					resetString(&packets[i].data, 1);
+					resetString(&(packet->method), 1);
+					resetString(&(packet->data), 1);
 				}
 
 				break;
@@ -187,13 +190,13 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 				if (verbose >= 2)
 					printf("# Insufficient data.\n");
 
-				contbytes = psyc_getParseRemainingLength(&parsers[i]);
+				contbytes = psyc_getParseRemainingLength(parser);
 
 				if (contbytes > 0) { // copy end of parsebuf before start of recvbuf
 					if (verbose >= 3)
-						printf("# remaining = [%.*s]\n", (int)contbytes, psyc_getParseRemainingBuffer(&parsers[i]));
+						printf("# remaining = [%.*s]\n", (int)contbytes, psyc_getParseRemainingBuffer(parser));
 					assert(contbytes <= CONT_BUF_SIZE); // make sure it's still in the buffer
-					memmove(recvbuf - contbytes, psyc_getParseRemainingBuffer(&parsers[i]), contbytes);
+					memmove(recvbuf - contbytes, psyc_getParseRemainingBuffer(parser), contbytes);
 				}
 				ret = 0;
 				break;
@@ -234,8 +237,8 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 
 				if (value.length) {
 					if (!pvalue->length) {
-						if (psyc_isParseValueLengthFound(&parsers[i]))
-							len = psyc_getParseValueLength(&parsers[i]);
+						if (psyc_isParseValueLengthFound(parser))
+							len = psyc_getParseValueLength(parser);
 						else
 							len = value.length;
 						pvalue->ptr = malloc(len);
@@ -247,7 +250,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 
 					if (verbose >= 2) {
 						printf("[%.*s]", (int)pvalue->length, pvalue->ptr);
-						if (parsers[i].valueLength > pvalue->length)
+						if (parser->valueLength > pvalue->length)
 							printf("...");
 						printf("\n");
 					}
@@ -258,7 +261,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 				if (verbose >= 3)
 					printf("\t\t\t\t\t\t\t\t# n:%ld v:%ld c:%ld r:%ld\n",
 					       pname->length, pvalue->length,
-					       parsers[i].contentParsed, parsers[i].routingLength);
+					       parser->contentParsed, parser->routingLength);
 		}
 
 		switch (ret) {
