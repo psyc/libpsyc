@@ -17,6 +17,7 @@ test/testStrlen
 test/testText
 test/isRoutingVar
 test/getVarType
+test/parseUniform
 
 perl/*.c
 perl/*.so

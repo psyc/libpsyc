@@ -3,8 +3,8 @@ DEBUG = 2
 CFLAGS = -I../include -Wall -std=c99 -fPIC ${OPT}
 DIET = diet
 
-S = packet.c parse.c match.c render.c memmem.c itoa.c variable.c text.c
-O = packet.o parse.o match.o render.o memmem.o itoa.o variable.o text.o
+S = packet.c parse.c match.c render.c memmem.c itoa.c variable.c text.c uniform.c
+O = packet.o parse.o match.o render.o memmem.o itoa.o variable.o text.o uniform.o
 P = match itoa
 
 A = ../lib/libpsyc.a

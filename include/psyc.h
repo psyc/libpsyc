@@ -24,6 +24,8 @@
 
 #define	PSYC_C2STR(string) {sizeof(string)-1, string}
 #define	PSYC_C2ARG(string) string, sizeof(string)-1
+#define	PSYC_S2ARG(string) string.ptr, string.length
+#define	PSYC_S2ARG2(string) string.length, string.ptr
 
 typedef enum
 {
