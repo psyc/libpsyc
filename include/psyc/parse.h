@@ -115,8 +115,7 @@
 #include <string.h>
 #include <psyc.h>
 
-typedef enum
-{
+typedef enum {
 	/// Default Flag. Parse everything.
 	PSYC_PARSE_ALL = 0,
 	/// Parse only the header
@@ -130,8 +129,7 @@ typedef enum
  * The return value definitions for the packet parsing function.
  * @see psyc_parse()
  */
-typedef enum
-{
+typedef enum {
 	/// Error, packet is not ending with a valid delimiter.
 	PSYC_PARSE_ERROR_END = -8,
 	/// Error, expected NL after the method.
@@ -197,8 +195,7 @@ typedef enum
  * The return value definitions for the list parsing function.
  * @see psyc_parseList()
  */
-typedef enum
-{
+typedef enum {
 	PSYC_PARSE_LIST_ERROR_DELIM = -4,
 	PSYC_PARSE_LIST_ERROR_LEN = -3,
 	PSYC_PARSE_LIST_ERROR_TYPE = -2,
@@ -214,8 +211,7 @@ typedef enum
 /**
  * Struct for keeping parser state.
  */
-typedef struct
-{
+typedef struct {
 	size_t cursor; ///< Current position in buffer.
 	size_t startc; ///< Position where the parsing would be resumed.
 	psycString buffer; ///< Buffer with data to be parsed.
@@ -234,8 +230,7 @@ typedef struct
 /**
  * Struct for keeping list parser state.
  */
-typedef struct
-{
+typedef struct {
 	size_t cursor; ///< Current position in buffer.
 	size_t startc; ///< Line start position.
 	psycString buffer; ///< Buffer with data to be parsed.
@@ -291,8 +286,7 @@ void psyc_setParseBuffer (psycParseState *state, psycString buffer)
 	state->buffer = buffer;
 	state->cursor = 0;
 
-	if (state->flags & PSYC_PARSE_START_AT_CONTENT)
-	{
+	if (state->flags & PSYC_PARSE_START_AT_CONTENT) {
 		state->contentLength = buffer.length;
 		state->contentLengthFound = PSYC_TRUE;
 	}
@@ -487,6 +481,84 @@ static inline
 psycBool psyc_parseDate (psycString *value, time_t *t)
 {
 	return psyc_parseDate2(value->ptr, value->length, t);
+}
+
+/**
+ * Determines if the argument is a glyph.
+ * Glyphs are: : = + - ? !
+ */
+static inline
+char psyc_isGlyph (uint8_t g)
+{
+	switch(g) {
+		case ':':
+		case '=':
+		case '+':
+		case '-':
+		case '?':
+		case '!':
+			return 1;
+		default:
+			return 0;
+	}
+}
+
+/**
+ * Determines if the argument is numeric.
+ */
+static inline
+char psyc_isNumeric (uint8_t c)
+{
+	return c >= '0' && c <= '9';
+}
+
+/**
+ * Determines if the argument is alphabetic.
+ */
+static inline
+char psyc_isAlpha (uint8_t c)
+{
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+}
+
+/**
+ * Determines if the argument is alphanumeric.
+ */
+static inline
+char psyc_isAlphaNumeric (uint8_t c)
+{
+	return psyc_isAlpha(c) || psyc_isNumeric(c);
+}
+
+/**
+ * Determines if the argument is a keyword character.
+ * Keyword characters are: alphanumeric and _
+ */
+static inline
+char psyc_isKwChar (uint8_t c)
+{
+	return psyc_isAlphaNumeric(c) || c == '_';
+}
+
+/**
+ * Determines if the argument is a name character.
+ * Name characters are: see opaque_part in RFC 2396
+ */
+static inline
+char psyc_isNameChar (uint8_t c)
+{
+	return psyc_isAlpha(c) || (c >= '$' && c <= ';') ||
+		c == '_' || c == '!' || c == '?' || c == '=' || c == '@' || c == '~';
+}
+
+/**
+ * Determines if the argument is a hostname character.
+ * Hostname characters are: alphanumeric and -
+ */
+static inline
+char psyc_isHostChar (uint8_t c)
+{
+	return psyc_isAlphaNumeric(c) || c == '.' || c == '-';
 }
 
 /** @} */ // end of parse group
