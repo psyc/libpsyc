@@ -7,105 +7,109 @@ int psyc_parseUniform2 (psycUniform *uni, const char *str, size_t length)
 {
 	char c;
 	psycString *p;
-	size_t pos = 0, part = PSYC_UNIFORM_SCHEME, scheme;
+	size_t pos = 0, part = PSYC_UNIFORM_SCHEME;
 
-	(*uni)[PSYC_UNIFORM_FULL].ptr = str;
-	(*uni)[PSYC_UNIFORM_FULL].length = length;
+	uni->full.ptr = str;
+	uni->full.length = length;
 
 	while (pos < length) {
 		c = str[pos];
 		if (c == ':') {
-			(*uni)[part].ptr = str;
-			(*uni)[part].length = pos++;
+			uni->scheme.ptr = str;
+			uni->scheme.length = pos++;
 			break;
 		} else if (!psyc_isHostChar(c))
 			return PSYC_PARSE_UNIFORM_INVALID_SCHEME;
 		pos++;
 	}
 
-	p = &(*uni)[PSYC_UNIFORM_SCHEME];
+	p = &uni->scheme;
 	if (p->length == 4 &&
 	    tolower(p->ptr[0]) == 'p' &&
 	    tolower(p->ptr[1]) == 's' &&
 	    tolower(p->ptr[2]) == 'y' &&
 	    tolower(p->ptr[3]) == 'c') {
-		scheme = PSYC_SCHEME_PSYC;
+
+		uni->type = PSYC_SCHEME_PSYC;
 		part = PSYC_UNIFORM_SLASHES;
-		(*uni)[part].ptr = str + pos;
-		(*uni)[part].length = 0;
+		uni->slashes.ptr = str + pos;
+		uni->slashes.length = 0;
 
 		while (pos < length) {
 			c = str[pos];
 			switch (part) {
 				case PSYC_UNIFORM_SLASHES:
 					if (c == '/')
-						(*uni)[part].length++;
+						uni->slashes.length++;
 					else return PSYC_PARSE_UNIFORM_INVALID_SLASHES;
 
-					if ((*uni)[part].length == 2) {
+					if (uni->slashes.length == 2) {
 						part = PSYC_UNIFORM_HOST;
-						(*uni)[part].ptr = str + pos + 1;
-						(*uni)[part].length = 0;
+						uni->host.ptr = str + pos + 1;
+						uni->host.length = 0;
 					}
 					break;
 
 				case PSYC_UNIFORM_HOST:
 					if (psyc_isHostChar(c)) {
-						(*uni)[part].length++;
+						uni->host.length++;
 						break;
 					}
 
-					if ((*uni)[part].length == 0)
+					if (uni->host.length == 0)
 						return PSYC_PARSE_UNIFORM_INVALID_HOST;
 
-					if (c == ':')
+					if (c == ':') {
 						part = PSYC_UNIFORM_PORT;
-					else if (c == '/')
+						p = &uni->port;
+					} else if (c == '/') {
 						part = PSYC_UNIFORM_RESOURCE;
+						p = &uni->resource;
+					}
 					else return PSYC_PARSE_UNIFORM_INVALID_HOST;
 
-					(*uni)[part].ptr = str + pos + 1;
-					(*uni)[part].length = 0;
+					p->ptr = str + pos + 1;
+					p->length = 0;
 					break;
 
 				case PSYC_UNIFORM_PORT:
 					if (psyc_isNumeric(c)) {
-						(*uni)[part].length++;
+						uni->port.length++;
 						break;
 					}
 
-					if ((*uni)[part].length == 0 && c != PSYC_TRANSPORT_GNUNET)
+					if (uni->port.length == 0 && c != PSYC_TRANSPORT_GNUNET)
 						return PSYC_PARSE_UNIFORM_INVALID_PORT;
 
 					if (c == '/') {
 						part = PSYC_UNIFORM_RESOURCE;
-						(*uni)[part].ptr = str + pos + 1;
-						(*uni)[part].length = 0;
+						uni->resource.ptr = str + pos + 1;
+						uni->resource.length = 0;
 						break;
 					}
 					else {
 						part = PSYC_UNIFORM_TRANSPORT;
-						(*uni)[part].ptr = str + pos;
-						(*uni)[part].length = 0;
+						uni->transport.ptr = str + pos;
+						uni->transport.length = 0;
 					}
 					// fall thru
 
 				case PSYC_UNIFORM_TRANSPORT:
 					switch (c) {
 						case PSYC_TRANSPORT_GNUNET:
-							if ((*uni)[PSYC_UNIFORM_PORT].length > 0)
+							if (uni->port.length > 0)
 								return PSYC_PARSE_UNIFORM_INVALID_TRANSPORT;
 						case PSYC_TRANSPORT_TCP:
 						case PSYC_TRANSPORT_UDP:
 						case PSYC_TRANSPORT_TLS:
-							if ((*uni)[part].length > 0)
+							if (uni->transport.length > 0)
 								return PSYC_PARSE_UNIFORM_INVALID_TRANSPORT;
-							(*uni)[part].length++;
+							uni->transport.length++;
 							break;
 						case '/':
 							part = PSYC_UNIFORM_RESOURCE;
-							(*uni)[part].ptr = str + pos + 1;
-							(*uni)[part].length = 0;
+							uni->resource.ptr = str + pos + 1;
+							uni->resource.length = 0;
 							break;
 						default:
 							return PSYC_PARSE_UNIFORM_INVALID_TRANSPORT;
@@ -114,50 +118,50 @@ int psyc_parseUniform2 (psycUniform *uni, const char *str, size_t length)
 
 				case PSYC_UNIFORM_RESOURCE:
 					if (psyc_isNameChar(c)) {
-						(*uni)[part].length++;
+						uni->resource.length++;
 						break;
 					} else if (c == '#') {
 						part = PSYC_UNIFORM_CHANNEL;
-						(*uni)[part].ptr = str + pos + 1;
-						(*uni)[part].length = 0;
+						uni->channel.ptr = str + pos + 1;
+						uni->channel.length = 0;
 						break;
 					} else return PSYC_PARSE_UNIFORM_INVALID_RESOURCE;
 
 				case PSYC_UNIFORM_CHANNEL:
 					if (psyc_isNameChar(c)) {
-						(*uni)[part].length++;
+						uni->channel.length++;
 						break;
 					} else return PSYC_PARSE_UNIFORM_INVALID_CHANNEL;
 			}
 			pos++;
 		}
 
-		if ((*uni)[PSYC_UNIFORM_HOST].length == 0)
+		if (uni->host.length == 0)
 			return PSYC_PARSE_UNIFORM_INVALID_HOST;
 
-		(*uni)[PSYC_UNIFORM_ROOT].ptr = str;
-		(*uni)[PSYC_UNIFORM_ROOT].length = (*uni)[PSYC_UNIFORM_SCHEME].length + 1 +
-			(*uni)[PSYC_UNIFORM_SLASHES].length + (*uni)[PSYC_UNIFORM_HOST].length +
-			(*uni)[PSYC_UNIFORM_PORT].length + (*uni)[PSYC_UNIFORM_TRANSPORT].length;
+		uni->host_port.ptr = uni->host.ptr;
+		uni->host_port.length = uni->host.length + uni->port.length + uni->transport.length;
+		if (uni->port.length > 0 || uni->transport.length > 0)
+			uni->host_port.length++;
 
-		if ((*uni)[PSYC_UNIFORM_PORT].length > 0 ||
-		    (*uni)[PSYC_UNIFORM_TRANSPORT].length > 0)
-			(*uni)[PSYC_UNIFORM_ROOT].length++; // :
+		uni->root.ptr = str;
+		uni->root.length = uni->scheme.length + 1 + uni->slashes.length +
+			uni->host_port.length;
 
-		(*uni)[PSYC_UNIFORM_BODY].ptr = (*uni)[PSYC_UNIFORM_HOST].ptr;
-		(*uni)[PSYC_UNIFORM_BODY].length = length - (*uni)[PSYC_UNIFORM_SCHEME].length - 1 -
-			(*uni)[PSYC_UNIFORM_SLASHES].length;
+		uni->body.ptr = uni->host.ptr;
+		uni->body.length = length - uni->scheme.length - 1 - uni->slashes.length;
 
-		if ((*uni)[PSYC_UNIFORM_RESOURCE].length) {
-			(*uni)[PSYC_UNIFORM_NICK].ptr = (*uni)[PSYC_UNIFORM_RESOURCE].ptr + 1;
-			(*uni)[PSYC_UNIFORM_NICK].length = (*uni)[PSYC_UNIFORM_RESOURCE].length;
+		if (uni->resource.length) {
+			uni->nick.ptr = uni->resource.ptr + 1;
+			uni->nick.length = uni->resource.length;
 		}
+
 	} else return PSYC_PARSE_UNIFORM_INVALID_SCHEME;
 
-  if ((*uni)[PSYC_UNIFORM_HOST].length == 0)
+  if (uni->host.length == 0)
 		return PSYC_PARSE_UNIFORM_INVALID_HOST;
 
-	return scheme;
+	return uni->type;
 }
 
 int psyc_parseUniform (psycUniform *uni, psycString *str)

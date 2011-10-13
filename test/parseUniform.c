@@ -11,16 +11,16 @@ testUniform(char *str, int ret) {
 	int r = psyc_parseUniform2(uni, str, strlen(str));
 
 	PP(("[%.*s] : [%.*s] [%.*s] : [%.*s] [%.*s] / [%.*s] # [%.*s]\n[%.*s] [%.*s]\n[%.*s]\n\n",
-	    (int)PSYC_S2ARG2((*uni)[PSYC_UNIFORM_SCHEME]),
-	    (int)PSYC_S2ARG2((*uni)[PSYC_UNIFORM_SLASHES]),
-	    (int)PSYC_S2ARG2((*uni)[PSYC_UNIFORM_HOST]),
-	    (int)PSYC_S2ARG2((*uni)[PSYC_UNIFORM_PORT]),
-	    (int)PSYC_S2ARG2((*uni)[PSYC_UNIFORM_TRANSPORT]),
-	    (int)PSYC_S2ARG2((*uni)[PSYC_UNIFORM_RESOURCE]),
-	    (int)PSYC_S2ARG2((*uni)[PSYC_UNIFORM_CHANNEL]),
-	    (int)PSYC_S2ARG2((*uni)[PSYC_UNIFORM_ROOT]),
-	    (int)PSYC_S2ARG2((*uni)[PSYC_UNIFORM_NICK]),
-	    (int)PSYC_S2ARG2((*uni)[PSYC_UNIFORM_BODY])));
+	    (int)PSYC_S2ARG2(uni->scheme),
+	    (int)PSYC_S2ARG2(uni->slashes),
+	    (int)PSYC_S2ARG2(uni->host),
+	    (int)PSYC_S2ARG2(uni->port),
+	    (int)PSYC_S2ARG2(uni->transport),
+	    (int)PSYC_S2ARG2(uni->resource),
+	    (int)PSYC_S2ARG2(uni->channel),
+	    (int)PSYC_S2ARG2(uni->root),
+	    (int)PSYC_S2ARG2(uni->nick),
+	    (int)PSYC_S2ARG2(uni->body)));
 
 	free(uni);
 	if (r != ret) {
