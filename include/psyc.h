@@ -22,10 +22,10 @@
 
 #define PSYC_EPOCH      1440444041      // 2015-08-24 21:20:41 CET (Monday)
 
-#define	PSYC_C2STR(string) {sizeof(string)-1, string}
-#define	PSYC_C2ARG(string) string, sizeof(string)-1
-#define	PSYC_S2ARG(string) string.ptr, string.length
-#define	PSYC_S2ARG2(string) string.length, string.ptr
+#define	PSYC_C2STR(str) {sizeof(str)-1, str}
+#define	PSYC_C2ARG(str) str, sizeof(str)-1
+#define	PSYC_S2ARG(str) (str).ptr, (str).length
+#define	PSYC_S2ARG2(str) (str).length, (str).ptr
 
 typedef enum
 {
@@ -92,7 +92,7 @@ typedef struct
 	/// Length of the data pointed to by ptr
 	size_t length;
 	/// pointer to the data
-	const char *ptr;
+	char *ptr;
 } psycString;
 
 typedef struct

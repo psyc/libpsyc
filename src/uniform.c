@@ -9,6 +9,7 @@ int psyc_parseUniform2 (psycUniform *uni, const char *str, size_t length)
 	psycString *p;
 	size_t pos = 0, part = PSYC_UNIFORM_SCHEME;
 
+	uni->valid = 0;
 	uni->full.ptr = str;
 	uni->full.length = length;
 
@@ -161,6 +162,7 @@ int psyc_parseUniform2 (psycUniform *uni, const char *str, size_t length)
   if (uni->host.length == 0)
 		return PSYC_PARSE_UNIFORM_INVALID_HOST;
 
+	uni->valid = 1;
 	return uni->type;
 }
 
