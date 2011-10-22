@@ -15,6 +15,7 @@ typedef enum {
 
 typedef struct {
 // essential parts
+	uint8_t valid;
 	psycScheme type;
 	psycString scheme;
 	psycString user;
