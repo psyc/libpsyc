@@ -120,7 +120,8 @@ psycType psyc_getVarType2(const char *name, size_t len)
 		{
 			if (matching[i] < 0)
 				break; // reached the end of possible matches
-			if (cursor < psyc_varTypes[matching[i]].name.length && psyc_varTypes[matching[i]].name.ptr[cursor] == name[cursor])
+			if (cursor < psyc_varTypes[matching[i]].name.length &&
+			    psyc_varTypes[matching[i]].name.ptr[cursor] == name[cursor])
 				matching[m++] = matching[i]; // found a match, update matching indexes
 			else if (cursor == psyc_varTypes[matching[i]].name.length && name[cursor] == '_')
 				return psyc_varTypes[matching[0]].value; // _ after the end of a matching prefix
@@ -141,4 +142,60 @@ psycType psyc_getVarType2(const char *name, size_t len)
 psycType psyc_getVarType(psycString *name)
 {
 	return psyc_getVarType2(name->ptr, name->length);
+}
+
+/**
+ * Search for a variable name in an array.
+ *
+ * @param array The array to search, should be ordered alphabetically.
+ * @param size Size of array.
+ * @param name Name of variable to look for.
+ * @param namelen Length of name.
+ * @param startswith If true, look for any variable starting with name,
+ otherwise only exact matches are returned.
+ * @param matching A temporary array used for keeping track of results.
+ *                 Should be the same size as the array we're searching.
+ *
+ * @return The value of the matched variable in the array.
+ */
+int psyc_findVar(const psycMatchVar *array, size_t size,
+								 const char *name, size_t namelen,
+								 uint8_t startswith, int8_t *matching)
+{
+	size_t cursor = 1;
+	uint8_t i, m = 0;
+	//memset(&matching, -1, sizeof matching);
+
+	if (namelen < 2 || name[0] != '_')
+		return 0;
+
+	// first find the vars with matching length
+	for (i=0; i<size; i++)
+		if (namelen == array[i].name.length ||
+		    (startswith && namelen > array[i].name.length &&
+				 name[array[i].name.length] == '_'))
+			matching[m++] = i;
+
+	matching[m] = -1; // mark the end of matching indexes
+
+	while (cursor < namelen && matching[0] >= 0)
+	{
+		for (i = m = 0; i < size; i++)
+		{
+			if (matching[i] < 0)
+				break;
+			if (array[matching[i]].name.ptr[cursor] == name[cursor])
+				matching[m++] = matching[i]; // found a match, update matching indexes
+			else if (array[matching[i]].name.ptr[cursor] > name[cursor])
+				break; // passed the possible matches in alphabetical order
+		}
+
+		if (m < size)
+			matching[m] = -1; // mark the end of matching indexes
+
+		cursor++;
+	}
+
+	// return first match if found
+	return matching[0] >= 0 ? array[matching[0]].value : 0;
 }
