@@ -31,6 +31,8 @@ typedef enum
 {
 	PSYC_FALSE = 0,
 	PSYC_TRUE = 1,
+	PSYC_NO = 0,
+	PSYC_YES = 1,
 } psycBool;
 
 /**
@@ -148,6 +150,24 @@ psycType psyc_getVarType(psycString *name);
  * Get the type of variable name.
  */
 psycType psyc_getVarType2(const char *name, size_t len);
+
+/**
+ * Search for a variable name in an array.
+ *
+ * @param array The array to search, should be ordered alphabetically.
+ * @param size Size of array.
+ * @param name Name of variable to look for.
+ * @param namelen Length of name.
+ * @param startswith If true, look for any variable starting with name,
+ otherwise only exact matches are returned.
+ * @param matching A temporary array used for keeping track of results.
+ *                 Should be the same size as the array we're searching.
+ *
+ * @return The value of the matched variable in the array.
+ */
+int psyc_findVar(const psycMatchVar *array, size_t size,
+								 const char *name, size_t namelen,
+								 uint8_t startswith, int8_t *matching);
 
 /**
  * Is this a list variable name?

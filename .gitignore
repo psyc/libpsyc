@@ -1,4 +1,5 @@
 lib/libpsyc.a
+lib/libpsyc.so
 doc/html
 doc/latex
 doc/man
