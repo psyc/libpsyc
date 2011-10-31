@@ -97,19 +97,19 @@ extern (C) MatchVar varTypes[];
 /**
  * Get the type of variable name.
  */
-Bool psyc_isRoutingVar (char[]* name);
+Bool psyc_var_is_routing (char* name, size_t len);
 
 bool isRoutingVar (char[] name)
 {
-	return psyc_isRoutingVar(&name);
+	return psyc_var_is_routing(name.ptr, name.length); //FIXME
 }
 
 /**
  * Get the type of variable name.
  */
-Type psyc_getVarType(char *name, size_t len);
+Type psyc_var_type(char *name, size_t len);
 
-alias psyc_getVarType getVarType;
+alias psyc_var_type getVarType;
 
 /**
  * Checks if long keyword string inherits from short keyword string.

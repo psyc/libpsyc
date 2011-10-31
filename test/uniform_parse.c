@@ -4,11 +4,11 @@
 #include <lib.h>
 
 void
-testUniform(char *str, int ret) {
+testUniform (char *str, int ret) {
 	psycUniform *uni = malloc(sizeof(psycUniform));
 	memset(uni, 0, sizeof(psycUniform));
 	printf("%s\n", str);
-	int r = psyc_parseUniform2(uni, str, strlen(str));
+	int r = psyc_uniform_parse(uni, str, strlen(str));
 
 	PP(("[%.*s] : [%.*s] [%.*s] : [%.*s] [%.*s] / [%.*s] # [%.*s]\n[%.*s] [%.*s]\n[%.*s]\n\n",
 	    (int)PSYC_S2ARG2(uni->scheme),
@@ -24,12 +24,12 @@ testUniform(char *str, int ret) {
 
 	free(uni);
 	if (r != ret) {
-		fprintf(stderr, "ERROR: psyc_parseUniform returned %d instead of %d\n", r, ret);
+		fprintf(stderr, "ERROR: psyc_uniform_parse returned %d instead of %d\n", r, ret);
 		exit(1);
 	}
 }
 
-int main() {
+int main () {
 	testUniform("psyc://foo.tld:4404d/@bar#baz", PSYC_SCHEME_PSYC);
 	testUniform("psyc://foo:4405/~bar", PSYC_SCHEME_PSYC);
 	testUniform("psyc://foo:1234", PSYC_SCHEME_PSYC);
@@ -46,6 +46,6 @@ int main() {
 	testUniform("psyc://host:d/~foo", PSYC_PARSE_UNIFORM_INVALID_PORT);
 	testUniform("psyc://1234567890abcdef:1g/~foo", PSYC_PARSE_UNIFORM_INVALID_TRANSPORT);
 
-	printf("SUCCESS: psyc_parseUniform passed all tests.\n");
+	printf("SUCCESS: psyc_uniform_parse passed all tests.\n");
 	return 0;
 }

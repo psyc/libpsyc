@@ -3,7 +3,7 @@
 #include "psyc/uniform.h"
 #include "psyc/parse.h"
 
-int psyc_parseUniform2 (psycUniform *uni, const char *str, size_t length)
+int psyc_uniform_parse (psycUniform *uni, char *str, size_t length)
 {
 	char c;
 	psycString *p;
@@ -19,7 +19,7 @@ int psyc_parseUniform2 (psycUniform *uni, const char *str, size_t length)
 			uni->scheme.ptr = str;
 			uni->scheme.length = pos++;
 			break;
-		} else if (!psyc_isHostChar(c))
+		} else if (!psyc_is_host_char(c))
 			return PSYC_PARSE_UNIFORM_INVALID_SCHEME;
 		pos++;
 	}
@@ -52,7 +52,7 @@ int psyc_parseUniform2 (psycUniform *uni, const char *str, size_t length)
 					break;
 
 				case PSYC_UNIFORM_HOST:
-					if (psyc_isHostChar(c)) {
+					if (psyc_is_host_char(c)) {
 						uni->host.length++;
 						break;
 					}
@@ -74,7 +74,7 @@ int psyc_parseUniform2 (psycUniform *uni, const char *str, size_t length)
 					break;
 
 				case PSYC_UNIFORM_PORT:
-					if (psyc_isNumeric(c)) {
+					if (psyc_is_numeric(c)) {
 						uni->port.length++;
 						break;
 					}
@@ -118,7 +118,7 @@ int psyc_parseUniform2 (psycUniform *uni, const char *str, size_t length)
 					break;
 
 				case PSYC_UNIFORM_RESOURCE:
-					if (psyc_isNameChar(c)) {
+					if (psyc_is_name_char(c)) {
 						uni->resource.length++;
 						break;
 					} else if (c == '#') {
@@ -129,7 +129,7 @@ int psyc_parseUniform2 (psycUniform *uni, const char *str, size_t length)
 					} else return PSYC_PARSE_UNIFORM_INVALID_RESOURCE;
 
 				case PSYC_UNIFORM_CHANNEL:
-					if (psyc_isNameChar(c)) {
+					if (psyc_is_name_char(c)) {
 						uni->channel.length++;
 						break;
 					} else return PSYC_PARSE_UNIFORM_INVALID_CHANNEL;
@@ -164,9 +164,4 @@ int psyc_parseUniform2 (psycUniform *uni, const char *str, size_t length)
 
 	uni->valid = 1;
 	return uni->type;
-}
-
-int psyc_parseUniform (psycUniform *uni, psycString *str)
-{
-	return psyc_parseUniform2(uni, str->ptr, str->length);
 }

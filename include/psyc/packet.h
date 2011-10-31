@@ -17,6 +17,7 @@
 
 #include <psyc.h>
 #include <psyc/syntax.h>
+#include <math.h>
 
 /** Modifier flags. */
 typedef enum
@@ -78,7 +79,7 @@ typedef struct
 	psycListFlag flag;
 } psycList;
 
-/** intermediate struct for a PSYC packet */
+/** Intermediate struct for a PSYC packet */
 typedef struct
 {
 	psycHeader routing;	///< Routing header.
@@ -93,11 +94,20 @@ typedef struct
 } psycPacket;
 
 /**
+ * Return the number of digits a number has in its base 10 representation.
+ */
+static inline
+size_t psyc_num_length (size_t n)
+{
+	return n < 10 ? 1 : log10(n) + 1;
+}
+
+/**
  * \internal
  * Check if a modifier needs length.
  */
 static inline
-psycModifierFlag psyc_checkModifierLength (psycModifier *m)
+psycModifierFlag psyc_modifier_length_check (psycModifier *m)
 {
 	psycModifierFlag flag;
 
@@ -111,85 +121,64 @@ psycModifierFlag psyc_checkModifierLength (psycModifier *m)
 	return flag;
 }
 
-/** Create new modifier. */
-static inline
-psycModifier psyc_newModifier (char oper, psycString *name, psycString *value,
-                               psycModifierFlag flag)
-{
-	psycModifier m = {oper, *name, *value, flag};
-
-	if (flag == PSYC_MODIFIER_CHECK_LENGTH) // find out if it needs a length
-		m.flag = psyc_checkModifierLength(&m);
-
-	return m;
-}
-
 /** Create new modifier */
 static inline
-psycModifier psyc_newModifier2 (char oper,
-                                const char *name, size_t namelen,
-                                const char *value, size_t valuelen,
-                                psycModifierFlag flag)
-{
-	psycString n = {namelen, name};
-	psycString v = {valuelen, value};
+psycModifier psyc_modifier_new (char oper,
+                                char *name, size_t namelen,
+                                char *value, size_t valuelen,
+                                psycModifierFlag flag){
 
-	return psyc_newModifier(oper, &n, &v, flag);
+	psycModifier m = {oper, {namelen, name}, {valuelen, value}, flag};
+
+	if (flag == PSYC_MODIFIER_CHECK_LENGTH) // find out if it needs a length
+		m.flag = psyc_modifier_length_check(&m);
+
+	return m;
 }
 
 /**
  * \internal
  * Get the total length of a modifier when rendered.
  */
-size_t psyc_getModifierLength (psycModifier *m);
+size_t psyc_modifier_length (psycModifier *m);
 
 /**
  * \internal
  * Check if a list needs length.
  */
-psycListFlag psyc_checkListLength (psycList *list);
+psycListFlag psyc_list_length_check (psycList *list);
 
 /**
  * \internal
  * Get the total length of a list when rendered.
  */
-psycListFlag psyc_getListLength (psycList *list);
+psycListFlag psyc_list_length (psycList *list);
 
 /**
  * \internal
  * Check if a packet needs length.
  */
-psycPacketFlag psyc_checkPacketLength (psycPacket *p);
+psycPacketFlag psyc_packet_length_check (psycPacket *p);
 
 /**
  * Calculate and set the rendered length of packet parts and total packet length.
  */
-size_t psyc_setPacketLength (psycPacket *p);
+size_t psyc_packet_length_set (psycPacket *p);
 
 /** Create new list. */
-psycList psyc_newList (psycString *elems, size_t num_elems, psycListFlag flag);
+psycList psyc_list_new (psycString *elems, size_t num_elems, psycListFlag flag);
 
 /** Create new packet. */
-psycPacket psyc_newPacket (psycHeader *routing,
-                           psycHeader *entity,
-                           psycString *method, psycString *data,
-                           psycPacketFlag flag);
-
-/** Create new packet. */
-psycPacket psyc_newPacket2 (psycModifier *routing, size_t routinglen,
+psycPacket psyc_packet_new (psycModifier *routing, size_t routinglen,
                             psycModifier *entity, size_t entitylen,
-                            const char *method, size_t methodlen,
-                            const char *data, size_t datalen,
+                            char *method, size_t methodlen,
+                            char *data, size_t datalen,
                             psycPacketFlag flag);
 
 /** Create new packet with raw content. */
-psycPacket psyc_newRawPacket (psycHeader *routing, psycString *content,
-                              psycPacketFlag flag);
-
-/** Create new packet with raw content. */
-psycPacket psyc_newRawPacket2 (psycModifier *routing, size_t routinglen,
-                               const char *content, size_t contentlen,
-                               psycPacketFlag flag);
+psycPacket psyc_packet_new_raw (psycModifier *routing, size_t routinglen,
+                                char *content, size_t contentlen,
+                                psycPacketFlag flag);
 
 /** @} */ // end of packet group
 

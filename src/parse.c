@@ -29,12 +29,12 @@ typedef enum {
  * @return PARSE_ERROR or PARSE_SUCCESS
  */
 static inline
-parseRC psyc_parseKeyword (psycParseState *state, psycString *name)
+parseRC psyc_parse_keyword (psycParseState *state, psycString *name)
 {
 	name->ptr = state->buffer.ptr + state->cursor;
 	name->length = 0;
 
-	while (psyc_isKwChar(state->buffer.ptr[state->cursor]))
+	while (psyc_is_kw_char(state->buffer.ptr[state->cursor]))
 	{
 		name->length++; // was a valid char, increase length
 		ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
@@ -54,7 +54,7 @@ parseRC psyc_parseKeyword (psycParseState *state, psycString *name)
  * @return PARSE_COMPLETE or PARSE_INCOMPLETE
  */
 static inline
-parseRC psyc_parseBinaryValue (psycParseState *state, psycString *value,
+parseRC psyc_parse_binary_value (psycParseState *state, psycString *value,
                                   size_t *length, size_t *parsed)
 {
 	size_t remaining = *length - *parsed;
@@ -81,13 +81,13 @@ parseRC psyc_parseBinaryValue (psycParseState *state, psycString *value,
  * @return PARSE_ERROR or PARSE_SUCCESS
  */
 static inline
-parseRC psyc_parseModifier (psycParseState *state, char *oper,
+parseRC psyc_parse_modifier (psycParseState *state, char *oper,
                             psycString *name, psycString *value)
 {
 	*oper = *(state->buffer.ptr + state->cursor);
 	ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 
-	parseRC ret = psyc_parseKeyword(state, name);
+	parseRC ret = psyc_parse_keyword(state, name);
 	if (ret == PARSE_ERROR)
 		return PSYC_PARSE_ERROR_MOD_NAME;
 	else if (ret != PARSE_SUCCESS)
@@ -105,7 +105,7 @@ parseRC psyc_parseModifier (psycParseState *state, char *oper,
 	{ // After SP the length follows.
 		ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 
-		if (psyc_isNumeric(state->buffer.ptr[state->cursor]))
+		if (psyc_is_numeric(state->buffer.ptr[state->cursor]))
 		{
 			state->valueLengthFound = 1;
 			do
@@ -113,7 +113,7 @@ parseRC psyc_parseModifier (psycParseState *state, char *oper,
 				length = 10 * length + state->buffer.ptr[state->cursor] - '0';
 				ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 			}
-			while (psyc_isNumeric(state->buffer.ptr[state->cursor]));
+			while (psyc_is_numeric(state->buffer.ptr[state->cursor]));
 			state->valueLength = length;
 		}
 		else
@@ -126,7 +126,7 @@ parseRC psyc_parseModifier (psycParseState *state, char *oper,
 		if (++(state->cursor) >= state->buffer.length)
 			return length ? PARSE_INCOMPLETE : PARSE_SUCCESS; // if length=0 we're done
 
-		ret = psyc_parseBinaryValue(state, value, &(state->valueLength), &(state->valueParsed));
+		ret = psyc_parse_binary_value(state, value, &(state->valueLength), &(state->valueParsed));
 		if (ret == PARSE_INCOMPLETE)
 			return ret;
 
@@ -197,9 +197,9 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 			// Each line of the header starts with a glyph,
 			// i.e. :_name, -_name +_name etc,
 			// so just test if the first char is a glyph.
-			if (psyc_isGlyph(state->buffer.ptr[state->cursor])) // is the first char a glyph?
+			if (psyc_is_glyph(state->buffer.ptr[state->cursor])) // is the first char a glyph?
 			{ // it is a glyph, so a variable starts here
-				ret = psyc_parseModifier(state, oper, name, value);
+				ret = psyc_parse_modifier(state, oper, name, value);
 				state->routingLength += state->cursor - pos;
 				return ret == PARSE_SUCCESS ? PSYC_PARSE_ROUTING : ret;
 			}
@@ -212,7 +212,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 
 		case PSYC_PART_LENGTH:
 			// End of header, content starts with an optional length then a NL
-			if (psyc_isNumeric(state->buffer.ptr[state->cursor]))
+			if (psyc_is_numeric(state->buffer.ptr[state->cursor]))
 			{
 				state->contentLengthFound = 1;
 				state->contentLength = 0;
@@ -222,7 +222,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 					state->contentLength = 10 * state->contentLength + state->buffer.ptr[state->cursor] - '0';
 					ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 				}
-				while (psyc_isNumeric(state->buffer.ptr[state->cursor]));
+				while (psyc_is_numeric(state->buffer.ptr[state->cursor]));
 			}
 
 			if (state->buffer.ptr[state->cursor] == '\n') // start of content
@@ -257,7 +257,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 			// In case of an incomplete binary variable resume parsing it.
 			if (state->valueParsed < state->valueLength)
 			{
-				ret = psyc_parseBinaryValue(state, value, &(state->valueLength), &(state->valueParsed));
+				ret = psyc_parse_binary_value(state, value, &(state->valueLength), &(state->valueParsed));
 				state->contentParsed += value->length;
 
 				if (ret == PARSE_INCOMPLETE)
@@ -280,9 +280,9 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 			// So just test if the first char is a glyph.
 			// In the body, the same applies, only that the
 			// method does not start with a glyph.
-			if (psyc_isGlyph(state->buffer.ptr[state->cursor]))
+			if (psyc_is_glyph(state->buffer.ptr[state->cursor]))
 			{
-				ret = psyc_parseModifier(state, oper, name, value);
+				ret = psyc_parse_modifier(state, oper, name, value);
 				state->contentParsed += state->cursor - pos;
 
 				if (ret == PARSE_INCOMPLETE)
@@ -302,7 +302,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 
 		case PSYC_PART_METHOD:
 			pos = state->cursor;
-			ret = psyc_parseKeyword(state, name);
+			ret = psyc_parse_keyword(state, name);
 
 			if (ret == PARSE_INSUFFICIENT)
 				return ret;
@@ -352,7 +352,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 				}
 				if (state->valueParsed < state->valueLength)
 				{
-					ret = psyc_parseBinaryValue(state, value, &(state->valueLength), &(state->valueParsed));
+					ret = psyc_parse_binary_value(state, value, &(state->valueLength), &(state->valueParsed));
 					state->contentParsed += value->length;
 
 					if (ret == PARSE_INCOMPLETE)
@@ -437,7 +437,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 #ifdef __INLINE_PSYC_PARSE
 static inline
 #endif
-psycParseListRC psyc_parseList (psycParseListState *state, psycString *elem)
+psycParseListRC psyc_parse_list (psycParseListState *state, psycString *elem)
 {
 	if (state->cursor >= state->buffer.length)
 		return PSYC_PARSE_LIST_INCOMPLETE;
@@ -452,7 +452,7 @@ psycParseListRC psyc_parseList (psycParseListState *state, psycString *elem)
 			state->type = PSYC_LIST_TEXT;
 			state->cursor++;
 		}
-		else if (psyc_isNumeric(state->buffer.ptr[state->cursor]))
+		else if (psyc_is_numeric(state->buffer.ptr[state->cursor]))
 			state->type = PSYC_LIST_BINARY;
 		else
 			return PSYC_PARSE_LIST_ERROR_TYPE;
@@ -480,14 +480,14 @@ psycParseListRC psyc_parseList (psycParseListState *state, psycString *elem)
 		if (!(state->elemParsed < state->elemLength))
 		{
 			// Element starts with a number.
-			if (psyc_isNumeric(state->buffer.ptr[state->cursor]))
+			if (psyc_is_numeric(state->buffer.ptr[state->cursor]))
 			{
 				do
 				{
 					state->elemLength = 10 * state->elemLength + state->buffer.ptr[state->cursor] - '0';
 					ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_LIST_INCOMPLETE);
 				}
-				while (psyc_isNumeric(state->buffer.ptr[state->cursor]));
+				while (psyc_is_numeric(state->buffer.ptr[state->cursor]));
 			}
 			else
 				return PSYC_PARSE_LIST_ERROR_LEN;
@@ -504,7 +504,7 @@ psycParseListRC psyc_parseList (psycParseListState *state, psycString *elem)
 		// Start or resume parsing the binary data
 		if (state->elemParsed < state->elemLength)
 		{
-			if (psyc_parseBinaryValue((psycParseState*)state, elem,
+			if (psyc_parse_binary_value((psycParseState*)state, elem,
 			                          &(state->elemLength), &(state->elemParsed)) == PARSE_INCOMPLETE)
 				return PSYC_PARSE_LIST_INCOMPLETE;
 

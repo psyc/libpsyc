@@ -27,6 +27,8 @@
 #define	PSYC_S2ARG(str) (str).ptr, (str).length
 #define	PSYC_S2ARG2(str) (str).length, (str).ptr
 
+#define PSYC_NUM_ELEM(a) (sizeof(a) / sizeof(*(a)))
+
 typedef enum
 {
 	PSYC_FALSE = 0,
@@ -99,22 +101,22 @@ typedef struct
 
 typedef struct
 {
-	psycString name;
+	psycString key;
 	int value;
 } psycMatchVar;
 
 /**
  * Shortcut for creating a psycString.
  *
- * @param memory Pointer to the buffer.
- * @param length Length of that buffer.
+ * @param str Pointer to the buffer.
+ * @param len Length of that buffer.
  *
  * @return An instance of the psycString struct.
  */
 static inline
-psycString psyc_newString (const char *str, size_t slen)
+psycString psyc_string_new (char *str, size_t len)
 {
-	psycString s = {slen, str};
+	psycString s = {len, str};
 	return s;
 }
 
@@ -124,81 +126,39 @@ unsigned int psyc_version ()
 	return 1;
 }
 
-/// Routing variables in alphabetical order.
-extern const psycString psyc_routingVars[];
-
-// Variable types in alphabetical order.
-extern const psycMatchVar psyc_varTypes[];
-
-extern const size_t psyc_routingVarsNum;
-extern const size_t psyc_varTypesNum;
 
 /**
- * Is this a routing variable name?
+ * Checks if long keyword string inherits from short keyword string.
  */
-psycBool psyc_isRoutingVar(psycString *name);
-/**
- * Is this a routing variable name?
- */
-psycBool psyc_isRoutingVar2(const char *name, size_t len);
+int psyc_inherits (char *sho, size_t slen,
+                   char *lon, size_t llen);
 
 /**
- * Get the type of variable name.
+ * Checks if short keyword string matches long keyword string.
  */
-psycType psyc_getVarType(psycString *name);
-/**
- * Get the type of variable name.
- */
-psycType psyc_getVarType2(const char *name, size_t len);
+int psyc_matches (char *sho, size_t slen,
+                  char *lon, size_t llen);
 
 /**
- * Search for a variable name in an array.
+ * Check if keyword is in array.
  *
  * @param array The array to search, should be ordered alphabetically.
  * @param size Size of array.
- * @param name Name of variable to look for.
- * @param namelen Length of name.
- * @param startswith If true, look for any variable starting with name,
+ * @param kw Keyword to look for.
+ * @param kwlen Length of keyword.
+ * @param inherit If true, also look for anything inheriting from kw,
  otherwise only exact matches are returned.
  * @param matching A temporary array used for keeping track of results.
  *                 Should be the same size as the array we're searching.
  *
  * @return The value of the matched variable in the array.
  */
-int psyc_findVar(const psycMatchVar *array, size_t size,
-								 const char *name, size_t namelen,
-								 uint8_t startswith, int8_t *matching);
 
-/**
- * Is this a list variable name?
- */
-static inline
-psycBool psyc_isListVar2(const char *name, size_t len)
-{
-	return len < 5 || memcmp(name, "_list", 5) != 0 ||
-		(len > 5 && name[5] != '_') ? PSYC_FALSE : PSYC_TRUE;
-}
+int psyc_in_array (const psycMatchVar *array, size_t size,
+                   const char *kw, size_t kwlen,
+                   psycBool inherit, int8_t *matching);
 
-/**
- * Is this a list variable name?
- */
-static inline
-psycBool psyc_isListVar(psycString *name)
-{
-	return psyc_isListVar2(name->ptr, name->length);
-}
-
-/**
- * Checks if long keyword string inherits from short keyword string.
- */
-int psyc_inherits(char *sho, size_t slen,
-                  char *lon, size_t llen);
-
-/**
- * Checks if short keyword string matches long keyword string.
- */
-int psyc_matches(char *sho, size_t slen,
-                 char *lon, size_t llen);
+#include "psyc/variable.h"
 
 #define PSYC_H
 #endif

@@ -25,7 +25,7 @@ enum RenderRC
 } ;
 
 /**
- * Return codes for psyc_renderList.
+ * Return codes for psyc_render_list.
  */
 enum RenderListRC
 {
@@ -41,20 +41,18 @@ enum RenderListRC
  * The packet structure should contain the packet parts, either routing, entity,
  * method & data, or routing & content when rendering raw content.
  * It should also contain the contentLength & total length of the packet,
- * you can use psyc_setPacketLength() for calculating & setting these values.
+ * you can use psyc_packet_length_set() for calculating & setting these values.
  * This function renders packet->length bytes to the buffer,
  * if buflen is less than that an error is returned.
  *
- * @see psyc_newPacket
- * @see psyc_newPacket2
- * @see psyc_newRawPacket
- * @see psyc_newRawPacket2
- * @see psyc_setPacketLength
+ * @see psyc_packet_new
+ * @see psyc_packet_new_raw
+ * @see psyc_packet_length_set
  */
 RenderRC psyc_render (Packet *packet, ubyte *buffer, size_t buflen);
 
 /**
  * Render a PSYC list into a buffer.
  */
-RenderListRC psyc_renderList (List *list, ubyte *buffer, size_t buflen);
+RenderListRC psyc_render_list (List *list, ubyte *buffer, size_t buflen);
 

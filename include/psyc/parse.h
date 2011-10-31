@@ -11,8 +11,8 @@
  * @defgroup parse Parsing Functions
  *
  * This module contains packet and list parsing functions.
- * The parser adheres to the definition of a packet found at 
- * 
+ * The parser adheres to the definition of a packet found at
+ *
  *   http://about.psyc.eu/Spec:Packet
  *
  * and the according terms are used throughout this documentation and in the
@@ -25,11 +25,10 @@
  *
  * @code
  * psycParseState state;
- *
- * psyc_initParseState(&state);
+ * psyc_parse_state_init(&state, flags);
  * @endcode
  *
- * Note that there is also psyc_initParseState2 if you want to fine-tune what
+ * With the flags parameter you can fine-tune what
  * part of the packet should be parsed. @see psycParseFlag
  *
  * Next, you have to tell the parser what it should parse. Assuming the variable
@@ -40,7 +39,7 @@
  * char* raw_data; // points to our (possibly incomplete) packet
  * size_t raw_len; // how many bytes of data
  *
- * psyc_setParseBuffer(&state, raw_data, raw_len); // state is our initialized state from before
+ * psyc_parse_buffer_set(&state, raw_data, raw_len); // state is our initialized state from before
  * @endcode
  *
  * Now the the variables that will save the output of the parser need to be
@@ -77,7 +76,7 @@
  * 		case PSYC_PARSE_ENTITY:  // it is a entity variable
  * 			// Name, value and operator of the variable can now be found in the
  * 			// respective variables:
- * 			printf("Variable: %.*s  Value: %.*s Operator: %c\n", 
+ * 			printf("Variable: %.*s  Value: %.*s Operator: %c\n",
  * 			        name.length, name.ptr,
  * 			        value.length, value.ptr,
  * 			        oper);
@@ -86,7 +85,7 @@
  * 			// before passing it to the parser or you copy each variable now.
  * 			break;
  * 		case PSYC_PARSE_BODY: // it is the method and the body of the packet.
- * 			printf("Method Name: %.*s  Body: %.*s\n", 
+ * 			printf("Method Name: %.*s  Body: %.*s\n",
  * 			        name.length, name.ptr,    // name of the method
  * 			        value.length, value.ptr); // value of the body
  * 			break;
@@ -94,11 +93,11 @@
  * 			// You can simply continue parsing till you get the
  * 			// PSYC_PARSE_INSUFFICIENT code which means the line is incomplete.
  * 			continue;
- * 		default: // 
+ * 		default: //
  * 			perror("Error %i happened :(\n", res);
  * 			return res;
  * 	}
- * } 
+ * }
  * while (ret > 0)
  * @endcode
  *
@@ -193,7 +192,7 @@ typedef enum {
 
 /**
  * The return value definitions for the list parsing function.
- * @see psyc_parseList()
+ * @see psyc_parse_list()
  */
 typedef enum {
 	PSYC_PARSE_LIST_ERROR_DELIM = -4,
@@ -244,24 +243,11 @@ typedef struct {
  * Initializes the state struct.
  *
  * @param state Pointer to the state struct that should be initialized.
- * @see psyc_initParseState2
- */
-static inline
-void psyc_initParseState (psycParseState *state)
-{
-	memset(state, 0, sizeof(psycParseState));
-}
-
-/**
- * Initializes the state struct with flags.
- *
- * @param state Pointer to the state struct that should be initialized.
  * @param flags Flags to be set for the parser, see psycParseFlag.
- * @see psyc_initParseState
  * @see psycParseFlag
  */
 static inline
-void psyc_initParseState2 (psycParseState *state, uint8_t flags)
+void psyc_parse_state_init (psycParseState *state, uint8_t flags)
 {
 	memset(state, 0, sizeof(psycParseState));
 	state->flags = flags;
@@ -277,37 +263,20 @@ void psyc_initParseState2 (psycParseState *state, uint8_t flags)
  * at the memory pointed to by buffer.
  *
  * @param state Pointer to the initialized state of the parser
- * @param buffer the buffer that should be parsed now
+ * @param buffer pointer to the data that should be parsed
+ * @param length length of the data in bytes
  * @see psycString
  */
 static inline
-void psyc_setParseBuffer (psycParseState *state, psycString buffer)
+void psyc_parse_buffer_set (psycParseState *state, char *buffer, size_t length)
 {
-	state->buffer = buffer;
+	state->buffer = (psycString) {length, buffer};
 	state->cursor = 0;
 
 	if (state->flags & PSYC_PARSE_START_AT_CONTENT) {
-		state->contentLength = buffer.length;
+		state->contentLength = length;
 		state->contentLengthFound = PSYC_TRUE;
 	}
-}
-
-/**
- * Sets a new buffer in the parser state struct with data to be parsed.
- *
- * This function does NOT copy the buffer. It will parse whatever is
- * at the memory pointed to by buffer.
- *
- * @param state Pointer to the initialized state of the parser
- * @param buffer pointer to the data that should be parsed
- * @param length length of the data in bytes 
- * @see psycString
- */
-static inline
-void psyc_setParseBuffer2 (psycParseState *state, const char *buffer, size_t length)
-{
-	psycString buf = {length, buffer};
-	psyc_setParseBuffer(state, buf);
 }
 
 /**
@@ -316,7 +285,7 @@ void psyc_setParseBuffer2 (psycParseState *state, const char *buffer, size_t len
  * @param state Pointer to the list state struct that should be initialized.
  */
 static inline
-void psyc_initParseListState (psycParseListState *state)
+void psyc_parse_list_state_init (psycParseListState *state)
 {
 	memset(state, 0, sizeof(psycParseListState));
 }
@@ -325,63 +294,56 @@ void psyc_initParseListState (psycParseListState *state)
  * Sets a new buffer in the list parser state struct with data to be parsed.
  */
 static inline
-void psyc_setParseListBuffer (psycParseListState *state, psycString buffer)
+void psyc_parse_list_buffer_set (psycParseListState *state, char *buffer, size_t length)
 {
-	state->buffer = buffer;
+	state->buffer = (psycString) {length, buffer};
 	state->cursor = 0;
 }
 
 static inline
-void psyc_setParseListBuffer2 (psycParseListState *state, const char *buffer, size_t length)
-{
-	psycString buf = {length, buffer};
-	psyc_setParseListBuffer(state, buf);
-}
-
-static inline
-size_t psyc_getParseContentLength (psycParseState *state)
+size_t psyc_parse_content_length (psycParseState *state)
 {
 	return state->contentLength;
 }
 
 static inline
-psycBool psyc_isParseContentLengthFound (psycParseState *state)
+psycBool psyc_parse_content_length_found (psycParseState *state)
 {
 	return state->contentLengthFound;
 }
 
 static inline
-size_t psyc_getParseValueLength (psycParseState *state)
+size_t psyc_parse_value_length (psycParseState *state)
 {
 	return state->valueLength;
 }
 
 static inline
-psycBool psyc_isParseValueLengthFound (psycParseState *state)
+psycBool psyc_parse_value_length_found (psycParseState *state)
 {
 	return state->valueLengthFound;
 }
 
 static inline
-size_t psyc_getParseCursor (psycParseState *state)
+size_t psyc_parse_cursor (psycParseState *state)
 {
 	return state->cursor;
 }
 
 static inline
-size_t psyc_getParseBufferLength (psycParseState *state)
+size_t psyc_parse_buffer_length (psycParseState *state)
 {
 	return state->buffer.length;
 }
 
 static inline
-size_t psyc_getParseRemainingLength (psycParseState *state)
+size_t psyc_parse_remaining_length (psycParseState *state)
 {
 	return state->buffer.length - state->cursor;
 }
 
 static inline
-const char * psyc_getParseRemainingBuffer (psycParseState *state)
+const char * psyc_parse_remaining_buffer (psycParseState *state)
 {
 	return state->buffer.ptr + state->cursor;
 }
@@ -422,10 +384,10 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 #ifdef __INLINE_PSYC_PARSE
 static inline
 #endif
-psycParseListRC psyc_parseList (psycParseListState *state, psycString *elem);
+psycParseListRC psyc_parse_list (psycParseListState *state, psycString *elem);
 
 static inline
-psycBool psyc_parseNumber2 (const char *value, size_t len, ssize_t *n)
+psycBool psyc_parse_number (const char *value, size_t len, ssize_t *n)
 {
 	size_t c = 0;
 	uint8_t neg = 0;
@@ -450,37 +412,19 @@ psycBool psyc_parseNumber2 (const char *value, size_t len, ssize_t *n)
 }
 
 static inline
-psycBool psyc_parseNumber (psycString *value, ssize_t *n)
+psycBool psyc_parse_time (const char *value, size_t len, time_t *t)
 {
-	return psyc_parseNumber2(value->ptr, value->length, n);
+	return psyc_parse_number(value, len, t);
 }
 
 static inline
-psycBool psyc_parseTime2 (const char *value, size_t len, time_t *t)
+psycBool psyc_parse_date (const char *value, size_t len, time_t *t)
 {
-	return psyc_parseNumber2(value, len, t);
-}
-
-static inline
-psycBool psyc_parseTime (psycString *value, time_t *t)
-{
-	return psyc_parseNumber2(value->ptr, value->length, t);
-}
-
-static inline
-psycBool psyc_parseDate2 (const char *value, size_t len, time_t *t)
-{
-	if (psyc_parseNumber2(value, len, t)) {
+	if (psyc_parse_number(value, len, t)) {
 		*t += PSYC_EPOCH;
 		return PSYC_TRUE;
 	}
 	return PSYC_FALSE;
-}
-
-static inline
-psycBool psyc_parseDate (psycString *value, time_t *t)
-{
-	return psyc_parseDate2(value->ptr, value->length, t);
 }
 
 /**
@@ -488,7 +432,7 @@ psycBool psyc_parseDate (psycString *value, time_t *t)
  * Glyphs are: : = + - ? !
  */
 static inline
-char psyc_isGlyph (uint8_t g)
+char psyc_is_glyph (uint8_t g)
 {
 	switch(g) {
 		case ':':
@@ -507,7 +451,7 @@ char psyc_isGlyph (uint8_t g)
  * Determines if the argument is numeric.
  */
 static inline
-char psyc_isNumeric (uint8_t c)
+char psyc_is_numeric (uint8_t c)
 {
 	return c >= '0' && c <= '9';
 }
@@ -516,7 +460,7 @@ char psyc_isNumeric (uint8_t c)
  * Determines if the argument is alphabetic.
  */
 static inline
-char psyc_isAlpha (uint8_t c)
+char psyc_is_alpha (uint8_t c)
 {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
@@ -525,9 +469,9 @@ char psyc_isAlpha (uint8_t c)
  * Determines if the argument is alphanumeric.
  */
 static inline
-char psyc_isAlphaNumeric (uint8_t c)
+char psyc_is_alpha_numeric (uint8_t c)
 {
-	return psyc_isAlpha(c) || psyc_isNumeric(c);
+	return psyc_is_alpha(c) || psyc_is_numeric(c);
 }
 
 /**
@@ -535,9 +479,9 @@ char psyc_isAlphaNumeric (uint8_t c)
  * Keyword characters are: alphanumeric and _
  */
 static inline
-char psyc_isKwChar (uint8_t c)
+char psyc_is_kw_char (uint8_t c)
 {
-	return psyc_isAlphaNumeric(c) || c == '_';
+	return psyc_is_alpha_numeric(c) || c == '_';
 }
 
 /**
@@ -545,9 +489,9 @@ char psyc_isKwChar (uint8_t c)
  * Name characters are: see opaque_part in RFC 2396
  */
 static inline
-char psyc_isNameChar (uint8_t c)
+char psyc_is_name_char (uint8_t c)
 {
-	return psyc_isAlpha(c) || (c >= '$' && c <= ';') ||
+	return psyc_is_alpha(c) || (c >= '$' && c <= ';') ||
 		c == '_' || c == '!' || c == '?' || c == '=' || c == '@' || c == '~';
 }
 
@@ -556,9 +500,9 @@ char psyc_isNameChar (uint8_t c)
  * Hostname characters are: alphanumeric and -
  */
 static inline
-char psyc_isHostChar (uint8_t c)
+char psyc_is_host_char (uint8_t c)
 {
-	return psyc_isAlphaNumeric(c) || c == '.' || c == '-';
+	return psyc_is_alpha_numeric(c) || c == '.' || c == '-';
 }
 
 /** @} */ // end of parse group

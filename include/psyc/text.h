@@ -76,9 +76,9 @@ typedef psycTextValueRC (*psycTextCB)(const char *name, size_t len, psycString *
  * @param buflen Length of output buffer.
  */
 static inline
-void psyc_initTextState (psycTextState *state,
-                         const char *tmpl, size_t tmplen,
-                         char *buffer, size_t buflen)
+void psyc_text_state_init (psycTextState *state,
+                           char *tmpl, size_t tmplen,
+                           char *buffer, size_t buflen)
 {
 	state->cursor  = 0;
 	state->written = 0;
@@ -102,11 +102,11 @@ void psyc_initTextState (psycTextState *state,
  * @param closelen Length of closing brace.
  */
 static inline
-void psyc_initTextState2 (psycTextState *state,
-                          const char *tmpl, size_t tmplen,
-                          char *buffer, size_t buflen,
-                          const char *open, size_t openlen,
-                          const char *close, size_t closelen)
+void psyc_text_state_init_custom (psycTextState *state,
+                                  char *tmpl, size_t tmplen,
+                                  char *buffer, size_t buflen,
+                                  char *open, size_t openlen,
+                                  char *close, size_t closelen)
 {
 	state->cursor  = 0;
 	state->written = 0;
@@ -120,25 +120,15 @@ void psyc_initTextState2 (psycTextState *state,
  * Sets a new output buffer in the PSYC text state struct.
  */
 static inline
-void psyc_setTextBuffer (psycTextState *state, psycString buffer)
+void psyc_text_buffer_set (psycTextState *state,
+                           char *buffer, size_t length)
 {
-	state->buffer = buffer;
+	state->buffer = (psycString){length, buffer};
 	state->written = 0;
 }
 
-/**
- * Sets a new buffer in the PSYC text state struct.
- */
 static inline
-void psyc_setTextBuffer2 (psycTextState *state,
-                          char *buffer, size_t length)
-{
-	psycString buf = {length, buffer};
-	psyc_setTextBuffer(state, buf);
-}
-
-static inline
-size_t psyc_getTextBytesWritten (psycTextState *state)
+size_t psyc_text_bytes_written (psycTextState *state)
 {
 	return state->written;
 }
@@ -151,10 +141,10 @@ size_t psyc_getTextBytesWritten (psycTextState *state)
  * string between these braces. Should the callback return
  * PSYC_TEXT_VALUE_NOT_FOUND, the original template text is copied as is.
  *
- * Before calling this function psyc_initTextState should be called to initialize
+ * Before calling this function psyc_text_state_init should be called to initialize
  * the state struct. By default PSYC's "[" and "]" are used but you can provide
  * any other brace strings such as "${" and "}" or "<!--" and "-->" if you use
- * the psyc_initTextState2 variant.
+ * the psyc_text_state_init_custom variant.
  *
  * @see http://about.psyc.eu/psyctext
  **/

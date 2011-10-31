@@ -28,12 +28,9 @@ int main (int argc, char **argv)
 		printf(">> PARSE\n");
 	}
 
-	if (routing_only)
-		psyc_initParseState2(&state, PSYC_PARSE_ROUTING_ONLY);
-	else
-		psyc_initParseState(&state);
-
-	psyc_setParseBuffer2(&state, buffer, idx);
+	psyc_parse_state_init(&state, routing_only ?
+												PSYC_PARSE_ROUTING_ONLY : PSYC_PARSE_ALL);
+	psyc_parse_buffer_set(&state, buffer, idx);
 
 	// try parsing that now
 	do
@@ -59,15 +56,15 @@ int main (int argc, char **argv)
 					       (int)name.length, name.ptr,
 					       (int)value.length, value.ptr);
 
-				if (psyc_isListVar(&name))
+				if (psyc_var_is_list(PSYC_S2ARG(name)))
 				{
 					if (verbose)
 						printf(">> LIST START\n");
 
-					psyc_initParseListState(&listState);
-					psyc_setParseListBuffer(&listState, value);
+					psyc_parse_list_state_init(&listState);
+					psyc_parse_list_buffer_set(&listState, PSYC_S2ARG(value));
 
-					while ((ret = psyc_parseList(&listState, &elem)))
+					while ((ret = psyc_parse_list(&listState, &elem)))
 					{
 						switch (ret)
 						{

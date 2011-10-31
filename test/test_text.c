@@ -38,17 +38,17 @@ int testText (char *template, size_t tmplen, char *buffer, size_t buflen, psycSt
 	size_t length = 0;
 	psycTextRC ret;
 
-	psyc_initTextState(&state, template, tmplen, buffer, buflen);
+	psyc_text_state_init(&state, template, tmplen, buffer, buflen);
 	do
 	{
 		ret = psyc_text(&state, getValue, NULL);
-		length += psyc_getTextBytesWritten(&state);
+		length += psyc_text_bytes_written(&state);
 		switch (ret)
 		{
 			case PSYC_TEXT_INCOMPLETE:
 				if (verbose)
 					printf("# %.*s...\n", (int)length, buffer);
-				psyc_setTextBuffer2(&state, buffer + length, BUFSIZE - length);
+				psyc_text_buffer_set(&state, buffer + length, BUFSIZE - length);
 				break;
 			case PSYC_TEXT_COMPLETE:
 				if (verbose)

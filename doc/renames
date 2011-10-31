@@ -1,0 +1,66 @@
+psyc_newString			psyc_string_new
+psyc_routingVars		psyc_routing_vars
+psyc_routingVarsNum		psyc_routing_vars_num
+psyc_varTypes			psyc_var_types
+psyc_varTypesNum		psyc_var_types_num
+psyc_isRoutingVar		-
+psyc_isRoutingVar2		psyc_var_is_routing
+psyc_isListVar			-
+psyc_isListVar2			psyc_var_is_list
+psyc_getVarType			-
+psyc_getVarType2		psyc_var_type
+
+psyc_newModifier		-
+psyc_newModifier2		psyc_modifier_new
+psyc_getModifierLength		psyc_modifier_length
+psyc_checkModifierLength	psyc_modifier_length_check
+psyc_getListLength		psyc_list_length
+psyc_checkListLength		psyc_list_length_check
+psyc_getNumLength		psyc_num_length
+psyc_newPacket			-
+psyc_newPacket2			psyc_packet_new
+psyc_newRawPacket		-
+psyc_newRawPacket2		psyc_packet_new_raw
+psyc_checkPacketLength		psyc_packet_length_check
+psyc_setPacketLength		psyc_packet_length_set
+
+psyc_parseUniform		-
+psyc_parseUniform2		psyc_uniform_parse
+
+psyc_initTextState		psyc_text_state_init
+psyc_initTextState2		psyc_text_state_init_custom
+psyc_setTextBuffer		-
+psyc_setTextBuffer2		psyc_text_buffer_set
+psyc_getTextBytesWritten	psyc_text_bytes_written
+
+psyc_parseList			psyc_parse_list
+psyc_parseNumber		-
+psyc_parseNumber2		psyc_parse_number
+psyc_parseTime			-
+psyc_parseTime2			psyc_parse_time
+psyc_parseDate			-
+psyc_parseDate2			psyc_parse_date
+psyc_initParseState		-
+psyc_initParseState2		psyc_parse_state_init
+psyc_setParseBuffer		-
+psyc_setParseBuffer2		psyc_parse_buffer_set
+psyc_initParseListState		psyc_parse_list_state_init
+psyc_setParseListBuffer		-
+psyc_setParseListBuffer2	psyc_parse_list_buffer_set
+psyc_getParseContentLength	psyc_parse_content_length
+psyc_isParseContentLengthFound	psyc_parse_content_length_found
+psyc_getParseValueLength	psyc_parse_value_length
+psyc_isParseValueLengthFound	psyc_parse_value_length_found
+psyc_getParseCursor		psyc_parse_cursor
+psyc_getParseBufferLength	psyc_parse_buffer_length
+psyc_getParseRemainingLength	psyc_parse_remaining_length
+psyc_getParseRemainingBuffer	psyc_parse_remaining_buffer
+
+psyc_isGlyph			psyc_is_glyph
+psyc_isAlpha			psyc_is_alpha
+psyc_isAlphaNumeric		psyc_is_alpha_numeric
+psyc_isKwChar			psyc_is_kw_char
+psyc_isNameChar			psyc_is_name_char
+psyc_isHostChar			psyc_is_host_char
+
+psyc_renderList			psyc_render_list
