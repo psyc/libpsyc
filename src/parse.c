@@ -29,7 +29,7 @@ typedef enum {
  * @return PARSE_ERROR or PARSE_SUCCESS
  */
 static inline
-parseRC psyc_parse_keyword (psycParseState *state, psycString *name)
+parseRC psyc_parse_keyword (PsycParseState *state, PsycString *name)
 {
 	name->ptr = state->buffer.ptr + state->cursor;
 	name->length = 0;
@@ -54,7 +54,7 @@ parseRC psyc_parse_keyword (psycParseState *state, psycString *name)
  * @return PARSE_COMPLETE or PARSE_INCOMPLETE
  */
 static inline
-parseRC psyc_parse_binary_value (psycParseState *state, psycString *value,
+parseRC psyc_parse_binary_value (PsycParseState *state, PsycString *value,
                                   size_t *length, size_t *parsed)
 {
 	size_t remaining = *length - *parsed;
@@ -81,8 +81,8 @@ parseRC psyc_parse_binary_value (psycParseState *state, psycString *value,
  * @return PARSE_ERROR or PARSE_SUCCESS
  */
 static inline
-parseRC psyc_parse_modifier (psycParseState *state, char *oper,
-                            psycString *name, psycString *value)
+parseRC psyc_parse_modifier (PsycParseState *state, char *oper,
+                            PsycString *name, PsycString *value)
 {
 	*oper = *(state->buffer.ptr + state->cursor);
 	ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
@@ -153,8 +153,8 @@ parseRC psyc_parse_modifier (psycParseState *state, char *oper,
 #ifdef __INLINE_PSYC_PARSE
 static inline
 #endif
-psycParseRC psyc_parse (psycParseState *state, char *oper,
-                        psycString *name, psycString *value)
+PsycParseRC psyc_parse (PsycParseState *state, char *oper,
+                        PsycString *name, PsycString *value)
 {
 #ifdef DEBUG
 	if (state->flags & PSYC_PARSE_ROUTING_ONLY &&
@@ -437,7 +437,7 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
 #ifdef __INLINE_PSYC_PARSE
 static inline
 #endif
-psycParseListRC psyc_parse_list (psycParseListState *state, psycString *elem)
+PsycParseListRC psyc_parse_list (PsycParseListState *state, PsycString *elem)
 {
 	if (state->cursor >= state->buffer.length)
 		return PSYC_PARSE_LIST_INCOMPLETE;
@@ -504,7 +504,7 @@ psycParseListRC psyc_parse_list (psycParseListState *state, psycString *elem)
 		// Start or resume parsing the binary data
 		if (state->elemParsed < state->elemLength)
 		{
-			if (psyc_parse_binary_value((psycParseState*)state, elem,
+			if (psyc_parse_binary_value((PsycParseState*)state, elem,
 			                          &(state->elemLength), &(state->elemParsed)) == PARSE_INCOMPLETE)
 				return PSYC_PARSE_LIST_INCOMPLETE;
 

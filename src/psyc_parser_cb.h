@@ -1,19 +1,19 @@
 #include <stdint.h>
 
-struct psycParser;
+struct PsycParser;
 
 /** @brief initialize a pstate struct
  *
  *  @param pstate pointer to an allocated
- *         psycParser struct.
+ *         PsycParser struct.
  */
-void psyc_parse_state_init(struct psycParser* pstate);
+void psyc_parse_state_init(struct PsycParser* pstate);
 
 
 /** @brief parses a packet
  *
  * This function parses rawdata
- * and uses the callbacks in psycParser
+ * and uses the callbacks in PsycParser
  * to communicate with the caller.
  *
  * First the header will be parsed,
@@ -43,10 +43,10 @@ void psyc_parse_state_init(struct psycParser* pstate);
  *        
 */
 void psyc_parse(const uint8_t* data, unsigned int length, 
-                struct psycParser* pstate);
+                struct PsycParser* pstate);
 
 /** @brief FlagMod */
-enum psycOperator
+enum PsycOperator
 { 
 	// modifier operators
 	ASSIGN = 0x02,
@@ -56,7 +56,7 @@ enum psycOperator
 	QUERY = 0x20,
 };
 
-struct psycParser
+struct PsycParser
 {     
 	/** @brief Callback for the states
 	 *
@@ -76,10 +76,10 @@ struct psycParser
 	 * @param modifers modifer of the variable (see Modifer)
 	 * @param inEntity wether this variable is an entity 
 	 *        variable(true) or a routing variable(false) */
-	void (*stateCallback)(struct psycParser* pstate,
+	void (*stateCallback)(struct PsycParser* pstate,
 	       const uint8_t *name, const unsigned int nlength,
 	       const uint8_t *value, const unsigned int vlength,
-	       enum psycOperator oper, char inEntity);
+	       enum PsycOperator oper, char inEntity);
 
 	/** @brief gets called after the routing-header was parsed
 	 *
@@ -88,7 +88,7 @@ struct psycParser
 	 *         when finished, 
 	 *         if not 0, parser will stop parsing and 
 	 *         calls contentCallback */
-	char (*routingCallback)(struct psycParser* pstate);
+	char (*routingCallback)(struct PsycParser* pstate);
 
 	/** @brief Body callback, gets called when the body was parsed
 	 * 
@@ -102,7 +102,7 @@ struct psycParser
 	 *        containing the data section
 	 * @param content not null terminated c-string
 	 * @param clength length of the content string */
-	void (*bodyCallback)(struct psycParser* pstate,
+	void (*bodyCallback)(struct PsycParser* pstate,
 	                 const uint8_t* method, unsigned int mlength,
 	                 const uint8_t* data, unsigned int dlength,   
 	                 const uint8_t* content, unsigned int clength);
@@ -123,7 +123,7 @@ struct psycParser
 	 *
 	 * Any previous state or body callbacks become 
 	 * invalid and have to be purged.*/
-	void (*errorCallback)(struct psycParser* pstate, 
+	void (*errorCallback)(struct PsycParser* pstate, 
 	                 const uint8_t *method, unsigned int mlength);
 
 	/** @brief error state callback
@@ -132,10 +132,10 @@ struct psycParser
 	 * The callback will be called once for each
 	 * state variable in the error report packet
 	 */
-	void (*errorStateCallback)(struct psycParser* pstate,
+	void (*errorStateCallback)(struct PsycParser* pstate,
 	       const uint8_t *name, const unsigned int nlength,
 	       const uint8_t *value, const unsigned int vlength,
-	       enum psycOperator oper);
+	       enum PsycOperator oper);
 
 
 	/*******************************************

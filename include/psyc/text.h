@@ -28,10 +28,10 @@ typedef enum
 	/// Text template parsing & rendering is incomplete, because the buffer was too small.
 	/// Another call is required to this function after setting a new buffer.
 	PSYC_TEXT_INCOMPLETE = 1,
-} psycTextRC;
+} PsycTextRC;
 
 /**
- * Return values for psycTextCB.
+ * Return values for PsycTextCB.
  */
 typedef enum
 {
@@ -39,7 +39,7 @@ typedef enum
 	PSYC_TEXT_VALUE_NOT_FOUND = -1,
 	/// Value found, substitute contents of the value variable.
 	PSYC_TEXT_VALUE_FOUND = 0,
-} psycTextValueRC;
+} PsycTextValueRC;
 
 /**
  * Struct for keeping PSYC text parser state.
@@ -48,11 +48,11 @@ typedef struct
 {
 	size_t cursor; ///< current position in the template
 	size_t written; ///< number of bytes written to buffer
-	psycString tmpl; ///< input buffer with text template to parse
-	psycString buffer; ///< output buffer for rendered text
-	psycString open;
-	psycString close;
-} psycTextState;
+	PsycString tmpl; ///< input buffer with text template to parse
+	PsycString buffer; ///< output buffer for rendered text
+	PsycString open;
+	PsycString close;
+} PsycTextState;
 
 /**
  * Callback for psyc_text() that produces a value for a match.
@@ -64,7 +64,7 @@ typedef struct
  * PSYC_TEXT_VALUE_NOT_FOUND if no match found in which case psyc_text
  * leaves the original template text as is.
  */
-typedef psycTextValueRC (*psycTextCB)(const char *name, size_t len, psycString *value, void *extra);
+typedef PsycTextValueRC (*PsycTextCB)(const char *name, size_t len, PsycString *value, void *extra);
 
 /**
  * Initializes the PSYC text state struct.
@@ -76,16 +76,16 @@ typedef psycTextValueRC (*psycTextCB)(const char *name, size_t len, psycString *
  * @param buflen Length of output buffer.
  */
 static inline
-void psyc_text_state_init (psycTextState *state,
+void psyc_text_state_init (PsycTextState *state,
                            char *tmpl, size_t tmplen,
                            char *buffer, size_t buflen)
 {
 	state->cursor  = 0;
 	state->written = 0;
-	state->tmpl    = (psycString) {tmplen, tmpl};
-	state->buffer  = (psycString) {buflen, buffer};
-	state->open    = (psycString) {1, "["};
-	state->close   = (psycString) {1, "]"};
+	state->tmpl    = (PsycString) {tmplen, tmpl};
+	state->buffer  = (PsycString) {buflen, buffer};
+	state->open    = (PsycString) {1, "["};
+	state->close   = (PsycString) {1, "]"};
 }
 
 /**
@@ -102,7 +102,7 @@ void psyc_text_state_init (psycTextState *state,
  * @param closelen Length of closing brace.
  */
 static inline
-void psyc_text_state_init_custom (psycTextState *state,
+void psyc_text_state_init_custom (PsycTextState *state,
                                   char *tmpl, size_t tmplen,
                                   char *buffer, size_t buflen,
                                   char *open, size_t openlen,
@@ -110,25 +110,25 @@ void psyc_text_state_init_custom (psycTextState *state,
 {
 	state->cursor  = 0;
 	state->written = 0;
-	state->tmpl    = (psycString) {tmplen, tmpl};
-	state->buffer  = (psycString) {buflen, buffer};
-	state->open    = (psycString) {openlen, open};
-	state->close   = (psycString) {closelen, close};
+	state->tmpl    = (PsycString) {tmplen, tmpl};
+	state->buffer  = (PsycString) {buflen, buffer};
+	state->open    = (PsycString) {openlen, open};
+	state->close   = (PsycString) {closelen, close};
 }
 
 /**
  * Sets a new output buffer in the PSYC text state struct.
  */
 static inline
-void psyc_text_buffer_set (psycTextState *state,
+void psyc_text_buffer_set (PsycTextState *state,
                            char *buffer, size_t length)
 {
-	state->buffer = (psycString){length, buffer};
+	state->buffer = (PsycString){length, buffer};
 	state->written = 0;
 }
 
 static inline
-size_t psyc_text_bytes_written (psycTextState *state)
+size_t psyc_text_bytes_written (PsycTextState *state)
 {
 	return state->written;
 }
@@ -148,7 +148,7 @@ size_t psyc_text_bytes_written (psycTextState *state)
  *
  * @see http://about.psyc.eu/psyctext
  **/
-psycTextRC psyc_text (psycTextState *state, psycTextCB getValue, void *extra);
+PsycTextRC psyc_text (PsycTextState *state, PsycTextCB getValue, void *extra);
 
 /** @} */ // end of text group
 

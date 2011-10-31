@@ -3,7 +3,7 @@
 
 
 /// Routing variables in alphabetical order.
-const psycString psyc_routing_vars[] =
+const PsycString psyc_routing_vars[] =
 {
 	PSYC_C2STR("_amount_fragments"),
 	PSYC_C2STR("_context"),
@@ -27,7 +27,7 @@ const psycString psyc_routing_vars[] =
 };
 
 // Variable types in alphabetical order.
-const psycMatchVar psyc_var_types[] =
+const PsycMatchVar psyc_var_types[] =
 {
 	{PSYC_C2STR("_amount"),   PSYC_TYPE_AMOUNT},
 	{PSYC_C2STR("_color"),    PSYC_TYPE_COLOR},
@@ -50,7 +50,7 @@ const size_t psyc_var_types_num = PSYC_NUM_ELEM(psyc_var_types);
  * Get the type of variable name.
  */
 inline
-psycBool psyc_var_is_routing (const char *name, size_t len)
+PsycBool psyc_var_is_routing (const char *name, size_t len)
 {
 	size_t cursor = 1;
 	uint8_t i, m = 0;
@@ -91,7 +91,7 @@ psycBool psyc_var_is_routing (const char *name, size_t len)
  * Get the type of variable name.
  */
 inline
-psycType psyc_var_type (const char *name, size_t len)
+PsycType psyc_var_type (const char *name, size_t len)
 {
 	int8_t m[psyc_var_types_num];
 	return psyc_in_array(psyc_var_types, psyc_var_types_num,

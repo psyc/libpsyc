@@ -114,9 +114,9 @@ failed:
  *
  * @return The value of the matched variable in the array.
  */
-int psyc_in_array (const psycMatchVar *array, size_t size,
+int psyc_in_array (const PsycMatchVar *array, size_t size,
                    const char *kw, size_t kwlen,
-                   psycBool inherit, int8_t *matching)
+                   PsycBool inherit, int8_t *matching)
 {
 	size_t cursor = 1;
 	uint8_t i, m = 0;

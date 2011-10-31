@@ -29,7 +29,7 @@ typedef enum
 	PSYC_RENDER_ERROR = -1,
 	/// Packet is rendered successfully in the buffer.
 	PSYC_RENDER_SUCCESS = 0,
-} psycRenderRC;
+} PsycRenderRC;
 
 /**
  * Return codes for psyc_render_list.
@@ -40,7 +40,7 @@ typedef enum
 	PSYC_RENDER_LIST_ERROR = -1,
 	/// List is rendered successfully in the buffer.
 	PSYC_RENDER_LIST_SUCCESS = 0,
-} psycRenderListRC;
+} PsycRenderListRC;
 
 /**
  * Render a PSYC packet into a buffer.
@@ -59,7 +59,7 @@ typedef enum
 #ifdef __INLINE_PSYC_RENDER
 static inline
 #endif
-psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen);
+PsycRenderRC psyc_render (PsycPacket *packet, char *buffer, size_t buflen);
 
 /**
  * Render a PSYC list into a buffer.
@@ -67,7 +67,7 @@ psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen);
 #ifdef __INLINE_PSYC_RENDER
 static inline
 #endif
-psycRenderListRC psyc_render_list (psycList *list, char *buffer, size_t buflen);
+PsycRenderListRC psyc_render_list (PsycList *list, char *buffer, size_t buflen);
 
 /** @} */ // end of render group
 

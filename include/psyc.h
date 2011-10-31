@@ -35,7 +35,7 @@ typedef enum
 	PSYC_TRUE = 1,
 	PSYC_NO = 0,
 	PSYC_YES = 1,
-} psycBool;
+} PsycBool;
 
 /**
  * PSYC packet parts.
@@ -49,7 +49,7 @@ typedef enum
 	PSYC_PART_METHOD = 3,
 	PSYC_PART_DATA = 4,
 	PSYC_PART_END = 5,
-} psycPart;
+} PsycPart;
 
 /**
  * Different types that a variable can have.
@@ -74,7 +74,7 @@ typedef enum
 	PSYC_TYPE_PAGE,
 	PSYC_TYPE_UNIFORM,
 	PSYC_TYPE_TIME,
-} psycType;
+} PsycType;
 
 /**
  * List types.
@@ -84,7 +84,7 @@ typedef enum
 {
 	PSYC_LIST_TEXT = 1,
 	PSYC_LIST_BINARY = 2,
-} psycListType;
+} PsycListType;
 
 /**
  * String struct.
@@ -97,26 +97,26 @@ typedef struct
 	size_t length;
 	/// pointer to the data
 	char *ptr;
-} psycString;
+} PsycString;
 
 typedef struct
 {
-	psycString key;
+	PsycString key;
 	int value;
-} psycMatchVar;
+} PsycMatchVar;
 
 /**
- * Shortcut for creating a psycString.
+ * Shortcut for creating a PsycString.
  *
  * @param str Pointer to the buffer.
  * @param len Length of that buffer.
  *
- * @return An instance of the psycString struct.
+ * @return An instance of the PsycString struct.
  */
 static inline
-psycString psyc_string_new (char *str, size_t len)
+PsycString psyc_string_new (char *str, size_t len)
 {
-	psycString s = {len, str};
+	PsycString s = {len, str};
 	return s;
 }
 
@@ -154,9 +154,9 @@ int psyc_matches (char *sho, size_t slen,
  * @return The value of the matched variable in the array.
  */
 
-int psyc_in_array (const psycMatchVar *array, size_t size,
+int psyc_in_array (const PsycMatchVar *array, size_t size,
                    const char *kw, size_t kwlen,
-                   psycBool inherit, int8_t *matching);
+                   PsycBool inherit, int8_t *matching);
 
 #include "psyc/variable.h"
 

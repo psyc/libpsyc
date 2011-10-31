@@ -3,10 +3,10 @@
 #include "psyc/uniform.h"
 #include "psyc/parse.h"
 
-int psyc_uniform_parse (psycUniform *uni, char *str, size_t length)
+int psyc_uniform_parse (PsycUniform *uni, char *str, size_t length)
 {
 	char c;
-	psycString *p;
+	PsycString *p;
 	size_t pos = 0, part = PSYC_UNIFORM_SCHEME;
 
 	uni->valid = 0;

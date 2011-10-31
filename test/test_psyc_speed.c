@@ -23,7 +23,7 @@ uint8_t verbose, stats;
 uint8_t routing_only;
 size_t count = 1, recv_buf_size;
 
-psycParseState parser;
+PsycParseState parser;
 
 void test_init (int i) {
 	psyc_parse_state_init(&parser, routing_only ?
@@ -32,7 +32,7 @@ void test_init (int i) {
 
 int test_input (int i, char *recvbuf, size_t nbytes) {
 	char oper;
-	psycString name, value;
+	PsycString name, value;
 	int ret;
 
 	psyc_parse_buffer_set(&parser, recvbuf, nbytes);
