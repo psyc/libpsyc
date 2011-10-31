@@ -11,31 +11,31 @@ typedef enum {
 	PSYC_SCHEME_IRC = 1,
 	PSYC_SCHEME_XMPP = 2,
 	PSYC_SCHEME_SIP = 3,
-} psycScheme;
+} PsycScheme;
 
 typedef struct {
 // essential parts
 	uint8_t valid;
-	psycScheme type;
-	psycString scheme;
-	psycString user;
-	psycString pass;
-	psycString host;
-	psycString port;
-	psycString transport;
-	psycString resource;
-	psycString query;
-	psycString channel;
+	PsycScheme type;
+	PsycString scheme;
+	PsycString user;
+	PsycString pass;
+	PsycString host;
+	PsycString port;
+	PsycString transport;
+	PsycString resource;
+	PsycString query;
+	PsycString channel;
 
 // convenient snippets of the URL
-	psycString full;       // the URL as such
-	psycString body;       // the URL without scheme and '//'
-	psycString user_host;  // mailto and xmpp style
-	psycString host_port;  // just host:port (and transport)
-	psycString root;       // root UNI of peer/server
-	psycString slashes;    // the // if the protocol has them
-	psycString nick;       // whatever works as a nickname
-} psycUniform;
+	PsycString full;       // the URL as such
+	PsycString body;       // the URL without scheme and '//'
+	PsycString user_host;  // mailto and xmpp style
+	PsycString host_port;  // just host:port (and transport)
+	PsycString root;       // root UNI of peer/server
+	PsycString slashes;    // the // if the protocol has them
+	PsycString nick;       // whatever works as a nickname
+} PsycUniform;
 
 typedef enum {
 	PSYC_UNIFORM_SCHEME = 0,
@@ -48,7 +48,7 @@ typedef enum {
 	PSYC_UNIFORM_RESOURCE,
 	PSYC_UNIFORM_QUERY,
 	PSYC_UNIFORM_CHANNEL,
-} psycUniformPart;
+} PsycUniformPart;
 
 typedef enum {
 	PSYC_PARSE_UNIFORM_INVALID_SLASHES = -7,
@@ -58,22 +58,22 @@ typedef enum {
 	PSYC_PARSE_UNIFORM_INVALID_PORT = -3,
 	PSYC_PARSE_UNIFORM_INVALID_HOST = -2,
 	PSYC_PARSE_UNIFORM_INVALID_SCHEME = -1,
-} psycParseUniformRC;
+} PsycParseUniformRC;
 
 typedef enum {
 	PSYC_TRANSPORT_TCP = 'c',
 	PSYC_TRANSPORT_UDP = 'd',
 	PSYC_TRANSPORT_TLS = 's',
 	PSYC_TRANSPORT_GNUNET = 'g',
-} psycTransport;
+} PsycTransport;
 
 typedef enum {
 	PSYC_ENTITY_PERSON = '~',
 	PSYC_ENTITY_PLACE = '@',
 	PSYC_ENTITY_SERVICE = '$',
-} psycEntityType;
+} PsycEntityType;
 
-int psyc_uniform_parse (psycUniform *uni, char *str, size_t length);
+int psyc_uniform_parse (PsycUniform *uni, char *str, size_t length);
 
 #define PSYC_UNIFORM_H
 #endif

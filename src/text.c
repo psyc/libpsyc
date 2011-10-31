@@ -1,11 +1,11 @@
 #include "lib.h"
 #include <psyc/text.h>
 
-psycTextRC psyc_text (psycTextState *state, psycTextCB getValue, void* extra)
+PsycTextRC psyc_text (PsycTextState *state, PsycTextCB getValue, void* extra)
 {
 	const char *start = state->tmpl.ptr, *end; // start & end of variable name
 	const char *prev = state->tmpl.ptr + state->cursor;
-	psycString value;
+	PsycString value;
 	int ret;
 	size_t len;
 	uint8_t no_subst = (state->cursor == 0); // whether we can return NO_SUBST

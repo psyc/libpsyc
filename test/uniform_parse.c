@@ -5,8 +5,8 @@
 
 void
 testUniform (char *str, int ret) {
-	psycUniform *uni = malloc(sizeof(psycUniform));
-	memset(uni, 0, sizeof(psycUniform));
+	PsycUniform *uni = malloc(sizeof(PsycUniform));
+	memset(uni, 0, sizeof(PsycUniform));
 	printf("%s\n", str);
 	int r = psyc_uniform_parse(uni, str, strlen(str));
 

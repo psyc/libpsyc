@@ -11,9 +11,9 @@ int main (int argc, char **argv)
 	uint8_t verbose = argc > 2 && memchr(argv[2], (int)'v', strlen(argv[2]));
 	int idx, ret;
 	char buffer[2048], oper;
-	psycString name, value, elem;
-	psycParseState state;
-	psycParseListState listState;
+	PsycString name, value, elem;
+	PsycParseState state;
+	PsycParseListState listState;
 
 	if (argc < 2)
 		return -1;

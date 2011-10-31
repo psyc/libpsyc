@@ -24,12 +24,12 @@
  * To parse a packet you first have to initialize a state:
  *
  * @code
- * psycParseState state;
+ * PsycParseState state;
  * psyc_parse_state_init(&state, flags);
  * @endcode
  *
  * With the flags parameter you can fine-tune what
- * part of the packet should be parsed. @see psycParseFlag
+ * part of the packet should be parsed. @see PsycParseFlag
  *
  * Next, you have to tell the parser what it should parse. Assuming the variable
  * raw_data points to our packet and raw_len contains the length, you can pass
@@ -46,7 +46,7 @@
  * declared:
  *
  * @code
- * psycString name,  // Name of the variable or method
+ * PsycString name,  // Name of the variable or method
  *            value; // Value of the variable or body
  * char       oper;  // operator of the variable (if any)
  * @endcode
@@ -105,7 +105,7 @@
  * receive incomplete packets but still want to access the data. This code would
  * simply reject incomplete packets as error. A more detailed tutorial for
  * incomplete packets will follow. In the mean time, have look at the return
- * codes in psycParseRC and their explanations. @see psycParseRC
+ * codes in PsycParseRC and their explanations. @see PsycParseRC
  */
 
 /** @{ */ // begin of parser group
@@ -122,7 +122,7 @@ typedef enum {
 	/// Parse only the content.
 	/// Parsing starts at the content and the content must be complete.
 	PSYC_PARSE_START_AT_CONTENT = 2,
-} psycParseFlag;
+} PsycParseFlag;
 
 /**
  * The return value definitions for the packet parsing function.
@@ -188,7 +188,7 @@ typedef enum {
 	PSYC_PARSE_CONTENT = 10,
 	/// Finished parsing packet.
 	PSYC_PARSE_COMPLETE = 11,
-} psycParseRC;
+} PsycParseRC;
 
 /**
  * The return value definitions for the list parsing function.
@@ -205,7 +205,7 @@ typedef enum {
 	PSYC_PARSE_LIST_END = 2,
 	/// Binary list is incomplete.
 	PSYC_PARSE_LIST_INCOMPLETE = 3,
-} psycParseListRC;
+} PsycParseListRC;
 
 /**
  * Struct for keeping parser state.
@@ -213,18 +213,18 @@ typedef enum {
 typedef struct {
 	size_t cursor; ///< Current position in buffer.
 	size_t startc; ///< Position where the parsing would be resumed.
-	psycString buffer; ///< Buffer with data to be parsed.
-	uint8_t flags; ///< Flags for the parser, see psycParseFlag.
-	psycPart part; ///< Part of the packet being parsed currently.
+	PsycString buffer; ///< Buffer with data to be parsed.
+	uint8_t flags; ///< Flags for the parser, see PsycParseFlag.
+	PsycPart part; ///< Part of the packet being parsed currently.
 
 	size_t routingLength; ///< Length of routing part parsed so far.
 	size_t contentParsed; ///< Number of bytes parsed from the content so far.
 	size_t contentLength; ///< Expected length of the content.
-	psycBool contentLengthFound; ///< Is there a length given for this packet?
+	PsycBool contentLengthFound; ///< Is there a length given for this packet?
 	size_t valueParsed; ///< Number of bytes parsed from the value so far.
 	size_t valueLength; ///< Expected length of the value.
-	psycBool valueLengthFound; ///< Is there a length given for this modifier?
-} psycParseState;
+	PsycBool valueLengthFound; ///< Is there a length given for this modifier?
+} PsycParseState;
 
 /**
  * Struct for keeping list parser state.
@@ -232,24 +232,24 @@ typedef struct {
 typedef struct {
 	size_t cursor; ///< Current position in buffer.
 	size_t startc; ///< Line start position.
-	psycString buffer; ///< Buffer with data to be parsed.
-	psycListType type; ///< List type.
+	PsycString buffer; ///< Buffer with data to be parsed.
+	PsycListType type; ///< List type.
 
 	size_t elemParsed; ///< Number of bytes parsed from the elem so far.
 	size_t elemLength; ///< Expected length of the elem.
-} psycParseListState;
+} PsycParseListState;
 
 /**
  * Initializes the state struct.
  *
  * @param state Pointer to the state struct that should be initialized.
- * @param flags Flags to be set for the parser, see psycParseFlag.
- * @see psycParseFlag
+ * @param flags Flags to be set for the parser, see PsycParseFlag.
+ * @see PsycParseFlag
  */
 static inline
-void psyc_parse_state_init (psycParseState *state, uint8_t flags)
+void psyc_parse_state_init (PsycParseState *state, uint8_t flags)
 {
-	memset(state, 0, sizeof(psycParseState));
+	memset(state, 0, sizeof(PsycParseState));
 	state->flags = flags;
 
 	if (flags & PSYC_PARSE_START_AT_CONTENT)
@@ -265,12 +265,12 @@ void psyc_parse_state_init (psycParseState *state, uint8_t flags)
  * @param state Pointer to the initialized state of the parser
  * @param buffer pointer to the data that should be parsed
  * @param length length of the data in bytes
- * @see psycString
+ * @see PsycString
  */
 static inline
-void psyc_parse_buffer_set (psycParseState *state, char *buffer, size_t length)
+void psyc_parse_buffer_set (PsycParseState *state, char *buffer, size_t length)
 {
-	state->buffer = (psycString) {length, buffer};
+	state->buffer = (PsycString) {length, buffer};
 	state->cursor = 0;
 
 	if (state->flags & PSYC_PARSE_START_AT_CONTENT) {
@@ -285,65 +285,65 @@ void psyc_parse_buffer_set (psycParseState *state, char *buffer, size_t length)
  * @param state Pointer to the list state struct that should be initialized.
  */
 static inline
-void psyc_parse_list_state_init (psycParseListState *state)
+void psyc_parse_list_state_init (PsycParseListState *state)
 {
-	memset(state, 0, sizeof(psycParseListState));
+	memset(state, 0, sizeof(PsycParseListState));
 }
 
 /**
  * Sets a new buffer in the list parser state struct with data to be parsed.
  */
 static inline
-void psyc_parse_list_buffer_set (psycParseListState *state, char *buffer, size_t length)
+void psyc_parse_list_buffer_set (PsycParseListState *state, char *buffer, size_t length)
 {
-	state->buffer = (psycString) {length, buffer};
+	state->buffer = (PsycString) {length, buffer};
 	state->cursor = 0;
 }
 
 static inline
-size_t psyc_parse_content_length (psycParseState *state)
+size_t psyc_parse_content_length (PsycParseState *state)
 {
 	return state->contentLength;
 }
 
 static inline
-psycBool psyc_parse_content_length_found (psycParseState *state)
+PsycBool psyc_parse_content_length_found (PsycParseState *state)
 {
 	return state->contentLengthFound;
 }
 
 static inline
-size_t psyc_parse_value_length (psycParseState *state)
+size_t psyc_parse_value_length (PsycParseState *state)
 {
 	return state->valueLength;
 }
 
 static inline
-psycBool psyc_parse_value_length_found (psycParseState *state)
+PsycBool psyc_parse_value_length_found (PsycParseState *state)
 {
 	return state->valueLengthFound;
 }
 
 static inline
-size_t psyc_parse_cursor (psycParseState *state)
+size_t psyc_parse_cursor (PsycParseState *state)
 {
 	return state->cursor;
 }
 
 static inline
-size_t psyc_parse_buffer_length (psycParseState *state)
+size_t psyc_parse_buffer_length (PsycParseState *state)
 {
 	return state->buffer.length;
 }
 
 static inline
-size_t psyc_parse_remaining_length (psycParseState *state)
+size_t psyc_parse_remaining_length (PsycParseState *state)
 {
 	return state->buffer.length - state->cursor;
 }
 
 static inline
-const char * psyc_parse_remaining_buffer (psycParseState *state)
+const char * psyc_parse_remaining_buffer (PsycParseState *state)
 {
 	return state->buffer.ptr + state->cursor;
 }
@@ -353,11 +353,11 @@ const char * psyc_parse_remaining_buffer (psycParseState *state)
  *
  * This function parses a full or partial PSYC packet while keeping parsing
  * state in a state variable that you have to pass in every time, and returns
- * whenever a modifier or the body is found. See psycParseRC for the possible
+ * whenever a modifier or the body is found. See PsycParseRC for the possible
  * return codes. When it returns oper, name & value will point to the respective
  * parts of the buffer, no memory allocation is done.
  *
- * @param state An initialized psycParseState.
+ * @param state An initialized PsycParseState.
  * @param oper In case of a modifier it will be set to the operator.
  * @param name In case of a modifier it will point to the name,
  *             in case of the body it will point to the method.
@@ -367,8 +367,8 @@ const char * psyc_parse_remaining_buffer (psycParseState *state)
 #ifdef __INLINE_PSYC_PARSE
 static inline
 #endif
-psycParseRC psyc_parse (psycParseState *state, char *oper,
-                        psycString *name, psycString *value);
+PsycParseRC psyc_parse (PsycParseState *state, char *oper,
+                        PsycString *name, PsycString *value);
 
 /**
  * List parser.
@@ -378,16 +378,16 @@ psycParseRC psyc_parse (psycParseState *state, char *oper,
  * every time. When it returns elem will point to the next element in value, no
  * memory allocation is done.
  *
- * @param state An initialized psycParseListState.
+ * @param state An initialized PsycParseListState.
  * @param elem It will point to the next element in the list.
  */
 #ifdef __INLINE_PSYC_PARSE
 static inline
 #endif
-psycParseListRC psyc_parse_list (psycParseListState *state, psycString *elem);
+PsycParseListRC psyc_parse_list (PsycParseListState *state, PsycString *elem);
 
 static inline
-psycBool psyc_parse_number (const char *value, size_t len, ssize_t *n)
+PsycBool psyc_parse_number (const char *value, size_t len, ssize_t *n)
 {
 	size_t c = 0;
 	uint8_t neg = 0;
@@ -412,13 +412,13 @@ psycBool psyc_parse_number (const char *value, size_t len, ssize_t *n)
 }
 
 static inline
-psycBool psyc_parse_time (const char *value, size_t len, time_t *t)
+PsycBool psyc_parse_time (const char *value, size_t len, time_t *t)
 {
 	return psyc_parse_number(value, len, t);
 }
 
 static inline
-psycBool psyc_parse_date (const char *value, size_t len, time_t *t)
+PsycBool psyc_parse_date (const char *value, size_t len, time_t *t)
 {
 	if (psyc_parse_number(value, len, t)) {
 		*t += PSYC_EPOCH;

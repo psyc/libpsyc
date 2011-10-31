@@ -24,15 +24,15 @@ uint8_t verbose, stats;
 uint8_t multiple, single, routing_only, no_render, quiet, progress;
 size_t count = 1, recv_buf_size;
 
-psycParseState parsers[NUM_PARSERS];
-psycPacket packets[NUM_PARSERS];
-psycModifier routing[NUM_PARSERS][ROUTING_LINES];
-psycModifier entity[NUM_PARSERS][ENTITY_LINES];
+PsycParseState parsers[NUM_PARSERS];
+PsycPacket packets[NUM_PARSERS];
+PsycModifier routing[NUM_PARSERS][ROUTING_LINES];
+PsycModifier entity[NUM_PARSERS][ENTITY_LINES];
 
 int contbytes, exit_code;
 
 static inline
-void resetString (psycString *s, uint8_t freeptr);
+void resetString (PsycString *s, uint8_t freeptr);
 
 // initialize parser & packet variables
 void test_init (int i) {
@@ -40,9 +40,9 @@ void test_init (int i) {
 	psyc_parse_state_init(&parsers[i], routing_only ?
 												PSYC_PARSE_ROUTING_ONLY : PSYC_PARSE_ALL);
 
-	memset(&packets[i], 0, sizeof(psycPacket));
-	memset(&routing[i], 0, sizeof(psycModifier) * ROUTING_LINES);
-	memset(&entity[i], 0, sizeof(psycModifier) * ENTITY_LINES);
+	memset(&packets[i], 0, sizeof(PsycPacket));
+	memset(&routing[i], 0, sizeof(PsycModifier) * ROUTING_LINES);
+	memset(&entity[i], 0, sizeof(PsycModifier) * ENTITY_LINES);
 	packets[i].routing.modifiers = routing[i];
 	packets[i].entity.modifiers = entity[i];
 }
@@ -63,14 +63,14 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	 * to this function together with the new data.
 	 */
 
-	psycParseState *parser = &parsers[i];
-	psycPacket *packet = &packets[i];
+	PsycParseState *parser = &parsers[i];
+	PsycPacket *packet = &packets[i];
 
 	char oper;
-	psycString name, value, elem;
-	psycString *pname = NULL, *pvalue = NULL;
-	psycModifier *mod = NULL;
-	psycParseListState listState;
+	PsycString name, value, elem;
+	PsycString *pname = NULL, *pvalue = NULL;
+	PsycModifier *mod = NULL;
+	PsycParseListState listState;
 	size_t len;
 
 	// Set buffer with data for the parser.
@@ -308,7 +308,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 }
 
 static inline
-void resetString (psycString *s, uint8_t freeptr)
+void resetString (PsycString *s, uint8_t freeptr)
 {
 	if (freeptr && s->length)
 		free((void*)s->ptr);

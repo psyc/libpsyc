@@ -7,7 +7,7 @@
 
 uint8_t verbose;
 
-psycTextValueRC getValueFooBar (const char *name, size_t len, psycString *value, void *extra)
+PsycTextValueRC getValueFooBar (const char *name, size_t len, PsycString *value, void *extra)
 {
 	if (verbose)
 		printf("> getValue: %.*s\n", (int)len, name);
@@ -16,7 +16,7 @@ psycTextValueRC getValueFooBar (const char *name, size_t len, psycString *value,
 	return PSYC_TEXT_VALUE_FOUND;
 }
 
-psycTextValueRC getValueEmpty (const char *name, size_t len, psycString *value, void *extra)
+PsycTextValueRC getValueEmpty (const char *name, size_t len, PsycString *value, void *extra)
 {
 	if (verbose)
 		printf("> getValue: %.*s\n", (int)len, name);
@@ -25,18 +25,18 @@ psycTextValueRC getValueEmpty (const char *name, size_t len, psycString *value, 
 	return PSYC_TEXT_VALUE_FOUND;
 }
 
-psycTextValueRC getValueNotFound (const char *name, size_t len, psycString *value, void *extra)
+PsycTextValueRC getValueNotFound (const char *name, size_t len, PsycString *value, void *extra)
 {
 	if (verbose)
 		printf("> getValue: %.*s\n", (int)len, name);
 	return PSYC_TEXT_VALUE_NOT_FOUND;
 }
 
-int testText (char *template, size_t tmplen, char *buffer, size_t buflen, psycString *result, psycTextCB getValue)
+int testText (char *template, size_t tmplen, char *buffer, size_t buflen, PsycString *result, PsycTextCB getValue)
 {
-	psycTextState state;
+	PsycTextState state;
 	size_t length = 0;
-	psycTextRC ret;
+	PsycTextRC ret;
 
 	psyc_text_state_init(&state, template, tmplen, buffer, buflen);
 	do
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 {
 	verbose = argc > 1;
 	char buffer[BUFSIZE];
-	psycString result;
+	PsycString result;
 
 	char *str = "Hello [_foo] & [_bar]!";
 	size_t len = strlen(str);

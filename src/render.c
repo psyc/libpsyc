@@ -5,10 +5,10 @@
 #ifdef __INLINE_PSYC_RENDER
 static inline
 #endif
-psycRenderListRC psyc_render_list (psycList *list, char *buffer, size_t buflen)
+PsycRenderListRC psyc_render_list (PsycList *list, char *buffer, size_t buflen)
 {
 	size_t i, cur = 0;
-	psycString *elem;
+	PsycString *elem;
 
 	if (list->length > buflen) // return error if list doesn't fit in buffer
 		return PSYC_RENDER_LIST_ERROR;
@@ -43,7 +43,7 @@ psycRenderListRC psyc_render_list (psycList *list, char *buffer, size_t buflen)
 }
 
 static inline
-size_t psyc_render_modifier (psycModifier *mod, char *buffer)
+size_t psyc_render_modifier (PsycModifier *mod, char *buffer)
 {
 	size_t cur = 0;
 
@@ -70,7 +70,7 @@ size_t psyc_render_modifier (psycModifier *mod, char *buffer)
 #ifdef __INLINE_PSYC_RENDER
 static inline
 #endif
-psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen)
+PsycRenderRC psyc_render (PsycPacket *packet, char *buffer, size_t buflen)
 {
 	size_t i, cur = 0, len;
 

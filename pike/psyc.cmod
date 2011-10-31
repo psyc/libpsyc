@@ -32,7 +32,7 @@
  */
 
 // psyctext helper
-psycTextValueRC lookup_value_mapping(const char *name, size_t len, psycString *value, void *extra)
+PsycTextValueRC lookup_value_mapping(const char *name, size_t len, PsycString *value, void *extra)
 {
 	//printf("lookup_value_mapping called for %.*s\n", (int) len, name);
 	struct pike_string *key = make_shared_binary_string(name, len);
@@ -68,8 +68,8 @@ psycTextValueRC lookup_value_mapping(const char *name, size_t len, psycString *v
  *!	rendered string
  */
 PIKEFUN string psyc_text(string template, mapping vars) {
-	psycTextState state;
-	psycTextRC ret;
+	PsycTextState state;
+	PsycTextRC ret;
 	size_t len = 0;
 	// FIXME:
 	char buffer[512];
@@ -115,8 +115,8 @@ PIKEFUN int is_routingvar(string name) {
  *!	serialized packet as a string
  */
 PIKEFUN string render(mapping rvars, mapping evars, string method, string|void body) {
-	psycPacket packet;
-	psycHeader rheaders, eheaders;
+	PsycPacket packet;
+	PsycHeader rheaders, eheaders;
 
 	struct keypair *k; // for mappings
 	INT32 e;
@@ -125,7 +125,7 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 
 	// fill headers
 	rheaders.lines = 0;
-	rheaders.modifiers = malloc(sizeof(psycModifier) * rvars->data->size); 
+	rheaders.modifiers = malloc(sizeof(PsycModifier) * rvars->data->size); 
 	NEW_MAPPING_LOOP(rvars->data) {
 		if (k->ind.type == PIKE_T_STRING) {
 			switch(k->val.type) {
@@ -147,7 +147,7 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 	}
 
 	eheaders.lines = 0;
-	eheaders.modifiers = malloc(sizeof(psycModifier) * evars->data->size); 
+	eheaders.modifiers = malloc(sizeof(PsycModifier) * evars->data->size); 
 	NEW_MAPPING_LOOP(evars->data) {
 		if (k->ind.type == PIKE_T_STRING) {
 			char *key;
@@ -183,14 +183,14 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 				*/
 			case PIKE_T_ARRAY:
 				do {
-					psycString *elems = xcalloc(k->val.u.array->size, sizeof(psycString));
-					psycList list;
+					PsycString *elems = xcalloc(k->val.u.array->size, sizeof(PsycString));
+					PsycList list;
 					// FIXME: check for out of memory
 					for(e = 0; e < k->val.u.array->size; e++) {
 						struct svalue item = k->val.u.array->item[e];
 						switch(item.type) {
 						case PIKE_T_STRING:
-							elems[e] = (psycString) { item.u.string->len, (char *) STR0(item.u.string) };
+							elems[e] = (PsycString) { item.u.string->len, (char *) STR0(item.u.string) };
 							break;
 						default:
 							// FIXME: xfree(elems) ?
@@ -245,7 +245,7 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 }
 
 PIKECLASS Parser {
-	CVAR psycParseState parser;
+	CVAR PsycParseState parser;
 	CVAR struct pike_string *buffer;
 	CVAR int handle_packet;
 	CVAR int handle_error;
@@ -283,7 +283,7 @@ PIKECLASS Parser {
 
 	PIKEFUN void feed(string data) {
 		char oper;
-		psycString name, value;
+		PsycString name, value;
 		int ret;
 		int err;
 
@@ -379,8 +379,8 @@ PIKECLASS Parser {
 							if (value.length > 0) {
 								int retl;
 								int count = 0;
-								psycParseListState listState;
-								psycString elem = (psycString) {0, 0};
+								PsycParseListState listState;
+								PsycString elem = (PsycString) {0, 0};
 
 								psyc_parse_list_state_init(&listState);
 								psyc_parse_list_buffer_set(&listState, PSYC_S2ARG(value));
