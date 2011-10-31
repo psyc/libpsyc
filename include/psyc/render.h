@@ -32,7 +32,7 @@ typedef enum
 } psycRenderRC;
 
 /**
- * Return codes for psyc_renderList.
+ * Return codes for psyc_render_list.
  */
 typedef enum
 {
@@ -48,15 +48,13 @@ typedef enum
  * The packet structure should contain the packet parts, either routing, entity,
  * method & data, or routing & content when rendering raw content.
  * It should also contain the contentLength & total length of the packet,
- * you can use psyc_setPacketLength() for calculating & setting these values.
+ * you can use psyc_packet_length_set() for calculating & setting these values.
  * This function renders packet->length bytes to the buffer,
  * if buflen is less than that an error is returned.
  *
- * @see psyc_newPacket
- * @see psyc_newPacket2
- * @see psyc_newRawPacket
- * @see psyc_newRawPacket2
- * @see psyc_setPacketLength
+ * @see psyc_packet_new
+ * @see psyc_packet_new_raw
+ * @see psyc_packet_length_set
  */
 #ifdef __INLINE_PSYC_RENDER
 static inline
@@ -69,7 +67,7 @@ psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen);
 #ifdef __INLINE_PSYC_RENDER
 static inline
 #endif
-psycRenderListRC psyc_renderList (psycList *list, char *buffer, size_t buflen);
+psycRenderListRC psyc_render_list (psycList *list, char *buffer, size_t buflen);
 
 /** @} */ // end of render group
 

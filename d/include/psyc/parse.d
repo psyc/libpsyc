@@ -316,6 +316,6 @@ ParseRC psyc_parse(ParseState* state, char* oper, String* name, String* value);
 /**
  * List value parser.
  */
-ParseListRC psyc_parseList(ParseListState* state, String *name, String* value, String* elem);
+ParseListRC psyc_parse_list(ParseListState* state, String *name, String* value, String* elem);
 
 /** @} */ // end of parsing group

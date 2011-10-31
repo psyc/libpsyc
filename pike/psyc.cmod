@@ -74,14 +74,14 @@ PIKEFUN string psyc_text(string template, mapping vars) {
 	// FIXME:
 	char buffer[512];
 
-	psyc_initTextState(&state, (char *) STR0(template), template->len, buffer, 512);
+	psyc_text_state_init(&state, (char *) STR0(template), template->len, buffer, 512);
 	do
 	{
 		ret = psyc_text(&state, lookup_value_mapping, vars);
-		len += psyc_getTextBytesWritten(&state);
+		len += psyc_text_bytes_written(&state);
 		switch (ret) {
 		case PSYC_TEXT_INCOMPLETE: // need to realloc buffer
-			//psyc_setTextBuffer2(&state, buffer + len, BUFSIZE - len);
+			//psyc_text_buffer_set(&state, buffer + len, BUFSIZE - len);
 			break;
 		case PSYC_TEXT_COMPLETE: // we're done
 			RETURN make_shared_binary_string(buffer, len);
@@ -99,7 +99,7 @@ PIKEFUN string psyc_text(string template, mapping vars) {
  *!	0 otherwise
  */
 PIKEFUN int is_routingvar(string name) {
-	RETURN psyc_isRoutingVar2((char *) STR0(name), name->len);
+	RETURN psyc_var_is_routing((char *) STR0(name), name->len);
 }
 
 /*! @decl string render(mapping rvars, mapping evars, string method, string|void body)
@@ -130,11 +130,11 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 		if (k->ind.type == PIKE_T_STRING) {
 			switch(k->val.type) {
 			case PIKE_T_STRING:
-				rheaders.modifiers[rheaders.lines++] = psyc_newModifier2(oper, 
+				rheaders.modifiers[rheaders.lines++] = psyc_modifier_new(oper,
 									 (char *)STR0(k->ind.u.string),
 									 k->ind.u.string->len,
 									 (char *)STR0(k->val.u.string),
-									 k->val.u.string->len, 
+									 k->val.u.string->len,
 									 PSYC_MODIFIER_ROUTING);
 				break;
 			default:
@@ -197,10 +197,10 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 							Pike_error("psyc_render: unsupported data type in list\n");
 						}
 					}
-					list = psyc_newList(elems, k->val.u.array->size, PSYC_LIST_CHECK_LENGTH);
+					list = psyc_list_new(elems, k->val.u.array->size, PSYC_LIST_CHECK_LENGTH);
 
 					struct pike_string *listbuf = begin_shared_string(list.length);
-					psyc_renderList(&list, (char *) STR0(listbuf), listbuf->len);
+					psyc_render_list(&list, (char *) STR0(listbuf), listbuf->len);
 					end_shared_string(listbuf);
 					val = (char *) STR0(listbuf);
 					vallen = listbuf->len;
@@ -211,7 +211,7 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 				Pike_error("psyc_render: unsupported value in evars\n");
 				break;
 			}
-			eheaders.modifiers[eheaders.lines++] = psyc_newModifier2(oper, 
+			eheaders.modifiers[eheaders.lines++] = psyc_modifier_new(oper,
 										 key, keylen,
 										 val, vallen,
 										 PSYC_MODIFIER_CHECK_LENGTH);
@@ -221,19 +221,19 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 	}
 
 	if (body != NULL) {
-		packet = psyc_newPacket2(rheaders.modifiers,
+		packet = psyc_packet_new(rheaders.modifiers,
 					 rheaders.lines,
 					 eheaders.modifiers,
 					 eheaders.lines,
-					 (const char *)STR0(method), method->len, 
+					 (const char *)STR0(method), method->len,
 					 (const char *)STR0(body), body->len,
 					 PSYC_PACKET_CHECK_LENGTH);
 	} else { // body arg was not given
-		packet = psyc_newPacket2(rheaders.modifiers,
+		packet = psyc_packet_new(rheaders.modifiers,
 					 rheaders.lines,
 					 eheaders.modifiers,
 					 eheaders.lines,
-					 (const char *)STR0(method), method->len, 
+					 (const char *)STR0(method), method->len,
 					 NULL, 0,
 					 PSYC_PACKET_CHECK_LENGTH);
 	}
@@ -260,7 +260,7 @@ PIKECLASS Parser {
 	CVAR struct string_builder incomplete;
 
 	INIT {
-		psyc_initParseState(&THIS->parser);
+		psyc_parse_state_init(&THIS->parser, PSYC_PARSE_ALL);
 		THIS->buffer = NULL;
 		THIS->handle_packet = find_identifier("handle_packet", Pike_fp->current_object->prog);
 		THIS->handle_error = find_identifier("handle_error", Pike_fp->current_object->prog);
@@ -296,7 +296,7 @@ PIKECLASS Parser {
 			data = tmp;
 			THIS->buffer = NULL;
 		}
-		psyc_setParseBuffer2(&THIS->parser, 
+		psyc_parse_buffer_set(&THIS->parser,
 				     (char *) STR0(data), data->len);
 		do {
 			ret = psyc_parse(&THIS->parser, &oper, &name, &value);
@@ -308,7 +308,7 @@ PIKECLASS Parser {
 							     make_shared_binary_string(value.ptr, value.length));
 				break;
 			case PSYC_PARSE_ENTITY_START: // entity var with length
-				init_string_builder_alloc(&THIS->incomplete, psyc_getParseValueLength(&THIS->parser), 0);
+				init_string_builder_alloc(&THIS->incomplete, psyc_parse_value_length(&THIS->parser), 0);
 				// fall thru
 			case PSYC_PARSE_ENTITY_CONT:
 				string_builder_append(&THIS->incomplete, MKPCHARP(value.ptr, 0), value.length);
@@ -327,12 +327,12 @@ PIKECLASS Parser {
 				//printf("E %.*s -> %.*s\n", (int)name.length, name.ptr, (int)value.length, value.ptr);
 				do {
 					err = 0;
-					int type = psyc_getVarType(&name);
+					int type = psyc_var_type(PSYC_S2ARG(&name));
 					struct svalue sv;
 					time_t timmy;
 					switch(type) {
 					case PSYC_TYPE_DATE:
-						if (psyc_parseDate(&value, &timmy)) {
+						if (psyc_parse_date(&value, &timmy)) {
 							sv.type = PIKE_T_INT; sv.u.integer = timmy;
 							mapping_string_insert(THIS->evars,
 								     make_shared_binary_string(name.ptr, name.length),
@@ -342,7 +342,7 @@ PIKECLASS Parser {
 						}
 						break;
 					case PSYC_TYPE_TIME:
-						if (psyc_parseTime(&value, &timmy)) {
+						if (psyc_parse_time(&value, &timmy)) {
 							sv.type = PIKE_T_INT; sv.u.integer = timmy;
 							mapping_string_insert(THIS->evars,
 								     make_shared_binary_string(name.ptr, name.length),
@@ -382,10 +382,10 @@ PIKECLASS Parser {
 								psycParseListState listState;
 								psycString elem = (psycString) {0, 0};
 
-								psyc_initParseListState(&listState);
-								psyc_setParseListBuffer(&listState, value);
+								psyc_parse_list_state_init(&listState);
+								psyc_parse_list_buffer_set(&listState, PSYC_S2ARG(value));
 								do {
-									retl = psyc_parseList(&listState, &elem);
+									retl = psyc_parse_list(&listState, &elem);
 									switch(retl) {
 									case PSYC_PARSE_LIST_END: // last element
 										retl = 0;
@@ -421,7 +421,7 @@ PIKECLASS Parser {
 				}
 				break;
 			case PSYC_PARSE_BODY_START: // if length was given this is used for body
-				init_string_builder_alloc(&THIS->incomplete, psyc_getParseValueLength(&THIS->parser), 0);
+				init_string_builder_alloc(&THIS->incomplete, psyc_parse_value_length(&THIS->parser), 0);
 			case PSYC_PARSE_BODY_CONT:
 				string_builder_append(&THIS->incomplete, MKPCHARP(value.ptr, 0), value.length);
 				break;
@@ -460,9 +460,9 @@ PIKECLASS Parser {
 				THIS->body = NULL;
 				break;
 			case PSYC_PARSE_INSUFFICIENT: // not enough data
-				if (psyc_getParseRemainingBuffer(&THIS->parser) > 0) {
-					THIS->buffer = make_shared_binary_string(psyc_getParseRemainingBuffer(&THIS->parser),
-										 psyc_getParseRemainingLength(&THIS->parser));
+				if (psyc_parse_remaining_buffer(&THIS->parser) > 0) {
+					THIS->buffer = make_shared_binary_string(psyc_parse_remaining_buffer(&THIS->parser),
+										 psyc_parse_remaining_length(&THIS->parser));
 				}
 				return;
 			default: // fatal error

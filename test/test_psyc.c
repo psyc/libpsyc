@@ -37,10 +37,8 @@ void resetString (psycString *s, uint8_t freeptr);
 // initialize parser & packet variables
 void test_init (int i) {
 	// reset parser state & packet
-	if (routing_only)
-		psyc_initParseState2(&parsers[i], PSYC_PARSE_ROUTING_ONLY);
-	else
-		psyc_initParseState(&parsers[i]);
+	psyc_parse_state_init(&parsers[i], routing_only ?
+												PSYC_PARSE_ROUTING_ONLY : PSYC_PARSE_ALL);
 
 	memset(&packets[i], 0, sizeof(psycPacket));
 	memset(&routing[i], 0, sizeof(psycModifier) * ROUTING_LINES);
@@ -76,7 +74,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	size_t len;
 
 	// Set buffer with data for the parser.
-	psyc_setParseBuffer2(parser, parsebuf, contbytes + nbytes);
+	psyc_parse_buffer_set(parser, parsebuf, contbytes + nbytes);
 	contbytes = 0;
 	oper = 0;
 	name.length = 0;
@@ -111,7 +109,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 
 				if (ret == PSYC_PARSE_ENTITY || ret == PSYC_PARSE_ENTITY_END) {
 					packet->entity.lines++;
-					mod->flag = psyc_isParseValueLengthFound(parser) ?
+					mod->flag = psyc_parse_value_length_found(parser) ?
 						PSYC_MODIFIER_NEED_LENGTH : PSYC_MODIFIER_NO_LENGTH;
 				}
 				break;
@@ -133,7 +131,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 					ret = -1;
 
 				if (!no_render) {
-					packet->flag = psyc_isParseContentLengthFound(parser) ?
+					packet->flag = psyc_parse_content_length_found(parser) ?
 						PSYC_PACKET_NEED_LENGTH : PSYC_PACKET_NO_LENGTH;
 
 					if (routing_only) {
@@ -141,7 +139,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 						resetString(&(packet->data), 0);
 					}
 
-					psyc_setPacketLength(packet);
+					psyc_packet_length_set(packet);
 
 					if (psyc_render(packet, sendbuf, SEND_BUF_SIZE) == PSYC_RENDER_SUCCESS) {
 						if (!quiet) {
@@ -190,13 +188,13 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 				if (verbose >= 2)
 					printf("# Insufficient data.\n");
 
-				contbytes = psyc_getParseRemainingLength(parser);
+				contbytes = psyc_parse_remaining_length(parser);
 
 				if (contbytes > 0) { // copy end of parsebuf before start of recvbuf
 					if (verbose >= 3)
-						printf("# remaining = [%.*s]\n", (int)contbytes, psyc_getParseRemainingBuffer(parser));
+						printf("# remaining = [%.*s]\n", (int)contbytes, psyc_parse_remaining_buffer(parser));
 					assert(contbytes <= CONT_BUF_SIZE); // make sure it's still in the buffer
-					memmove(recvbuf - contbytes, psyc_getParseRemainingBuffer(parser), contbytes);
+					memmove(recvbuf - contbytes, psyc_parse_remaining_buffer(parser), contbytes);
 				}
 				ret = 0;
 				break;
@@ -237,8 +235,8 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 
 				if (value.length) {
 					if (!pvalue->length) {
-						if (psyc_isParseValueLengthFound(parser))
-							len = psyc_getParseValueLength(parser);
+						if (psyc_parse_value_length_found(parser))
+							len = psyc_parse_value_length(parser);
 						else
 							len = value.length;
 						pvalue->ptr = malloc(len);
@@ -272,15 +270,15 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 				name.length = 0;
 				value.length = 0;
 
-				if (psyc_isListVar(pname)) {
+				if (psyc_var_is_list(PSYC_S2ARG(*pname))) {
 					if (verbose >= 2)
 						printf("## LIST START\n");
 
-					psyc_initParseListState(&listState);
-					psyc_setParseListBuffer(&listState, *pvalue);
+					psyc_parse_list_state_init(&listState);
+					psyc_parse_list_buffer_set(&listState, PSYC_S2ARG(*pvalue));
 
 					do {
-						retl = psyc_parseList(&listState, &elem);
+						retl = psyc_parse_list(&listState, &elem);
 						switch (retl) {
 							case PSYC_PARSE_LIST_END:
 								retl = 0;

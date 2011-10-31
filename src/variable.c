@@ -3,7 +3,7 @@
 
 
 /// Routing variables in alphabetical order.
-const psycString psyc_routingVars[] =
+const psycString psyc_routing_vars[] =
 {
 	PSYC_C2STR("_amount_fragments"),
 	PSYC_C2STR("_context"),
@@ -27,7 +27,7 @@ const psycString psyc_routingVars[] =
 };
 
 // Variable types in alphabetical order.
-const psycMatchVar psyc_varTypes[] =
+const psycMatchVar psyc_var_types[] =
 {
 	{PSYC_C2STR("_amount"),   PSYC_TYPE_AMOUNT},
 	{PSYC_C2STR("_color"),    PSYC_TYPE_COLOR},
@@ -43,43 +43,42 @@ const psycMatchVar psyc_varTypes[] =
 	{PSYC_C2STR("_time"),     PSYC_TYPE_TIME},
 };
 
-const size_t psyc_routingVarsNum = PSYC_NUM_ELEM(psyc_routingVars);
-const size_t psyc_varTypesNum = PSYC_NUM_ELEM(psyc_varTypes);
+const size_t psyc_routing_vars_num = PSYC_NUM_ELEM(psyc_routing_vars);
+const size_t psyc_var_types_num = PSYC_NUM_ELEM(psyc_var_types);
 
 /**
  * Get the type of variable name.
  */
 inline
-psycBool psyc_isRoutingVar2(const char *name, size_t len)
+psycBool psyc_var_is_routing (const char *name, size_t len)
 {
-	//return psyc_matchArray(psyc_routingVars, PSYC_NUM_ELEM(psyc_routingVars), name, len, 0);
 	size_t cursor = 1;
 	uint8_t i, m = 0;
-	int8_t matching[psyc_routingVarsNum]; // indexes of matching vars
+	int8_t matching[psyc_routing_vars_num]; // indexes of matching vars
 
 	if (len < 2 || name[0] != '_')
 		return PSYC_FALSE;
 
 	// first find the vars with matching length
-	for (i=0; i<psyc_routingVarsNum; i++)
-		if (len == psyc_routingVars[i].length)
+	for (i=0; i<psyc_routing_vars_num; i++)
+		if (len == psyc_routing_vars[i].length)
 			matching[m++] = i;
 
 	matching[m] = -1; // mark the end of matching indexes
 
 	while (cursor < len && matching[0] >= 0)
 	{
-		for (i = m = 0; i < psyc_routingVarsNum; i++)
+		for (i = m = 0; i < psyc_routing_vars_num; i++)
 		{
 			if (matching[i] < 0)
 				break; // reached the end of possible matches
-			if (psyc_routingVars[matching[i]].ptr[cursor] == name[cursor])
+			if (psyc_routing_vars[matching[i]].ptr[cursor] == name[cursor])
 				matching[m++] = matching[i]; // found a match, update matching indexes
-			else if (psyc_routingVars[matching[i]].ptr[cursor] > name[cursor])
+			else if (psyc_routing_vars[matching[i]].ptr[cursor] > name[cursor])
 				break; // passed the possible matches in alphabetical order in the array
 		}
 
-		if (m < psyc_routingVarsNum)
+		if (m < psyc_routing_vars_num)
 			matching[m] = -1; // mark the end of matching indexes
 
 		cursor++;
@@ -88,114 +87,13 @@ psycBool psyc_isRoutingVar2(const char *name, size_t len)
 	return matching[0] >= 0 ? PSYC_TRUE : PSYC_FALSE;
 }
 
-psycBool psyc_isRoutingVar(psycString *name)
-{
-	return psyc_isRoutingVar2(name->ptr, name->length);
-}
-
 /**
  * Get the type of variable name.
  */
 inline
-psycType psyc_getVarType2(const char *name, size_t len)
+psycType psyc_var_type (const char *name, size_t len)
 {
-	//return psyc_matchArray(psyc_varTypes, PSYC_NUM_ELEM(psyc_varTypes), name, len, 1);
-	size_t cursor = 1;
-	uint8_t i, m = 0;
-	int8_t matching[psyc_varTypesNum]; // indexes of matching vars
-
-	if (len < 2 || name[0] != '_')
-		return 0;
-
-	// first find the vars with matching length
-	for (i=0; i<psyc_varTypesNum; i++)
-		if (len == psyc_varTypes[i].name.length || (len > psyc_varTypes[i].name.length && name[psyc_varTypes[i].name.length] == '_'))
-			matching[m++] = i;
-
-	matching[m] = -1; // mark the end of matching indexes
-
-	while (cursor < len && matching[0] >= 0)
-	{
-		for (i = m = 0; i < psyc_varTypesNum; i++)
-		{
-			if (matching[i] < 0)
-				break; // reached the end of possible matches
-			if (cursor < psyc_varTypes[matching[i]].name.length &&
-			    psyc_varTypes[matching[i]].name.ptr[cursor] == name[cursor])
-				matching[m++] = matching[i]; // found a match, update matching indexes
-			else if (cursor == psyc_varTypes[matching[i]].name.length && name[cursor] == '_')
-				return psyc_varTypes[matching[0]].value; // _ after the end of a matching prefix
-			else if (psyc_varTypes[matching[i]].name.ptr[cursor] > name[cursor])
-				break; // passed the possible matches in alphabetical order in the array
-		}
-
-		if (m < psyc_varTypesNum)
-			matching[m] = -1; // mark the end of matching indexes
-
-		cursor++;
-	}
-
-	// return first match if found
-	return matching[0] >= 0 ? psyc_varTypes[matching[0]].value : 0;
-}
-
-psycType psyc_getVarType(psycString *name)
-{
-	return psyc_getVarType2(name->ptr, name->length);
-}
-
-/**
- * Search for a variable name in an array.
- *
- * @param array The array to search, should be ordered alphabetically.
- * @param size Size of array.
- * @param name Name of variable to look for.
- * @param namelen Length of name.
- * @param startswith If true, look for any variable starting with name,
- otherwise only exact matches are returned.
- * @param matching A temporary array used for keeping track of results.
- *                 Should be the same size as the array we're searching.
- *
- * @return The value of the matched variable in the array.
- */
-int psyc_findVar(const psycMatchVar *array, size_t size,
-								 const char *name, size_t namelen,
-								 uint8_t startswith, int8_t *matching)
-{
-	size_t cursor = 1;
-	uint8_t i, m = 0;
-	//memset(&matching, -1, sizeof matching);
-
-	if (namelen < 2 || name[0] != '_')
-		return 0;
-
-	// first find the vars with matching length
-	for (i=0; i<size; i++)
-		if (namelen == array[i].name.length ||
-		    (startswith && namelen > array[i].name.length &&
-				 name[array[i].name.length] == '_'))
-			matching[m++] = i;
-
-	matching[m] = -1; // mark the end of matching indexes
-
-	while (cursor < namelen && matching[0] >= 0)
-	{
-		for (i = m = 0; i < size; i++)
-		{
-			if (matching[i] < 0)
-				break;
-			if (array[matching[i]].name.ptr[cursor] == name[cursor])
-				matching[m++] = matching[i]; // found a match, update matching indexes
-			else if (array[matching[i]].name.ptr[cursor] > name[cursor])
-				break; // passed the possible matches in alphabetical order
-		}
-
-		if (m < size)
-			matching[m] = -1; // mark the end of matching indexes
-
-		cursor++;
-	}
-
-	// return first match if found
-	return matching[0] >= 0 ? array[matching[0]].value : 0;
+	int8_t m[psyc_var_types_num];
+	return psyc_in_array(psyc_var_types, psyc_var_types_num,
+											 name, len, PSYC_YES, (int8_t*)&m);
 }

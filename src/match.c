@@ -1,7 +1,7 @@
 #include "lib.h"
 
-int psyc_inherits(char* sho, size_t slen,
-		  char* lon, size_t llen) {
+int psyc_inherits (char* sho, size_t slen,
+                   char* lon, size_t llen) {
 
 	// this allows to pass zero-terminated strings instead of providing
 	// the length.. but we would be faster here if we expected the callee
@@ -42,8 +42,8 @@ int psyc_inherits(char* sho, size_t slen,
 	return 1;
 }
 
-int psyc_matches(char* sho, size_t slen,
-		 char* lon, size_t llen) {
+int psyc_matches (char* sho, size_t slen,
+                  char* lon, size_t llen) {
 	char *s, *l, *se, *le;
 
 	//if (!slen) slen = strlen(sho);
@@ -98,6 +98,62 @@ foundone:
 failed:
 	P4(("No, they don't match.\n"))
 	return 1;
+}
+
+/**
+ * Check if keyword is in array.
+ *
+ * @param array The array to search, should be ordered alphabetically.
+ * @param size Size of array.
+ * @param kw Keyword to look for.
+ * @param kwlen Length of keyword.
+ * @param inherit If true, look for any keyword inheriting from name,
+ otherwise only exact matches are returned.
+ * @param matching A temporary array used for keeping track of results.
+ *                 Should be the same size as the array we're searching.
+ *
+ * @return The value of the matched variable in the array.
+ */
+int psyc_in_array (const psycMatchVar *array, size_t size,
+                   const char *kw, size_t kwlen,
+                   psycBool inherit, int8_t *matching)
+{
+	size_t cursor = 1;
+	uint8_t i, m = 0;
+	//memset(&matching, -1, sizeof matching);
+
+	if (kwlen < 2 || kw[0] != '_')
+		return 0;
+
+	// first find the keywords with matching length
+	for (i=0; i<size; i++)
+		if (kwlen == array[i].key.length ||
+		    (inherit && kwlen > array[i].key.length && kw[array[i].key.length] == '_'))
+			matching[m++] = i;
+
+	matching[m] = -1; // mark the end of matching indexes
+
+	while (cursor < kwlen && matching[0] >= 0) {
+		for (i = m = 0; i < size; i++) {
+			if (matching[i] < 0)
+				break; // reached the end of possible matches
+			if (cursor < array[matching[i]].key.length &&
+			    array[matching[i]].key.ptr[cursor] == kw[cursor])
+				matching[m++] = matching[i]; // found a match, update matching indexes
+			else if (cursor == array[matching[i]].key.length && kw[cursor] == '_')
+				return array[matching[0]].value; // _ after the end of a matching prefix
+			else if (array[matching[i]].key.ptr[cursor] > kw[cursor])
+				break; // passed the possible matches in alphabetical order in the array
+		}
+
+		if (m < size)
+			matching[m] = -1; // mark the end of matching indexes
+
+		cursor++;
+	}
+
+	// return first match if found
+	return matching[0] >= 0 ? array[matching[0]].value : 0;
 }
 
 #ifdef CMDTOOL

@@ -7,7 +7,7 @@ struct psycParser;
  *  @param pstate pointer to an allocated
  *         psycParser struct.
  */
-void psyc_initState(struct psycParser* pstate);
+void psyc_parse_state_init(struct psycParser* pstate);
 
 
 /** @brief parses a packet
@@ -38,7 +38,7 @@ void psyc_initState(struct psycParser* pstate);
  *        raw data that is to be processed.
  * @param length the amount of bytes to parse
  * @param pstate pointer to a preallocated 
- *        and initialized (psyc_initState)
+ *        and initialized (psyc_parse_state_init)
  *        instance of the struct state
  *        
 */

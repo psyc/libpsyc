@@ -73,9 +73,7 @@ typedef enum {
 	PSYC_ENTITY_SERVICE = '$',
 } psycEntityType;
 
-int psyc_parseUniform2(psycUniform *uni, const char *str, size_t length);
-
-int psyc_parseUniform(psycUniform *uni, psycString *str);
+int psyc_uniform_parse (psycUniform *uni, char *str, size_t length);
 
 #define PSYC_UNIFORM_H
 #endif

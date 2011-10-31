@@ -5,7 +5,7 @@
 #ifdef __INLINE_PSYC_RENDER
 static inline
 #endif
-psycRenderListRC psyc_renderList (psycList *list, char *buffer, size_t buflen)
+psycRenderListRC psyc_render_list (psycList *list, char *buffer, size_t buflen)
 {
 	size_t i, cur = 0;
 	psycString *elem;
@@ -43,7 +43,7 @@ psycRenderListRC psyc_renderList (psycList *list, char *buffer, size_t buflen)
 }
 
 static inline
-size_t psyc_renderModifier (psycModifier *mod, char *buffer)
+size_t psyc_render_modifier (psycModifier *mod, char *buffer)
 {
 	size_t cur = 0;
 
@@ -80,7 +80,7 @@ psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen)
 	// render routing modifiers
 	for (i = 0; i < packet->routing.lines; i++)
 	{
-		len = psyc_renderModifier(&packet->routing.modifiers[i], buffer + cur);
+		len = psyc_render_modifier(&packet->routing.modifiers[i], buffer + cur);
 		cur += len;
 		if (len <= 1)
 			return PSYC_RENDER_ERROR_MODIFIER_NAME_MISSING;
@@ -103,7 +103,7 @@ psycRenderRC psyc_render (psycPacket *packet, char *buffer, size_t buflen)
 	{
 		// render entity modifiers
 		for (i = 0; i < packet->entity.lines; i++)
-			cur += psyc_renderModifier(&packet->entity.modifiers[i], buffer + cur);
+			cur += psyc_render_modifier(&packet->entity.modifiers[i], buffer + cur);
 
 		if (packet->method.length) // add method\n
 		{

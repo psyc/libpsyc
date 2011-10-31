@@ -26,10 +26,8 @@ size_t count = 1, recv_buf_size;
 psycParseState parser;
 
 void test_init (int i) {
-	if (routing_only)
-		psyc_initParseState2(&parser, PSYC_PARSE_ROUTING_ONLY);
-	else
-		psyc_initParseState(&parser);
+	psyc_parse_state_init(&parser, routing_only ?
+												PSYC_PARSE_ROUTING_ONLY : PSYC_PARSE_ALL);
 }
 
 int test_input (int i, char *recvbuf, size_t nbytes) {
@@ -37,7 +35,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 	psycString name, value;
 	int ret;
 
-	psyc_setParseBuffer2(&parser, recvbuf, nbytes);
+	psyc_parse_buffer_set(&parser, recvbuf, nbytes);
 
 	for (;;) {
 		ret = psyc_parse(&parser, &oper, &name, &value);

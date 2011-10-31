@@ -96,7 +96,7 @@ struct Modifier
 	
 	size_t length ( )
 	{
-		return psyc_getModifierLength (this);
+		return psyc_modifier_length (this);
 	}
 
 	private ModifierFlag checkLength ( ubyte[] value )
@@ -142,24 +142,24 @@ struct Packet
                         char[] method, ubyte[] data,
                         PacketFlag flag = PacketFlag.CHECK_LENGTH)
 	{
-		return psyc_newPacket (&routing, &entity, cast(ubyte[]*)&method, &data, flag);
+		return psyc_packet_new(&routing, &entity, cast(ubyte[]*)&method, &data, flag); // FIXME
 	}
 
 	static Packet opCall (Modifier[] routing, ubyte[] content,
 	                      PacketFlag flag = PacketFlag.CHECK_LENGTH)
 	{
-		return psyc_newRawPacket (&routing, &content, flag);
+		return psyc_packet_new_raw(&routing, &content, flag); // FIXME
 	}
 
 	size_t length ( )
 	{
-		psyc_setPacketLength(this);
+		psyc_packet_length_set(this);
 		return this._length;
 	}
 
 	ubyte[] render ( ubyte[] buffer )
 	{
-		psyc_setPacketLength(this);
+		psyc_packet_length_set(this);
 
 		with (RenderRC) 
 			switch (psyc_render(this, buffer.ptr, buffer.length))
@@ -189,56 +189,43 @@ struct Packet
 /**
  * \internal
  */
-private size_t psyc_getModifierLength (Modifier *m);
+private size_t psyc_modifier_length (Modifier *m);
 
 /**
  * \internal
  * Check if a list needs length.
  */
-ListFlag psyc_checkListLength (List *list);
+ListFlag psyc_list_length_check (List *list);
 
 /**
  * \internal
  * Get the total length of a list when rendered.
  */
-ListFlag psyc_getListLength (List *list);
+ListFlag psyc_list_length (List *list);
 
 /**
  * \internal
  * Check if a packet needs length.
  */
-PacketFlag psyc_checkPacketLength (Packet *p);
+PacketFlag psyc_packet_length_check (Packet *p);
 
 /**
  * Calculate and set the rendered length of packet parts and total packet length.
  */
-private size_t psyc_setPacketLength (Packet *p);
+private size_t psyc_packet_length_set (Packet *p);
 
 /** Create new list. */
-List psyc_newList (String *elems, size_t num_elems, ListFlag flag);
+List psyc_list_new (String *elems, size_t num_elems, ListFlag flag);
 
 /** Create new packet. */
-private Packet psyc_newPacket (Modifier[]* routing,
-                               Modifier[]* entity,
-                               String *method, String *data,
-                               PacketFlag flag);
-
-
-
-
-/** Create new packet. */
-Packet psyc_newPacket2 (Modifier *routing, size_t routinglen,
+Packet psyc_packet_new (Modifier *routing, size_t routinglen,
                         Modifier *entity, size_t entitylen,
                         char *method, size_t methodlen,
                         char *data, size_t datalen,
                         PacketFlag flag);
 
 /** Create new packet with raw content. */
-Packet psyc_newRawPacket (Modifier[] *routing, ubyte[] *content,
-                              PacketFlag flag);
-
-/** Create new packet with raw content. */
-Packet psyc_newRawPacket2 (Modifier *routing, size_t routinglen,
-                               char *content, size_t contentlen,
-                               PacketFlag flag);
+Packet psyc_packet_new_raw (Modifier *routing, size_t routinglen,
+                            char *content, size_t contentlen,
+                            PacketFlag flag);
 
