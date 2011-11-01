@@ -10,7 +10,7 @@ testUniform (char *str, int ret) {
 	printf("%s\n", str);
 	int r = psyc_uniform_parse(uni, str, strlen(str));
 
-	PP(("[%.*s] : [%.*s] [%.*s] : [%.*s] [%.*s] / [%.*s] # [%.*s]\n[%.*s] [%.*s]\n[%.*s]\n\n",
+	PP(("[%.*s] : [%.*s] [%.*s] : [%.*s] [%.*s] / [%.*s] # [%.*s]\n[%.*s]\n[%.*s] [%.*s]\n[%.*s]\n\n",
 	    (int)PSYC_S2ARG2(uni->scheme),
 	    (int)PSYC_S2ARG2(uni->slashes),
 	    (int)PSYC_S2ARG2(uni->host),
@@ -18,6 +18,7 @@ testUniform (char *str, int ret) {
 	    (int)PSYC_S2ARG2(uni->transport),
 	    (int)PSYC_S2ARG2(uni->resource),
 	    (int)PSYC_S2ARG2(uni->channel),
+	    (int)PSYC_S2ARG2(uni->entity),
 	    (int)PSYC_S2ARG2(uni->root),
 	    (int)PSYC_S2ARG2(uni->nick),
 	    (int)PSYC_S2ARG2(uni->body)));
