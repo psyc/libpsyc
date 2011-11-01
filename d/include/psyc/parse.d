@@ -247,13 +247,13 @@ struct ParseState
 
 	ubyte* getRemainingBuffer ( )
 	{
-		return cast(ubyte*)this.buffer.ptr + this.cursor;
+		return cast(ubyte*)this.buffer.data + this.cursor;
 	}
 
 	void getRemainingBuffer ( ref ubyte[] buf )
 	{
 
-		buf = cast(ubyte[])this.buffer.ptr[cursor .. cursor + getRemainingLength()];
+		buf = cast(ubyte[])this.buffer.data[cursor .. cursor + getRemainingLength()];
 	}
 
 }

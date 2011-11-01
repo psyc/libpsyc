@@ -22,7 +22,7 @@ PsycRenderListRC psyc_render_list (PsycList *list, char *buffer, size_t buflen)
 				buffer[cur++] = '|';
 			cur += itoa(elem->length, buffer + cur, 10);
 			buffer[cur++] = ' ';
-			memcpy(buffer + cur, elem->ptr, elem->length);
+			memcpy(buffer + cur, elem->data, elem->length);
 			cur += elem->length;
 		}
 	}
@@ -32,7 +32,7 @@ PsycRenderListRC psyc_render_list (PsycList *list, char *buffer, size_t buflen)
 		{
 			elem = &list->elems[i];
 			buffer[cur++] = '|';
-			memcpy(buffer + cur, elem->ptr, elem->length);
+			memcpy(buffer + cur, elem->data, elem->length);
 			cur += elem->length;
 		}
 	}
@@ -48,7 +48,7 @@ size_t psyc_render_modifier (PsycModifier *mod, char *buffer)
 	size_t cur = 0;
 
 	buffer[cur++] = mod->oper;
-	memcpy(buffer + cur, mod->name.ptr, mod->name.length);
+	memcpy(buffer + cur, mod->name.data, mod->name.length);
 	cur += mod->name.length;
 	if (cur <= 1)
 		return cur; // error, name can't be empty
@@ -60,7 +60,7 @@ size_t psyc_render_modifier (PsycModifier *mod, char *buffer)
 	}
 
 	buffer[cur++] = '\t';
-	memcpy(buffer + cur, mod->value.ptr, mod->value.length);
+	memcpy(buffer + cur, mod->value.data, mod->value.length);
 	cur += mod->value.length;
 	buffer[cur++] = '\n';
 
@@ -96,7 +96,7 @@ PsycRenderRC psyc_render (PsycPacket *packet, char *buffer, size_t buflen)
 
 	if (packet->content.length) // render raw content if present
 	{
-		memcpy(buffer + cur, packet->content.ptr, packet->content.length);
+		memcpy(buffer + cur, packet->content.data, packet->content.length);
 		cur += packet->content.length;
 	}
 	else
@@ -107,13 +107,13 @@ PsycRenderRC psyc_render (PsycPacket *packet, char *buffer, size_t buflen)
 
 		if (packet->method.length) // add method\n
 		{
-			memcpy(buffer + cur, packet->method.ptr, packet->method.length);
+			memcpy(buffer + cur, packet->method.data, packet->method.length);
 			cur += packet->method.length;
 			buffer[cur++] = '\n';
 
 			if (packet->data.length) // add data\n
 			{
-				memcpy(buffer + cur, packet->data.ptr, packet->data.length);
+				memcpy(buffer + cur, packet->data.data, packet->data.length);
 				cur += packet->data.length;
 				buffer[cur++] = '\n';
 			}

@@ -24,8 +24,8 @@
 
 #define	PSYC_C2STR(str) {sizeof(str)-1, str}
 #define	PSYC_C2ARG(str) str, sizeof(str)-1
-#define	PSYC_S2ARG(str) (str).ptr, (str).length
-#define	PSYC_S2ARG2(str) (str).length, (str).ptr
+#define	PSYC_S2ARG(str) (str).data, (str).length
+#define	PSYC_S2ARG2(str) (str).length, (str).data
 
 #define PSYC_NUM_ELEM(a) (sizeof(a) / sizeof(*(a)))
 
@@ -36,6 +36,12 @@ typedef enum
 	PSYC_NO = 0,
 	PSYC_YES = 1,
 } PsycBool;
+
+typedef enum
+{
+	PSYC_OK = 1,
+	PSYC_ERROR = -1,
+} PsycRC;
 
 /**
  * PSYC packet parts.
@@ -96,14 +102,20 @@ typedef struct
 	/// Length of the data pointed to by ptr
 	size_t length;
 	/// pointer to the data
-	char *ptr;
+	char *data;
 } PsycString;
 
 typedef struct
 {
 	PsycString key;
-	int value;
-} PsycMatchVar;
+	void *value;
+} PsycDict;
+
+typedef struct
+{
+	PsycString key;
+	intptr_t value;
+} PsycDictInt;
 
 /**
  * Shortcut for creating a PsycString.
@@ -140,23 +152,37 @@ int psyc_matches (char *sho, size_t slen,
                   char *lon, size_t llen);
 
 /**
- * Check if keyword is in array.
+ * Look up value associated with a key in a dictionary.
  *
- * @param array The array to search, should be ordered alphabetically.
- * @param size Size of array.
- * @param kw Keyword to look for.
- * @param kwlen Length of keyword.
- * @param inherit If true, also look for anything inheriting from kw,
- otherwise only exact matches are returned.
- * @param matching A temporary array used for keeping track of results.
- *                 Should be the same size as the array we're searching.
+ * @param dict The dictionary to search, should be ordered alphabetically.
+ * @param size Size of dict.
+ * @param key Key to look for.
+ * @param keylen Length of key.
+ * @param inherit If true, also look for anything inheriting from key,
+                  otherwise only exact matches are returned.
+ * @param tmp A temporary array used for keeping track of results.
+ *            Should be the same size as dict.
  *
- * @return The value of the matched variable in the array.
+ * @return The value of the entry if found, or NULL if not found.
  */
 
-int psyc_in_array (const PsycMatchVar *array, size_t size,
-                   const char *kw, size_t kwlen,
-                   PsycBool inherit, int8_t *matching);
+void * psyc_dict_lookup (const PsycDict *dict, size_t size,
+                         const char *key, size_t keylen,
+                         PsycBool inherit, int8_t *tmp);
+
+/**
+ * Look up value associated with a key in a dictionary of integers.
+ * @see psyc_dict_lookup
+ */
+static inline
+intptr_t psyc_dict_lookup_int (const PsycDictInt *dict, size_t size,
+                               const char *key, size_t keylen,
+                               PsycBool inherit, int8_t *tmp)
+{
+	return (intptr_t) psyc_dict_lookup((PsycDict *)dict, size, key, keylen, inherit, tmp);
+}
+  
+
 
 #include "psyc/variable.h"
 

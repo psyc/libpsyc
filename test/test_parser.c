@@ -53,8 +53,8 @@ int main (int argc, char **argv)
 				// printf("the string is '%.*s'\n", name);
 				if (verbose)
 					printf("%.*s = %.*s\n",
-					       (int)name.length, name.ptr,
-					       (int)value.length, value.ptr);
+					       (int)name.length, name.data,
+					       (int)value.length, value.data);
 
 				if (psyc_var_is_list(PSYC_S2ARG(name)))
 				{
@@ -71,7 +71,7 @@ int main (int argc, char **argv)
 							case PSYC_PARSE_LIST_END:
 							case PSYC_PARSE_LIST_ELEM:
 								if (verbose)
-									printf("|%.*s\n", (int)elem.length, elem.ptr);
+									printf("|%.*s\n", (int)elem.length, elem.data);
 								break;
 							default:
 								printf("Error while parsing list: %i\n", ret);

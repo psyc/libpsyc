@@ -8,7 +8,7 @@
 extern const PsycString psyc_routing_vars[];
 
 // Variable types in alphabetical order.
-extern const PsycMatchVar psyc_var_types[];
+extern const PsycDictInt psyc_var_types[];
 
 extern const size_t psyc_routing_vars_num;
 extern const size_t psyc_var_types_num;

@@ -47,13 +47,13 @@ PsycTextValueRC lookup_value_mapping(const char *name, size_t len, PsycString *v
 	switch(s->type) {
 	case PIKE_T_STRING:
 		//printf("lookup returned %.*s\n", (int) s->u.string->len, STR0(s->u.string));
-		value->ptr = (char *) STR0(s->u.string);
+		value->data = (char *) STR0(s->u.string);
 		value->length = s->u.string->len;
 		break;
 	default:
 		printf("lookup did return !string\n");
 		// FIXME: we need the automagic value conversion
-		value->ptr = "";
+		value->data = "";
 		value->length = 0;
 	}
 	return PSYC_TEXT_VALUE_FOUND;
@@ -302,29 +302,29 @@ PIKECLASS Parser {
 			ret = psyc_parse(&THIS->parser, &oper, &name, &value);
 			switch(ret) {
 			case PSYC_PARSE_ROUTING:
-				// printf("R %.*s -> %.*s\n", (int)name.length, name.ptr, (int)value.length, value.ptr);
+				// printf("R %.*s -> %.*s\n", (int)name.length, name.data, (int)value.length, value.data);
 				mapping_string_insert_string(THIS->rvars,
-							     make_shared_binary_string(name.ptr, name.length),
-							     make_shared_binary_string(value.ptr, value.length));
+							     make_shared_binary_string(name.data, name.length),
+							     make_shared_binary_string(value.data, value.length));
 				break;
 			case PSYC_PARSE_ENTITY_START: // entity var with length
 				init_string_builder_alloc(&THIS->incomplete, psyc_parse_value_length(&THIS->parser), 0);
 				// fall thru
 			case PSYC_PARSE_ENTITY_CONT:
-				string_builder_append(&THIS->incomplete, MKPCHARP(value.ptr, 0), value.length);
+				string_builder_append(&THIS->incomplete, MKPCHARP(value.data, 0), value.length);
 				break;
 			case PSYC_PARSE_ENTITY_END:
-				string_builder_append(&THIS->incomplete, MKPCHARP(value.ptr, 0), value.length);
+				string_builder_append(&THIS->incomplete, MKPCHARP(value.data, 0), value.length);
 				do {
 					struct pike_string *tmp = finish_string_builder(&THIS->incomplete);
 					value.length = tmp->len;
-					value.ptr = (char *) STR0(tmp);
+					value.data = (char *) STR0(tmp);
 					// FIXME: not sure if this is really safe
 					free_string(tmp);
 				} while (0);
 				// fall thru
 			case PSYC_PARSE_ENTITY:
-				//printf("E %.*s -> %.*s\n", (int)name.length, name.ptr, (int)value.length, value.ptr);
+				//printf("E %.*s -> %.*s\n", (int)name.length, name.data, (int)value.length, value.data);
 				do {
 					err = 0;
 					int type = psyc_var_type(PSYC_S2ARG(&name));
@@ -335,7 +335,7 @@ PIKECLASS Parser {
 						if (psyc_parse_date(&value, &timmy)) {
 							sv.type = PIKE_T_INT; sv.u.integer = timmy;
 							mapping_string_insert(THIS->evars,
-								     make_shared_binary_string(name.ptr, name.length),
+								     make_shared_binary_string(name.data, name.length),
 								     &sv);
 						} else {
 							err = 1;
@@ -345,7 +345,7 @@ PIKECLASS Parser {
 						if (psyc_parse_time(&value, &timmy)) {
 							sv.type = PIKE_T_INT; sv.u.integer = timmy;
 							mapping_string_insert(THIS->evars,
-								     make_shared_binary_string(name.ptr, name.length),
+								     make_shared_binary_string(name.data, name.length),
 								     &sv);
 						} else {
 							err = 2;
@@ -354,20 +354,20 @@ PIKECLASS Parser {
 					case PSYC_TYPE_AMOUNT:
 						break;
 					case PSYC_TYPE_DEGREE:
-						if (value.length && value.ptr[0] >= '0' && value.ptr[0] <= '9') {
-							sv.type = PIKE_T_FLOAT; sv.u.float_number = (float) (value.ptr[0] - '0') / 10.0;
+						if (value.length && value.data[0] >= '0' && value.data[0] <= '9') {
+							sv.type = PIKE_T_FLOAT; sv.u.float_number = (float) (value.data[0] - '0') / 10.0;
 							mapping_string_insert(THIS->evars,
-								     make_shared_binary_string(name.ptr, name.length),
+								     make_shared_binary_string(name.data, name.length),
 								     &sv);
 						} else {
 							err = 3; 
 						}
 						break;
 					case PSYC_TYPE_FLAG:
-						if (value.length && value.ptr[0] >= '0' && value.ptr[0] <= '1') {
-							sv.type = PIKE_T_INT; sv.u.integer = value.ptr[0] - '0';
+						if (value.length && value.data[0] >= '0' && value.data[0] <= '1') {
+							sv.type = PIKE_T_INT; sv.u.integer = value.data[0] - '0';
 							mapping_string_insert(THIS->evars,
-								     make_shared_binary_string(name.ptr, name.length),
+								     make_shared_binary_string(name.data, name.length),
 								     &sv);
 						} else {
 							err = 4;
@@ -390,7 +390,7 @@ PIKECLASS Parser {
 									case PSYC_PARSE_LIST_END: // last element
 										retl = 0;
 									case PSYC_PARSE_LIST_ELEM:
-										sv.type = PIKE_T_STRING; sv.u.string = make_shared_binary_string(elem.ptr, elem.length);
+										sv.type = PIKE_T_STRING; sv.u.string = make_shared_binary_string(elem.data, elem.length);
 										elems = array_insert(elems, &sv, count++);
 										break;
 									default:
@@ -403,7 +403,7 @@ PIKECLASS Parser {
 								sv.type = PIKE_T_ARRAY;
 								sv.u.array = elems;
 								mapping_string_insert(THIS->evars,
-									     make_shared_binary_string(name.ptr, name.length),
+									     make_shared_binary_string(name.data, name.length),
 									     &sv);
 							}
 							free_array(elems);
@@ -411,8 +411,8 @@ PIKECLASS Parser {
 						break;
 					default: // string
 						mapping_string_insert_string(THIS->evars,
-							     make_shared_binary_string(name.ptr, name.length),
-							     make_shared_binary_string(value.ptr, value.length));
+							     make_shared_binary_string(name.data, name.length),
+							     make_shared_binary_string(value.data, value.length));
 					}
 				} while (0);
 				if (err) { // there was an error while 
@@ -423,21 +423,21 @@ PIKECLASS Parser {
 			case PSYC_PARSE_BODY_START: // if length was given this is used for body
 				init_string_builder_alloc(&THIS->incomplete, psyc_parse_value_length(&THIS->parser), 0);
 			case PSYC_PARSE_BODY_CONT:
-				string_builder_append(&THIS->incomplete, MKPCHARP(value.ptr, 0), value.length);
+				string_builder_append(&THIS->incomplete, MKPCHARP(value.data, 0), value.length);
 				break;
 			case PSYC_PARSE_BODY_END:
-				string_builder_append(&THIS->incomplete, MKPCHARP(value.ptr, 0), value.length);
+				string_builder_append(&THIS->incomplete, MKPCHARP(value.data, 0), value.length);
 				do {
 					struct pike_string *tmp = finish_string_builder(&THIS->incomplete);
 					value.length = tmp->len;
-					value.ptr = (char *) STR0(tmp);
+					value.data = (char *) STR0(tmp);
 					// FIXME: not sure if this is really safe
 					free_string(tmp);
 				} while (0);
 				// fall thru
 			case PSYC_PARSE_BODY:
-				THIS->method = make_shared_binary_string(name.ptr, name.length);
-				THIS->body = make_shared_binary_string(value.ptr, value.length);
+				THIS->method = make_shared_binary_string(name.data, name.length);
+				THIS->body = make_shared_binary_string(value.data, value.length);
 				break;
 			case PSYC_PARSE_COMPLETE: // apply the callback
 				push_mapping(THIS->rvars);

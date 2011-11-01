@@ -3,8 +3,8 @@
 
 PsycTextRC psyc_text (PsycTextState *state, PsycTextCB getValue, void* extra)
 {
-	const char *start = state->tmpl.ptr, *end; // start & end of variable name
-	const char *prev = state->tmpl.ptr + state->cursor;
+	const char *start = state->tmpl.data, *end; // start & end of variable name
+	const char *prev = state->tmpl.data + state->cursor;
 	PsycString value;
 	int ret;
 	size_t len;
@@ -12,20 +12,20 @@ PsycTextRC psyc_text (PsycTextState *state, PsycTextCB getValue, void* extra)
 
 	while (state->cursor < state->tmpl.length)
 	{
-		start = memmem(state->tmpl.ptr + state->cursor,
+		start = memmem(state->tmpl.data + state->cursor,
 		               state->tmpl.length - state->cursor,
-		               state->open.ptr, state->open.length);
+		               state->open.data, state->open.length);
 		if (!start)
 			break;
 
-		state->cursor = (start - state->tmpl.ptr) + state->open.length;
+		state->cursor = (start - state->tmpl.data) + state->open.length;
 		if (state->cursor >= state->tmpl.length)
 			break; // [ at the end
 
-		end = memmem(state->tmpl.ptr + state->cursor,
+		end = memmem(state->tmpl.data + state->cursor,
 		             state->tmpl.length - state->cursor,
-		             state->close.ptr, state->close.length);
-		state->cursor = (end - state->tmpl.ptr) + state->close.length;
+		             state->close.data, state->close.length);
+		state->cursor = (end - state->tmpl.data) + state->close.length;
 
 		if (!end)
 			break; // ] not found
@@ -45,25 +45,25 @@ PsycTextRC psyc_text (PsycTextState *state, PsycTextCB getValue, void* extra)
 		len = start - prev;
 		if (state->written + len > state->buffer.length)
 		{
-			state->cursor = prev - state->tmpl.ptr;
+			state->cursor = prev - state->tmpl.data;
 			return PSYC_TEXT_INCOMPLETE;
 		}
 
-		memcpy((void *)(state->buffer.ptr + state->written), prev, len);
+		memcpy((void *)(state->buffer.data + state->written), prev, len);
 		state->written += len;
 
 		// now substitute the value if there's enough buffer space
 		if (state->written + value.length > state->buffer.length)
 		{
-			state->cursor = start - state->tmpl.ptr;
+			state->cursor = start - state->tmpl.data;
 			return PSYC_TEXT_INCOMPLETE;
 		}
 
-		memcpy((void *)(state->buffer.ptr + state->written), value.ptr, value.length);
+		memcpy((void *)(state->buffer.data + state->written), value.data, value.length);
 		state->written += value.length;
 
 		// mark the start of the next chunk of text in the template
-		prev = state->tmpl.ptr + state->cursor;
+		prev = state->tmpl.data + state->cursor;
 		no_subst = 0;
 	}
 
@@ -71,11 +71,11 @@ PsycTextRC psyc_text (PsycTextState *state, PsycTextCB getValue, void* extra)
 		return PSYC_TEXT_NO_SUBST;
 
 	// copy the rest of the template after the last var
-	len = state->tmpl.length - (prev - state->tmpl.ptr);
+	len = state->tmpl.length - (prev - state->tmpl.data);
 	if (state->written + len > state->buffer.length)
 		return PSYC_TEXT_INCOMPLETE;
 
-	memcpy((void *)(state->buffer.ptr + state->written), prev, len);
+	memcpy((void *)(state->buffer.data + state->written), prev, len);
 	state->written += len;
 
 	return PSYC_TEXT_COMPLETE;
