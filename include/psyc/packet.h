@@ -126,8 +126,8 @@ static inline
 PsycModifier psyc_modifier_new (char oper,
                                 char *name, size_t namelen,
                                 char *value, size_t valuelen,
-                                PsycModifierFlag flag){
-
+                                PsycModifierFlag flag)
+{
 	PsycModifier m = {oper, {namelen, name}, {valuelen, value}, flag};
 
 	if (flag == PSYC_MODIFIER_CHECK_LENGTH) // find out if it needs a length
