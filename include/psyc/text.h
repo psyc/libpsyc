@@ -58,7 +58,7 @@ typedef struct
  * Callback for psyc_text() that produces a value for a match.
  *
  * The application looks up a match such as _fruit from [_fruit] and
- * if found sets value->ptr & value->length to point to the found value,
+ * if found sets value->data & value->length to point to the found value,
  * "Apple" for example. 0 is a legal value for the length.
  * The callbacks returns either PSYC_TEXT_VALUE_FOUND or
  * PSYC_TEXT_VALUE_NOT_FOUND if no match found in which case psyc_text

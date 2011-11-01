@@ -48,9 +48,9 @@ int main (int argc, char **argv) {
 				case PSYC_PARSE_LIST_END:
 					ret = 0;
 				case PSYC_PARSE_LIST_ELEM:
-					if (verbose) printf("|%d: %.*s... (%ld)\n", i, 10, elem.ptr, elem.length);
+					if (verbose) printf("|%d: %.*s... (%ld)\n", i, 10, elem.data, elem.length);
 					//elems[i] = malloc(elem.length);
-					//memcpy(&elems[i++], elem.ptr, elem.length);
+					//memcpy(&elems[i++], elem.data, elem.length);
 					break;
 				default:
 					printf("# Error while parsing list: %i\n", ret);
@@ -76,10 +76,10 @@ int main (int argc, char **argv) {
 				case PSYC_PARSE_LIST_END:
 					ret = 0;
 				case PSYC_PARSE_LIST_ELEM:
-					//if (verbose) printf("|%.*s\n", (int)elem.length, elem.ptr);
-					if (verbose) printf("|%d: %.*s... (%ld)\n", i, 10, elem.ptr, elem.length);
+					//if (verbose) printf("|%.*s\n", (int)elem.length, elem.data);
+					if (verbose) printf("|%d: %.*s... (%ld)\n", i, 10, elem.data, elem.length);
 					elems[i] = malloc(elem.length);
-					memcpy(elems[i++], elem.ptr, elem.length);
+					memcpy(elems[i++], elem.data, elem.length);
 					break;
 				default:
 					printf("# Error while parsing list: %i\n", ret);
@@ -111,7 +111,7 @@ int main (int argc, char **argv) {
 						elems2 = malloc((i+1) * sizeof(char*));
 
 					elems2[i] = malloc(elem.length);
-					memcpy(elems2[i++], elem.ptr, elem.length);
+					memcpy(elems2[i++], elem.data, elem.length);
 					break;
 				default:
 					printf("# Error while parsing list: %i\n", ret);
@@ -145,7 +145,7 @@ int main (int argc, char **argv) {
 					*/
 					elems2 = malloc(sizeof(char*));
 					elems2[i] = malloc(elem.length);
-					memcpy(elems2[i], elem.ptr, elem.length);
+					memcpy(elems2[i], elem.data, elem.length);
 					break;
 				default:
 					printf("# Error while parsing list: %i\n", ret);
@@ -191,7 +191,7 @@ int main (int argc, char **argv) {
 					ret = 0;
 				case PSYC_PARSE_LIST_ELEM:	
 					elems2[i] = malloc(elem.length);
-					memcpy(elems2[i++], elem.ptr, elem.length);
+					memcpy(elems2[i++], elem.data, elem.length);
 					break;
 				default:
 					printf("# Error while parsing list: %i\n", ret);

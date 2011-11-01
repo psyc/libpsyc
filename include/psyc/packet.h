@@ -113,7 +113,7 @@ PsycModifierFlag psyc_modifier_length_check (PsycModifier *m)
 
 	if (m->value.length > PSYC_MODIFIER_SIZE_THRESHOLD)
 		flag = PSYC_MODIFIER_NEED_LENGTH;
-	else if (memchr(m->value.ptr, (int)'\n', m->value.length))
+	else if (memchr(m->value.data, (int)'\n', m->value.length))
 		flag = PSYC_MODIFIER_NEED_LENGTH;
 	else
 		flag = PSYC_MODIFIER_NO_LENGTH;

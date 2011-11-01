@@ -82,7 +82,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 
 	do {
 		if (verbose >= 3)
-			printf("\n# buffer = [%.*s]\n# part = %d\n", (int)parser->buffer.length, parser->buffer.ptr, parser->part);
+			printf("\n# buffer = [%.*s]\n# part = %d\n", (int)parser->buffer.length, parser->buffer.data, parser->part);
 		// Parse the next part of the packet (a routing/entity modifier or the body)
 		ret = exit_code = psyc_parse(parser, &oper, &name, &value);
 		if (verbose >= 2)
@@ -222,15 +222,15 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 				}
 
 				if (name.length) {
-					pname->ptr = malloc(name.length);
+					pname->data = malloc(name.length);
 					pname->length = name.length;
 
-					assert(pname->ptr != NULL);
-					memcpy((void*)pname->ptr, name.ptr, name.length);
+					assert(pname->data != NULL);
+					memcpy((void*)pname->data, name.data, name.length);
 					name.length = 0;
 
 					if (verbose >= 2)
-						printf("%.*s = ", (int)pname->length, pname->ptr);
+						printf("%.*s = ", (int)pname->length, pname->data);
 				}
 
 				if (value.length) {
@@ -239,15 +239,15 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 							len = psyc_parse_value_length(parser);
 						else
 							len = value.length;
-						pvalue->ptr = malloc(len);
+						pvalue->data = malloc(len);
 					}
-					assert(pvalue->ptr != NULL);
-					memcpy((void*)pvalue->ptr + pvalue->length, value.ptr, value.length);
+					assert(pvalue->data != NULL);
+					memcpy((void*)pvalue->data + pvalue->length, value.data, value.length);
 					pvalue->length += value.length;
 					value.length = 0;
 
 					if (verbose >= 2) {
-						printf("[%.*s]", (int)pvalue->length, pvalue->ptr);
+						printf("[%.*s]", (int)pvalue->length, pvalue->data);
 						if (parser->valueLength > pvalue->length)
 							printf("...");
 						printf("\n");
@@ -284,7 +284,7 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 								retl = 0;
 							case PSYC_PARSE_LIST_ELEM:
 								if (verbose >= 2) {
-									printf("|%.*s\n", (int)elem.length, elem.ptr);
+									printf("|%.*s\n", (int)elem.length, elem.data);
 									if (ret == PSYC_PARSE_LIST_END)
 										printf("## LIST END");
 								}
@@ -311,9 +311,9 @@ static inline
 void resetString (PsycString *s, uint8_t freeptr)
 {
 	if (freeptr && s->length)
-		free((void*)s->ptr);
+		free((void*)s->data);
 
-	s->ptr = NULL;
+	s->data = NULL;
 	s->length = 0;
 }
 

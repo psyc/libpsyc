@@ -101,7 +101,7 @@ Bool psyc_var_is_routing (char* name, size_t len);
 
 bool isRoutingVar (char[] name)
 {
-	return psyc_var_is_routing(name.ptr, name.length); //FIXME
+	return psyc_var_is_routing(name.data, name.length); //FIXME
 }
 
 /**

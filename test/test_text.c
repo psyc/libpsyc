@@ -11,7 +11,7 @@ PsycTextValueRC getValueFooBar (const char *name, size_t len, PsycString *value,
 {
 	if (verbose)
 		printf("> getValue: %.*s\n", (int)len, name);
-	value->ptr = "Foo Bar";
+	value->data = "Foo Bar";
 	value->length = 7;
 	return PSYC_TEXT_VALUE_FOUND;
 }
@@ -20,7 +20,7 @@ PsycTextValueRC getValueEmpty (const char *name, size_t len, PsycString *value, 
 {
 	if (verbose)
 		printf("> getValue: %.*s\n", (int)len, name);
-	value->ptr = "";
+	value->data = "";
 	value->length = 0;
 	return PSYC_TEXT_VALUE_FOUND;
 }
@@ -54,7 +54,7 @@ int testText (char *template, size_t tmplen, char *buffer, size_t buflen, PsycSt
 				if (verbose)
 					printf("%.*s\n", (int)length, buffer);
 				result->length = length;
-				result->ptr = buffer;
+				result->data = buffer;
 				return ret;
 			case PSYC_TEXT_NO_SUBST:
 				if (verbose)
@@ -78,11 +78,11 @@ int main(int argc, char **argv)
 	int i;
 
 	testText(str, len, buffer, BUFSIZE, &result, &getValueFooBar);
-	if (memcmp(result.ptr, PSYC_C2ARG("Hello Foo Bar & Foo Bar!")))
+	if (memcmp(result.data, PSYC_C2ARG("Hello Foo Bar & Foo Bar!")))
 		return 1;
 
 	testText(str, len, buffer, BUFSIZE, &result, &getValueEmpty);
-	if (memcmp(result.ptr, PSYC_C2ARG("Hello  & !")))
+	if (memcmp(result.data, PSYC_C2ARG("Hello  & !")))
 		return 2;
 
 	if (testText(str, len, buffer, BUFSIZE, &result, &getValueNotFound) != PSYC_TEXT_NO_SUBST)
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 	for (i = 1; i < 22; i++)
 	{
 		testText(str, len, buffer, i, &result, &getValueFooBar);
-		if (memcmp(result.ptr, PSYC_C2ARG("Hello Foo Bar & Foo Bar!")))
+		if (memcmp(result.data, PSYC_C2ARG("Hello Foo Bar & Foo Bar!")))
 			return 10 + i;
 	}
 

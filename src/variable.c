@@ -27,7 +27,7 @@ const PsycString psyc_routing_vars[] =
 };
 
 // Variable types in alphabetical order.
-const PsycMatchVar psyc_var_types[] =
+const PsycDictInt psyc_var_types[] =
 {
 	{PSYC_C2STR("_amount"),   PSYC_TYPE_AMOUNT},
 	{PSYC_C2STR("_color"),    PSYC_TYPE_COLOR},
@@ -72,9 +72,9 @@ PsycBool psyc_var_is_routing (const char *name, size_t len)
 		{
 			if (matching[i] < 0)
 				break; // reached the end of possible matches
-			if (psyc_routing_vars[matching[i]].ptr[cursor] == name[cursor])
+			if (psyc_routing_vars[matching[i]].data[cursor] == name[cursor])
 				matching[m++] = matching[i]; // found a match, update matching indexes
-			else if (psyc_routing_vars[matching[i]].ptr[cursor] > name[cursor])
+			else if (psyc_routing_vars[matching[i]].data[cursor] > name[cursor])
 				break; // passed the possible matches in alphabetical order in the array
 		}
 
@@ -94,6 +94,6 @@ inline
 PsycType psyc_var_type (const char *name, size_t len)
 {
 	int8_t m[psyc_var_types_num];
-	return psyc_in_array(psyc_var_types, psyc_var_types_num,
-											 name, len, PSYC_YES, (int8_t*)&m);
+	return (PsycType) psyc_dict_lookup((PsycDict*)psyc_var_types, psyc_var_types_num,
+                                     name, len, PSYC_YES, (int8_t*)&m);
 }

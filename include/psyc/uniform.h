@@ -68,6 +68,7 @@ typedef enum {
 } PsycTransport;
 
 typedef enum {
+	PSYC_ENTITY_ROOT = 0,
 	PSYC_ENTITY_PERSON = '~',
 	PSYC_ENTITY_PLACE = '@',
 	PSYC_ENTITY_SERVICE = '$',

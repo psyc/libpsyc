@@ -77,17 +77,17 @@
  * 			// Name, value and operator of the variable can now be found in the
  * 			// respective variables:
  * 			printf("Variable: %.*s  Value: %.*s Operator: %c\n",
- * 			        name.length, name.ptr,
- * 			        value.length, value.ptr,
+ * 			        name.length, name.data,
+ * 			        value.length, value.data,
  * 			        oper);
- * 			// Note that the .ptr member still points at your original buffer. If
+ * 			// Note that the .data member still points at your original buffer. If
  * 			// you want to reuse that buffer for the next packet, you better copy it
  * 			// before passing it to the parser or you copy each variable now.
  * 			break;
  * 		case PSYC_PARSE_BODY: // it is the method and the body of the packet.
  * 			printf("Method Name: %.*s  Body: %.*s\n",
- * 			        name.length, name.ptr,    // name of the method
- * 			        value.length, value.ptr); // value of the body
+ * 			        name.length, name.data,    // name of the method
+ * 			        value.length, value.data); // value of the body
  * 			break;
  * 		case PSYC_PARSE_COMPLETE: // parsing of this packet is complete
  * 			// You can simply continue parsing till you get the
@@ -345,7 +345,7 @@ size_t psyc_parse_remaining_length (PsycParseState *state)
 static inline
 const char * psyc_parse_remaining_buffer (PsycParseState *state)
 {
-	return state->buffer.ptr + state->cursor;
+	return state->buffer.data + state->cursor;
 }
 
 /**

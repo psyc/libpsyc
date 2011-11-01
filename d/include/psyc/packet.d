@@ -105,7 +105,7 @@ struct Modifier
 
 		if (value.length > PSYC_MODIFIER_SIZE_THRESHOLD)
 			flag = ModifierFlag.NEED_LENGTH;
-		else if (memchr(value.ptr, cast(int)'\n', value.length))
+		else if (memchr(value.data, cast(int)'\n', value.length))
 			flag = ModifierFlag.NEED_LENGTH;
 		else
 			flag = ModifierFlag.NO_LENGTH;
@@ -162,7 +162,7 @@ struct Packet
 		psyc_packet_length_set(this);
 
 		with (RenderRC) 
-			switch (psyc_render(this, buffer.ptr, buffer.length))
+			switch (psyc_render(this, buffer.data, buffer.length))
 			{
 				case ERROR_METHOD_MISSING:
 					throw new Exception("Method missing");

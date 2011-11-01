@@ -13,8 +13,8 @@ PsycListFlag psyc_list_length_check (PsycList *list)
 		PsycString *elem = &list->elems[i];
 		length += 1 + elem->length; // |elem
 		if (length > PSYC_MODIFIER_SIZE_THRESHOLD ||
-				memchr(elem->ptr, (int)'|', elem->length) ||
-				memchr(elem->ptr, (int)'\n', elem->length))
+				memchr(elem->data, (int)'|', elem->length) ||
+				memchr(elem->data, (int)'\n', elem->length))
 		{
 			flag = PSYC_LIST_NEED_LENGTH;
 			break;
@@ -76,7 +76,7 @@ size_t psyc_modifier_length (PsycModifier *m)
 inline
 PsycPacketFlag psyc_packet_length_check (PsycPacket *p)
 {
-	if (p->data.length == 1 && p->data.ptr[0] == C_GLYPH_PACKET_DELIMITER)
+	if (p->data.length == 1 && p->data.data[0] == C_GLYPH_PACKET_DELIMITER)
 		return PSYC_PACKET_NEED_LENGTH;
 
 	if (p->data.length > PSYC_CONTENT_SIZE_THRESHOLD)
@@ -89,7 +89,7 @@ PsycPacketFlag psyc_packet_length_check (PsycPacket *p)
 		if (p->entity.modifiers[i].flag == PSYC_MODIFIER_NEED_LENGTH)
 			return PSYC_PACKET_NEED_LENGTH;
 
-	if (memmem(p->data.ptr, p->data.length, PSYC_C2ARG(PSYC_PACKET_DELIMITER)))
+	if (memmem(p->data.data, p->data.length, PSYC_C2ARG(PSYC_PACKET_DELIMITER)))
 		return PSYC_PACKET_NEED_LENGTH;
 
 	return PSYC_PACKET_NO_LENGTH;
