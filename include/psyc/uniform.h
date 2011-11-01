@@ -32,8 +32,10 @@ typedef struct {
 	PsycString body;       // the URL without scheme and '//'
 	PsycString user_host;  // mailto and xmpp style
 	PsycString host_port;  // just host:port (and transport)
-	PsycString root;       // root UNI of peer/server
+	PsycString root;       // root UNI
+	PsycString entity;     // entity UNI, without the channel
 	PsycString slashes;    // the // if the protocol has them
+	PsycString slash;      // first / after host
 	PsycString nick;       // whatever works as a nickname
 } PsycUniform;
 
