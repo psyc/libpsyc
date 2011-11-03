@@ -121,19 +121,17 @@ PsycModifierFlag psyc_modifier_length_check (PsycModifier *m)
 	return flag;
 }
 
-/** Create new modifier */
+/** Initialize modifier */
 static inline
-PsycModifier psyc_modifier_new (char oper,
-                                char *name, size_t namelen,
-                                char *value, size_t valuelen,
-                                PsycModifierFlag flag)
+void psyc_modifier_init (PsycModifier *m, char oper,
+                         char *name, size_t namelen,
+                         char *value, size_t valuelen,
+                         PsycModifierFlag flag)
 {
-	PsycModifier m = {oper, {namelen, name}, {valuelen, value}, flag};
+	*m = (PsycModifier) {oper, {namelen, name}, {valuelen, value}, flag};
 
 	if (flag == PSYC_MODIFIER_CHECK_LENGTH) // find out if it needs a length
-		m.flag = psyc_modifier_length_check(&m);
-
-	return m;
+		m->flag = psyc_modifier_length_check(m);
 }
 
 /**
@@ -165,20 +163,23 @@ PsycPacketFlag psyc_packet_length_check (PsycPacket *p);
  */
 size_t psyc_packet_length_set (PsycPacket *p);
 
-/** Create new list. */
-PsycList psyc_list_new (PsycString *elems, size_t num_elems, PsycListFlag flag);
+/** Initialize list. */
+void psyc_list_init (PsycList *list, PsycString *elems, size_t num_elems,
+                     PsycListFlag flag);
 
-/** Create new packet. */
-PsycPacket psyc_packet_new (PsycModifier *routing, size_t routinglen,
-                            PsycModifier *entity, size_t entitylen,
-                            char *method, size_t methodlen,
-                            char *data, size_t datalen,
-                            PsycPacketFlag flag);
+/** Initialize packet. */
+void psyc_packet_init (PsycPacket *packet,
+                       PsycModifier *routing, size_t routinglen,
+                       PsycModifier *entity, size_t entitylen,
+                       char *method, size_t methodlen,
+                       char *data, size_t datalen,
+                       PsycPacketFlag flag);
 
-/** Create new packet with raw content. */
-PsycPacket psyc_packet_new_raw (PsycModifier *routing, size_t routinglen,
-                                char *content, size_t contentlen,
-                                PsycPacketFlag flag);
+/** Initialize packet with raw content. */
+void psyc_packet_init_raw (PsycPacket *packet,
+                           PsycModifier *routing, size_t routinglen,
+                           char *content, size_t contentlen,
+                           PsycPacketFlag flag);
 
 /** @} */ // end of packet group
 

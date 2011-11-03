@@ -142,13 +142,17 @@ struct Packet
                         char[] method, ubyte[] data,
                         PacketFlag flag = PacketFlag.CHECK_LENGTH)
 	{
-		return psyc_packet_new(&routing, &entity, cast(ubyte[]*)&method, &data, flag); // FIXME
+		Packet p;
+		psyc_packet_init(&p, &routing, &entity, cast(ubyte[]*)&method, &data, flag); // FIXME
+		return p;
 	}
 
 	static Packet opCall (Modifier[] routing, ubyte[] content,
 	                      PacketFlag flag = PacketFlag.CHECK_LENGTH)
 	{
-		return psyc_packet_new_raw(&routing, &content, flag); // FIXME
+		Packet p;
+		psyc_packet_init_raw(&routing, &content, flag); // FIXME
+		return p;
 	}
 
 	size_t length ( )
@@ -215,17 +219,19 @@ PacketFlag psyc_packet_length_check (Packet *p);
 private size_t psyc_packet_length_set (Packet *p);
 
 /** Create new list. */
-List psyc_list_new (String *elems, size_t num_elems, ListFlag flag);
+void psyc_list_init (List *list, String *elems, size_t num_elems, ListFlag flag);
 
-/** Create new packet. */
-Packet psyc_packet_new (Modifier *routing, size_t routinglen,
-                        Modifier *entity, size_t entitylen,
-                        char *method, size_t methodlen,
-                        char *data, size_t datalen,
-                        PacketFlag flag);
+/** Initialize packet. */
+void psyc_packet_init (Packet packet,
+                       Modifier *routing, size_t routinglen,
+                       Modifier *entity, size_t entitylen,
+                       char *method, size_t methodlen,
+                       char *data, size_t datalen,
+                       PacketFlag flag);
 
-/** Create new packet with raw content. */
-Packet psyc_packet_new_raw (Modifier *routing, size_t routinglen,
-                            char *content, size_t contentlen,
-                            PacketFlag flag);
+/** Initialize packet with raw content. */
+void psyc_packet_init_raw (Packet packet,
+                           Modifier *routing, size_t routinglen,
+                           char *content, size_t contentlen,
+                           PacketFlag flag);
 

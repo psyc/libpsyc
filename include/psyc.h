@@ -20,7 +20,8 @@
 #include <string.h>
 #include <sys/types.h>
 
-#define PSYC_EPOCH      1440444041      // 2015-08-24 21:20:41 CET (Monday)
+#define PSYC_VERSION 1
+#define PSYC_EPOCH   1440444041      // 2015-08-24 21:20:41 CET (Monday)
 
 #define	PSYC_C2STR(str) {sizeof(str)-1, str}
 #define	PSYC_C2ARG(str) str, sizeof(str)-1
@@ -117,28 +118,6 @@ typedef struct
 	PsycString key;
 	intptr_t value;
 } PsycDictInt;
-
-/**
- * Shortcut for creating a PsycString.
- *
- * @param str Pointer to the buffer.
- * @param len Length of that buffer.
- *
- * @return An instance of the PsycString struct.
- */
-static inline
-PsycString psyc_string_new (char *str, size_t len)
-{
-	PsycString s = {len, str};
-	return s;
-}
-
-static inline
-unsigned int psyc_version ()
-{
-	return 1;
-}
-
 
 /**
  * Checks if long keyword string inherits from short keyword string.
