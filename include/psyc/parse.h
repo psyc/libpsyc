@@ -387,7 +387,7 @@ static inline
 PsycParseListRC psyc_parse_list (PsycParseListState *state, PsycString *elem);
 
 static inline
-PsycBool psyc_parse_number (const char *value, size_t len, ssize_t *n)
+PsycBool psyc_parse_number (const char *value, size_t len, int64_t *n)
 {
 	size_t c = 0;
 	uint8_t neg = 0;
@@ -409,6 +409,20 @@ PsycBool psyc_parse_number (const char *value, size_t len, ssize_t *n)
 		*n = 0 - *n;
 
 	return PSYC_TRUE;
+}
+
+static inline
+PsycBool psyc_parse_number_unsigned (const char *value, size_t len, uint64_t *n)
+{
+	size_t c = 0;
+	if (!value)
+		return PSYC_FALSE;
+
+	*n = 0;
+	while (c < len && value[c] >= '0' && value[c] <= '9')
+		*n = 10 * *n + (value[c++] - '0');
+
+	return c == len ? PSYC_TRUE : PSYC_FALSE;
 }
 
 static inline
