@@ -11,24 +11,26 @@ int testPresence (const char *avail, int availlen,
                   const char *desc, int desclen,
                   const char *rendered, uint8_t verbose)
 {
-	PsycModifier routing[] = {
-		psyc_modifier_new(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_context"), PSYC_C2ARG(myUNI),
-		                  PSYC_MODIFIER_ROUTING),
-	};
+	PsycModifier routing[1];
+	psyc_modifier_init(&routing[0], C_GLYPH_OPERATOR_SET,
+	                   PSYC_C2ARG("_context"),
+	                   PSYC_C2ARG(myUNI), PSYC_MODIFIER_ROUTING);
 
-	PsycModifier entity[] = {
-		// presence is to be assigned permanently in distributed state
-		psyc_modifier_new(C_GLYPH_OPERATOR_ASSIGN, PSYC_C2ARG("_degree_availability"),
-		                  avail, availlen, PSYC_MODIFIER_CHECK_LENGTH),
-		psyc_modifier_new(C_GLYPH_OPERATOR_ASSIGN, PSYC_C2ARG("_description_presence"),
-		                  desc, desclen, PSYC_MODIFIER_CHECK_LENGTH),
-	};
+	PsycModifier entity[2];
+	// presence is to be assigned permanently in distributed state
+	psyc_modifier_init(&entity[0], C_GLYPH_OPERATOR_ASSIGN,
+	                   PSYC_C2ARG("_degree_availability"),
+	                   avail, availlen, PSYC_MODIFIER_CHECK_LENGTH);
+	psyc_modifier_init(&entity[1], C_GLYPH_OPERATOR_ASSIGN,
+	                   PSYC_C2ARG("_description_presence"),
+	                   desc, desclen, PSYC_MODIFIER_CHECK_LENGTH);
 
-	PsycPacket packet = psyc_packet_new(routing, PSYC_NUM_ELEM(routing),
-	                                    entity, PSYC_NUM_ELEM(entity),
-	                                    PSYC_C2ARG("_notice_presence"),
-	                                    NULL, 0,
-	                                    PSYC_PACKET_CHECK_LENGTH);
+	PsycPacket packet;
+	psyc_packet_init(&packet, routing, PSYC_NUM_ELEM(routing),
+	                 entity, PSYC_NUM_ELEM(entity),
+	                 PSYC_C2ARG("_notice_presence"),
+	                 NULL, 0,
+	                 PSYC_PACKET_CHECK_LENGTH);
 
 	char buffer[512];
 	psyc_render(&packet, buffer, sizeof(buffer));
@@ -39,12 +41,13 @@ int testPresence (const char *avail, int availlen,
 
 int testList (const char *rendered, uint8_t verbose)
 {
-	PsycModifier routing[] = {
-		psyc_modifier_new(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_source"), PSYC_C2ARG(myUNI),
-		                  PSYC_MODIFIER_ROUTING),
-		psyc_modifier_new(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_context"), PSYC_C2ARG(myUNI),
-		                  PSYC_MODIFIER_ROUTING),
-	};
+	PsycModifier routing[2];
+	psyc_modifier_init(&routing[0], C_GLYPH_OPERATOR_SET,
+	                   PSYC_C2ARG("_source"),
+	                   PSYC_C2ARG(myUNI), PSYC_MODIFIER_ROUTING);
+	psyc_modifier_init(&routing[1], C_GLYPH_OPERATOR_SET,
+	                   PSYC_C2ARG("_context"),
+	                   PSYC_C2ARG(myUNI), PSYC_MODIFIER_ROUTING);
 
 	PsycString elems_text[] = {
 		PSYC_C2STR("foo"),
@@ -59,25 +62,27 @@ int testList (const char *rendered, uint8_t verbose)
 	};
 
 	PsycList list_text, list_bin;
-	list_text = psyc_list_new(elems_text, PSYC_NUM_ELEM(elems_text), PSYC_LIST_CHECK_LENGTH);
-	list_bin = psyc_list_new(elems_bin, PSYC_NUM_ELEM(elems_bin), PSYC_LIST_CHECK_LENGTH);
+	psyc_list_init(&list_text, elems_text, PSYC_NUM_ELEM(elems_text), PSYC_LIST_CHECK_LENGTH);
+	psyc_list_init(&list_bin, elems_bin, PSYC_NUM_ELEM(elems_bin), PSYC_LIST_CHECK_LENGTH);
 
 	char buf_text[32], buf_bin[32];
 	psyc_render_list(&list_text, buf_text, sizeof(buf_text));
 	psyc_render_list(&list_bin, buf_bin, sizeof(buf_bin));
 
-	PsycModifier entity[] = {
-		psyc_modifier_new(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_list_text"),
-		                  buf_text, list_text.length, list_text.flag),
-		psyc_modifier_new(C_GLYPH_OPERATOR_SET, PSYC_C2ARG("_list_binary"),
-		                  buf_bin, list_bin.length, list_bin.flag),
-	};
+	PsycModifier entity[2];
+	psyc_modifier_init(&entity[0], C_GLYPH_OPERATOR_SET,
+	                   PSYC_C2ARG("_list_text"),
+	                   buf_text, list_text.length, list_text.flag);
+	psyc_modifier_init(&entity[1], C_GLYPH_OPERATOR_SET,
+	                   PSYC_C2ARG("_list_binary"),
+	                   buf_bin, list_bin.length, list_bin.flag);
 
-	PsycPacket packet = psyc_packet_new(routing, PSYC_NUM_ELEM(routing),
-	                                    entity, PSYC_NUM_ELEM(entity),
-	                                    PSYC_C2ARG("_test_list"),
-	                                    PSYC_C2ARG("list test"),
-	                                    PSYC_PACKET_CHECK_LENGTH);
+	PsycPacket packet;
+	psyc_packet_init(&packet, routing, PSYC_NUM_ELEM(routing),
+	                 entity, PSYC_NUM_ELEM(entity),
+	                 PSYC_C2ARG("_test_list"),
+	                 PSYC_C2ARG("list test"),
+	                 PSYC_PACKET_CHECK_LENGTH);
 
 	char buffer[512];
 	psyc_render(&packet, buffer, sizeof(buffer));

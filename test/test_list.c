@@ -26,8 +26,8 @@ int main (int argc, char **argv) {
 	for (i=0; i<NELEMS; i++)
 		elems_bin[i]  = (PsycString) PSYC_C2STR("1234567890|abcdefghijklmnopqrstuvwxyz|_\n1234567890|abcdefghijklmnopqrstuvwxyz|_\n1234567890|abcdefghijklmnopqrstuvwxyz|_\n1234567890");
 
-	list_text = psyc_list_new(elems_text, PSYC_NUM_ELEM(elems_text), PSYC_LIST_NO_LENGTH);
-	list_bin = psyc_list_new(elems_bin, PSYC_NUM_ELEM(elems_bin), PSYC_LIST_CHECK_LENGTH);
+	psyc_list_init(&list_text, elems_text, PSYC_NUM_ELEM(elems_text), PSYC_LIST_NO_LENGTH);
+	psyc_list_init(&list_bin, elems_bin, PSYC_NUM_ELEM(elems_bin), PSYC_LIST_CHECK_LENGTH);
 
 	psyc_render_list(&list_text, buf_text, sizeof(buf_text));
 	psyc_render_list(&list_bin, buf_bin, sizeof(buf_bin));

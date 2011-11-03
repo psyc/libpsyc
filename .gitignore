@@ -43,7 +43,8 @@ python/*.py
 *.rej
 *.log
 *.pem
-*old
-*bak
-*diff
-*orig
+*.old
+*.bak
+*.orig
+*.diff
+*.patch

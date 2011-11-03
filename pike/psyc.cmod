@@ -1,12 +1,12 @@
-#include "global.h"                                                                                                                            
-#include "interpret.h"                                                                                                                         
-#include "stralloc.h"                                                                                                                          
-#include "mapping.h"                                                                                                                           
+#include "global.h"
+#include "interpret.h"
+#include "stralloc.h"
+#include "mapping.h"
 #include "array.h"
-#include "svalue.h"                                                                                                                            
-#include "operators.h"                                                                                                                         
-#include "array.h"                                                                                                                             
-#include "builtin_functions.h" 
+#include "svalue.h"
+#include "operators.h"
+#include "array.h"
+#include "builtin_functions.h"
 #include "module.h"
 
 #include <stdlib.h>
@@ -37,7 +37,7 @@ PsycTextValueRC lookup_value_mapping(const char *name, size_t len, PsycString *v
 	//printf("lookup_value_mapping called for %.*s\n", (int) len, name);
 	struct pike_string *key = make_shared_binary_string(name, len);
 	struct mapping *m = (struct mapping *) extra;
-	struct svalue *s = low_mapping_string_lookup(m, key); 
+	struct svalue *s = low_mapping_string_lookup(m, key);
 	free_string(key);
 
 	if (s == NULL) {
@@ -125,17 +125,15 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 
 	// fill headers
 	rheaders.lines = 0;
-	rheaders.modifiers = malloc(sizeof(PsycModifier) * rvars->data->size); 
+	rheaders.modifiers = malloc(sizeof(PsycModifier) * rvars->data->size);
 	NEW_MAPPING_LOOP(rvars->data) {
 		if (k->ind.type == PIKE_T_STRING) {
 			switch(k->val.type) {
 			case PIKE_T_STRING:
-				rheaders.modifiers[rheaders.lines++] = psyc_modifier_new(oper,
-									 (char *)STR0(k->ind.u.string),
-									 k->ind.u.string->len,
-									 (char *)STR0(k->val.u.string),
-									 k->val.u.string->len,
-									 PSYC_MODIFIER_ROUTING);
+				psyc_modifier_init(&rheaders.modifiers[rheaders.lines++], oper,
+						   (char *)STR0(k->ind.u.string), k->ind.u.string->len,
+						   (char *)STR0(k->val.u.string), k->val.u.string->len,
+						   PSYC_MODIFIER_ROUTING);
 				break;
 			default:
 				Pike_error("psyc render: unsupported non-string value in rvars\n");
@@ -147,7 +145,7 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 	}
 
 	eheaders.lines = 0;
-	eheaders.modifiers = malloc(sizeof(PsycModifier) * evars->data->size); 
+	eheaders.modifiers = malloc(sizeof(PsycModifier) * evars->data->size);
 	NEW_MAPPING_LOOP(evars->data) {
 		if (k->ind.type == PIKE_T_STRING) {
 			char *key;
@@ -157,7 +155,7 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 			struct pike_string *s;
 
 			key = (char *) STR0(k->ind.u.string);
-			keylen = k->ind.u.string->len; 
+			keylen = k->ind.u.string->len;
 
 			switch(k->val.type) {
 			case PIKE_T_INT:
@@ -197,7 +195,7 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 							Pike_error("psyc_render: unsupported data type in list\n");
 						}
 					}
-					list = psyc_list_new(elems, k->val.u.array->size, PSYC_LIST_CHECK_LENGTH);
+					psyc_list_init(&list, elems, k->val.u.array->size, PSYC_LIST_CHECK_LENGTH);
 
 					struct pike_string *listbuf = begin_shared_string(list.length);
 					psyc_render_list(&list, (char *) STR0(listbuf), listbuf->len);
@@ -211,37 +209,32 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 				Pike_error("psyc_render: unsupported value in evars\n");
 				break;
 			}
-			eheaders.modifiers[eheaders.lines++] = psyc_modifier_new(oper,
-										 key, keylen,
-										 val, vallen,
-										 PSYC_MODIFIER_CHECK_LENGTH);
+			psyc_modifier_init(&eheaders.modifiers[eheaders.lines++], oper,
+					   key, keylen,
+					   val, vallen,
+					   PSYC_MODIFIER_CHECK_LENGTH);
 		} else {
 			Pike_error("psyc render: unsupported non-string key in evars\n");
 		}
 	}
 
 	if (body != NULL) {
-		packet = psyc_packet_new(rheaders.modifiers,
-					 rheaders.lines,
-					 eheaders.modifiers,
-					 eheaders.lines,
-					 (const char *)STR0(method), method->len,
-					 (const char *)STR0(body), body->len,
-					 PSYC_PACKET_CHECK_LENGTH);
+		psyc_packet_init(&packet, rheaders.modifiers, rheaders.lines,
+				 eheaders.modifiers, eheaders.lines,
+				 (const char *)STR0(method), method->len,
+				 (const char *)STR0(body), body->len,
+				 PSYC_PACKET_CHECK_LENGTH);
 	} else { // body arg was not given
-		packet = psyc_packet_new(rheaders.modifiers,
-					 rheaders.lines,
-					 eheaders.modifiers,
-					 eheaders.lines,
-					 (const char *)STR0(method), method->len,
-					 NULL, 0,
-					 PSYC_PACKET_CHECK_LENGTH);
+		psyc_packet_init(&packet, rheaders.modifiers, rheaders.lines,
+				 eheaders.modifiers, eheaders.lines,
+				 (const char *)STR0(method), method->len,
+				 NULL, 0, PSYC_PACKET_CHECK_LENGTH);
 	}
 
 	struct pike_string *s = begin_shared_string(packet.length);
 	psyc_render(&packet, (char *) STR0(s), packet.length);
 	// pop_n_elems(args);
-	RETURN end_shared_string(s); 
+	RETURN end_shared_string(s);
 }
 
 PIKECLASS Parser {
@@ -360,7 +353,7 @@ PIKECLASS Parser {
 								     make_shared_binary_string(name.data, name.length),
 								     &sv);
 						} else {
-							err = 3; 
+							err = 3;
 						}
 						break;
 					case PSYC_TYPE_FLAG:
@@ -415,7 +408,7 @@ PIKECLASS Parser {
 							     make_shared_binary_string(value.data, value.length));
 					}
 				} while (0);
-				if (err) { // there was an error while 
+				if (err) { // there was an error while
 					// FIXME
 					return;
 				}
@@ -443,14 +436,14 @@ PIKECLASS Parser {
 				push_mapping(THIS->rvars);
 				push_mapping(THIS->evars);
 				if (THIS->method == NULL) {
-					apply_low(Pike_fp->current_object, THIS->handle_packet, 2); 
+					apply_low(Pike_fp->current_object, THIS->handle_packet, 2);
 				} else if (THIS->body == NULL) {
 					push_string(THIS->method);
-					apply_low(Pike_fp->current_object, THIS->handle_packet, 3); 
+					apply_low(Pike_fp->current_object, THIS->handle_packet, 3);
 				} else {
 					push_string(THIS->method);
 					push_string(THIS->body);
-					apply_low(Pike_fp->current_object, THIS->handle_packet, 4); 
+					apply_low(Pike_fp->current_object, THIS->handle_packet, 4);
 				}
 
 				// reset packet state
@@ -467,7 +460,7 @@ PIKECLASS Parser {
 				return;
 			default: // fatal error
 				push_int(ret);
-				apply_low(Pike_fp->current_object, THIS->handle_error, 1); 
+				apply_low(Pike_fp->current_object, THIS->handle_error, 1);
 				// FIXME: free stuff? or do we kill the socket and parser anyway
 				return;
 			}

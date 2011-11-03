@@ -48,15 +48,15 @@ PsycListFlag psyc_list_length (PsycList *list)
 }
 
 inline
-PsycList psyc_list_new (PsycString *elems, size_t num_elems, PsycListFlag flag)
+void psyc_list_init (PsycList *list, PsycString *elems, size_t num_elems,
+                     PsycListFlag flag)
 {
-	PsycList list = {num_elems, elems, 0, flag};
+	*list = (PsycList) {num_elems, elems, 0, flag};
 
 	if (flag == PSYC_LIST_CHECK_LENGTH) // check if list elements need length
-		list.flag = psyc_list_length_check(&list);
+		list->flag = psyc_list_length_check(list);
 
-	list.length = psyc_list_length(&list);
-	return list;
+	list->length = psyc_list_length(list);
 }
 
 
@@ -134,33 +134,33 @@ size_t psyc_packet_length_set (PsycPacket *p)
 }
 
 inline
-PsycPacket psyc_packet_new (PsycModifier *routing, size_t routinglen,
-                            PsycModifier *entity, size_t entitylen,
-                            char *method, size_t methodlen,
-                            char *data, size_t datalen,
-                            PsycPacketFlag flag)
+void psyc_packet_init (PsycPacket *p,
+                       PsycModifier *routing, size_t routinglen,
+                       PsycModifier *entity, size_t entitylen,
+                       char *method, size_t methodlen,
+                       char *data, size_t datalen,
+                       PsycPacketFlag flag)
 {
-	PsycPacket p = {{routinglen, routing}, {entitylen, entity},
-									{methodlen, method}, {datalen, data}, {0,0}, 0, 0, flag};
+	*p = (PsycPacket) {{routinglen, routing}, {entitylen, entity},
+	                   {methodlen, method}, {datalen, data}, {0,0}, 0, 0, flag};
 
-	if (flag == PSYC_PACKET_CHECK_LENGTH) // find out if it needs a length
-		p.flag = psyc_packet_length_check(&p);
+	if (flag == PSYC_PACKET_CHECK_LENGTH) // find out if it needs length
+		p->flag = psyc_packet_length_check(p);
 
-	psyc_packet_length_set(&p);
-	return p;
+	psyc_packet_length_set(p);
 }
 
 inline
-PsycPacket psyc_packet_new_raw (PsycModifier *routing, size_t routinglen,
-                                char *content, size_t contentlen,
-                                PsycPacketFlag flag)
+void psyc_packet_init_raw (PsycPacket *p,
+                           PsycModifier *routing, size_t routinglen,
+                           char *content, size_t contentlen,
+                           PsycPacketFlag flag)
 {
-	PsycPacket p = {{routinglen, routing}, {0,0}, {0,0}, {0,0},
-									{contentlen, content}, 0, 0, flag};
+	*p = (PsycPacket) {{routinglen, routing}, {0,0}, {0,0}, {0,0},
+	                   {contentlen, content}, 0, 0, flag};
 
-	if (flag == PSYC_PACKET_CHECK_LENGTH) // find out if it needs a length
-		p.flag = psyc_packet_length_check(&p);
+	if (flag == PSYC_PACKET_CHECK_LENGTH) // find out if it needs length
+		p->flag = psyc_packet_length_check(p);
 
-	psyc_packet_length_set(&p);
-	return p;
+	psyc_packet_length_set(p);
 }

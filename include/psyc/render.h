@@ -52,9 +52,9 @@ typedef enum
  * This function renders packet->length bytes to the buffer,
  * if buflen is less than that an error is returned.
  *
- * @see psyc_packet_new
- * @see psyc_packet_new_raw
- * @see psyc_packet_length_set
+ * @see psyc_packet_init()
+ * @see psyc_packet_init_raw()
+ * @see psyc_packet_length_set()
  */
 #ifdef __INLINE_PSYC_RENDER
 static inline
