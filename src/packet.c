@@ -76,7 +76,7 @@ size_t psyc_modifier_length (PsycModifier *m)
 inline
 PsycPacketFlag psyc_packet_length_check (PsycPacket *p)
 {
-	if (p->data.length == 1 && p->data.data[0] == C_GLYPH_PACKET_DELIMITER)
+	if (p->data.length == 1 && p->data.data[0] == PSYC_PACKET_DELIMITER_CHAR)
 		return PSYC_PACKET_NEED_LENGTH;
 
 	if (p->data.length > PSYC_CONTENT_SIZE_THRESHOLD)
@@ -110,6 +110,10 @@ size_t psyc_packet_length_set (PsycPacket *p)
 		p->contentLength = p->content.length;
 	else
 	{
+		// add state operation
+		if (p->stateop != PSYC_STATE_NOOP)
+			p->contentLength += 2; // op\n
+
 		// add entity header length
 		for (i = 0; i < p->entity.lines; i++)
 			p->contentLength += psyc_modifier_length(&(p->entity.modifiers[i]));
@@ -139,9 +143,9 @@ void psyc_packet_init (PsycPacket *p,
                        PsycModifier *entity, size_t entitylen,
                        char *method, size_t methodlen,
                        char *data, size_t datalen,
-                       PsycPacketFlag flag)
+                       char stateop, PsycPacketFlag flag)
 {
-	*p = (PsycPacket) {{routinglen, routing}, {entitylen, entity},
+	*p = (PsycPacket) {{routinglen, routing}, {entitylen, entity}, stateop,
 	                   {methodlen, method}, {datalen, data}, {0,0}, 0, 0, flag};
 
 	if (flag == PSYC_PACKET_CHECK_LENGTH) // find out if it needs length
@@ -156,7 +160,7 @@ void psyc_packet_init_raw (PsycPacket *p,
                            char *content, size_t contentlen,
                            PsycPacketFlag flag)
 {
-	*p = (PsycPacket) {{routinglen, routing}, {0,0}, {0,0}, {0,0},
+	*p = (PsycPacket) {{routinglen, routing}, {0,0}, 0, {0,0}, {0,0},
 	                   {contentlen, content}, 0, 0, flag};
 
 	if (flag == PSYC_PACKET_CHECK_LENGTH) // find out if it needs length

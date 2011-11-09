@@ -1,4 +1,5 @@
 #include "lib.h"
+#include <psyc/packet.h>
 #include <psyc/render.h>
 #include <psyc/syntax.h>
 
@@ -46,25 +47,24 @@ static inline
 size_t psyc_render_modifier (PsycModifier *mod, char *buffer)
 {
 	size_t cur = 0;
+
 	buffer[cur++] = mod->oper;
+	memcpy(buffer + cur, mod->name.data, mod->name.length);
+	cur += mod->name.length;
+	if (cur == 1)
+		return cur; // error, name can't be empty
 
-	if (mod->name.length > 0)
+	if (mod->flag == PSYC_MODIFIER_NEED_LENGTH)
 	{
-		memcpy(buffer + cur, mod->name.data, mod->name.length);
-		cur += mod->name.length;
-
-		if (mod->flag == PSYC_MODIFIER_NEED_LENGTH)
-		{
-			buffer[cur++] = ' ';
-			cur += itoa(mod->value.length, buffer + cur, 10);
-		}
-
-		buffer[cur++] = '\t';
-		memcpy(buffer + cur, mod->value.data, mod->value.length);
-		cur += mod->value.length;
+		buffer[cur++] = ' ';
+		cur += itoa(mod->value.length, buffer + cur, 10);
 	}
 
+	buffer[cur++] = '\t';
+	memcpy(buffer + cur, mod->value.data, mod->value.length);
+	cur += mod->value.length;
 	buffer[cur++] = '\n';
+
 	return cur;
 }
 
@@ -92,7 +92,8 @@ PsycRenderRC psyc_render (PsycPacket *packet, char *buffer, size_t buflen)
 		cur += itoa(packet->contentLength, buffer + cur, 10);
 
 	if (packet->flag == PSYC_PACKET_NEED_LENGTH || packet->content.length ||
-	    packet->entity.lines || packet->method.length || packet->data.length)
+	    packet->stateop || packet->entity.lines ||
+	    packet->method.length || packet->data.length)
 		buffer[cur++] = '\n'; // start of content part if there's content or length
 
 	if (packet->content.length) // render raw content if present
@@ -102,6 +103,11 @@ PsycRenderRC psyc_render (PsycPacket *packet, char *buffer, size_t buflen)
 	}
 	else
 	{
+		if (packet->stateop) {
+			buffer[cur++] = packet->stateop;
+			buffer[cur++] = '\n';
+		}
+
 		// render entity modifiers
 		for (i = 0; i < packet->entity.lines; i++)
 			cur += psyc_render_modifier(&packet->entity.modifiers[i], buffer + cur);
@@ -124,7 +130,7 @@ PsycRenderRC psyc_render (PsycPacket *packet, char *buffer, size_t buflen)
 	}
 
 	// add packet delimiter
-	buffer[cur++] = C_GLYPH_PACKET_DELIMITER;
+	buffer[cur++] = PSYC_PACKET_DELIMITER_CHAR;
 	buffer[cur++] = '\n';
 
 	// actual length should be equal to pre-calculated length at this point

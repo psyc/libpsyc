@@ -63,6 +63,13 @@ typedef enum
 	PSYC_OPERATOR_QUERY    = '?',
 } PsycOperator;
 
+typedef enum
+{
+	PSYC_STATE_NOOP  = 0,
+	PSYC_STATE_RESET = '=',
+	PSYC_STATE_SYNC  = '?',
+} PsycStateOp;
+
 /** Structure for a modifier. */
 typedef struct
 {
@@ -91,15 +98,16 @@ typedef struct
 /** Intermediate struct for a PSYC packet */
 typedef struct
 {
-	PsycHeader routing;	///< Routing header.
-	PsycHeader entity;	///< Entity header.
-	PsycString method; ///< Contains the method.
-	PsycString data; ///< Contains the data.
-	PsycString content; ///< Contains the whole content.
+	PsycHeader routing;   ///< Routing header.
+	PsycHeader entity;    ///< Entity header.
+	char stateop;         ///< State operation. @see PsycStateOp
+	PsycString method;    ///< Contains the method.
+	PsycString data;      ///< Contains the data.
+	PsycString content;   ///< Contains the whole content.
 	size_t routingLength;	///< Length of routing part.
 	size_t contentLength;	///< Length of content part.
-	size_t length;		///< Total length of packet.
-	PsycPacketFlag flag; ///< Packet flag.
+	size_t length;        ///< Total length of packet.
+	PsycPacketFlag flag;  ///< Packet flag.
 } PsycPacket;
 
 /**
@@ -182,7 +190,7 @@ void psyc_packet_init (PsycPacket *packet,
                        PsycModifier *entity, size_t entitylen,
                        char *method, size_t methodlen,
                        char *data, size_t datalen,
-                       PsycPacketFlag flag);
+                       char stateop, PsycPacketFlag flag);
 
 /** Initialize packet with raw content. */
 void psyc_packet_init_raw (PsycPacket *packet,
