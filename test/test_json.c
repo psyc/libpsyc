@@ -92,8 +92,8 @@ int main (int argc, char **argv) {
 			CASE_v CASE_S CASE_P
 			case 'h':
 				printf(
-					HELP_FILE("testJson", "mnqSsvP")
-					HELP_PORT("testJson", "nqsvP")
+					HELP_FILE("test_json", "mnqSsvP")
+					HELP_PORT("test_json", "nqsvP")
 					HELP_f HELP_p HELP_b HELP_c
 					HELP_m HELP_n HELP_q HELP_S
 					HELP_s HELP_v HELP_P HELP_h,

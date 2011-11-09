@@ -32,6 +32,7 @@
 
 #define PSYC_NUM_ELEM(a) (sizeof(a) / sizeof(*(a)))
 
+/// Boolean: true/false, yes/no.
 typedef enum
 {
 	PSYC_FALSE = 0,
@@ -40,15 +41,14 @@ typedef enum
 	PSYC_YES = 1,
 } PsycBool;
 
+/// Return code: OK/error.
 typedef enum
 {
 	PSYC_OK = 1,
 	PSYC_ERROR = -1,
 } PsycRC;
 
-/**
- * PSYC packet parts.
- */
+/// PSYC packet parts.
 typedef enum
 {
 	PSYC_PART_RESET = -1,

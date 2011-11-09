@@ -121,7 +121,7 @@ PIKEFUN string render(mapping rvars, mapping evars, string method, string|void b
 	struct keypair *k; // for mappings
 	INT32 e;
 
-	char oper = C_GLYPH_OPERATOR_SET;
+	char oper = PSYC_OPERATOR_SET;
 
 	// fill headers
 	rheaders.lines = 0;

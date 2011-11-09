@@ -52,8 +52,8 @@ int main (int argc, char **argv) {
 			CASE_r CASE_s
 			case 'h':
 				printf(
-					HELP_FILE("testPsycSpeed", "rs")
-					HELP_PORT("testPsycSpeed", "rs")
+					HELP_FILE("test_psyc_speed", "rs")
+					HELP_PORT("test_psyc_speed", "rs")
 					HELP_f HELP_p HELP_b HELP_c
 					HELP_r HELP_s HELP_h,
 					port, RECV_BUF_SIZE);

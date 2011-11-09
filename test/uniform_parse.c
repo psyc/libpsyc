@@ -35,6 +35,8 @@ int main () {
 	testUniform("psyc://foo:4405/~bar", PSYC_SCHEME_PSYC);
 	testUniform("psyc://foo:1234", PSYC_SCHEME_PSYC);
 	testUniform("psyc://foo:1234d", PSYC_SCHEME_PSYC);
+	testUniform("psyc://foo:-1234", PSYC_SCHEME_PSYC);
+	testUniform("psyc://foo:-1234d", PSYC_SCHEME_PSYC);
 	testUniform("psyc://foo/", PSYC_SCHEME_PSYC);
 	testUniform("psyc://foo", PSYC_SCHEME_PSYC);
 	testUniform("psyc://1234567890abcdef:g/~foo", PSYC_SCHEME_PSYC);
