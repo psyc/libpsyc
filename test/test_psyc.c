@@ -98,6 +98,11 @@ int test_input (int i, char *recvbuf, size_t nbytes) {
 				packet->routing.lines++;
 				break;
 
+			case PSYC_PARSE_STATE_SYNC:
+			case PSYC_PARSE_STATE_RESET:
+				packet->stateop = oper;
+				break;
+
 			case PSYC_PARSE_ENTITY_START:
 			case PSYC_PARSE_ENTITY_CONT:
 			case PSYC_PARSE_ENTITY_END:

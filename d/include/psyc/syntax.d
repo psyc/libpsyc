@@ -8,27 +8,8 @@ const PSYC_CONTENT_SIZE_THRESHOLD = 444;
 /* beyond this a modifier value length must be provided */
 const PSYC_MODIFIER_SIZE_THRESHOLD = 404;
 
-const C_GLYPH_PACKET_DELIMITER = '|';
-const S_GLYPH_PACKET_DELIMITER = "|";
-const PSYC_PACKET_DELIMITER = "\n|\n";
-
-const C_GLYPH_SEPARATOR_KEYWORD = '_';
-const S_GLYPH_SEPARATOR_KEYWORD = "_";
-
-const C_GLYPH_OPERATOR_SET = ':';
-const S_GLYPH_OPERATOR_SET = ":";
-
-const C_GLYPH_OPERATOR_ASSIGN = '=';
-const S_GLYPH_OPERATOR_ASSIGN = "=";
-
-const C_GLYPH_OPERATOR_AUGMENT = '+';
-const S_GLYPH_OPERATOR_AUGMENT = "+";
-
-const C_GLYPH_OPERATOR_DIMINISH = '-';
-const S_GLYPH_OPERATOR_DIMINISH = "-";
-
-const C_GLYPH_OPERATOR_QUERY = '?';
-const S_GLYPH_OPERATOR_QUERY = "?";
+const PSYC_PACKET_DELIMITER_CHAR = '|';
+const PSYC_PACKET_DELIMITER =    "\n|\n";
 
 /* might move into routing.h or something */
 const PSYC_ROUTING = 1;

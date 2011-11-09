@@ -88,10 +88,6 @@ ParseRC psyc_parse_modifier (PsycParseState *state, char *oper,
 	*oper = *(state->buffer.data + state->cursor);
 	ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 
-	if (state->part == PSYC_PART_CONTENT && state->buffer.data[state->cursor] == '\n' &&
-	    (*oper == PSYC_OPERATOR_ASSIGN || *oper == PSYC_OPERATOR_QUERY))
-		return PARSE_SUCCESS; // only oper is present, used for state sync/reset
-
 	ParseRC ret = psyc_parse_keyword(state, name);
 	if (ret == PARSE_ERROR)
 		return PSYC_PARSE_ERROR_MOD_NAME;
@@ -287,6 +283,24 @@ PsycParseRC psyc_parse (PsycParseState *state, char *oper,
 			// method does not start with a glyph.
 			if (psyc_is_glyph(state->buffer.data[state->cursor]))
 			{
+				ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+				if (state->contentParsed == 0 && state->buffer.data[state->cursor] == '\n')
+				{
+					*oper = *(state->buffer.data + state->cursor - 1);
+					switch (*oper)
+					{
+						case PSYC_STATE_SYNC:
+							state->contentParsed += 2;
+							return PSYC_PARSE_STATE_SYNC;
+						case PSYC_STATE_RESET:
+							state->contentParsed += 2;
+							return PSYC_PARSE_STATE_RESET;
+						default:
+							return PSYC_PARSE_ERROR_MOD_NAME;
+					}
+				}
+				state->cursor--;
+
 				ret = psyc_parse_modifier(state, oper, name, value);
 				state->contentParsed += state->cursor - pos;
 

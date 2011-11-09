@@ -152,42 +152,46 @@ typedef enum {
 	/// Routing modifier parsing done.
 	/// Operator, name & value contains the respective parts.
 	PSYC_PARSE_ROUTING = 2,
+	/// State sync operation.
+	PSYC_PARSE_STATE_SYNC = 3,
+	/// State reset operation.
+	PSYC_PARSE_STATE_RESET = 4,
 	/// Start of an incomplete entity modifier.
 	/// Operator & name are complete, value is incomplete.
-	PSYC_PARSE_ENTITY_START = 3,
+	PSYC_PARSE_ENTITY_START = 5,
 	/// Continuation of an incomplete entity modifier.
-	PSYC_PARSE_ENTITY_CONT = 4,
+	PSYC_PARSE_ENTITY_CONT = 6,
 	/// End of an incomplete entity modifier.
-	PSYC_PARSE_ENTITY_END = 5,
+	PSYC_PARSE_ENTITY_END = 7,
 	/// Entity modifier parsing done in one go.
 	/// Operator, name & value contains the respective parts.
-	PSYC_PARSE_ENTITY = 6,
+	PSYC_PARSE_ENTITY = 8,
 	/// Start of an incomplete body.	
 	/// Name contains method, value contains part of the body.
 	/// Used when packet length is given
-	PSYC_PARSE_BODY_START = 7,
+	PSYC_PARSE_BODY_START = 9,
 	/// Continuation of an incomplete body.
 	/// Used when packet length is given
-	PSYC_PARSE_BODY_CONT = 8,
+	PSYC_PARSE_BODY_CONT = 10,
 	/// End of an incomplete body.
 	/// Used when packet length is given
-	PSYC_PARSE_BODY_END = 9,
+	PSYC_PARSE_BODY_END = 11,
 	/// Body parsing done in one go, name contains method, value contains body.
-	PSYC_PARSE_BODY = 10,
+	PSYC_PARSE_BODY = 12,
 	/// Start of an incomplete content, value contains part of content.
 	/// Used when PSYC_PARSE_ROUTING_ONLY is set.
-	PSYC_PARSE_CONTENT_START = 7,
+	PSYC_PARSE_CONTENT_START = 9,
 	/// Continuation of an incomplete content.
 	/// Used when PSYC_PARSE_ROUTING_ONLY is set.
-	PSYC_PARSE_CONTENT_CONT = 8,
+	PSYC_PARSE_CONTENT_CONT = 10,
 	/// End of an incomplete content.
 	/// Used when PSYC_PARSE_ROUTING_ONLY is set.
-	PSYC_PARSE_CONTENT_END = 9,
+	PSYC_PARSE_CONTENT_END = 11,
 	/// Content parsing done in one go, value contains the whole content.
 	/// Used when PSYC_PARSE_ROUTING_ONLY is set.
-	PSYC_PARSE_CONTENT = 10,
+	PSYC_PARSE_CONTENT = 12,
 	/// Finished parsing packet.
-	PSYC_PARSE_COMPLETE = 11,
+	PSYC_PARSE_COMPLETE = 13,
 } PsycParseRC;
 
 /**

@@ -14,32 +14,8 @@
 # define PSYC_MODIFIER_SIZE_THRESHOLD 404
 #endif
 
-#define C_GLYPH_PACKET_DELIMITER	'|'
-#define S_GLYPH_PACKET_DELIMITER	"|"
-#define PSYC_PACKET_DELIMITER	      "\n|\n"
-
-#define	C_GLYPH_SEPARATOR_KEYWORD	'_'
-#define	S_GLYPH_SEPARATOR_KEYWORD	"_"
-
-#define	C_GLYPH_OPERATOR_SET		':'
-#define	S_GLYPH_OPERATOR_SET		":"
-
-#define	C_GLYPH_OPERATOR_ASSIGN		'='
-#define	S_GLYPH_OPERATOR_ASSIGN		"="
-
-#define	C_GLYPH_OPERATOR_AUGMENT	'+'
-#define	S_GLYPH_OPERATOR_AUGMENT	"+"
-
-#define	C_GLYPH_OPERATOR_DIMINISH	'-'
-#define	S_GLYPH_OPERATOR_DIMINISH	"-"
-
-#define	C_GLYPH_OPERATOR_QUERY		'?'
-#define	S_GLYPH_OPERATOR_QUERY		"?"
-
-/* might move into routing.h or something */
-#define PSYC_ROUTING			1
-#define PSYC_ROUTING_MERGE		2
-#define PSYC_ROUTING_RENDER		4
+#define PSYC_PACKET_DELIMITER_CHAR '|'
+#define PSYC_PACKET_DELIMITER	   "\n|\n"
 
 #define PSYC_SYNTAX_H
 #endif

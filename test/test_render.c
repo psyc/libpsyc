@@ -30,6 +30,7 @@ int testPresence (const char *avail, int availlen,
 	                 entity, PSYC_NUM_ELEM(entity),
 	                 PSYC_C2ARG("_notice_presence"),
 	                 NULL, 0,
+	                 PSYC_STATE_NOOP,
 	                 PSYC_PACKET_CHECK_LENGTH);
 
 	char buffer[512];
@@ -82,6 +83,7 @@ int testList (const char *rendered, uint8_t verbose)
 	                 entity, PSYC_NUM_ELEM(entity),
 	                 PSYC_C2ARG("_test_list"),
 	                 PSYC_C2ARG("list test"),
+	                 PSYC_STATE_NOOP,
 	                 PSYC_PACKET_CHECK_LENGTH);
 
 	char buffer[512];
