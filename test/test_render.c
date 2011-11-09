@@ -12,16 +12,16 @@ int testPresence (const char *avail, int availlen,
                   const char *rendered, uint8_t verbose)
 {
 	PsycModifier routing[1];
-	psyc_modifier_init(&routing[0], C_GLYPH_OPERATOR_SET,
+	psyc_modifier_init(&routing[0], PSYC_OPERATOR_SET,
 	                   PSYC_C2ARG("_context"),
 	                   PSYC_C2ARG(myUNI), PSYC_MODIFIER_ROUTING);
 
 	PsycModifier entity[2];
 	// presence is to be assigned permanently in distributed state
-	psyc_modifier_init(&entity[0], C_GLYPH_OPERATOR_ASSIGN,
+	psyc_modifier_init(&entity[0], PSYC_OPERATOR_ASSIGN,
 	                   PSYC_C2ARG("_degree_availability"),
 	                   avail, availlen, PSYC_MODIFIER_CHECK_LENGTH);
-	psyc_modifier_init(&entity[1], C_GLYPH_OPERATOR_ASSIGN,
+	psyc_modifier_init(&entity[1], PSYC_OPERATOR_ASSIGN,
 	                   PSYC_C2ARG("_description_presence"),
 	                   desc, desclen, PSYC_MODIFIER_CHECK_LENGTH);
 
@@ -42,10 +42,10 @@ int testPresence (const char *avail, int availlen,
 int testList (const char *rendered, uint8_t verbose)
 {
 	PsycModifier routing[2];
-	psyc_modifier_init(&routing[0], C_GLYPH_OPERATOR_SET,
+	psyc_modifier_init(&routing[0], PSYC_OPERATOR_SET,
 	                   PSYC_C2ARG("_source"),
 	                   PSYC_C2ARG(myUNI), PSYC_MODIFIER_ROUTING);
-	psyc_modifier_init(&routing[1], C_GLYPH_OPERATOR_SET,
+	psyc_modifier_init(&routing[1], PSYC_OPERATOR_SET,
 	                   PSYC_C2ARG("_context"),
 	                   PSYC_C2ARG(myUNI), PSYC_MODIFIER_ROUTING);
 
@@ -70,10 +70,10 @@ int testList (const char *rendered, uint8_t verbose)
 	psyc_render_list(&list_bin, buf_bin, sizeof(buf_bin));
 
 	PsycModifier entity[2];
-	psyc_modifier_init(&entity[0], C_GLYPH_OPERATOR_SET,
+	psyc_modifier_init(&entity[0], PSYC_OPERATOR_SET,
 	                   PSYC_C2ARG("_list_text"),
 	                   buf_text, list_text.length, list_text.flag);
-	psyc_modifier_init(&entity[1], C_GLYPH_OPERATOR_SET,
+	psyc_modifier_init(&entity[1], PSYC_OPERATOR_SET,
 	                   PSYC_C2ARG("_list_binary"),
 	                   buf_bin, list_bin.length, list_bin.flag);
 

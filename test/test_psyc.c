@@ -326,8 +326,8 @@ int main (int argc, char **argv) {
 			CASE_s CASE_v CASE_S CASE_P
 			case 'h':
 				printf(
-					HELP_FILE("testPsyc", "mnqrSsvP")
-					HELP_PORT("testPsyc", "nqrsvP")
+					HELP_FILE("test_psyc", "mnqrSsvP")
+					HELP_PORT("test_psyc", "nqrsvP")
 					HELP_f HELP_p HELP_b HELP_c
 					HELP_m HELP_n HELP_r
 					HELP_q HELP_S HELP_s

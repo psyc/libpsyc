@@ -78,8 +78,8 @@ int main (int argc, char **argv) {
 			CASE_s CASE_v CASE_P
 			case 'h':
 				printf(
-					HELP_FILE("testJsonGlib", "mnqSsvP")
-					HELP_PORT("testJsonGlib", "nqsvP")
+					HELP_FILE("test_json_glib", "mnqSsvP")
+					HELP_PORT("test_json_glib", "nqsvP")
 					HELP_f HELP_p HELP_b HELP_c
 					HELP_m HELP_n HELP_q HELP_S
 					HELP_s HELP_v HELP_P HELP_h,

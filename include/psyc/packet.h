@@ -54,6 +54,15 @@ typedef enum
 	PSYC_PACKET_NO_LENGTH = 2,
 } PsycPacketFlag;
 
+typedef enum
+{
+	PSYC_OPERATOR_SET      = ':',
+	PSYC_OPERATOR_ASSIGN   = '=',
+	PSYC_OPERATOR_AUGMENT  = '+',
+	PSYC_OPERATOR_DIMINISH = '-',
+	PSYC_OPERATOR_QUERY    = '?',
+} PsycOperator;
+
 /** Structure for a modifier. */
 typedef struct
 {

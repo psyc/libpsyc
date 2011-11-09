@@ -44,8 +44,8 @@ int main (int argc, char **argv) {
 			CASE_s
 			case 'h':
 				printf(
-					HELP_FILE("testStrlen", "s")
-					HELP_PORT("testStrlen", "s")
+					HELP_FILE("test_strlen", "s")
+					HELP_PORT("test_strlen", "s")
 					HELP_f HELP_p HELP_b HELP_c
 					HELP_s HELP_h,
 					port, RECV_BUF_SIZE);
