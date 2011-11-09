@@ -65,9 +65,9 @@ typedef enum
 
 typedef enum
 {
-	PSYC_STATE_NOOP  = 0,
-	PSYC_STATE_RESET = '=',
-	PSYC_STATE_SYNC  = '?',
+	PSYC_STATE_NOOP   = 0,
+	PSYC_STATE_RESET  = '=',
+	PSYC_STATE_RESYNC = '?',
 } PsycStateOp;
 
 /** Structure for a modifier. */

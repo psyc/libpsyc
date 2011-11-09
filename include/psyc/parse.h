@@ -153,7 +153,7 @@ typedef enum {
 	/// Operator, name & value contains the respective parts.
 	PSYC_PARSE_ROUTING = 2,
 	/// State sync operation.
-	PSYC_PARSE_STATE_SYNC = 3,
+	PSYC_PARSE_STATE_RESYNC = 3,
 	/// State reset operation.
 	PSYC_PARSE_STATE_RESET = 4,
 	/// Start of an incomplete entity modifier.
