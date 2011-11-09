@@ -21,7 +21,7 @@ typedef enum {
 	PARSE_INSUFFICIENT = 1,
 	PARSE_COMPLETE = 100,
 	PARSE_INCOMPLETE = 101,
-} parseRC;
+} ParseRC;
 
 /**
  * Parse variable name or method name.
@@ -29,7 +29,7 @@ typedef enum {
  * @return PARSE_ERROR or PARSE_SUCCESS
  */
 static inline
-parseRC psyc_parse_keyword (PsycParseState *state, PsycString *name)
+ParseRC psyc_parse_keyword (PsycParseState *state, PsycString *name)
 {
 	name->data = state->buffer.data + state->cursor;
 	name->length = 0;
@@ -54,8 +54,8 @@ parseRC psyc_parse_keyword (PsycParseState *state, PsycString *name)
  * @return PARSE_COMPLETE or PARSE_INCOMPLETE
  */
 static inline
-parseRC psyc_parse_binary_value (PsycParseState *state, PsycString *value,
-                                  size_t *length, size_t *parsed)
+ParseRC psyc_parse_binary_value (PsycParseState *state, PsycString *value,
+                                 size_t *length, size_t *parsed)
 {
 	size_t remaining = *length - *parsed;
 	value->data = state->buffer.data + state->cursor;
@@ -81,13 +81,16 @@ parseRC psyc_parse_binary_value (PsycParseState *state, PsycString *value,
  * @return PARSE_ERROR or PARSE_SUCCESS
  */
 static inline
-parseRC psyc_parse_modifier (PsycParseState *state, char *oper,
-                            PsycString *name, PsycString *value)
+ParseRC psyc_parse_modifier (PsycParseState *state, char *oper,
+                             PsycString *name, PsycString *value)
 {
 	*oper = *(state->buffer.data + state->cursor);
 	ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 
-	parseRC ret = psyc_parse_keyword(state, name);
+	if (state->part == PSYC_PART_CONTENT && state->buffer.data[state->cursor] == '\n')
+		return PARSE_SUCCESS; // only oper is present, used for state sync/reset
+
+	ParseRC ret = psyc_parse_keyword(state, name);
 	if (ret == PARSE_ERROR)
 		return PSYC_PARSE_ERROR_MOD_NAME;
 	else if (ret != PARSE_SUCCESS)
@@ -162,7 +165,7 @@ PsycParseRC psyc_parse (PsycParseState *state, char *oper,
 		PP(("Invalid flag combination"))
 #endif
 
-	parseRC ret; // a return value
+	ParseRC ret; // a return value
 	size_t pos = state->cursor;	// a cursor position
 
 	// Start position of the current line in the buffer
@@ -326,8 +329,6 @@ PsycParseRC psyc_parse (PsycParseState *state, char *oper,
 				{
 					ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 				}
-
-				// fall thru
 			}
 			else // No method, which means the packet should end now.
 			{
@@ -335,6 +336,7 @@ PsycParseRC psyc_parse (PsycParseState *state, char *oper,
 				state->startc = state->cursor;
 				goto PSYC_PART_END;
 			}
+			// fall thru
 
 		case PSYC_PART_DATA:
 		PSYC_PART_DATA:

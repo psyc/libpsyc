@@ -46,24 +46,25 @@ static inline
 size_t psyc_render_modifier (PsycModifier *mod, char *buffer)
 {
 	size_t cur = 0;
-
 	buffer[cur++] = mod->oper;
-	memcpy(buffer + cur, mod->name.data, mod->name.length);
-	cur += mod->name.length;
-	if (cur <= 1)
-		return cur; // error, name can't be empty
 
-	if (mod->flag == PSYC_MODIFIER_NEED_LENGTH)
+	if (mod->name.length > 0)
 	{
-		buffer[cur++] = ' ';
-		cur += itoa(mod->value.length, buffer + cur, 10);
+		memcpy(buffer + cur, mod->name.data, mod->name.length);
+		cur += mod->name.length;
+
+		if (mod->flag == PSYC_MODIFIER_NEED_LENGTH)
+		{
+			buffer[cur++] = ' ';
+			cur += itoa(mod->value.length, buffer + cur, 10);
+		}
+
+		buffer[cur++] = '\t';
+		memcpy(buffer + cur, mod->value.data, mod->value.length);
+		cur += mod->value.length;
 	}
 
-	buffer[cur++] = '\t';
-	memcpy(buffer + cur, mod->value.data, mod->value.length);
-	cur += mod->value.length;
 	buffer[cur++] = '\n';
-
 	return cur;
 }
 

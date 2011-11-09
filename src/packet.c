@@ -63,9 +63,9 @@ void psyc_list_init (PsycList *list, PsycString *elems, size_t num_elems,
 inline
 size_t psyc_modifier_length (PsycModifier *m)
 {
-	size_t length = 1 + // oper
-		m->name.length + 1 + // name\t
-		m->value.length + 1; // value\n
+	size_t length = 2; // oper\n
+	if (m->name.length > 0)
+		length += m->name.length + 1 + m->value.length; // name\tvalue
 
 	if (m->flag == PSYC_MODIFIER_NEED_LENGTH) // add length of length if needed
 		length += psyc_num_length(m->value.length) + 1; // SP length

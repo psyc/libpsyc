@@ -1,0 +1,6 @@
+:_source	psyc://foo.example.com/
+:_target	psyc://bar.example.com/
+
+:_foo	bar
+:_baz	qux
+|
