@@ -109,7 +109,6 @@ void * psyc_dict_lookup (const PsycDict *dict, size_t size,
 {
 	size_t cursor = 1;
 	uint8_t i, m = 0;
-	//memset(&matching, -1, sizeof matching);
 
 	if (keylen < 2 || key[0] != '_')
 		return 0;

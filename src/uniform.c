@@ -77,7 +77,7 @@ int psyc_uniform_parse (PsycUniform *uni, char *str, size_t length)
 					break;
 
 				case PSYC_UNIFORM_PORT:
-					if (psyc_is_numeric(c)) {
+					if (psyc_is_numeric(c) || (uni->port.length == 0 && c == '-')) {
 						uni->port.length++;
 						break;
 					}
