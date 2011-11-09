@@ -6,6 +6,7 @@
 #endif
 
 #include "lib.h"
+#include <psyc/packet.h>
 #include <psyc/parse.h>
 
 #define ADVANCE_CURSOR_OR_RETURN(ret)            \
@@ -87,7 +88,8 @@ ParseRC psyc_parse_modifier (PsycParseState *state, char *oper,
 	*oper = *(state->buffer.data + state->cursor);
 	ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 
-	if (state->part == PSYC_PART_CONTENT && state->buffer.data[state->cursor] == '\n')
+	if (state->part == PSYC_PART_CONTENT && state->buffer.data[state->cursor] == '\n' &&
+	    (*oper == PSYC_OPERATOR_ASSIGN || *oper == PSYC_OPERATOR_QUERY))
 		return PARSE_SUCCESS; // only oper is present, used for state sync/reset
 
 	ParseRC ret = psyc_parse_keyword(state, name);
