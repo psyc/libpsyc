@@ -289,9 +289,9 @@ PsycParseRC psyc_parse (PsycParseState *state, char *oper,
 					*oper = *(state->buffer.data + state->cursor - 1);
 					switch (*oper)
 					{
-						case PSYC_STATE_SYNC:
+						case PSYC_STATE_RESYNC:
 							state->contentParsed += 2;
-							return PSYC_PARSE_STATE_SYNC;
+							return PSYC_PARSE_STATE_RESYNC;
 						case PSYC_STATE_RESET:
 							state->contentParsed += 2;
 							return PSYC_PARSE_STATE_RESET;
