@@ -1,6 +1,9 @@
 .PHONY: doc test bench
 .NOTPARALLEL: clean
 
+indent_args = -nbad -bap -bbo -nbc -br -brs -ncdb -cdw -ce -ci4 -cli0 -cs -d0 -di1 \
+-nfc1 -nfca -hnl -i4 -ip0 -l80 -lp -npcs -nprs -npsl -saf -sai -saw -nsc -nsob -nss
+
 all:
 	${MAKE} -C src
 

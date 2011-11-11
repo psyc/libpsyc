@@ -26,88 +26,93 @@ json_object *obj;
 json_tokener *tok;
 enum json_tokener_error error;
 
-void test_init (int i) {
-	tok = json_tokener_new();
+void
+test_init (int i)
+{
+    tok = json_tokener_new();
 }
 
-int test_input (int i, char *recvbuf, size_t nbytes) {
-	size_t cursor = 0;
-	int r, ret = 0;
+int
+test_input (int i, char *recvbuf, size_t nbytes)
+{
+    size_t cursor = 0;
+    int r, ret = 0;
 
-	json_tokener_reset(tok);
+    json_tokener_reset(tok);
 
-	do {
-		obj = json_tokener_parse_ex(tok, recvbuf + cursor, nbytes - cursor);
-		cursor += tok->char_offset;
+    do {
+	obj = json_tokener_parse_ex(tok, recvbuf + cursor, nbytes - cursor);
+	cursor += tok->char_offset;
 
-		if (verbose)
-			printf("#%d\n", tok->err);
+	if (verbose)
+	    printf("#%d\n", tok->err);
 
-		switch (tok->err) {
-			case json_tokener_continue:
-				return 0;
+	switch (tok->err) {
+	case json_tokener_continue:
+	    return 0;
 
-			case json_tokener_success:
-				if (!no_render) {
-					const char *str = json_object_to_json_string(obj);
-					if (!quiet) {
-						size_t len = strlen(str);
-						if (filename) {
-							r = write(1, str, len);
-							r = write(1, "\n", 1);
-						} else {
-							send(i, str, len, 0);
-							send(i, "\n", 1, 0);
-						}
-					}
-				}
-
-				json_object_put(obj);
-
-				if (verbose)
-					printf("# Done parsing.\n");
-				else if (progress)
-					r = write(1, ".", 1);
-				if ((filename && !multiple) || (!filename && single))
-					return -1;
-				break;
-
-			default:
-				printf("parse error\n");
-				exit_code = tok->err;
-				return -1;
+	case json_tokener_success:
+	    if (!no_render) {
+		const char *str = json_object_to_json_string(obj);
+		if (!quiet) {
+		    size_t len = strlen(str);
+		    if (filename) {
+			r = write(1, str, len);
+			r = write(1, "\n", 1);
+		    } else {
+			send(i, str, len, 0);
+			send(i, "\n", 1, 0);
+		    }
 		}
-	} while (cursor < nbytes);
+	    }
 
-	return ret;
-}
+	    json_object_put(obj);
 
-int main (int argc, char **argv) {
-	int c;
+	    if (verbose)
+		printf("# Done parsing.\n");
+	    else if (progress)
+		r = write(1, ".", 1);
+	    if ((filename && !multiple) || (!filename && single))
+		return -1;
+	    break;
 
-	while ((c = getopt (argc, argv, "f:p:b:c:mnqsvPSh")) != -1) {
-		switch (c) {
-			CASE_f CASE_p CASE_b CASE_c
-			CASE_m CASE_n CASE_q CASE_s
-			CASE_v CASE_S CASE_P
-			case 'h':
-				printf(
-					HELP_FILE("test_json", "mnqSsvP")
-					HELP_PORT("test_json", "nqsvP")
-					HELP_f HELP_p HELP_b HELP_c
-					HELP_m HELP_n HELP_q HELP_S
-					HELP_s HELP_v HELP_P HELP_h,
-					port, RECV_BUF_SIZE);
-				exit(0);
-			case '?': exit(-1);
-			default:  abort();
-		}
+	default:
+	    printf("parse error\n");
+	    exit_code = tok->err;
+	    return -1;
 	}
+    } while (cursor < nbytes);
 
-	if (filename)
-		test_file(filename, count, recv_buf_size);
-	else
-		test_server(port, count, recv_buf_size);
+    return ret;
+}
 
-	return exit_code;
+int
+main (int argc, char **argv)
+{
+    int c;
+
+    while ((c = getopt (argc, argv, "f:p:b:c:mnqsvPSh")) != -1) {
+	switch (c) {
+	CASE_f CASE_p CASE_b CASE_c
+	CASE_m CASE_n CASE_q CASE_s
+	CASE_v CASE_S CASE_P
+	case 'h':
+	    printf(HELP_FILE("test_json", "mnqSsvP")
+		   HELP_PORT("test_json", "nqsvP")
+		   HELP_f HELP_p HELP_b HELP_c
+		   HELP_m HELP_n HELP_q HELP_S
+		   HELP_s HELP_v HELP_P HELP_h,
+		   port, RECV_BUF_SIZE);
+	    exit(0);
+	case '?': exit(-1);
+	default:  abort();
+	}
+    }
+
+    if (filename)
+	test_file(filename, count, recv_buf_size);
+    else
+	test_server(port, count, recv_buf_size);
+
+    return exit_code;
 }
