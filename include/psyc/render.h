@@ -1,4 +1,5 @@
 #ifndef PSYC_RENDER_H
+#define PSYC_RENDER_H
 
 #include <psyc/packet.h>
 
@@ -19,27 +20,25 @@
 /**
  * Return codes for psyc_render.
  */
-typedef enum
-{
-	/// Error, method is missing, but data is present.
-	PSYC_RENDER_ERROR_METHOD_MISSING = -3,
-	/// Error, a modifier name is missing.
-	PSYC_RENDER_ERROR_MODIFIER_NAME_MISSING = -2,
-	/// Error, buffer is too small to render the packet.
-	PSYC_RENDER_ERROR = -1,
-	/// Packet is rendered successfully in the buffer.
-	PSYC_RENDER_SUCCESS = 0,
+typedef enum {
+    /// Error, method is missing, but data is present.
+    PSYC_RENDER_ERROR_METHOD_MISSING = -3,
+    /// Error, a modifier name is missing.
+    PSYC_RENDER_ERROR_MODIFIER_NAME_MISSING = -2,
+    /// Error, buffer is too small to render the packet.
+    PSYC_RENDER_ERROR = -1,
+    /// Packet is rendered successfully in the buffer.
+    PSYC_RENDER_SUCCESS = 0,
 } PsycRenderRC;
 
 /**
  * Return codes for psyc_render_list.
  */
-typedef enum
-{
-	/// Error, buffer is too small to render the list.
-	PSYC_RENDER_LIST_ERROR = -1,
-	/// List is rendered successfully in the buffer.
-	PSYC_RENDER_LIST_SUCCESS = 0,
+typedef enum {
+    /// Error, buffer is too small to render the list.
+    PSYC_RENDER_LIST_ERROR = -1,
+    /// List is rendered successfully in the buffer.
+    PSYC_RENDER_LIST_SUCCESS = 0,
 } PsycRenderListRC;
 
 /**
@@ -59,7 +58,8 @@ typedef enum
 #ifdef __INLINE_PSYC_RENDER
 static inline
 #endif
-PsycRenderRC psyc_render (PsycPacket *packet, char *buffer, size_t buflen);
+PsycRenderRC
+psyc_render (PsycPacket *packet, char *buffer, size_t buflen);
 
 /**
  * Render a PSYC list into a buffer.
@@ -67,9 +67,9 @@ PsycRenderRC psyc_render (PsycPacket *packet, char *buffer, size_t buflen);
 #ifdef __INLINE_PSYC_RENDER
 static inline
 #endif
-PsycRenderListRC psyc_render_list (PsycList *list, char *buffer, size_t buflen);
+PsycRenderListRC
+psyc_render_list (PsycList *list, char *buffer, size_t buflen);
 
 /** @} */ // end of render group
 
-#define PSYC_RENDER_H
 #endif

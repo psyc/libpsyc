@@ -1,4 +1,5 @@
 #ifndef PSYC_TEXT_H
+#define PSYC_TEXT_H
 
 /**
  * @file psyc/text.h
@@ -19,39 +20,36 @@
  * Return values for the text template parsing function.
  * @see psyc_text()
  */
-typedef enum
-{
-	/// No substitution was made, nothing was written to the buffer.
-	PSYC_TEXT_NO_SUBST = -1,
-	/// Text template parsing & rendering complete.
-	PSYC_TEXT_COMPLETE = 0,
-	/// Text template parsing & rendering is incomplete, because the buffer was too small.
-	/// Another call is required to this function after setting a new buffer.
-	PSYC_TEXT_INCOMPLETE = 1,
+typedef enum {
+    /// No substitution was made, nothing was written to the buffer.
+    PSYC_TEXT_NO_SUBST = -1,
+    /// Text template parsing & rendering complete.
+    PSYC_TEXT_COMPLETE = 0,
+    /// Text template parsing & rendering is incomplete, because the buffer was too
+    /// small. Another call is required to this function after setting a new buffer.
+    PSYC_TEXT_INCOMPLETE = 1,
 } PsycTextRC;
 
 /**
  * Return values for PsycTextCB.
  */
-typedef enum
-{
-	/// Value not found, don't substitute anything.
-	PSYC_TEXT_VALUE_NOT_FOUND = -1,
-	/// Value found, substitute contents of the value variable.
-	PSYC_TEXT_VALUE_FOUND = 0,
+typedef enum {
+    /// Value not found, don't substitute anything.
+    PSYC_TEXT_VALUE_NOT_FOUND = -1,
+    /// Value found, substitute contents of the value variable.
+    PSYC_TEXT_VALUE_FOUND = 0,
 } PsycTextValueRC;
 
 /**
  * Struct for keeping PSYC text parser state.
  */
-typedef struct
-{
-	size_t cursor; ///< current position in the template
-	size_t written; ///< number of bytes written to buffer
-	PsycString tmpl; ///< input buffer with text template to parse
-	PsycString buffer; ///< output buffer for rendered text
-	PsycString open;
-	PsycString close;
+typedef struct {
+    size_t cursor;		///< current position in the template
+    size_t written;		///< number of bytes written to buffer
+    PsycString tmpl;		///< input buffer with text template to parse
+    PsycString buffer;		///< output buffer for rendered text
+    PsycString open;
+    PsycString close;
 } PsycTextState;
 
 /**
@@ -64,7 +62,8 @@ typedef struct
  * PSYC_TEXT_VALUE_NOT_FOUND if no match found in which case psyc_text
  * leaves the original template text as is.
  */
-typedef PsycTextValueRC (*PsycTextCB)(const char *name, size_t len, PsycString *value, void *extra);
+typedef PsycTextValueRC (*PsycTextCB) (const char *name, size_t len,
+				       PsycString *value, void *extra);
 
 /**
  * Initializes the PSYC text state struct.
@@ -75,17 +74,21 @@ typedef PsycTextValueRC (*PsycTextCB)(const char *name, size_t len, PsycString *
  * @param buffer Output buffer where the rendered text is going to be written.
  * @param buflen Length of output buffer.
  */
-static inline
-void psyc_text_state_init (PsycTextState *state,
-                           char *tmpl, size_t tmplen,
-                           char *buffer, size_t buflen)
+static inline void
+psyc_text_state_init (PsycTextState *state,
+		      char *tmpl, size_t tmplen,
+		      char *buffer, size_t buflen)
 {
-	state->cursor  = 0;
-	state->written = 0;
-	state->tmpl    = (PsycString) {tmplen, tmpl};
-	state->buffer  = (PsycString) {buflen, buffer};
-	state->open    = (PsycString) {1, "["};
-	state->close   = (PsycString) {1, "]"};
+    state->cursor = 0;
+    state->written = 0;
+    state->tmpl = (PsycString) {
+    tmplen, tmpl};
+    state->buffer = (PsycString) {
+    buflen, buffer};
+    state->open = (PsycString) {
+    1, "["};
+    state->close = (PsycString) {
+    1, "]"};
 }
 
 /**
@@ -101,36 +104,40 @@ void psyc_text_state_init (PsycTextState *state,
  * @param close Closing brace.
  * @param closelen Length of closing brace.
  */
-static inline
-void psyc_text_state_init_custom (PsycTextState *state,
-                                  char *tmpl, size_t tmplen,
-                                  char *buffer, size_t buflen,
-                                  char *open, size_t openlen,
-                                  char *close, size_t closelen)
+static inline void
+psyc_text_state_init_custom (PsycTextState *state,
+			     char *tmpl, size_t tmplen,
+			     char *buffer, size_t buflen,
+			     char *open, size_t openlen,
+			     char *close, size_t closelen)
 {
-	state->cursor  = 0;
-	state->written = 0;
-	state->tmpl    = (PsycString) {tmplen, tmpl};
-	state->buffer  = (PsycString) {buflen, buffer};
-	state->open    = (PsycString) {openlen, open};
-	state->close   = (PsycString) {closelen, close};
+    state->cursor = 0;
+    state->written = 0;
+    state->tmpl = (PsycString) {
+    tmplen, tmpl};
+    state->buffer = (PsycString) {
+    buflen, buffer};
+    state->open = (PsycString) {
+    openlen, open};
+    state->close = (PsycString) {
+    closelen, close};
 }
 
 /**
  * Sets a new output buffer in the PSYC text state struct.
  */
-static inline
-void psyc_text_buffer_set (PsycTextState *state,
-                           char *buffer, size_t length)
+static inline void
+psyc_text_buffer_set (PsycTextState *state, char *buffer, size_t length)
 {
-	state->buffer = (PsycString){length, buffer};
-	state->written = 0;
+    state->buffer = (PsycString) {
+    length, buffer};
+    state->written = 0;
 }
 
-static inline
-size_t psyc_text_bytes_written (PsycTextState *state)
+static inline size_t
+psyc_text_bytes_written (PsycTextState *state)
 {
-	return state->written;
+    return state->written;
 }
 
 /**
@@ -148,9 +155,9 @@ size_t psyc_text_bytes_written (PsycTextState *state)
  *
  * @see http://about.psyc.eu/psyctext
  **/
-PsycTextRC psyc_text (PsycTextState *state, PsycTextCB getValue, void *extra);
+PsycTextRC
+psyc_text (PsycTextState *state, PsycTextCB getValue, void *extra);
 
 /** @} */ // end of text group
 
-#define PSYC_TEXT_H
 #endif
