@@ -17,6 +17,7 @@ test/test_json
 test/test_json_glib
 test/test_strlen
 test/test_text
+test/test_table
 test/var_is_routing
 test/var_type
 test/uniform_parse
