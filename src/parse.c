@@ -328,7 +328,7 @@ psyc_parse (PsycParseState *state, char *oper,
 	// fall thru
 
     case PSYC_PART_DATA:
-      PSYC_PART_DATA:
+    PSYC_PART_DATA:
 	value->data = state->buffer.data + state->cursor;
 	value->length = 0;
 
@@ -385,7 +385,7 @@ psyc_parse (PsycParseState *state, char *oper,
 	}
 
     case PSYC_PART_END:
-      PSYC_PART_END:
+    PSYC_PART_END:
 	// if data was not empty next is the \n at the end of data
 	if (state->contentLengthFound && state->valueLengthFound
 	    && state->valueLength && !(state->flags & PSYC_PARSE_ROUTING_ONLY)) {
@@ -447,10 +447,20 @@ psyc_parse_list (PsycParseListState *state, PsycString *elem)
 	if (state->cursor >= state->buffer.length)
 	    return PSYC_PARSE_LIST_END;
 
-	while (state->buffer.data[state->cursor] != '|') {
-	    elem->length++;
-	    if (++(state->cursor) >= state->buffer.length)
-		return PSYC_PARSE_LIST_END;
+	if (state->term_set) {
+	    while (state->buffer.data[state->cursor] != '|') {
+		elem->length++;
+		if (state->buffer.data[state->cursor] == state->term)
+		    return PSYC_PARSE_LIST_END;
+		if (++(state->cursor) >= state->buffer.length)
+		    return PSYC_PARSE_LIST_END;
+	    }
+	} else {
+	    while (state->buffer.data[state->cursor] != '|') {
+		elem->length++;
+		if (++(state->cursor) >= state->buffer.length)
+		    return PSYC_PARSE_LIST_END;
+	    }
 	}
 	state->cursor++;
 	return PSYC_PARSE_LIST_ELEM;
@@ -492,6 +502,104 @@ psyc_parse_list (PsycParseListState *state, PsycString *elem)
 
 	    state->cursor++;
 	    return PSYC_PARSE_LIST_ELEM;
+	}
+    }
+
+    return PSYC_PARSE_LIST_ERROR; // should not be reached
+}
+
+PsycParseTableRC
+psyc_parse_table (PsycParseTableState *state, PsycString *elem)
+{
+    if (state->cursor >= state->buffer.length)
+	return PSYC_PARSE_TABLE_INCOMPLETE;
+
+    state->startc = state->cursor;
+
+    switch (state->part) {
+    case PSYC_TABLE_PART_START:
+	if (state->buffer.data[state->cursor] != '*') {
+	    state->part = PSYC_TABLE_PART_BODY_START;
+	    goto PSYC_TABLE_PART_BODY_START;
+	} else {
+	    state->part = PSYC_TABLE_PART_WIDTH;
+	    ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_TABLE_INCOMPLETE);
+	}
+	// fall thru
+
+    case PSYC_TABLE_PART_WIDTH:
+	if (psyc_is_numeric(state->buffer.data[state->cursor])) {
+	    do {
+		state->width =
+		    10 * state->width + state->buffer.data[state->cursor] - '0';
+		ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_TABLE_INCOMPLETE);
+	    } while (psyc_is_numeric(state->buffer.data[state->cursor]));
+	} else
+	    return PSYC_PARSE_TABLE_ERROR_WIDTH;
+
+	switch (state->buffer.data[state->cursor]) {
+#ifdef PSYC_PARSE_TABLE_HEAD
+	case '|':
+	    state->part = PSYC_TABLE_PART_HEAD_START;
+	    break;
+#endif
+	case ' ':
+	    state->part = PSYC_TABLE_PART_BODY_START;
+	    state->cursor++;
+	}
+
+	elem->length = state->width;
+	return PSYC_TABLE_PART_WIDTH;
+#ifdef PSYC_PARSE_TABLE_HEAD
+    case PSYC_TABLE_PART_HEAD_START:
+	psyc_parse_list_buffer_set(&state->list, state->buffer.data + state->cursor,
+				   state->buffer.length - state->cursor);
+	psyc_parse_list_term_set(&state->list, ' ');
+	state->part = PSYC_TABLE_PART_HEAD;
+	// fall thru
+
+    case PSYC_TABLE_PART_HEAD:
+	switch (psyc_parse_list(&state->list, elem)) {
+	case PSYC_PARSE_LIST_ELEM:
+	    if (state->elems == 0) {
+		state->elems++;
+		return PSYC_PARSE_TABLE_NAME_KEY;
+	    } else if (state->elems < state->width) {
+		state->elems++;
+		return PSYC_PARSE_TABLE_NAME_VALUE;
+	    } else // too many elements
+		return PSYC_PARSE_TABLE_ERROR_HEAD;
+
+	case PSYC_PARSE_LIST_END:
+	    if (state->elems != state->width)
+		return PSYC_PARSE_TABLE_ERROR_HEAD;
+
+	    state->part = PSYC_TABLE_PART_BODY_START;
+	    state->cursor += state->list.cursor + 1;
+	    psyc_parse_list_state_init(&state->list);
+	    return state->elems++ == 0
+		? PSYC_PARSE_TABLE_NAME_KEY : PSYC_PARSE_TABLE_NAME_VALUE;
+	default:
+	    return PSYC_PARSE_TABLE_ERROR_HEAD;
+	}
+#endif
+    case PSYC_TABLE_PART_BODY_START:
+    PSYC_TABLE_PART_BODY_START:
+	psyc_parse_list_buffer_set(&state->list, state->buffer.data + state->cursor,
+				   state->buffer.length - state->cursor);
+	state->part = PSYC_TABLE_PART_BODY;
+	// fall thru
+
+    case PSYC_TABLE_PART_BODY:
+	switch (psyc_parse_list(&state->list, elem)) {
+	case PSYC_PARSE_LIST_ELEM:
+	    return state->elems++ % (state->width + 1) == 0
+		? PSYC_PARSE_TABLE_KEY : PSYC_PARSE_TABLE_VALUE;
+	case PSYC_PARSE_LIST_END:
+	    return state->elems++ % (state->width + 1) == 0
+		? PSYC_PARSE_TABLE_KEY_END : PSYC_PARSE_TABLE_VALUE_END;
+	default:
+	    return PSYC_PARSE_TABLE_ERROR_BODY;
 	}
     }
 

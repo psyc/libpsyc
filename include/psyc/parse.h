@@ -40,7 +40,8 @@
  * char* raw_data; // points to our (possibly incomplete) packet
  * size_t raw_len; // how many bytes of data
  *
- * psyc_parse_buffer_set(&state, raw_data, raw_len); // state is our initialized state from before
+ * // state is our initialized state from before
+ * psyc_parse_buffer_set(&state, raw_data, raw_len);
  * @endcode
  *
  * Now the the variables that will save the output of the parser need to be
@@ -212,6 +213,43 @@ typedef enum {
     PSYC_PARSE_LIST_INCOMPLETE = 3,
 } PsycParseListRC;
 
+typedef enum {
+    PSYC_PARSE_TABLE_ERROR_BODY = -5,
+    PSYC_PARSE_TABLE_ERROR_DELIM = -4,
+    PSYC_PARSE_TABLE_ERROR_HEAD = -3,
+    PSYC_PARSE_TABLE_ERROR_WIDTH = -2,
+    PSYC_PARSE_TABLE_ERROR = -1,
+    /// Completed parsing the width of the table.
+    PSYC_PARSE_TABLE_WIDTH = 1,
+#ifdef PSYC_PARSE_TABLE_HEAD
+    /// Completed parsing the name of the key column.
+    PSYC_PARSE_TABLE_NAME_KEY = 2,
+    /// Completed parsing the name of a value column.
+    PSYC_PARSE_TABLE_NAME_VALUE = 3,
+#endif
+    /// Completed parsing a key.
+    PSYC_PARSE_TABLE_KEY = 4,
+    /// Completed parsing a value.
+    PSYC_PARSE_TABLE_VALUE = 5,
+    /// Completed parsing a key and reached end of buffer.
+    PSYC_PARSE_TABLE_KEY_END = 6,
+    /// Completed parsing a value and reached end of buffer.
+    PSYC_PARSE_TABLE_VALUE_END = 7,
+    /// Binary table is incomplete.
+    PSYC_PARSE_TABLE_INCOMPLETE = 8,
+} PsycParseTableRC;
+
+typedef enum {
+    PSYC_TABLE_PART_START = 0,
+    PSYC_TABLE_PART_WIDTH = 1,
+#ifdef PSYC_PARSE_TABLE_HEAD
+    PSYC_TABLE_PART_HEAD_START = 2,
+    PSYC_TABLE_PART_HEAD = 3,
+#endif
+    PSYC_TABLE_PART_BODY_START = 4,
+    PSYC_TABLE_PART_BODY = 5,
+} PsycTablePart;
+
 /**
  * Struct for keeping parser state.
  */
@@ -239,10 +277,25 @@ typedef struct {
     size_t startc;		///< Line start position.
     PsycString buffer;		///< Buffer with data to be parsed.
     PsycListType type;		///< List type.
+    char term;			///< Terminator character at the end.
+    uint8_t term_set;		///< Look for terminator.
 
     size_t elemParsed;		///< Number of bytes parsed from the elem so far.
     size_t elemLength;		///< Expected length of the elem.
 } PsycParseListState;
+
+/**
+ * Struct for keeping table parser state.
+ */
+typedef struct {
+    size_t cursor;		///< Current position in buffer.
+    size_t startc;		///< Line start position.
+    PsycString buffer;		///< Buffer with data to be parsed.
+    PsycTablePart part;		///< Table type.
+    size_t width;		///< Width of table.
+    size_t elems;               ///< Elems parsed so far in the table.
+    PsycParseListState list;
+} PsycParseTableState;
 
 /**
  * Initializes the state struct.
@@ -273,8 +326,7 @@ psyc_parse_state_init (PsycParseState *state, uint8_t flags)
  * @see PsycString
  */
 static inline void
-psyc_parse_buffer_set (PsycParseState *state, char *buffer,
-		       size_t length)
+psyc_parse_buffer_set (PsycParseState *state, const char *buffer, size_t length)
 {
     state->buffer = (PsycString) {length, buffer};
     state->cursor = 0;
@@ -286,9 +338,7 @@ psyc_parse_buffer_set (PsycParseState *state, char *buffer,
 }
 
 /**
- * Initializes the list state struct.
- *
- * @param state Pointer to the list state struct that should be initialized.
+ * Initializes the list state.
  */
 static inline void
 psyc_parse_list_state_init (PsycParseListState *state)
@@ -301,6 +351,32 @@ psyc_parse_list_state_init (PsycParseListState *state)
  */
 static inline void
 psyc_parse_list_buffer_set (PsycParseListState *state, char *buffer, size_t length)
+{
+    state->buffer = (PsycString) {length, buffer};
+    state->cursor = 0;
+}
+
+static inline void
+psyc_parse_list_term_set (PsycParseListState *state, char term)
+{
+    state->term = term;
+    state->term_set = PSYC_TRUE;
+}
+
+/**
+ * Initializes the table state.
+ */
+static inline void
+psyc_parse_table_state_init (PsycParseTableState *state)
+{
+    memset(state, 0, sizeof(PsycParseTableState));
+}
+
+/**
+ * Sets a new buffer in the list parser state struct with data to be parsed.
+ */
+static inline void
+psyc_parse_table_buffer_set (PsycParseTableState *state, char *buffer, size_t length)
 {
     state->buffer = (PsycString) {length, buffer};
     state->cursor = 0;
@@ -394,14 +470,17 @@ static inline
 PsycParseListRC
 psyc_parse_list (PsycParseListState *state, PsycString *elem);
 
-static inline PsycBool
+PsycParseTableRC
+psyc_parse_table (PsycParseTableState *state, PsycString *elem);
+
+static inline PsycRC
 psyc_parse_number (const char *value, size_t len, int64_t *n)
 {
     size_t c = 0;
     uint8_t neg = 0;
 
     if (!value)
-	return PSYC_FALSE;
+	return PSYC_ERROR;
 
     if (value[0] == '-')
 	neg = ++c;
@@ -411,42 +490,42 @@ psyc_parse_number (const char *value, size_t len, int64_t *n)
 	*n = 10 * *n + (value[c++] - '0');
 
     if (c != len)
-	return PSYC_FALSE;
+	return PSYC_ERROR;
 
     if (neg)
 	*n = 0 - *n;
 
-    return PSYC_TRUE;
+    return PSYC_OK;
 }
 
-static inline PsycBool
+static inline PsycRC
 psyc_parse_number_unsigned (const char *value, size_t len, uint64_t *n)
 {
     size_t c = 0;
     if (!value)
-	return PSYC_FALSE;
+	return PSYC_ERROR;
 
     *n = 0;
     while (c < len && value[c] >= '0' && value[c] <= '9')
 	*n = 10 * *n + (value[c++] - '0');
 
-    return c == len ? PSYC_TRUE : PSYC_FALSE;
+    return c == len ? PSYC_OK : PSYC_ERROR;
 }
 
-static inline PsycBool
+static inline PsycRC
 psyc_parse_time (const char *value, size_t len, time_t *t)
 {
     return psyc_parse_number(value, len, t);
 }
 
-static inline PsycBool
+static inline PsycRC
 psyc_parse_date (const char *value, size_t len, time_t *t)
 {
     if (psyc_parse_number(value, len, t)) {
 	*t += PSYC_EPOCH;
-	return PSYC_TRUE;
+	return PSYC_OK;
     }
-    return PSYC_FALSE;
+    return PSYC_ERROR;
 }
 
 /**
