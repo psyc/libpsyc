@@ -38,8 +38,9 @@ const PsycDictInt psyc_var_types[] = {
     {PSYC_C2STRI("_list"), PSYC_TYPE_LIST},
     {PSYC_C2STRI("_nick"), PSYC_TYPE_NICK},
     {PSYC_C2STRI("_page"), PSYC_TYPE_PAGE},
-    {PSYC_C2STRI("_uniform"), PSYC_TYPE_UNIFORM},
+    {PSYC_C2STRI("_table"), PSYC_TYPE_TABLE},
     {PSYC_C2STRI("_time"), PSYC_TYPE_TIME},
+    {PSYC_C2STRI("_uniform"), PSYC_TYPE_UNIFORM},
 };
 
 const size_t psyc_routing_vars_num = PSYC_NUM_ELEM(psyc_routing_vars);

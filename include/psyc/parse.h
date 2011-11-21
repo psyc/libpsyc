@@ -260,13 +260,13 @@ typedef struct {
     uint8_t flags;		///< Flags for the parser, see PsycParseFlag.
     PsycPart part;		///< Part of the packet being parsed currently.
 
-    size_t routingLength;	///< Length of routing part parsed so far.
-    size_t contentParsed;	///< Number of bytes parsed from the content so far.
-    size_t contentLength;	///< Expected length of the content.
-    PsycBool contentLengthFound;///< Is there a length given for this packet?
-    size_t valueParsed;		///< Number of bytes parsed from the value so far.
-    size_t valueLength;		///< Expected length of the value.
-    PsycBool valueLengthFound;	///< Is there a length given for this modifier?
+    size_t routinglen;		///< Length of routing part parsed so far.
+    size_t content_parsed;	///< Number of bytes parsed from the content so far.
+    size_t contentlen;		///< Expected length of the content.
+    PsycBool contentlen_found;	///< Is there a length given for this packet?
+    size_t value_parsed;	///< Number of bytes parsed from the value so far.
+    size_t valuelen;		///< Expected length of the value.
+    PsycBool valuelen_found;	///< Is there a length given for this modifier?
 } PsycParseState;
 
 /**
@@ -280,8 +280,8 @@ typedef struct {
     char term;			///< Terminator character at the end.
     uint8_t term_set;		///< Look for terminator.
 
-    size_t elemParsed;		///< Number of bytes parsed from the elem so far.
-    size_t elemLength;		///< Expected length of the elem.
+    size_t elem_parsed;		///< Number of bytes parsed from the elem so far.
+    size_t elemlen;		///< Expected length of the elem.
 } PsycParseListState;
 
 /**
@@ -326,14 +326,14 @@ psyc_parse_state_init (PsycParseState *state, uint8_t flags)
  * @see PsycString
  */
 static inline void
-psyc_parse_buffer_set (PsycParseState *state, const char *buffer, size_t length)
+psyc_parse_buffer_set (PsycParseState *state, char *buffer, size_t length)
 {
     state->buffer = (PsycString) {length, buffer};
     state->cursor = 0;
 
     if (state->flags & PSYC_PARSE_START_AT_CONTENT) {
-	state->contentLength = length;
-	state->contentLengthFound = PSYC_TRUE;
+	state->contentlen = length;
+	state->contentlen_found = PSYC_TRUE;
     }
 }
 
@@ -385,25 +385,25 @@ psyc_parse_table_buffer_set (PsycParseTableState *state, char *buffer, size_t le
 static inline size_t
 psyc_parse_content_length (PsycParseState *state)
 {
-    return state->contentLength;
+    return state->contentlen;
 }
 
 static inline PsycBool
 psyc_parse_content_length_found (PsycParseState *state)
 {
-    return state->contentLengthFound;
+    return state->contentlen_found;
 }
 
 static inline size_t
 psyc_parse_value_length (PsycParseState *state)
 {
-    return state->valueLength;
+    return state->valuelen;
 }
 
 static inline PsycBool
 psyc_parse_value_length_found (PsycParseState *state)
 {
-    return state->valueLengthFound;
+    return state->valuelen_found;
 }
 
 static inline size_t
@@ -473,14 +473,14 @@ psyc_parse_list (PsycParseListState *state, PsycString *elem);
 PsycParseTableRC
 psyc_parse_table (PsycParseTableState *state, PsycString *elem);
 
-static inline PsycRC
-psyc_parse_number (const char *value, size_t len, int64_t *n)
+static inline size_t
+psyc_parse_int (const char *value, size_t len, int64_t *n)
 {
     size_t c = 0;
     uint8_t neg = 0;
 
     if (!value)
-	return PSYC_ERROR;
+	return c;
 
     if (value[0] == '-')
 	neg = ++c;
@@ -490,61 +490,54 @@ psyc_parse_number (const char *value, size_t len, int64_t *n)
 	*n = 10 * *n + (value[c++] - '0');
 
     if (c != len)
-	return PSYC_ERROR;
+	return c;
 
     if (neg)
 	*n = 0 - *n;
 
-    return PSYC_OK;
+    return c;
 }
 
-static inline PsycRC
-psyc_parse_number_unsigned (const char *value, size_t len, uint64_t *n)
+static inline size_t
+psyc_parse_uint (const char *value, size_t len, uint64_t *n)
 {
     size_t c = 0;
     if (!value)
-	return PSYC_ERROR;
+	return c;
 
     *n = 0;
     while (c < len && value[c] >= '0' && value[c] <= '9')
 	*n = 10 * *n + (value[c++] - '0');
 
-    return c == len ? PSYC_OK : PSYC_ERROR;
+    return c;
 }
 
-static inline PsycRC
-psyc_parse_time (const char *value, size_t len, time_t *t)
+static inline size_t
+psyc_parse_index (const char *value, size_t len, int64_t *n)
 {
-    return psyc_parse_number(value, len, t);
-}
-
-static inline PsycRC
-psyc_parse_date (const char *value, size_t len, time_t *t)
-{
-    if (psyc_parse_number(value, len, t)) {
-	*t += PSYC_EPOCH;
-	return PSYC_OK;
-    }
-    return PSYC_ERROR;
+    if (!value || len == 0 || value[0] != '#')
+	return 0;
+    return psyc_parse_int(value + 1, len, n) + 1;
 }
 
 /**
  * Determines if the argument is a glyph.
  * Glyphs are: : = + - ? !
  */
-static inline char
-psyc_is_glyph (uint8_t g)
+static inline PsycBool
+psyc_is_glyph (char g)
 {
     switch (g) {
     case ':':
     case '=':
     case '+':
     case '-':
+    case '@':
     case '?':
     case '!':
-	return 1;
+	return PSYC_TRUE;
     default:
-	return 0;
+	return PSYC_FALSE;
     }
 }
 
@@ -552,7 +545,7 @@ psyc_is_glyph (uint8_t g)
  * Determines if the argument is numeric.
  */
 static inline char
-psyc_is_numeric (uint8_t c)
+psyc_is_numeric (char c)
 {
     return c >= '0' && c <= '9';
 }
@@ -561,7 +554,7 @@ psyc_is_numeric (uint8_t c)
  * Determines if the argument is alphabetic.
  */
 static inline char
-psyc_is_alpha (uint8_t c)
+psyc_is_alpha (char c)
 {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
@@ -570,7 +563,7 @@ psyc_is_alpha (uint8_t c)
  * Determines if the argument is alphanumeric.
  */
 static inline char
-psyc_is_alpha_numeric (uint8_t c)
+psyc_is_alpha_numeric (char c)
 {
     return psyc_is_alpha(c) || psyc_is_numeric(c);
 }
@@ -580,7 +573,7 @@ psyc_is_alpha_numeric (uint8_t c)
  * Keyword characters are: alphanumeric and _
  */
 static inline char
-psyc_is_kw_char (uint8_t c)
+psyc_is_kw_char (char c)
 {
     return psyc_is_alpha_numeric(c) || c == '_';
 }
@@ -590,7 +583,7 @@ psyc_is_kw_char (uint8_t c)
  * Name characters are: see opaque_part in RFC 2396
  */
 static inline char
-psyc_is_name_char (uint8_t c)
+psyc_is_name_char (char c)
 {
     return psyc_is_alpha(c) || (c >= '$' && c <= ';')
 	|| c == '_' || c == '!' || c == '?' || c == '=' || c == '@' || c == '~';
@@ -601,9 +594,22 @@ psyc_is_name_char (uint8_t c)
  * Hostname characters are: alphanumeric and -
  */
 static inline char
-psyc_is_host_char (uint8_t c)
+psyc_is_host_char (char c)
 {
     return psyc_is_alpha_numeric(c) || c == '.' || c == '-';
+}
+
+/**
+ * Parse variable name or method name.
+ * It should contain one or more keyword characters.
+ * @return Number of characters parsed.
+ */
+static inline size_t
+psyc_parse_keyword (const char *data, size_t len)
+{
+    size_t c = 0;
+    while (c < len && psyc_is_kw_char(data[c++]));
+    return c > 0 ? c - 1 : 0;
 }
 
 /** @} */ // end of parse group

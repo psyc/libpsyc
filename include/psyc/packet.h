@@ -57,6 +57,7 @@ typedef enum {
     PSYC_OPERATOR_ASSIGN = '=',
     PSYC_OPERATOR_AUGMENT = '+',
     PSYC_OPERATOR_DIMINISH = '-',
+    PSYC_OPERATOR_UPDATE = '@',
     PSYC_OPERATOR_QUERY = '?',
 } PsycOperator;
 
@@ -92,13 +93,13 @@ typedef struct {
 typedef struct {
     PsycHeader routing;		///< Routing header.
     PsycHeader entity;		///< Entity header.
-    char stateop;		///< State operation. @see PsycStateOp
     PsycString method;		///< Contains the method.
     PsycString data;		///< Contains the data.
     PsycString content;		///< Contains the whole content.
-    size_t routingLength;	///< Length of routing part.
-    size_t contentLength;	///< Length of content part.
+    size_t routinglen;		///< Length of routing part.
+    size_t contentlen;		///< Length of content part.
     size_t length;		///< Total length of packet.
+    PsycStateOp stateop;	///< State operation. @see PsycStateOp
     PsycPacketFlag flag;	///< Packet flag.
 } PsycPacket;
 

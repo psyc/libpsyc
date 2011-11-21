@@ -95,39 +95,39 @@ inline size_t
 psyc_packet_length_set (PsycPacket * p)
 {
     size_t i;
-    p->routingLength = 0;
-    p->contentLength = 0;
+    p->routinglen = 0;
+    p->contentlen = 0;
 
     // add routing header length
     for (i = 0; i < p->routing.lines; i++)
-	p->routingLength += psyc_modifier_length(&(p->routing.modifiers[i]));
+	p->routinglen += psyc_modifier_length(&(p->routing.modifiers[i]));
 
     if (p->content.length)
-	p->contentLength = p->content.length;
+	p->contentlen = p->content.length;
     else {
 	// add state operation
 	if (p->stateop != PSYC_STATE_NOOP)
-	    p->contentLength += 2;	// op\n
+	    p->contentlen += 2;	// op\n
 
 	// add entity header length
 	for (i = 0; i < p->entity.lines; i++)
-	    p->contentLength += psyc_modifier_length(&(p->entity.modifiers[i]));
+	    p->contentlen += psyc_modifier_length(&(p->entity.modifiers[i]));
 
 	// add length of method, data & delimiter
 	if (p->method.length)
-	    p->contentLength += p->method.length + 1;	// method\n
+	    p->contentlen += p->method.length + 1;	// method\n
 	if (p->data.length)
-	    p->contentLength += p->data.length + 1;	// data\n
+	    p->contentlen += p->data.length + 1;	// data\n
     }
 
     // set total length: routing-header content |\n
-    p->length = p->routingLength + p->contentLength + 2;
+    p->length = p->routinglen + p->contentlen + 2;
 
-    if (p->contentLength > 0 || p->flag == PSYC_PACKET_NEED_LENGTH)
+    if (p->contentlen > 0 || p->flag == PSYC_PACKET_NEED_LENGTH)
 	p->length++; // add \n at the start of the content part
 
     if (p->flag == PSYC_PACKET_NEED_LENGTH) // add length of length if needed
-	p->length += psyc_num_length(p->contentLength);
+	p->length += psyc_num_length(p->contentlen);
 
     return p->length;
 }
@@ -140,8 +140,18 @@ psyc_packet_init (PsycPacket * p,
 		  char *data, size_t datalen,
 		  char stateop, PsycPacketFlag flag)
 {
-    *p = (PsycPacket) {{routinglen, routing}, {entitylen, entity}, stateop,
-		       {methodlen, method}, {datalen, data}, {0, 0}, 0, 0, flag};
+    *p = (PsycPacket) {
+	.routing = {routinglen, routing},
+	.entity = {entitylen, entity},
+	.method = {methodlen, method},
+	.data = {datalen, data},
+	.content = {0, 0},
+	.routinglen = 0,
+	.contentlen = 0,
+	.length = 0,
+	.stateop = stateop,
+	.flag = flag,
+    };
 
     if (flag == PSYC_PACKET_CHECK_LENGTH) // find out if it needs length
 	p->flag = psyc_packet_length_check(p);
@@ -155,8 +165,18 @@ psyc_packet_init_raw (PsycPacket * p,
 		      char *content, size_t contentlen,
 		      PsycPacketFlag flag)
 {
-    *p = (PsycPacket) {{routinglen, routing}, {0, 0}, 0, {0, 0}, {0, 0},
-		       {contentlen, content}, 0, 0, flag};
+    *p = (PsycPacket) {
+	.routing = {routinglen, routing},
+	.entity = {0, 0},
+	.method = {0, 0},
+	.data = {0, 0},
+	.content = {contentlen, content},
+	.routinglen = 0,
+	.contentlen = 0,
+	.length = 0,
+	.stateop = 0,
+	.flag = flag,
+    };
 
     if (flag == PSYC_PACKET_CHECK_LENGTH) // find out if it needs length
 	p->flag = psyc_packet_length_check(p);
