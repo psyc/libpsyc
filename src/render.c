@@ -84,7 +84,7 @@ psyc_render (PsycPacket * packet, char *buffer, size_t buflen)
 
     // add length if needed
     if (packet->flag == PSYC_PACKET_NEED_LENGTH)
-	cur += itoa(packet->contentLength, buffer + cur, 10);
+	cur += itoa(packet->contentlen, buffer + cur, 10);
 
     if (packet->flag == PSYC_PACKET_NEED_LENGTH || packet->content.length
 	|| packet->stateop || packet->entity.lines
