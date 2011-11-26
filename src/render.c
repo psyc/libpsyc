@@ -6,14 +6,14 @@
 #ifdef __INLINE_PSYC_RENDER
 static inline
 #endif
-PsycRenderListRC
-psyc_render_list (PsycList * list, char *buffer, size_t buflen)
+PsycRenderRC
+psyc_render_list (PsycList *list, char *buffer, size_t buflen)
 {
     size_t i, cur = 0;
     PsycString *elem;
 
     if (list->length > buflen) // return error if list doesn't fit in buffer
-	return PSYC_RENDER_LIST_ERROR;
+	return PSYC_RENDER_ERROR;
 
     if (list->flag == PSYC_LIST_NEED_LENGTH) {
 	for (i = 0; i < list->num_elems; i++) {
@@ -34,9 +34,27 @@ psyc_render_list (PsycList * list, char *buffer, size_t buflen)
 	}
     }
 
+#ifdef DEBUG
     // Actual length should be equal to pre-calculated length at this point.
     assert(cur == list->length);
-    return PSYC_RENDER_LIST_SUCCESS;
+#endif
+    return PSYC_RENDER_SUCCESS;
+}
+
+PsycRenderRC
+psyc_render_table (PsycTable *table, char *buffer, size_t buflen)
+{
+    size_t cur = 0;
+
+    if (table->length > buflen) // return error if table doesn't fit in buffer
+	return PSYC_RENDER_ERROR;
+
+    if (table->width > 0) {
+	cur = sprintf(buffer, "*%ld", table->width);
+	buffer[cur++] = ' ';
+    }
+
+    return psyc_render_list(table->list, buffer + cur, buflen - cur);
 }
 
 static inline size_t

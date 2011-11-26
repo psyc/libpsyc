@@ -3,7 +3,7 @@
 #include <psyc/packet.h>
 
 inline PsycListFlag
-psyc_list_length_check (PsycList * list)
+psyc_list_length_check (PsycList *list)
 {
     PsycListFlag flag = PSYC_LIST_NO_LENGTH;
     size_t i, length = 0;
@@ -23,7 +23,7 @@ psyc_list_length_check (PsycList * list)
 }
 
 inline PsycListFlag
-psyc_list_length (PsycList * list)
+psyc_list_length (PsycList *list)
 {
     size_t i, length = 0;
 
@@ -42,12 +42,16 @@ psyc_list_length (PsycList * list)
     return length;
 }
 
-inline void
-psyc_list_init (PsycList * list, PsycString * elems, size_t num_elems,
+void
+psyc_list_init (PsycList *list, PsycString *elems, size_t num_elems,
 		PsycListFlag flag)
 {
     *list = (PsycList) {
-    num_elems, elems, 0, flag};
+	.num_elems = num_elems,
+	.elems = elems,
+	.length = 0,
+	.flag = flag,
+    };
 
     if (flag == PSYC_LIST_CHECK_LENGTH) // check if list elements need length
 	list->flag = psyc_list_length_check(list);
@@ -55,9 +59,19 @@ psyc_list_init (PsycList * list, PsycString * elems, size_t num_elems,
     list->length = psyc_list_length(list);
 }
 
+void
+psyc_table_init (PsycTable *table, size_t width, PsycList *list)
+{
+    *table = (PsycTable) {
+	.width = width,
+	.list = list,
+    };
+
+    table->length = (width > 0 ? psyc_num_length(width) + 2 : 0) + list->length;
+}
 
 inline size_t
-psyc_modifier_length (PsycModifier * m)
+psyc_modifier_length (PsycModifier *m)
 {
     size_t length = 2; // oper\n
     if (m->name.length > 0)
@@ -70,7 +84,7 @@ psyc_modifier_length (PsycModifier * m)
 }
 
 inline PsycPacketFlag
-psyc_packet_length_check (PsycPacket * p)
+psyc_packet_length_check (PsycPacket *p)
 {
     if (p->data.length == 1 && p->data.data[0] == PSYC_PACKET_DELIMITER_CHAR)
 	return PSYC_PACKET_NEED_LENGTH;
@@ -92,7 +106,7 @@ psyc_packet_length_check (PsycPacket * p)
 }
 
 inline size_t
-psyc_packet_length_set (PsycPacket * p)
+psyc_packet_length_set (PsycPacket *p)
 {
     size_t i;
     p->routinglen = 0;
@@ -133,9 +147,9 @@ psyc_packet_length_set (PsycPacket * p)
 }
 
 inline void
-psyc_packet_init (PsycPacket * p,
-		  PsycModifier * routing, size_t routinglen,
-		  PsycModifier * entity, size_t entitylen,
+psyc_packet_init (PsycPacket *p,
+		  PsycModifier *routing, size_t routinglen,
+		  PsycModifier *entity, size_t entitylen,
 		  char *method, size_t methodlen,
 		  char *data, size_t datalen,
 		  char stateop, PsycPacketFlag flag)
@@ -160,8 +174,8 @@ psyc_packet_init (PsycPacket * p,
 }
 
 inline void
-psyc_packet_init_raw (PsycPacket * p,
-		      PsycModifier * routing, size_t routinglen,
+psyc_packet_init_raw (PsycPacket *p,
+		      PsycModifier *routing, size_t routinglen,
 		      char *content, size_t contentlen,
 		      PsycPacketFlag flag)
 {

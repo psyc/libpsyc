@@ -164,6 +164,10 @@ psyc_parse (PsycParseState *state, char *oper,
     // in case we return insufficent, we rewind to this position.
     state->startc = state->cursor;
 
+    if (state->flags & PSYC_PARSE_START_AT_CONTENT
+	&& (state->buffer.length == 0 || state->cursor >= state->buffer.length - 1))
+	return PSYC_PARSE_COMPLETE;
+
     // First we test if we can access the first char.
     if (state->cursor >= state->buffer.length) // Cursor is not inside the length.
 	return PSYC_PARSE_INSUFFICIENT;
@@ -263,22 +267,23 @@ psyc_parse (PsycParseState *state, char *oper,
 	// In the body, the same applies, only that the
 	// method does not start with a glyph.
 	if (psyc_is_glyph(state->buffer.data[state->cursor])) {
-	    ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
-	    if (state->content_parsed == 0
-		&& state->buffer.data[state->cursor] == '\n') {
-		*oper = *(state->buffer.data + state->cursor - 1);
-		switch (*oper) {
-		case PSYC_STATE_RESYNC:
-		    state->content_parsed += 2;
-		    return PSYC_PARSE_STATE_RESYNC;
-		case PSYC_STATE_RESET:
-		    state->content_parsed += 2;
-		    return PSYC_PARSE_STATE_RESET;
-		default:
-		    return PSYC_PARSE_ERROR_MOD_NAME;
+	    if (state->content_parsed == 0) {
+		ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+		if (state->buffer.data[state->cursor] == '\n') {
+		    *oper = *(state->buffer.data + state->cursor - 1);
+		    switch (*oper) {
+		    case PSYC_STATE_RESYNC:
+			state->content_parsed++;
+			return PSYC_PARSE_STATE_RESYNC;
+		    case PSYC_STATE_RESET:
+			state->content_parsed++;
+			return PSYC_PARSE_STATE_RESET;
+		    default:
+			return PSYC_PARSE_ERROR_MOD_NAME;
+		    }
 		}
+		state->cursor--;
 	    }
-	    state->cursor--;
 
 	    ret = psyc_parse_modifier(state, oper, name, value);
 	    state->content_parsed += state->cursor - pos;

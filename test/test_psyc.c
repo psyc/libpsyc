@@ -170,8 +170,8 @@ test_input (int i, char *recvbuf, size_t nbytes)
 	    }
 
 	    // reset packet
-	    packet->routingLength = 0;
-	    packet->contentLength = 0;
+	    packet->routinglen = 0;
+	    packet->contentlen = 0;
 	    packet->length = 0;
 	    packet->flag = 0;
 
@@ -262,7 +262,7 @@ test_input (int i, char *recvbuf, size_t nbytes)
 
 		if (verbose >= 2) {
 		    printf("[%.*s]", (int)pvalue->length, pvalue->data);
-		    if (parser->valueLength > pvalue->length)
+		    if (parser->valuelen > pvalue->length)
 			printf("...");
 		    printf("\n");
 		}
@@ -273,7 +273,7 @@ test_input (int i, char *recvbuf, size_t nbytes)
 	    if (verbose >= 3)
 		printf("\t\t\t\t\t\t\t\t# n:%ld v:%ld c:%ld r:%ld\n",
 		       pname->length, pvalue->length,
-		       parser->contentParsed, parser->routingLength);
+		       parser->content_parsed, parser->routinglen);
 	}
 
 	switch (ret) {

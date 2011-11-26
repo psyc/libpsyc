@@ -32,16 +32,6 @@ typedef enum {
 } PsycRenderRC;
 
 /**
- * Return codes for psyc_render_list.
- */
-typedef enum {
-    /// Error, buffer is too small to render the list.
-    PSYC_RENDER_LIST_ERROR = -1,
-    /// List is rendered successfully in the buffer.
-    PSYC_RENDER_LIST_SUCCESS = 0,
-} PsycRenderListRC;
-
-/**
  * Render a PSYC packet into a buffer.
  *
  * The packet structure should contain the packet parts, either routing, entity,
@@ -67,8 +57,11 @@ psyc_render (PsycPacket *packet, char *buffer, size_t buflen);
 #ifdef __INLINE_PSYC_RENDER
 static inline
 #endif
-PsycRenderListRC
+PsycRenderRC
 psyc_render_list (PsycList *list, char *buffer, size_t buflen);
+
+PsycRenderRC
+psyc_render_table (PsycTable *table, char *buffer, size_t buflen);
 
 /** @} */ // end of render group
 
