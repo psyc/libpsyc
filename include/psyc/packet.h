@@ -89,6 +89,12 @@ typedef struct {
     PsycListFlag flag;
 } PsycList;
 
+typedef struct {
+    PsycList *list;
+    size_t width;
+    size_t length;
+} PsycTable;
+
 /** Intermediate struct for a PSYC packet */
 typedef struct {
     PsycHeader routing;		///< Routing header.
@@ -177,12 +183,16 @@ psyc_packet_length_check (PsycPacket *p);
 size_t
 psyc_packet_length_set (PsycPacket *p);
 
-/** Initialize list. */
+/** Initialize a list. */
 void
 psyc_list_init (PsycList *list, PsycString *elems, size_t num_elems,
 		PsycListFlag flag);
 
-/** Initialize packet. */
+/** Initialize a table. */
+void
+psyc_table_init (PsycTable *table, size_t width, PsycList *list);
+
+/** Initialize a packet. */
 void
 psyc_packet_init (PsycPacket *packet,
 		  PsycModifier *routing, size_t routinglen,

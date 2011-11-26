@@ -31,6 +31,7 @@ const PsycDictInt psyc_var_types[] = {
     {PSYC_C2STRI("_amount"), PSYC_TYPE_AMOUNT},
     {PSYC_C2STRI("_color"), PSYC_TYPE_COLOR},
     {PSYC_C2STRI("_date"), PSYC_TYPE_DATE},
+    {PSYC_C2STRI("_def"), PSYC_TYPE_DEF},
     {PSYC_C2STRI("_degree"), PSYC_TYPE_DEGREE},
     {PSYC_C2STRI("_entity"), PSYC_TYPE_ENTITY},
     {PSYC_C2STRI("_flag"), PSYC_TYPE_FLAG},
