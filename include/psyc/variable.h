@@ -1,9 +1,11 @@
-#ifndef PSYC_VARIABLE_H
-#define PSYC_VARIABLE_H
-
 /**
  * @file psyc/variable.h
  */
+
+#ifndef PSYC_VARIABLE_H
+#define PSYC_VARIABLE_H
+
+#include "packet.h"
 
 /// Routing variables in alphabetical order.
 extern const PsycString psyc_routing_vars[];
@@ -35,5 +37,8 @@ psyc_var_is_list (const char *name, size_t len)
     return len < 5 || memcmp(name, "_list", 5) != 0 || (len > 5 && name[5] != '_')
 	? PSYC_FALSE : PSYC_TRUE;
 }
+
+PsycMethod
+psyc_method_family (char *method, size_t methodlen, unsigned int *flag);
 
 #endif
