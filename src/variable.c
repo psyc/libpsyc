@@ -1,6 +1,8 @@
 #include "lib.h"
 #include <stdint.h>
 
+#include <psyc/packet.h>
+
 
 /// Routing variables in alphabetical order.
 const PsycString psyc_routing_vars[] = {
@@ -44,8 +46,22 @@ const PsycDictInt psyc_var_types[] = {
     {PSYC_C2STRI("_uniform"), PSYC_TYPE_UNIFORM},
 };
 
+const PsycDictInt psyc_method_families[] = {
+    {PSYC_C2STRI("_data"), PSYC_METHOD_DATA},
+    {PSYC_C2STRI("_echo"), PSYC_METHOD_ECHO},
+    {PSYC_C2STRI("_failure"), PSYC_METHOD_FAILURE},
+    {PSYC_C2STRI("_info"), PSYC_METHOD_INFO},
+    {PSYC_C2STRI("_message"), PSYC_METHOD_MESSAGE},
+    {PSYC_C2STRI("_message_echo"), PSYC_METHOD_MESSAGE_ECHO},
+    {PSYC_C2STRI("_notice"), PSYC_METHOD_NOTICE},
+    {PSYC_C2STRI("_request"), PSYC_METHOD_REQUEST},
+    {PSYC_C2STRI("_status"), PSYC_METHOD_STATUS},
+    {PSYC_C2STRI("_warning"), PSYC_METHOD_WARNING},
+};
+
 const size_t psyc_routing_vars_num = PSYC_NUM_ELEM(psyc_routing_vars);
 const size_t psyc_var_types_num = PSYC_NUM_ELEM(psyc_var_types);
+const size_t psyc_method_families_num = PSYC_NUM_ELEM(psyc_method_families);
 
 /**
  * Get the type of variable name.
@@ -96,4 +112,61 @@ psyc_var_type (const char *name, size_t len)
     return (PsycType) psyc_dict_lookup((PsycDict *) psyc_var_types,
 				       psyc_var_types_num, name, len, PSYC_YES,
 				       (int8_t *) &m);
+}
+
+/**
+ * Get the family and flags for a method.
+ */
+PsycMethod
+psyc_method_family (char *method, size_t methodlen, unsigned int *flag)
+{
+    int8_t tmp[PSYC_NUM_ELEM(psyc_method_families)];
+    int mc = psyc_dict_lookup_int(psyc_method_families, psyc_method_families_num,
+				  method, methodlen, PSYC_YES, tmp);
+
+    if (!flag)
+	return mc;
+
+    switch (mc) {
+    case PSYC_METHOD_DATA:
+	break;
+    case PSYC_METHOD_ECHO:
+	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE;
+	break;
+    case PSYC_METHOD_ERROR:
+	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE
+	    | PSYC_MESSAGE_LOGGABLE;
+	break;
+    case PSYC_METHOD_FAILURE:
+	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE
+	    | PSYC_MESSAGE_LOGGABLE;
+	break;
+    case PSYC_METHOD_INFO:
+	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE
+	    | PSYC_MESSAGE_LOGGABLE;
+	break;
+    case PSYC_METHOD_MESSAGE:
+	*flag = PSYC_MESSAGE_VISIBLE | PSYC_MESSAGE_LOGGABLE | PSYC_MESSAGE_MANUAL;
+	break;
+    case PSYC_METHOD_MESSAGE_ECHO:
+	*flag = PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE | PSYC_MESSAGE_LOGGABLE
+	    | PSYC_MESSAGE_MANUAL;
+	break;
+    case PSYC_METHOD_NOTICE:
+	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_VISIBLE | PSYC_MESSAGE_LOGGABLE;
+	break;
+    case PSYC_METHOD_REQUEST:
+	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_VISIBLE | PSYC_MESSAGE_LOGGABLE;
+	break;
+    case PSYC_METHOD_STATUS:
+	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE
+	    | PSYC_MESSAGE_LOGGABLE;
+	break;
+    case PSYC_METHOD_WARNING:
+	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE
+	    | PSYC_MESSAGE_LOGGABLE;
+	break;
+    }
+
+    return mc;
 }
