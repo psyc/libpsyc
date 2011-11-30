@@ -114,7 +114,8 @@
 
 #include <stdint.h>
 #include <string.h>
-#include <psyc.h>
+
+#include "../psyc.h"
 
 typedef enum {
     /// Default Flag. Parse everything.

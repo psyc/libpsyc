@@ -16,9 +16,10 @@
  * @{
  */
 
-#include <psyc.h>
-#include <psyc/syntax.h>
 #include <math.h>
+
+#include "syntax.h"
+#include "method.h"
 
 /** Modifier flags. */
 typedef enum {
@@ -66,21 +67,6 @@ typedef enum {
     PSYC_STATE_RESET = '=',
     PSYC_STATE_RESYNC = '?',
 } PsycStateOp;
-
-typedef enum PsycMethod {
-    PSYC_METHOD_UNKNOWN,
-    PSYC_METHOD_DATA,
-    PSYC_METHOD_ECHO,
-    PSYC_METHOD_ERROR,
-    PSYC_METHOD_FAILURE,
-    PSYC_METHOD_INFO,
-    PSYC_METHOD_MESSAGE,
-    PSYC_METHOD_MESSAGE_ECHO,
-    PSYC_METHOD_NOTICE,
-    PSYC_METHOD_REQUEST,
-    PSYC_METHOD_STATUS,
-    PSYC_METHOD_WARNING,
-} PsycMethod;
 
 /** Structure for a modifier. */
 typedef struct {

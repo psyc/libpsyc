@@ -1,8 +1,12 @@
 #include "lib.h"
 #include <psyc/text.h>
 
+const PsycTemplates psyc_templates = { .s = {
+#include "templates.h"
+}};
+
 PsycTextRC
-psyc_text (PsycTextState *state, PsycTextCB getValue, void *extra)
+psyc_text (PsycTextState *state, PsycTextCB get_value, void *extra)
 {
     const char *start = state->tmpl.data, *end; // start & end of variable name
     const char *prev = state->tmpl.data + state->cursor;
@@ -34,7 +38,7 @@ psyc_text (PsycTextState *state, PsycTextCB getValue, void *extra)
 	    continue; // [] is invalid, name can't be empty
 	}
 
-	ret = getValue(start + state->open.length,
+	ret = get_value(start + state->open.length,
 		       end - start - state->open.length, &value, extra);
 
 	if (ret < 0)

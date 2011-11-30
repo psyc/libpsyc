@@ -158,6 +158,16 @@ psyc_text_bytes_written (PsycTextState *state)
 PsycTextRC
 psyc_text (PsycTextState *state, PsycTextCB getValue, void *extra);
 
+extern const PsycTemplates psyc_templates;
+
+static inline const char *
+psyc_template (PsycMethod mc, size_t *len) {
+    PsycString t = psyc_templates.a[mc];
+    if (len)
+	*len = t.length;
+    return t.data;
+}
+
 /** @} */ // end of text group
 
 #endif

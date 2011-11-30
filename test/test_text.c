@@ -99,7 +99,11 @@ main (int argc, char **argv)
 	    return 10 + i;
     }
 
-    puts("psyc_text passed all tests.");
+    size_t tlen = 0;
+    char *t = psyc_template(PSYC_MC_NOTICE_CONTEXT_ENTER, &tlen);
+    printf("_notice_context_enter = %s, %ld\n", t, tlen);
+
+    printf("psyc_text passed all tests.\n");
 
     return 0;
 }
