@@ -94,14 +94,6 @@ typedef enum {
     PSYC_LIST_BINARY = 2,
 } PsycListType;
 
-typedef enum PsycMessageFlag {
-    PSYC_MESSAGE_TEMPLATE	= 1 << 0,
-    PSYC_MESSAGE_REPLY		= 1 << 1,
-    PSYC_MESSAGE_VISIBLE	= 1 << 2,
-    PSYC_MESSAGE_LOGGABLE	= 1 << 3,
-    PSYC_MESSAGE_MANUAL		= 1 << 4,
-} PsycMessageFlag;
-
 /**
  * String struct.
  *

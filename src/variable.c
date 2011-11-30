@@ -9,7 +9,7 @@ const PsycString psyc_routing_vars[] = {
     PSYC_C2STRI("_amount_fragments"),
     PSYC_C2STRI("_context"),
     //PSYC_C2STRI("_count"), // older PSYC
-    PSYC_C2STRI("_counter"), // the name for this is supposed to be _count, not _counter
+    PSYC_C2STRI("_counter"),
     PSYC_C2STRI("_fragment"),
     //PSYC_C2STRI("_length"), // older PSYC
     PSYC_C2STRI("_source"),
@@ -30,38 +30,46 @@ const PsycString psyc_routing_vars[] = {
 
 // Variable types in alphabetical order.
 const PsycDictInt psyc_var_types[] = {
-    {PSYC_C2STRI("_amount"), PSYC_TYPE_AMOUNT},
-    {PSYC_C2STRI("_color"), PSYC_TYPE_COLOR},
-    {PSYC_C2STRI("_date"), PSYC_TYPE_DATE},
-    {PSYC_C2STRI("_def"), PSYC_TYPE_DEF},
-    {PSYC_C2STRI("_degree"), PSYC_TYPE_DEGREE},
-    {PSYC_C2STRI("_entity"), PSYC_TYPE_ENTITY},
-    {PSYC_C2STRI("_flag"), PSYC_TYPE_FLAG},
-    {PSYC_C2STRI("_language"), PSYC_TYPE_LANGUAGE},
-    {PSYC_C2STRI("_list"), PSYC_TYPE_LIST},
-    {PSYC_C2STRI("_nick"), PSYC_TYPE_NICK},
-    {PSYC_C2STRI("_page"), PSYC_TYPE_PAGE},
-    {PSYC_C2STRI("_table"), PSYC_TYPE_TABLE},
-    {PSYC_C2STRI("_time"), PSYC_TYPE_TIME},
-    {PSYC_C2STRI("_uniform"), PSYC_TYPE_UNIFORM},
+    { PSYC_C2STRI("_amount"),	PSYC_TYPE_AMOUNT },
+    { PSYC_C2STRI("_color"),	PSYC_TYPE_COLOR },
+    { PSYC_C2STRI("_date"),	PSYC_TYPE_DATE },
+    { PSYC_C2STRI("_def"),	PSYC_TYPE_DEF },
+    { PSYC_C2STRI("_degree"),	PSYC_TYPE_DEGREE },
+    { PSYC_C2STRI("_entity"),	PSYC_TYPE_ENTITY },
+    { PSYC_C2STRI("_flag"),	PSYC_TYPE_FLAG },
+    { PSYC_C2STRI("_language"),	PSYC_TYPE_LANGUAGE },
+    { PSYC_C2STRI("_list"),	PSYC_TYPE_LIST },
+    { PSYC_C2STRI("_nick"),	PSYC_TYPE_NICK },
+    { PSYC_C2STRI("_page"),	PSYC_TYPE_PAGE },
+    { PSYC_C2STRI("_table"),	PSYC_TYPE_TABLE },
+    { PSYC_C2STRI("_time"),	PSYC_TYPE_TIME },
+    { PSYC_C2STRI("_uniform"),	PSYC_TYPE_UNIFORM },
 };
 
-const PsycDictInt psyc_method_families[] = {
-    {PSYC_C2STRI("_data"), PSYC_METHOD_DATA},
-    {PSYC_C2STRI("_echo"), PSYC_METHOD_ECHO},
-    {PSYC_C2STRI("_failure"), PSYC_METHOD_FAILURE},
-    {PSYC_C2STRI("_info"), PSYC_METHOD_INFO},
-    {PSYC_C2STRI("_message"), PSYC_METHOD_MESSAGE},
-    {PSYC_C2STRI("_message_echo"), PSYC_METHOD_MESSAGE_ECHO},
-    {PSYC_C2STRI("_notice"), PSYC_METHOD_NOTICE},
-    {PSYC_C2STRI("_request"), PSYC_METHOD_REQUEST},
-    {PSYC_C2STRI("_status"), PSYC_METHOD_STATUS},
-    {PSYC_C2STRI("_warning"), PSYC_METHOD_WARNING},
+/// Method names in alphabetical order.
+const PsycDictInt psyc_methods[] = {
+    { PSYC_C2STRI("_data"),			PSYC_MC_DATA },
+    { PSYC_C2STRI("_echo_context_enter"),	PSYC_MC_ECHO_CONTEXT_ENTER },
+    { PSYC_C2STRI("_echo_context_leave"),	PSYC_MC_ECHO_CONTEXT_LEAVE },
+    { PSYC_C2STRI("_echo"),			PSYC_MC_ECHO },
+    { PSYC_C2STRI("_failure"),			PSYC_MC_FAILURE },
+    { PSYC_C2STRI("_info"),			PSYC_MC_INFO },
+    { PSYC_C2STRI("_message_echo"),		PSYC_MC_MESSAGE_ECHO },
+    { PSYC_C2STRI("_message"),			PSYC_MC_MESSAGE },
+    { PSYC_C2STRI("_notice_context_enter"),	PSYC_MC_NOTICE_CONTEXT_ENTER },
+    { PSYC_C2STRI("_notice_context_leave"),	PSYC_MC_NOTICE_CONTEXT_LEAVE },
+    { PSYC_C2STRI("_notice"),			PSYC_MC_NOTICE },
+    { PSYC_C2STRI("_request_context_enter"),	PSYC_MC_REQUEST_CONTEXT_ENTER },
+    { PSYC_C2STRI("_request_context_leave"),	PSYC_MC_REQUEST_CONTEXT_LEAVE },
+    { PSYC_C2STRI("_request"),			PSYC_MC_REQUEST },
+    { PSYC_C2STRI("_status_contexts_entered"),	PSYC_MC_STATUS_CONTEXTS_ENTERED },
+    { PSYC_C2STRI("_status"),			PSYC_MC_STATUS },
+    { PSYC_C2STRI("_warning"),			PSYC_MC_WARNING },
 };
 
 const size_t psyc_routing_vars_num = PSYC_NUM_ELEM(psyc_routing_vars);
 const size_t psyc_var_types_num = PSYC_NUM_ELEM(psyc_var_types);
-const size_t psyc_method_families_num = PSYC_NUM_ELEM(psyc_method_families);
+const size_t psyc_methods_num = PSYC_NUM_ELEM(psyc_methods);
 
 /**
  * Get the type of variable name.
@@ -115,57 +123,76 @@ psyc_var_type (const char *name, size_t len)
 }
 
 /**
- * Get the family and flags for a method.
+ * Get the method, its family and its flags.
  */
 PsycMethod
-psyc_method_family (char *method, size_t methodlen, unsigned int *flag)
+psyc_method (char *method, size_t methodlen, PsycMethod *family, unsigned int *flag)
 {
-    int8_t tmp[PSYC_NUM_ELEM(psyc_method_families)];
-    int mc = psyc_dict_lookup_int(psyc_method_families, psyc_method_families_num,
+    int8_t tmp[PSYC_NUM_ELEM(psyc_methods)];
+    int mc = psyc_dict_lookup_int(psyc_methods, psyc_methods_num,
 				  method, methodlen, PSYC_YES, tmp);
 
-    if (!flag)
-	return mc;
-
     switch (mc) {
-    case PSYC_METHOD_DATA:
+    case PSYC_MC_DATA:
+	*family = PSYC_MC_DATA;
+	*flag = 0;
 	break;
-    case PSYC_METHOD_ECHO:
-	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE;
+    case PSYC_MC_ECHO:
+    case PSYC_MC_ECHO_CONTEXT_ENTER:
+    case PSYC_MC_ECHO_CONTEXT_LEAVE:
+	*family = PSYC_MC_ECHO;
+	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE;
 	break;
-    case PSYC_METHOD_ERROR:
-	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE
-	    | PSYC_MESSAGE_LOGGABLE;
+    case PSYC_MC_ERROR:
+	*family = PSYC_MC_ERROR;
+	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE
+	    | PSYC_METHOD_LOGGABLE;
 	break;
-    case PSYC_METHOD_FAILURE:
-	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE
-	    | PSYC_MESSAGE_LOGGABLE;
+    case PSYC_MC_FAILURE:
+	*family = PSYC_MC_FAILURE;
+	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE
+	    | PSYC_METHOD_LOGGABLE;
 	break;
-    case PSYC_METHOD_INFO:
-	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE
-	    | PSYC_MESSAGE_LOGGABLE;
+    case PSYC_MC_INFO:
+	*family = PSYC_MC_INFO;
+	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE
+	    | PSYC_METHOD_LOGGABLE;
 	break;
-    case PSYC_METHOD_MESSAGE:
-	*flag = PSYC_MESSAGE_VISIBLE | PSYC_MESSAGE_LOGGABLE | PSYC_MESSAGE_MANUAL;
+    case PSYC_MC_MESSAGE:
+	*family = PSYC_MC_MESSAGE;
+	*flag = PSYC_METHOD_VISIBLE | PSYC_METHOD_LOGGABLE | PSYC_METHOD_MANUAL;
 	break;
-    case PSYC_METHOD_MESSAGE_ECHO:
-	*flag = PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE | PSYC_MESSAGE_LOGGABLE
-	    | PSYC_MESSAGE_MANUAL;
+    case PSYC_MC_MESSAGE_ECHO:
+	*family = PSYC_MC_MESSAGE_ECHO;
+	*flag = PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE | PSYC_METHOD_LOGGABLE
+	    | PSYC_METHOD_MANUAL;
 	break;
-    case PSYC_METHOD_NOTICE:
-	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_VISIBLE | PSYC_MESSAGE_LOGGABLE;
+    case PSYC_MC_NOTICE:
+    case PSYC_MC_NOTICE_CONTEXT_ENTER:
+    case PSYC_MC_NOTICE_CONTEXT_LEAVE:
+	*family = PSYC_MC_NOTICE;
+	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_VISIBLE | PSYC_METHOD_LOGGABLE;
 	break;
-    case PSYC_METHOD_REQUEST:
-	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_VISIBLE | PSYC_MESSAGE_LOGGABLE;
+    case PSYC_MC_REQUEST:
+    case PSYC_MC_REQUEST_CONTEXT_ENTER:
+    case PSYC_MC_REQUEST_CONTEXT_LEAVE:
+	*family = PSYC_MC_REQUEST;
+	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_VISIBLE | PSYC_METHOD_LOGGABLE;
 	break;
-    case PSYC_METHOD_STATUS:
-	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE
-	    | PSYC_MESSAGE_LOGGABLE;
+    case PSYC_MC_STATUS:
+    case PSYC_MC_STATUS_CONTEXTS_ENTERED:
+	*family = PSYC_MC_STATUS;
+	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE
+	    | PSYC_METHOD_LOGGABLE;
 	break;
-    case PSYC_METHOD_WARNING:
-	*flag = PSYC_MESSAGE_TEMPLATE | PSYC_MESSAGE_REPLY | PSYC_MESSAGE_VISIBLE
-	    | PSYC_MESSAGE_LOGGABLE;
+    case PSYC_MC_WARNING:
+	*family = PSYC_MC_WARNING;
+	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE
+	    | PSYC_METHOD_LOGGABLE;
 	break;
+    default:
+	*family = mc;
+	*flag = 0;
     }
 
     return mc;

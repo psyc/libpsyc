@@ -1,7 +1,7 @@
 #ifndef PSYC_RENDER_H
 #define PSYC_RENDER_H
 
-#include <psyc/packet.h>
+#include "packet.h"
 
 /**
  * @file psyc/render.h
