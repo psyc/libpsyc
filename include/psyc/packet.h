@@ -140,7 +140,7 @@ psyc_modifier_length_check (PsycModifier *m)
 
 /** Initialize modifier */
 static inline void
-psyc_modifier_init (PsycModifier *m, char oper,
+psyc_modifier_init (PsycModifier *m, PsycOperator oper,
 		    char *name, size_t namelen,
 		    char *value, size_t valuelen, PsycModifierFlag flag)
 {

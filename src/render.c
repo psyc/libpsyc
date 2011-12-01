@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "lib.h"
 #include <psyc/packet.h>
 #include <psyc/render.h>

@@ -193,7 +193,7 @@ psyc_parse (PsycParseState *state, char *oper,
 	// Each line of the header starts with a glyph,
 	// i.e. :_name, -_name +_name etc,
 	// so just test if the first char is a glyph.
-	if (psyc_is_glyph(state->buffer.data[state->cursor])) {
+	if (psyc_is_oper(state->buffer.data[state->cursor])) {
 	    // it is a glyph, so a variable starts here
 	    ret = psyc_parse_modifier(state, oper, name, value);
 	    state->routinglen += state->cursor - pos;
@@ -266,7 +266,7 @@ psyc_parse (PsycParseState *state, char *oper,
 	// So just test if the first char is a glyph.
 	// In the body, the same applies, only that the
 	// method does not start with a glyph.
-	if (psyc_is_glyph(state->buffer.data[state->cursor])) {
+	if (psyc_is_oper(state->buffer.data[state->cursor])) {
 	    if (state->content_parsed == 0) {
 		ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 		if (state->buffer.data[state->cursor] == '\n') {

@@ -327,9 +327,9 @@ psyc_parse_state_init (PsycParseState *state, uint8_t flags)
  * @see PsycString
  */
 static inline void
-psyc_parse_buffer_set (PsycParseState *state, char *buffer, size_t length)
+psyc_parse_buffer_set (PsycParseState *state, const char *buffer, size_t length)
 {
-    state->buffer = (PsycString) {length, buffer};
+    state->buffer = (PsycString) {length, (char*)buffer};
     state->cursor = 0;
 
     if (state->flags & PSYC_PARSE_START_AT_CONTENT) {
@@ -351,9 +351,10 @@ psyc_parse_list_state_init (PsycParseListState *state)
  * Sets a new buffer in the list parser state struct with data to be parsed.
  */
 static inline void
-psyc_parse_list_buffer_set (PsycParseListState *state, char *buffer, size_t length)
+psyc_parse_list_buffer_set (PsycParseListState *state,
+			    const char *buffer, size_t length)
 {
-    state->buffer = (PsycString) {length, buffer};
+    state->buffer = (PsycString) {length, (char*)buffer};
     state->cursor = 0;
 }
 
@@ -377,9 +378,10 @@ psyc_parse_table_state_init (PsycParseTableState *state)
  * Sets a new buffer in the list parser state struct with data to be parsed.
  */
 static inline void
-psyc_parse_table_buffer_set (PsycParseTableState *state, char *buffer, size_t length)
+psyc_parse_table_buffer_set (PsycParseTableState *state,
+			     const char *buffer, size_t length)
 {
-    state->buffer = (PsycString) {length, buffer};
+    state->buffer = (PsycString) {length, (char*)buffer};
     state->cursor = 0;
 }
 
@@ -526,7 +528,7 @@ psyc_parse_index (const char *value, size_t len, int64_t *n)
  * Glyphs are: : = + - ? !
  */
 static inline PsycBool
-psyc_is_glyph (char g)
+psyc_is_oper (char g)
 {
     switch (g) {
     case ':':

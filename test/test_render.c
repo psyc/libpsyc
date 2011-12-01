@@ -8,9 +8,9 @@
 
 /* example renderer generating a presence packet */
 int
-testPresence (const char *avail, int availlen,
-	      const char *desc, int desclen,
-	      const char *rendered, uint8_t verbose)
+testPresence (char *avail, int availlen,
+	      char *desc, int desclen,
+	      char *rendered, uint8_t verbose)
 {
     PsycModifier routing[1];
     psyc_modifier_init(&routing[0], PSYC_OPERATOR_SET,

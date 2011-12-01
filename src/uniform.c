@@ -4,21 +4,20 @@
 #include "psyc/parse.h"
 
 int
-psyc_uniform_parse (PsycUniform *uni, char *str, size_t length)
+psyc_uniform_parse (PsycUniform *uni, const char *buffer, size_t length)
 {
     char c;
     PsycString *p;
+    char *data = (char*)buffer;
     size_t pos = 0, part = PSYC_UNIFORM_SCHEME;
 
     uni->valid = 0;
-    uni->full.data = str;
-    uni->full.length = length;
+    uni->full = PSYC_STRING(data, length);
 
     while (pos < length) {
-	c = str[pos];
+	c = data[pos];
 	if (c == ':') {
-	    uni->scheme.data = str;
-	    uni->scheme.length = pos++;
+	    uni->scheme = PSYC_STRING(data, pos++);
 	    break;
 	} else if (!psyc_is_host_char(c))
 	    return PSYC_PARSE_UNIFORM_INVALID_SCHEME;
@@ -32,11 +31,10 @@ psyc_uniform_parse (PsycUniform *uni, char *str, size_t length)
 			   tolower(p->data[3]) == 'c')) {
 	uni->type = PSYC_SCHEME_PSYC;
 	part = PSYC_UNIFORM_SLASHES;
-	uni->slashes.data = str + pos;
-	uni->slashes.length = 0;
+	uni->slashes = PSYC_STRING(data + pos, 0);
 
 	while (pos < length) {
-	    c = str[pos];
+	    c = data[pos];
 	    switch (part) {
 	    case PSYC_UNIFORM_SLASHES:
 		if (c == '/')
@@ -46,8 +44,7 @@ psyc_uniform_parse (PsycUniform *uni, char *str, size_t length)
 
 		if (uni->slashes.length == 2) {
 		    part = PSYC_UNIFORM_HOST;
-		    uni->host.data = str + pos + 1;
-		    uni->host.length = 0;
+		    uni->host = PSYC_STRING(data + pos + 1, 0);
 		}
 		break;
 
@@ -64,16 +61,14 @@ psyc_uniform_parse (PsycUniform *uni, char *str, size_t length)
 		    part = PSYC_UNIFORM_PORT;
 		    p = &uni->port;
 		} else if (c == '/') {
-		    uni->slash.data = str + pos;
-		    uni->slash.length = 1;
+		    uni->slash = PSYC_STRING(data + pos, 1);
 
 		    part = PSYC_UNIFORM_RESOURCE;
 		    p = &uni->resource;
 		} else
 		    return PSYC_PARSE_UNIFORM_INVALID_HOST;
 
-		p->data = str + pos + 1;
-		p->length = 0;
+		*p = PSYC_STRING(data + pos + 1, 0);
 		break;
 
 	    case PSYC_UNIFORM_PORT:
@@ -86,17 +81,14 @@ psyc_uniform_parse (PsycUniform *uni, char *str, size_t length)
 		    return PSYC_PARSE_UNIFORM_INVALID_PORT;
 
 		if (c == '/') {
-		    uni->slash.data = str + pos;
-		    uni->slash.length = 1;
+		    uni->slash = PSYC_STRING(data + pos, 1);
 
 		    part = PSYC_UNIFORM_RESOURCE;
-		    uni->resource.data = str + pos + 1;
-		    uni->resource.length = 0;
+		    uni->resource = PSYC_STRING(data + pos + 1, 0);
 		    break;
 		} else {
 		    part = PSYC_UNIFORM_TRANSPORT;
-		    uni->transport.data = str + pos;
-		    uni->transport.length = 0;
+		    uni->transport = PSYC_STRING(data + pos, 0);
 		}
 		// fall thru
 
@@ -113,12 +105,10 @@ psyc_uniform_parse (PsycUniform *uni, char *str, size_t length)
 		    uni->transport.length++;
 		    break;
 		case '/':
-		    uni->slash.data = str + pos;
-		    uni->slash.length = 1;
+		    uni->slash = PSYC_STRING(data + pos, 1);
 
 		    part = PSYC_UNIFORM_RESOURCE;
-		    uni->resource.data = str + pos + 1;
-		    uni->resource.length = 0;
+		    uni->resource = PSYC_STRING(data + pos + 1, 0);
 		    break;
 		default:
 		    return PSYC_PARSE_UNIFORM_INVALID_TRANSPORT;
@@ -131,8 +121,7 @@ psyc_uniform_parse (PsycUniform *uni, char *str, size_t length)
 		    break;
 		} else if (c == '#') {
 		    part = PSYC_UNIFORM_CHANNEL;
-		    uni->channel.data = str + pos + 1;
-		    uni->channel.length = 0;
+		    uni->channel = PSYC_STRING(data + pos + 1, 0);
 		    break;
 		} else
 		    return PSYC_PARSE_UNIFORM_INVALID_RESOURCE;
@@ -150,28 +139,22 @@ psyc_uniform_parse (PsycUniform *uni, char *str, size_t length)
 	if (uni->host.length == 0)
 	    return PSYC_PARSE_UNIFORM_INVALID_HOST;
 
-	uni->host_port.data = uni->host.data;
-	uni->host_port.length = uni->host.length + uni->port.length
-	    + uni->transport.length;
-
+	uni->host_port = PSYC_STRING(uni->host.data, uni->host.length
+				     + uni->port.length + uni->transport.length);
 	if (uni->port.length > 0 || uni->transport.length > 0)
 	    uni->host_port.length++;
 
-	uni->root.data = str;
-	uni->root.length = uni->scheme.length + 1
-	    + uni->slashes.length + uni->host_port.length;
+	uni->root = PSYC_STRING(data, uni->scheme.length + 1
+				+ uni->slashes.length + uni->host_port.length);
 
-	uni->entity.data = str;
-	uni->entity.length = uni->root.length + uni->slash.length
-	    + uni->resource.length;
+	uni->entity = PSYC_STRING(data, uni->root.length + uni->slash.length
+				  + uni->resource.length);
 
-	uni->body.data = uni->host.data;
-	uni->body.length = length - uni->scheme.length - 1 - uni->slashes.length;
+	uni->body = PSYC_STRING(uni->host.data,
+				length - uni->scheme.length - 1 - uni->slashes.length);
 
-	if (uni->resource.length) {
-	    uni->nick.data = uni->resource.data + 1;
-	    uni->nick.length = uni->resource.length;
-	}
+	if (uni->resource.length)
+	    uni->nick = PSYC_STRING(uni->resource.data + 1, uni->resource.length);
 
     } else
 	return PSYC_PARSE_UNIFORM_INVALID_SCHEME;

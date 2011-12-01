@@ -100,7 +100,7 @@ main (int argc, char **argv)
     }
 
     size_t tlen = 0;
-    char *t = psyc_template(PSYC_MC_NOTICE_CONTEXT_ENTER, &tlen);
+    const char *t = psyc_template(PSYC_MC_NOTICE_CONTEXT_ENTER, &tlen);
     printf("_notice_context_enter = %s, %ld\n", t, tlen);
 
     printf("psyc_text passed all tests.\n");
