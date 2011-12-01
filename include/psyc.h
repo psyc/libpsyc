@@ -24,12 +24,14 @@
 #define PSYC_VERSION 1
 #define PSYC_EPOCH 1440444041 // 2015-08-24 21:20:41 CET (Monday)
 
-#define	PSYC_C2STR(str) (PsycString) {sizeof(str)-1, str}
-#define	PSYC_C2STRI(str) {sizeof(str)-1, str}
-#define	PSYC_C2ARG(str) str, sizeof(str)-1
-#define	PSYC_C2ARG2(str) sizeof(str)-1, str
-#define	PSYC_S2ARG(str) (str).data, (str).length
-#define	PSYC_S2ARG2(str) (str).length, (str).data
+#define PSYC_STRING(data, len) (PsycString) {len, data}
+#define PSYC_C2STR(str)  (PsycString) {sizeof(str)-1, str}
+#define PSYC_C2STRI(str) {sizeof(str)-1, str}
+#define PSYC_C2ARG(str)  str, sizeof(str)-1
+#define PSYC_C2ARG2(str) sizeof(str)-1, str
+#define PSYC_S2ARG(str)  (str).data, (str).length
+#define PSYC_S2ARG2(str) (str).length, (str).data
+#define PSYC_S2ARGP(str) (int)(str).length, (str).data
 
 #define PSYC_NUM_ELEM(a) (sizeof(a) / sizeof(*(a)))
 

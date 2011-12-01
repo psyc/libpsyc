@@ -79,6 +79,6 @@ typedef enum {
 } PsycEntityType;
 
 int
-psyc_uniform_parse (PsycUniform * uni, char *str, size_t length);
+psyc_uniform_parse (PsycUniform *uni, const char *buffer, size_t length);
 
 #endif
