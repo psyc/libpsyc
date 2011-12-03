@@ -54,6 +54,8 @@ const PsycDictInt psyc_methods[] = {
     { PSYC_C2STRI("_echo"),			PSYC_MC_ECHO },
     { PSYC_C2STRI("_failure"),			PSYC_MC_FAILURE },
     { PSYC_C2STRI("_info"),			PSYC_MC_INFO },
+    { PSYC_C2STRI("_message_action"),		PSYC_MC_MESSAGE_ACTION },
+    { PSYC_C2STRI("_message_echo_action"),	PSYC_MC_MESSAGE_ECHO_ACTION },
     { PSYC_C2STRI("_message_echo"),		PSYC_MC_MESSAGE_ECHO },
     { PSYC_C2STRI("_message"),			PSYC_MC_MESSAGE },
     { PSYC_C2STRI("_notice_context_enter"),	PSYC_MC_NOTICE_CONTEXT_ENTER },
@@ -159,10 +161,12 @@ psyc_method (char *method, size_t methodlen, PsycMethod *family, unsigned int *f
 	    | PSYC_METHOD_LOGGABLE;
 	break;
     case PSYC_MC_MESSAGE:
+    case PSYC_MC_MESSAGE_ACTION:
 	*family = PSYC_MC_MESSAGE;
 	*flag = PSYC_METHOD_VISIBLE | PSYC_METHOD_LOGGABLE | PSYC_METHOD_MANUAL;
 	break;
     case PSYC_MC_MESSAGE_ECHO:
+    case PSYC_MC_MESSAGE_ECHO_ACTION:
 	*family = PSYC_MC_MESSAGE_ECHO;
 	*flag = PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE | PSYC_METHOD_LOGGABLE
 	    | PSYC_METHOD_MANUAL;

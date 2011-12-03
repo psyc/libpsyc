@@ -3,6 +3,11 @@
 #include "psyc/uniform.h"
 #include "psyc/parse.h"
 
+/**
+ * Parse uniform.
+ *
+ * @return PsycScheme on success, PsycParseUniformRC on error.
+ */
 int
 psyc_uniform_parse (PsycUniform *uni, const char *buffer, size_t length)
 {
