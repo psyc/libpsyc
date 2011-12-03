@@ -78,7 +78,32 @@ typedef enum {
     PSYC_ENTITY_SERVICE = '$',
 } PsycEntityType;
 
+/**
+ * Parse uniform.
+ *
+ * @return PsycScheme on success, PsycParseUniformRC on error.
+ */
 int
 psyc_uniform_parse (PsycUniform *uni, const char *buffer, size_t length);
+
+/**
+ * Get entity type.
+ *
+ * @return PsycEntityType on success, PSYC_ERROR on error.
+ */
+static inline int
+psyc_entity_type (char entity)
+{
+    switch (entity) {
+    case PSYC_ENTITY_PERSON:
+	return PSYC_ENTITY_PERSON;
+    case PSYC_ENTITY_PLACE:
+	return PSYC_ENTITY_PLACE;
+    case PSYC_ENTITY_SERVICE:
+	return PSYC_ENTITY_SERVICE;
+    default:
+	return PSYC_ERROR;
+    }
+}
 
 #endif
