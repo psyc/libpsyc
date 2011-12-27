@@ -31,6 +31,7 @@ typedef enum PsycMethod {
     PSYC_MC_REQUEST_CONTEXT_LEAVE,
     PSYC_MC_STATUS,
     PSYC_MC_STATUS_CONTEXTS_ENTERED,
+    PSYC_MC_STATUS_HELLO,
     PSYC_MC_WARNING,
 
     PSYC_METHODS_NUM,
@@ -44,11 +45,13 @@ typedef union PsycTemplates {
 	PsycString _echo;
 	PsycString _echo_context_enter;
 	PsycString _echo_context_leave;
+	PsycString _echo_hello_offer;
 	PsycString _error;
 	PsycString _failure;
 	PsycString _info;
 	PsycString _message;
 	PsycString _message_action;
+	PsycString _message_echo;
 	PsycString _message_echo_action;
 	PsycString _notice;
 	PsycString _notice_context_enter;
@@ -58,6 +61,7 @@ typedef union PsycTemplates {
 	PsycString _request_context_leave;
 	PsycString _status;
 	PsycString _status_contexts_entered;
+	PsycString _status_hello;
 	PsycString _warning;
     } s;
 } PsycTemplates;

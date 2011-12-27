@@ -28,6 +28,7 @@
 #define PSYC_C2STR(str)  (PsycString) {sizeof(str)-1, str}
 #define PSYC_C2STRI(str) {sizeof(str)-1, str}
 #define PSYC_C2ARG(str)  str, sizeof(str)-1
+#define PSYC_C2ARG1(str) str, sizeof(str)
 #define PSYC_C2ARG2(str) sizeof(str)-1, str
 #define PSYC_S2ARG(str)  (str).data, (str).length
 #define PSYC_S2ARG2(str) (str).length, (str).data

@@ -60,11 +60,13 @@ const PsycDictInt psyc_methods[] = {
     { PSYC_C2STRI("_message"),			PSYC_MC_MESSAGE },
     { PSYC_C2STRI("_notice_context_enter"),	PSYC_MC_NOTICE_CONTEXT_ENTER },
     { PSYC_C2STRI("_notice_context_leave"),	PSYC_MC_NOTICE_CONTEXT_LEAVE },
+    { PSYC_C2STRI("_notice_hello"),		PSYC_MC_NOTICE_HELLO },
     { PSYC_C2STRI("_notice"),			PSYC_MC_NOTICE },
     { PSYC_C2STRI("_request_context_enter"),	PSYC_MC_REQUEST_CONTEXT_ENTER },
     { PSYC_C2STRI("_request_context_leave"),	PSYC_MC_REQUEST_CONTEXT_LEAVE },
     { PSYC_C2STRI("_request"),			PSYC_MC_REQUEST },
     { PSYC_C2STRI("_status_contexts_entered"),	PSYC_MC_STATUS_CONTEXTS_ENTERED },
+    { PSYC_C2STRI("_status_hello"),		PSYC_MC_STATUS_HELLO },
     { PSYC_C2STRI("_status"),			PSYC_MC_STATUS },
     { PSYC_C2STRI("_warning"),			PSYC_MC_WARNING },
 };
@@ -185,6 +187,7 @@ psyc_method (char *method, size_t methodlen, PsycMethod *family, unsigned int *f
 	break;
     case PSYC_MC_STATUS:
     case PSYC_MC_STATUS_CONTEXTS_ENTERED:
+    case PSYC_MC_STATUS_HELLO:
 	*family = PSYC_MC_STATUS;
 	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE
 	    | PSYC_METHOD_LOGGABLE;
