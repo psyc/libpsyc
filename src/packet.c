@@ -197,3 +197,10 @@ psyc_packet_init_raw (PsycPacket *p,
 
     psyc_packet_length_set(p);
 }
+
+size_t
+psyc_packet_id_length (size_t contextlen, size_t sourcelen, size_t targetlen,
+		       size_t counterlen, size_t fragmentlen)
+{
+    return contextlen + sourcelen + targetlen + counterlen + fragmentlen + 5;
+}

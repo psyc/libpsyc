@@ -164,6 +164,13 @@ psyc_dict_lookup_int (const PsycDictInt * dict, size_t size,
 				       inherit, tmp);
 }
 
+#include "psyc/syntax.h"
+#include "psyc/method.h"
+#include "psyc/packet.h"
+#include "psyc/parse.h"
+#include "psyc/render.h"
+#include "psyc/text.h"
+#include "psyc/uniform.h"
 #include "psyc/variable.h"
 
 #endif
