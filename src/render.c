@@ -146,3 +146,29 @@ psyc_render (PsycPacket * packet, char *buffer, size_t buflen)
     assert(cur == packet->length);
     return PSYC_RENDER_SUCCESS;
 }
+
+PsycRenderRC
+psyc_render_packet_id (char *context, size_t contextlen,
+		       char *source, size_t sourcelen,
+		       char *target, size_t targetlen,
+		       char *counter, size_t counterlen,
+		       char *fragment, size_t fragmentlen,
+		       char *buffer, size_t buflen)
+{
+    PsycList list;
+    PsycString elems[PSYC_PACKET_ID_ELEMS] = {};
+
+    if (contextlen)
+	elems[PSYC_PACKET_ID_CONTEXT] = PSYC_STRING(context, contextlen);
+    if (sourcelen)
+	elems[PSYC_PACKET_ID_SOURCE] = PSYC_STRING(source, sourcelen);
+    if (targetlen)
+	elems[PSYC_PACKET_ID_TARGET] = PSYC_STRING(target, targetlen);
+    if (counterlen)
+	elems[PSYC_PACKET_ID_COUNTER] = PSYC_STRING(counter, counterlen);
+    if (fragmentlen)
+	elems[PSYC_PACKET_ID_FRAGMENT] = PSYC_STRING(fragment, fragmentlen);
+
+    psyc_list_init(&list, elems, PSYC_PACKET_ID_ELEMS, PSYC_LIST_NO_LENGTH);
+    return psyc_render_list(&list, buffer, buflen);
+}

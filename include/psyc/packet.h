@@ -68,6 +68,15 @@ typedef enum {
     PSYC_STATE_RESYNC = '?',
 } PsycStateOp;
 
+typedef enum {
+    PSYC_PACKET_ID_CONTEXT = 0,
+    PSYC_PACKET_ID_SOURCE = 1,
+    PSYC_PACKET_ID_TARGET = 2,
+    PSYC_PACKET_ID_COUNTER = 3,
+    PSYC_PACKET_ID_FRAGMENT = 4,
+    PSYC_PACKET_ID_ELEMS = 5,
+} PsycPacketId;
+
 /** Structure for a modifier. */
 typedef struct {
     char oper;
@@ -208,6 +217,11 @@ psyc_packet_init_raw (PsycPacket *packet,
 		      PsycModifier *routing, size_t routinglen,
 		      char *content, size_t contentlen,
 		      PsycPacketFlag flag);
+
+/** Get the total length of a packet ID when rendered. */
+size_t
+psyc_packet_id_length (size_t contextlen, size_t sourcelen, size_t targetelen,
+		       size_t counterlen, size_t fragmentlen);
 
 /** @} */ // end of packet group
 
