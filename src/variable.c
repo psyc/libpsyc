@@ -51,6 +51,7 @@ const PsycDictInt psyc_methods[] = {
     { PSYC_C2STRI("_data"),			PSYC_MC_DATA },
     { PSYC_C2STRI("_echo_context_enter"),	PSYC_MC_ECHO_CONTEXT_ENTER },
     { PSYC_C2STRI("_echo_context_leave"),	PSYC_MC_ECHO_CONTEXT_LEAVE },
+    { PSYC_C2STRI("_echo_hello"),		PSYC_MC_ECHO_HELLO },
     { PSYC_C2STRI("_echo"),			PSYC_MC_ECHO },
     { PSYC_C2STRI("_failure"),			PSYC_MC_FAILURE },
     { PSYC_C2STRI("_info"),			PSYC_MC_INFO },
@@ -60,7 +61,6 @@ const PsycDictInt psyc_methods[] = {
     { PSYC_C2STRI("_message"),			PSYC_MC_MESSAGE },
     { PSYC_C2STRI("_notice_context_enter"),	PSYC_MC_NOTICE_CONTEXT_ENTER },
     { PSYC_C2STRI("_notice_context_leave"),	PSYC_MC_NOTICE_CONTEXT_LEAVE },
-    { PSYC_C2STRI("_notice_hello"),		PSYC_MC_NOTICE_HELLO },
     { PSYC_C2STRI("_notice"),			PSYC_MC_NOTICE },
     { PSYC_C2STRI("_request_context_enter"),	PSYC_MC_REQUEST_CONTEXT_ENTER },
     { PSYC_C2STRI("_request_context_leave"),	PSYC_MC_REQUEST_CONTEXT_LEAVE },
@@ -144,6 +144,7 @@ psyc_method (char *method, size_t methodlen, PsycMethod *family, unsigned int *f
     case PSYC_MC_ECHO:
     case PSYC_MC_ECHO_CONTEXT_ENTER:
     case PSYC_MC_ECHO_CONTEXT_LEAVE:
+    case PSYC_MC_ECHO_HELLO:
 	*family = PSYC_MC_ECHO;
 	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE;
 	break;
