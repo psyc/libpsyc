@@ -8,7 +8,7 @@
 uint8_t verbose;
 
 PsycTextValueRC
-getValueFooBar (const char *name, size_t len, PsycString *value, void *extra)
+getValueFooBar (void *cls, const char *name, size_t len, PsycString *value)
 {
     if (verbose)
 	printf("> getValue: %.*s\n", (int)len, name);
@@ -18,7 +18,7 @@ getValueFooBar (const char *name, size_t len, PsycString *value, void *extra)
 }
 
 PsycTextValueRC
-getValueEmpty (const char *name, size_t len, PsycString *value, void *extra)
+getValueEmpty (void *cls, const char *name, size_t len, PsycString *value)
 {
     if (verbose)
 	printf("> getValue: %.*s\n", (int)len, name);
@@ -28,7 +28,7 @@ getValueEmpty (const char *name, size_t len, PsycString *value, void *extra)
 }
 
 PsycTextValueRC
-getValueNotFound (const char *name, size_t len, PsycString *value, void *extra)
+getValueNotFound (void *cls, const char *name, size_t len, PsycString *value)
 {
     if (verbose)
 	printf("> getValue: %.*s\n", (int)len, name);

@@ -62,8 +62,8 @@ typedef struct {
  * PSYC_TEXT_VALUE_NOT_FOUND if no match found in which case psyc_text
  * leaves the original template text as is.
  */
-typedef PsycTextValueRC (*PsycTextCB) (const char *name, size_t len,
-				       PsycString *value, void *extra);
+typedef PsycTextValueRC (*PsycTextCB) (void *cls, const char *name, size_t namelen,
+				       PsycString *value);
 
 /**
  * Initializes the PSYC text state struct.
@@ -156,7 +156,7 @@ psyc_text_bytes_written (PsycTextState *state)
  * @see http://about.psyc.eu/psyctext
  **/
 PsycTextRC
-psyc_text (PsycTextState *state, PsycTextCB getValue, void *extra);
+psyc_text (PsycTextState *state, PsycTextCB get_value, void *get_value_cls);
 
 extern const PsycTemplates psyc_templates;
 

@@ -60,7 +60,7 @@ psyc_render_table (PsycTable *table, char *buffer, size_t buflen)
 }
 
 static inline size_t
-psyc_render_modifier (PsycModifier * mod, char *buffer)
+psyc_render_modifier (PsycModifier *mod, char *buffer)
 {
     size_t cur = 0;
 
@@ -87,7 +87,7 @@ psyc_render_modifier (PsycModifier * mod, char *buffer)
 static inline
 #endif
 PsycRenderRC
-psyc_render (PsycPacket * packet, char *buffer, size_t buflen)
+psyc_render (PsycPacket *packet, char *buffer, size_t buflen)
 {
     size_t i, cur = 0, len;
 
