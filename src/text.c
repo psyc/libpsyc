@@ -6,7 +6,7 @@ const PsycTemplates psyc_templates = { .s = {
 }};
 
 PsycTextRC
-psyc_text (PsycTextState *state, PsycTextCB get_value, void *extra)
+psyc_text (PsycTextState *state, PsycTextCB get_value, void *get_value_cls)
 {
     const char *start = state->tmpl.data, *end; // start & end of variable name
     const char *prev = state->tmpl.data + state->cursor;
@@ -38,8 +38,8 @@ psyc_text (PsycTextState *state, PsycTextCB get_value, void *extra)
 	    continue; // [] is invalid, name can't be empty
 	}
 
-	ret = get_value(start + state->open.length,
-		       end - start - state->open.length, &value, extra);
+	ret = get_value(get_value_cls, start + state->open.length,
+			end - start - state->open.length, &value);
 
 	if (ret < 0)
 	    continue; // value not found, no substitution
