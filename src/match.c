@@ -111,46 +111,39 @@ psyc_matches(char *sho, size_t slen, char *lon, size_t llen)
  */
 void *
 psyc_dict_lookup(const PsycDict * dict, size_t size,
-		 const char *key, size_t keylen,
-		 PsycBool inherit, int8_t * matching)
+		 const char *key, size_t keylen, PsycBool inherit)
 {
-    size_t cursor = 1;
-    uint8_t i, m = 0;
+    //size_t cursor = 1;
+    size_t c = 0;
+    uint8_t i, match = 0;
 
     if (keylen < 2 || key[0] != '_')
 	return 0;
 
-    // first find the keywords with matching length
+    //for (c = 0, i = 0; c < keylen && i < size; c++) {
     for (i = 0; i < size; i++) {
-	if (keylen == dict[i].key.length
-	    || (inherit && keylen > dict[i].key.length
-		&& key[dict[i].key.length] == '_'))
-	    matching[m++] = i;
-    }
+	if (!(keylen == dict[i].key.length
+	      || (inherit && keylen > dict[i].key.length
+		  && key[dict[i].key.length] == '_')))
+	    continue;
 
-    matching[m] = -1; // mark the end of matching indexes
+	match = 1;
+	for (c = 0; c < keylen; c++) {
+	    if (c < dict[i].key.length && dict[i].key.data[c] == key[c])
+		continue;
+	    else if (c == dict[i].key.length && key[c] == '_')
+		return dict[i].value;	// after the end of a matching prefix
+	    else if (dict[i].key.data[c] > key[c])
+		return NULL;
 
-    while (cursor < keylen && matching[0] >= 0) {
-	for (i = m = 0; i < size; i++) {
-	    if (matching[i] < 0)
-		break; // reached the end of possible matches
-	    if (cursor < dict[matching[i]].key.length &&
-		dict[matching[i]].key.data[cursor] == key[cursor])
-		matching[m++] = matching[i]; // found a match, update matching indexes
-	    else if (cursor == dict[matching[i]].key.length && key[cursor] == '_')
-		return dict[matching[0]].value;	// _ after the end of a matching prefix
-	    else if (dict[matching[i]].key.data[cursor] > key[cursor])
-		break; // passed the possible matches in alphabetical order in the dict
+	    match = 0;
+	    break;
 	}
-
-	if (m < size)
-	    matching[m] = -1; // mark the end of matching indexes
-
-	cursor++;
+	if (match)
+	    return dict[i].value;
     }
 
-    // return first match if found
-    return matching[0] >= 0 ? dict[matching[0]].value : 0;
+    return NULL;
 }
 
 #ifdef CMDTOOL

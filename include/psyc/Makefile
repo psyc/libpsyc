@@ -4,7 +4,7 @@ prefix = /usr
 includedir = ${prefix}/include
 
 INSTALL = install
-HEADERS = method.h packet.h parse.h render.h syntax.h text.h uniform.h variable.h
+HEADERS = match.h method.h packet.h parse.h render.h syntax.h text.h uniform.h variable.h
 
 install: ${HEADERS}
 
