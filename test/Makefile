@@ -3,7 +3,7 @@ DEBUG = 2
 CFLAGS = -I../include -I../src -Wall -std=c99 ${OPT}
 LDFLAGS = -L../lib
 LOADLIBES = -lpsyc -lm
-TARGETS = test_psyc test_psyc_speed test_parser test_match test_render test_text var_is_routing var_type uniform_parse test_list test_table test_packet_id
+TARGETS = test_psyc test_psyc_speed test_parser test_match test_render test_text var_is_routing var_type uniform_parse test_list test_table test_packet_id method
 O = test.o
 WRAPPER =
 DIET = diet

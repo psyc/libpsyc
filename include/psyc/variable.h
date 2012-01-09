@@ -8,7 +8,8 @@
 #include "packet.h"
 
 /// Routing variables in alphabetical order.
-extern const PsycString psyc_routing_vars[];
+//extern const PsycString psyc_routing_vars[];
+extern const PsycDictInt psyc_routing_vars[];
 
 // Variable types in alphabetical order.
 extern const PsycDictInt psyc_var_types[];
@@ -23,14 +24,22 @@ extern const size_t psyc_methods_num;
 /**
  * Is this a routing variable name?
  */
-PsycBool
-psyc_var_is_routing (const char *name, size_t len);
+static inline PsycBool
+psyc_var_is_routing (const char *name, size_t len)
+{
+    return (PsycBool) psyc_dict_lookup((PsycDict *)psyc_routing_vars,
+				       psyc_routing_vars_num, name, len, PSYC_NO);
+}
 
 /**
  * Get the type of variable name.
  */
-PsycType
-psyc_var_type (const char *name, size_t len);
+static inline PsycType
+psyc_var_type (const char *name, size_t len)
+{
+    return (PsycType) psyc_dict_lookup((PsycDict *)psyc_var_types,
+				       psyc_var_types_num, name, len, PSYC_YES);
+}
 
 /**
  * Is this a list variable name?

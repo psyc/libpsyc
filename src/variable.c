@@ -5,27 +5,28 @@
 
 
 /// Routing variables in alphabetical order.
-const PsycString psyc_routing_vars[] = {
-    PSYC_C2STRI("_amount_fragments"),
-    PSYC_C2STRI("_context"),
-    //PSYC_C2STRI("_count"), // older PSYC
-    PSYC_C2STRI("_counter"),
-    PSYC_C2STRI("_fragment"),
-    //PSYC_C2STRI("_length"), // older PSYC
-    PSYC_C2STRI("_source"),
-    //PSYC_C2STRI("_source_identification"), // older PSYC
-    PSYC_C2STRI("_source_identity"),
-    PSYC_C2STRI("_source_relay"),
+//const PsycString psyc_routing_vars[] = {
+const PsycDictInt psyc_routing_vars[] = {
+    { PSYC_C2STRI("_amount_fragments"), 1 },
+    { PSYC_C2STRI("_context"), 1 },
+    //{ PSYC_C2STRI("_count"), 1 }, // older PSYC
+    { PSYC_C2STRI("_counter"), 1 },
+    { PSYC_C2STRI("_fragment"), 1 },
+    //{ PSYC_C2STRI("_length"), 1 }, // older PSYC
+    { PSYC_C2STRI("_source"), 1 },
+    //{ PSYC_C2STRI("_source_identification"), 1 }, // older PSYC
+    { PSYC_C2STRI("_source_identity"), 1 },
+    { PSYC_C2STRI("_source_relay"), 1 },
     // until you have a better idea.. is this really in use?
-    PSYC_C2STRI("_source_relay_relay"),
-    PSYC_C2STRI("_tag"),
-    PSYC_C2STRI("_tag_relay"),
-    //PSYC_C2STRI("_tag_reply"), // older PSYC
-    PSYC_C2STRI("_target"),
-    PSYC_C2STRI("_target_forward"),
-    PSYC_C2STRI("_target_relay"),
-    //PSYC_C2STRI("_understand_modules"), // older PSYC
-    //PSYC_C2STRI("_using_modules"), // older PSYC
+    { PSYC_C2STRI("_source_relay_relay"), 1 },
+    { PSYC_C2STRI("_tag"), 1 },
+    { PSYC_C2STRI("_tag_relay"), 1 },
+    //{ PSYC_C2STRI("_tag_reply"), 1 }, // older PSYC
+    { PSYC_C2STRI("_target"), 1 },
+    { PSYC_C2STRI("_target_forward"), 1 },
+    { PSYC_C2STRI("_target_relay"), 1 },
+    //{ PSYC_C2STRI("_understand_modules"), 1 }, // older PSYC
+    //{ PSYC_C2STRI("_using_modules"), 1 }, // older PSYC
 };
 
 // Variable types in alphabetical order.
@@ -76,65 +77,13 @@ const size_t psyc_var_types_num = PSYC_NUM_ELEM(psyc_var_types);
 const size_t psyc_methods_num = PSYC_NUM_ELEM(psyc_methods);
 
 /**
- * Get the type of variable name.
- */
-inline PsycBool
-psyc_var_is_routing (const char *name, size_t len)
-{
-    size_t cursor = 1;
-    uint8_t i, m = 0;
-    int8_t matching[psyc_routing_vars_num]; // indexes of matching vars
-
-    if (len < 2 || name[0] != '_')
-	return PSYC_FALSE;
-
-    // first find the vars with matching length
-    for (i = 0; i < psyc_routing_vars_num; i++)
-	if (len == psyc_routing_vars[i].length)
-	    matching[m++] = i;
-
-    matching[m] = -1; // mark the end of matching indexes
-
-    while (cursor < len && matching[0] >= 0) {
-	for (i = m = 0; i < psyc_routing_vars_num; i++) {
-	    if (matching[i] < 0)
-		break; // reached the end of possible matches
-	    if (psyc_routing_vars[matching[i]].data[cursor] == name[cursor])
-		matching[m++] = matching[i]; // found a match, update matching indexes
-	    else if (psyc_routing_vars[matching[i]].data[cursor] > name[cursor])
-		break; // passed the possible matches in alphabetical order in the array
-	}
-
-	if (m < psyc_routing_vars_num)
-	    matching[m] = -1; // mark the end of matching indexes
-
-	cursor++;
-    }
-
-    return matching[0] >= 0 ? PSYC_TRUE : PSYC_FALSE;
-}
-
-/**
- * Get the type of variable name.
- */
-inline PsycType
-psyc_var_type (const char *name, size_t len)
-{
-    int8_t m[psyc_var_types_num];
-    return (PsycType) psyc_dict_lookup((PsycDict *) psyc_var_types,
-				       psyc_var_types_num, name, len, PSYC_YES,
-				       (int8_t *) &m);
-}
-
-/**
  * Get the method, its family and its flags.
  */
 PsycMethod
 psyc_method (char *method, size_t methodlen, PsycMethod *family, unsigned int *flag)
 {
-    int8_t tmp[PSYC_NUM_ELEM(psyc_methods)];
     int mc = psyc_dict_lookup_int(psyc_methods, psyc_methods_num,
-				  method, methodlen, PSYC_YES, tmp);
+				  method, methodlen, PSYC_YES);
 
     switch (mc) {
     case PSYC_MC_DATA:
