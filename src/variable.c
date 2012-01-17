@@ -62,6 +62,7 @@ const PsycDictInt psyc_methods[] = {
     { PSYC_C2STRI("_message"),			PSYC_MC_MESSAGE },
     { PSYC_C2STRI("_notice_context_enter"),	PSYC_MC_NOTICE_CONTEXT_ENTER },
     { PSYC_C2STRI("_notice_context_leave"),	PSYC_MC_NOTICE_CONTEXT_LEAVE },
+    { PSYC_C2STRI("_notice_link"),		PSYC_MC_NOTICE_LINK },
     { PSYC_C2STRI("_notice"),			PSYC_MC_NOTICE },
     { PSYC_C2STRI("_request_context_enter"),	PSYC_MC_REQUEST_CONTEXT_ENTER },
     { PSYC_C2STRI("_request_context_leave"),	PSYC_MC_REQUEST_CONTEXT_LEAVE },

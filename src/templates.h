@@ -5,7 +5,7 @@
 ._echo_context_leave =
      _("You leave [_nick_place]"),
 ._echo_hello =
-     _("Received hello of psyc://[_pubkey]:g/"),
+     _("Received hello of psyc://[_key_public]:g/"),
 ._notice_context_enter =
      _("[_nick] enters [_nick_place]"),
 ._notice_context_leave =
