@@ -19,19 +19,25 @@ typedef enum PsycMethod {
     PSYC_MC_ECHO_HELLO,
     PSYC_MC_ERROR,
     PSYC_MC_FAILURE,
+    PSYC_MC_FAILURE_ALIAS_NONEXISTANT,
+    PSYC_MC_FAILURE_ALIAS_UNAVAILABLE,
     PSYC_MC_INFO,
     PSYC_MC_MESSAGE,
     PSYC_MC_MESSAGE_ACTION,
-    PSYC_MC_MESSAGE_ECHO,
-    PSYC_MC_MESSAGE_ECHO_ACTION,
     PSYC_MC_NOTICE,
+    PSYC_MC_NOTICE_ALIAS_ADD,
+    PSYC_MC_NOTICE_ALIAS_CHANGE,
+    PSYC_MC_NOTICE_ALIAS_REMOVE,
     PSYC_MC_NOTICE_CONTEXT_ENTER,
     PSYC_MC_NOTICE_CONTEXT_LEAVE,
+    PSYC_MC_NOTICE_FRIENDSHIP,
     PSYC_MC_NOTICE_LINK,
+    PSYC_MC_NOTICE_SET,
+    PSYC_MC_NOTICE_UNLINK,
     PSYC_MC_REQUEST,
     PSYC_MC_REQUEST_CONTEXT_ENTER,
     PSYC_MC_REQUEST_CONTEXT_LEAVE,
-    PSYC_MC_REQUEST_LINK,
+    PSYC_MC_REQUEST_FRIENDSHIP,
     PSYC_MC_STATUS,
     PSYC_MC_STATUS_CONTEXTS_ENTERED,
     PSYC_MC_STATUS_HELLO,
@@ -51,19 +57,25 @@ typedef union PsycTemplates {
 	PsycString _echo_hello;
 	PsycString _error;
 	PsycString _failure;
+	PsycString _failure_alias_nonexistant;
+	PsycString _failure_alias_unavailable;
 	PsycString _info;
 	PsycString _message;
 	PsycString _message_action;
-	PsycString _message_echo;
-	PsycString _message_echo_action;
 	PsycString _notice;
+	PsycString _notice_alias_add;
+	PsycString _notice_alias_change;
+	PsycString _notice_alias_remove;
 	PsycString _notice_context_enter;
 	PsycString _notice_context_leave;
+	PsycString _notice_friendship;
 	PsycString _notice_link;
+	PsycString _notice_set;
+	PsycString _notice_unlink;
 	PsycString _request;
 	PsycString _request_context_enter;
 	PsycString _request_context_leave;
-	PsycString _request_link;
+	PsycString _request_friendship;
 	PsycString _status;
 	PsycString _status_contexts_entered;
 	PsycString _status_hello;

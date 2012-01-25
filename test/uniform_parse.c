@@ -12,7 +12,11 @@ testUniform (char *str, int ret)
     int r = psyc_uniform_parse(uni, str, strlen(str));
 
     PP(("[%.*s] : [%.*s] [%.*s] : [%.*s] [%.*s] / "
-	"[%.*s] # [%.*s]\n[%.*s]\n[%.*s] [%.*s]\n[%.*s]\n\n",
+	"[%.*s] # [%.*s]\n"
+	"[%.*s]\n"
+	"[%.*s] [%.*s]\n"
+	"[%.*s]\n"
+	"[%.*s]\n\n",
 	(int)PSYC_S2ARG2(uni->scheme),
 	(int)PSYC_S2ARG2(uni->slashes),
 	(int)PSYC_S2ARG2(uni->host),
@@ -23,6 +27,7 @@ testUniform (char *str, int ret)
 	(int)PSYC_S2ARG2(uni->entity),
 	(int)PSYC_S2ARG2(uni->root),
 	(int)PSYC_S2ARG2(uni->nick),
+	(int)PSYC_S2ARG2(uni->path),
 	(int)PSYC_S2ARG2(uni->body)));
 
     free(uni);
@@ -37,6 +42,7 @@ int
 main ()
 {
     testUniform("psyc://foo.tld:4404d/@bar#baz", PSYC_SCHEME_PSYC);
+    testUniform("psyc://foo.tld:4404d/#baz", PSYC_SCHEME_PSYC);
     testUniform("psyc://foo:4405/~bar", PSYC_SCHEME_PSYC);
     testUniform("psyc://foo:1234", PSYC_SCHEME_PSYC);
     testUniform("psyc://foo:1234d", PSYC_SCHEME_PSYC);

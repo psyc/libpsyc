@@ -158,6 +158,11 @@ psyc_uniform_parse (PsycUniform *uni, const char *buffer, size_t length)
 	uni->body = PSYC_STRING(uni->host.data,
 				length - uni->scheme.length - 1 - uni->slashes.length);
 
+	if (uni->slash.length) {
+	    uni->path.data = uni->slash.data;
+	    uni->path.length = length - uni->root.length;
+	}
+
 	if (uni->resource.length)
 	    uni->nick = PSYC_STRING(uni->resource.data + 1, uni->resource.length);
 
