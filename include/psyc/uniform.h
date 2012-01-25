@@ -38,6 +38,7 @@ typedef struct {
     PsycString entity;		// entity UNI, without the channel
     PsycString slashes;		// the // if the protocol has them
     PsycString slash;		// first / after host
+    PsycString path;		// path begins at first / after host
     PsycString nick;		// whatever works as a nickname
 } PsycUniform;
 

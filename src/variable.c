@@ -54,18 +54,25 @@ const PsycDictInt psyc_methods[] = {
     { PSYC_C2STRI("_echo_context_leave"),	PSYC_MC_ECHO_CONTEXT_LEAVE },
     { PSYC_C2STRI("_echo_hello"),		PSYC_MC_ECHO_HELLO },
     { PSYC_C2STRI("_echo"),			PSYC_MC_ECHO },
+    { PSYC_C2STRI("_failure_alias_nonexistant"),PSYC_MC_FAILURE_ALIAS_NONEXISTANT },
+    { PSYC_C2STRI("_failure_alias_unavailable"),PSYC_MC_FAILURE_ALIAS_UNAVAILABLE },
     { PSYC_C2STRI("_failure"),			PSYC_MC_FAILURE },
     { PSYC_C2STRI("_info"),			PSYC_MC_INFO },
     { PSYC_C2STRI("_message_action"),		PSYC_MC_MESSAGE_ACTION },
-    { PSYC_C2STRI("_message_echo_action"),	PSYC_MC_MESSAGE_ECHO_ACTION },
-    { PSYC_C2STRI("_message_echo"),		PSYC_MC_MESSAGE_ECHO },
     { PSYC_C2STRI("_message"),			PSYC_MC_MESSAGE },
+    { PSYC_C2STRI("_notice_alias_add"),		PSYC_MC_NOTICE_ALIAS_ADD },
+    { PSYC_C2STRI("_notice_alias_change"),	PSYC_MC_NOTICE_ALIAS_CHANGE },
+    { PSYC_C2STRI("_notice_alias_remove"),	PSYC_MC_NOTICE_ALIAS_REMOVE },
     { PSYC_C2STRI("_notice_context_enter"),	PSYC_MC_NOTICE_CONTEXT_ENTER },
     { PSYC_C2STRI("_notice_context_leave"),	PSYC_MC_NOTICE_CONTEXT_LEAVE },
+    { PSYC_C2STRI("_notice_friendship"),	PSYC_MC_NOTICE_FRIENDSHIP },
     { PSYC_C2STRI("_notice_link"),		PSYC_MC_NOTICE_LINK },
+    { PSYC_C2STRI("_notice_set"),		PSYC_MC_NOTICE_SET },
+    { PSYC_C2STRI("_notice_unlink"),		PSYC_MC_NOTICE_UNLINK },
     { PSYC_C2STRI("_notice"),			PSYC_MC_NOTICE },
     { PSYC_C2STRI("_request_context_enter"),	PSYC_MC_REQUEST_CONTEXT_ENTER },
     { PSYC_C2STRI("_request_context_leave"),	PSYC_MC_REQUEST_CONTEXT_LEAVE },
+    { PSYC_C2STRI("_request_frienship"),	PSYC_MC_REQUEST_FRIENDSHIP },
     { PSYC_C2STRI("_request"),			PSYC_MC_REQUEST },
     { PSYC_C2STRI("_status_contexts_entered"),	PSYC_MC_STATUS_CONTEXTS_ENTERED },
     { PSYC_C2STRI("_status_hello"),		PSYC_MC_STATUS_HELLO },
@@ -104,6 +111,8 @@ psyc_method (char *method, size_t methodlen, PsycMethod *family, unsigned int *f
 	    | PSYC_METHOD_LOGGABLE;
 	break;
     case PSYC_MC_FAILURE:
+    case PSYC_MC_FAILURE_ALIAS_NONEXISTANT:
+    case PSYC_MC_FAILURE_ALIAS_UNAVAILABLE:
 	*family = PSYC_MC_FAILURE;
 	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE
 	    | PSYC_METHOD_LOGGABLE;
@@ -118,15 +127,16 @@ psyc_method (char *method, size_t methodlen, PsycMethod *family, unsigned int *f
 	*family = PSYC_MC_MESSAGE;
 	*flag = PSYC_METHOD_VISIBLE | PSYC_METHOD_LOGGABLE | PSYC_METHOD_MANUAL;
 	break;
-    case PSYC_MC_MESSAGE_ECHO:
-    case PSYC_MC_MESSAGE_ECHO_ACTION:
-	*family = PSYC_MC_MESSAGE_ECHO;
-	*flag = PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE | PSYC_METHOD_LOGGABLE
-	    | PSYC_METHOD_MANUAL;
-	break;
     case PSYC_MC_NOTICE:
+    case PSYC_MC_NOTICE_ALIAS_ADD:
+    case PSYC_MC_NOTICE_ALIAS_CHANGE:
+    case PSYC_MC_NOTICE_ALIAS_REMOVE:
     case PSYC_MC_NOTICE_CONTEXT_ENTER:
     case PSYC_MC_NOTICE_CONTEXT_LEAVE:
+    case PSYC_MC_NOTICE_FRIENDSHIP:
+    case PSYC_MC_NOTICE_LINK:
+    case PSYC_MC_NOTICE_SET:
+    case PSYC_MC_NOTICE_UNLINK:
 	*family = PSYC_MC_NOTICE;
 	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_VISIBLE | PSYC_METHOD_LOGGABLE;
 	break;
