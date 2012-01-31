@@ -99,7 +99,7 @@ PIKEFUN string psyc_text(string template, mapping vars) {
  *!	0 otherwise
  */
 PIKEFUN int is_routingvar(string name) {
-	RETURN psyc_var_is_routing((char *) STR0(name), name->len);
+	RETURN psyc_var_routing((char *) STR0(name), name->len);
 }
 
 /*! @decl string render(mapping rvars, mapping evars, string method, string|void body)

@@ -8,8 +8,7 @@
 #include "packet.h"
 
 /// Routing variables in alphabetical order.
-//extern const PsycString psyc_routing_vars[];
-extern const PsycDictInt psyc_routing_vars[];
+extern const PsycDictInt psyc_rvars[];
 
 // Variable types in alphabetical order.
 extern const PsycDictInt psyc_var_types[];
@@ -17,18 +16,35 @@ extern const PsycDictInt psyc_var_types[];
 /// Method names in alphabetical order.
 extern const PsycDictInt psyc_methods[];
 
-extern const size_t psyc_routing_vars_num;
+extern const size_t psyc_rvars_num;
 extern const size_t psyc_var_types_num;
 extern const size_t psyc_methods_num;
 
+typedef enum {
+    PSYC_RVAR_UNKNOWN,
+
+    PSYC_RVAR_AMOUNT_FRAGMENTS,
+    PSYC_RVAR_CONTEXT,
+    PSYC_RVAR_COUNTER,
+    PSYC_RVAR_FRAGMENT,
+    PSYC_RVAR_SOURCE,
+    PSYC_RVAR_SOURCE_RELAY,
+    PSYC_RVAR_TAG,
+    PSYC_RVAR_TAG_RELAY,
+    PSYC_RVAR_TARGET,
+    PSYC_RVAR_TARGET_RELAY,
+
+    PSYC_RVARS_NUM,
+} PsycRoutingVar;
+
 /**
- * Is this a routing variable name?
+ * Look up routing variable.
  */
-static inline PsycBool
-psyc_var_is_routing (const char *name, size_t len)
+static inline PsycRoutingVar
+psyc_var_routing (const char *name, size_t len)
 {
-    return (PsycBool) psyc_dict_lookup((PsycDict *)psyc_routing_vars,
-				       psyc_routing_vars_num, name, len, PSYC_NO);
+    return (PsycRoutingVar) psyc_dict_lookup((PsycDict *)psyc_rvars,
+				       psyc_rvars_num, name, len, PSYC_NO);
 }
 
 /**
