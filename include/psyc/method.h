@@ -1,7 +1,7 @@
 #ifndef PSYC_METHOD_H
 #define PSYC_METHOD_H
 
-typedef enum PsycMethodFlag {
+typedef enum {
     PSYC_METHOD_TEMPLATE = 1 << 0,
     PSYC_METHOD_REPLY    = 1 << 1,
     PSYC_METHOD_VISIBLE  = 1 << 2,
@@ -9,7 +9,7 @@ typedef enum PsycMethodFlag {
     PSYC_METHOD_MANUAL   = 1 << 4,
 } PsycMethodFlag;
 
-typedef enum PsycMethod {
+typedef enum {
     PSYC_MC_UNKNOWN,
 
     PSYC_MC_DATA,

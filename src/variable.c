@@ -3,31 +3,31 @@
 
 #include <psyc/packet.h>
 
-
 /// Routing variables in alphabetical order.
-//const PsycString psyc_routing_vars[] = {
-const PsycDictInt psyc_routing_vars[] = {
-    { PSYC_C2STRI("_amount_fragments"), 1 },
-    { PSYC_C2STRI("_context"), 1 },
-    //{ PSYC_C2STRI("_count"), 1 }, // older PSYC
-    { PSYC_C2STRI("_counter"), 1 },
-    { PSYC_C2STRI("_fragment"), 1 },
-    //{ PSYC_C2STRI("_length"), 1 }, // older PSYC
-    { PSYC_C2STRI("_source"), 1 },
-    //{ PSYC_C2STRI("_source_identification"), 1 }, // older PSYC
-    { PSYC_C2STRI("_source_identity"), 1 },
-    { PSYC_C2STRI("_source_relay"), 1 },
-    // until you have a better idea.. is this really in use?
-    { PSYC_C2STRI("_source_relay_relay"), 1 },
-    { PSYC_C2STRI("_tag"), 1 },
-    { PSYC_C2STRI("_tag_relay"), 1 },
-    //{ PSYC_C2STRI("_tag_reply"), 1 }, // older PSYC
-    { PSYC_C2STRI("_target"), 1 },
-    { PSYC_C2STRI("_target_forward"), 1 },
-    { PSYC_C2STRI("_target_relay"), 1 },
-    //{ PSYC_C2STRI("_understand_modules"), 1 }, // older PSYC
-    //{ PSYC_C2STRI("_using_modules"), 1 }, // older PSYC
+const PsycDictInt psyc_rvars[] = {
+    { PSYC_C2STRI("_amount_fragments"),	PSYC_RVAR_AMOUNT_FRAGMENTS },
+    { PSYC_C2STRI("_context"),		PSYC_RVAR_CONTEXT },
+    { PSYC_C2STRI("_counter"),		PSYC_RVAR_COUNTER },
+    { PSYC_C2STRI("_fragment"),		PSYC_RVAR_FRAGMENT },
+    { PSYC_C2STRI("_source"),		PSYC_RVAR_SOURCE },
+    { PSYC_C2STRI("_source_relay"),	PSYC_RVAR_SOURCE_RELAY },
+    { PSYC_C2STRI("_tag"),		PSYC_RVAR_TAG },
+    { PSYC_C2STRI("_tag_relay"),	PSYC_RVAR_TAG_RELAY },
+    { PSYC_C2STRI("_target"),		PSYC_RVAR_TARGET },
+    { PSYC_C2STRI("_target_relay"),	PSYC_RVAR_TARGET_RELAY },
+
+/* old psyc:
+    { PSYC_C2STRI("_length"),			PSYC_RVAR_LENGTH },
+    { PSYC_C2STRI("_source_identification"),	PSYC_RVAR_SOURCE_IDENTIFICATION },
+    { PSYC_C2STRI("_source_identity"),		PSYC_RVAR_SOURCE_IDENTITY },
+    { PSYC_C2STRI("_source_relay_relay"),	PSYC_RVAR_RELAY_RELAY },
+    { PSYC_C2STRI("_tag_reply"),		PSYC_RVAR_TAG_REPLY },
+    { PSYC_C2STRI("_target_forward"),		PSYC_RVAR_TARGET_FORWARD },
+    { PSYC_C2STRI("_understand_modules"),	PSYC_RVAR_UNDERSTAND_MODULES },
+    { PSYC_C2STRI("_using_modules"),		PSYC_RVAR_USING_MODULES },
+*/
 };
+const size_t psyc_rvars_num = PSYC_NUM_ELEM(psyc_rvars);
 
 // Variable types in alphabetical order.
 const PsycDictInt psyc_var_types[] = {
@@ -46,6 +46,7 @@ const PsycDictInt psyc_var_types[] = {
     { PSYC_C2STRI("_time"),	PSYC_TYPE_TIME },
     { PSYC_C2STRI("_uniform"),	PSYC_TYPE_UNIFORM },
 };
+const size_t psyc_var_types_num = PSYC_NUM_ELEM(psyc_var_types);
 
 /// Method names in alphabetical order.
 const PsycDictInt psyc_methods[] = {
@@ -79,9 +80,6 @@ const PsycDictInt psyc_methods[] = {
     { PSYC_C2STRI("_status"),			PSYC_MC_STATUS },
     { PSYC_C2STRI("_warning"),			PSYC_MC_WARNING },
 };
-
-const size_t psyc_routing_vars_num = PSYC_NUM_ELEM(psyc_routing_vars);
-const size_t psyc_var_types_num = PSYC_NUM_ELEM(psyc_var_types);
 const size_t psyc_methods_num = PSYC_NUM_ELEM(psyc_methods);
 
 /**
