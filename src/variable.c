@@ -4,7 +4,7 @@
 #include <psyc/packet.h>
 
 /// Routing variables in alphabetical order.
-const PsycDictInt psyc_rvars[] = {
+const PsycMapInt psyc_rvars[] = {
     { PSYC_C2STRI("_amount_fragments"),	PSYC_RVAR_AMOUNT_FRAGMENTS },
     { PSYC_C2STRI("_context"),		PSYC_RVAR_CONTEXT },
     { PSYC_C2STRI("_counter"),		PSYC_RVAR_COUNTER },
@@ -30,26 +30,26 @@ const PsycDictInt psyc_rvars[] = {
 const size_t psyc_rvars_num = PSYC_NUM_ELEM(psyc_rvars);
 
 // Variable types in alphabetical order.
-const PsycDictInt psyc_var_types[] = {
+const PsycMapInt psyc_var_types[] = {
     { PSYC_C2STRI("_amount"),	PSYC_TYPE_AMOUNT },
     { PSYC_C2STRI("_color"),	PSYC_TYPE_COLOR },
     { PSYC_C2STRI("_date"),	PSYC_TYPE_DATE },
-    { PSYC_C2STRI("_def"),	PSYC_TYPE_DEF },
     { PSYC_C2STRI("_degree"),	PSYC_TYPE_DEGREE },
+    { PSYC_C2STRI("_dict"),	PSYC_TYPE_DICT },
     { PSYC_C2STRI("_entity"),	PSYC_TYPE_ENTITY },
     { PSYC_C2STRI("_flag"),	PSYC_TYPE_FLAG },
     { PSYC_C2STRI("_language"),	PSYC_TYPE_LANGUAGE },
     { PSYC_C2STRI("_list"),	PSYC_TYPE_LIST },
     { PSYC_C2STRI("_nick"),	PSYC_TYPE_NICK },
     { PSYC_C2STRI("_page"),	PSYC_TYPE_PAGE },
-    { PSYC_C2STRI("_table"),	PSYC_TYPE_TABLE },
+    { PSYC_C2STRI("_struct"),	PSYC_TYPE_STRUCT },
     { PSYC_C2STRI("_time"),	PSYC_TYPE_TIME },
     { PSYC_C2STRI("_uniform"),	PSYC_TYPE_UNIFORM },
 };
 const size_t psyc_var_types_num = PSYC_NUM_ELEM(psyc_var_types);
 
 /// Method names in alphabetical order.
-const PsycDictInt psyc_methods[] = {
+const PsycMapInt psyc_methods[] = {
     { PSYC_C2STRI("_data"),			PSYC_MC_DATA },
     { PSYC_C2STRI("_echo_context_enter"),	PSYC_MC_ECHO_CONTEXT_ENTER },
     { PSYC_C2STRI("_echo_context_leave"),	PSYC_MC_ECHO_CONTEXT_LEAVE },
@@ -88,7 +88,7 @@ const size_t psyc_methods_num = PSYC_NUM_ELEM(psyc_methods);
 PsycMethod
 psyc_method (char *method, size_t methodlen, PsycMethod *family, unsigned int *flag)
 {
-    int mc = psyc_dict_lookup_int(psyc_methods, psyc_methods_num,
+    int mc = psyc_map_lookup_int(psyc_methods, psyc_methods_num,
 				  method, methodlen, PSYC_YES);
 
     switch (mc) {

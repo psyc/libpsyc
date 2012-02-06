@@ -107,11 +107,11 @@ psyc_matches(char *sho, size_t slen, char *lon, size_t llen)
 }
 
 /**
- * Look up value associated with a key in a dictionary.
+ * Look up value associated with a key in a map.
  */
 void *
-psyc_dict_lookup(const PsycDict * dict, size_t size,
-		 const char *key, size_t keylen, PsycBool inherit)
+psyc_map_lookup(const PsycMap * map, size_t size,
+		const char *key, size_t keylen, PsycBool inherit)
 {
     //size_t cursor = 1;
     size_t c = 0;
@@ -122,25 +122,25 @@ psyc_dict_lookup(const PsycDict * dict, size_t size,
 
     //for (c = 0, i = 0; c < keylen && i < size; c++) {
     for (i = 0; i < size; i++) {
-	if (!(keylen == dict[i].key.length
-	      || (inherit && keylen > dict[i].key.length
-		  && key[dict[i].key.length] == '_')))
+	if (!(keylen == map[i].key.length
+	      || (inherit && keylen > map[i].key.length
+		  && key[map[i].key.length] == '_')))
 	    continue;
 
 	match = 1;
 	for (c = 0; c < keylen; c++) {
-	    if (c < dict[i].key.length && dict[i].key.data[c] == key[c])
+	    if (c < map[i].key.length && map[i].key.data[c] == key[c])
 		continue;
-	    else if (c == dict[i].key.length && key[c] == '_')
-		return dict[i].value;	// after the end of a matching prefix
-	    else if (dict[i].key.data[c] > key[c])
+	    else if (c == map[i].key.length && key[c] == '_')
+		return map[i].value;	// after the end of a matching prefix
+	    else if (map[i].key.data[c] > key[c])
 		return NULL;
 
 	    match = 0;
 	    break;
 	}
 	if (match)
-	    return dict[i].value;
+	    return map[i].value;
     }
 
     return NULL;

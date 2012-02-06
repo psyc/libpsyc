@@ -8,9 +8,6 @@
 #include <sys/socket.h>
 
 #include <psyc.h>
-#include <psyc/parse.h>
-#include <psyc/render.h>
-#include <psyc/syntax.h>
 
 #include "test.c"
 
@@ -71,10 +68,11 @@ test_input (int i, char *recvbuf, size_t nbytes)
     PsycPacket *packet = &packets[i];
 
     char oper;
-    PsycString name, value, elem;
+    PsycString name, value, type;
     PsycString *pname = NULL, *pvalue = NULL;
     PsycModifier *mod = NULL;
-    PsycParseListState listState;
+    PsycParseListState lstate;
+    PsycParseDictState dstate;
     size_t len;
 
     // Set buffer with data for the parser.
@@ -283,37 +281,131 @@ test_input (int i, char *recvbuf, size_t nbytes)
 	    oper = 0;
 	    name.length = 0;
 	    value.length = 0;
+	    type.length = 0;
 
-	    if (psyc_var_is_list(PSYC_S2ARG(*pname))) {
+	    switch (psyc_var_type(PSYC_S2ARG(*pname))) {
+	    case PSYC_TYPE_LIST:
 		if (verbose >= 2)
 		    printf("## LIST START\n");
 
-		psyc_parse_list_state_init(&listState);
-		psyc_parse_list_buffer_set(&listState, PSYC_S2ARG(*pvalue));
+		psyc_parse_list_state_init(&lstate);
+		psyc_parse_list_buffer_set(&lstate, PSYC_S2ARG(*pvalue));
 
 		do {
-		    retl = psyc_parse_list(&listState, &elem);
+		    retl = psyc_parse_list(&lstate, &type, &value);
 		    switch (retl) {
-		    case PSYC_PARSE_LIST_END:
+		    case PSYC_PARSE_LIST_TYPE:
+			if (verbose >= 2)
+			    printf("## LIST TYPE: %.*s\n", (int)type.length, type.data);
+			break;
+		    case PSYC_PARSE_LIST_ELEM_START:
+		    case PSYC_PARSE_LIST_ELEM_LAST:
 			retl = 0;
 		    case PSYC_PARSE_LIST_ELEM:
 			if (verbose >= 2) {
-			    printf("|%.*s\n", (int)elem.length, elem.data);
-			    if (ret == PSYC_PARSE_LIST_END)
-				printf("## LIST END");
+			    printf("|%.*s [%.*s]", (int)type.length, type.data,
+				   (int)value.length, value.data);
+			    if (retl == PSYC_PARSE_LIST_ELEM_START)
+				printf(" ...");
+			    printf("\n");
+			    if (ret == PSYC_PARSE_LIST_ELEM_LAST)
+				printf("## LAST ELEM\n");
 			}
 			break;
-
+		    case PSYC_PARSE_LIST_ELEM_CONT:
+			retl = 0;
+		    case PSYC_PARSE_LIST_ELEM_END:
+			if (verbose >= 2) {
+			    printf("... [%.*s]", (int)value.length, value.data);
+			    if (retl == PSYC_PARSE_LIST_ELEM_CONT)
+				printf(" ...");
+			    printf("\n");
+			}
+			break;
+		    case PSYC_PARSE_LIST_END:
+			retl = 0;
+			if (verbose >= 2)
+			    printf("## LIST END\n");
+			break;
 		    default:
 			printf("# Error while parsing list: %i\n", retl);
 			ret = retl = -1;
 		    }
-		}
-		while (retl > 0);
+		} while (retl > 0);
+		break;
+	    case PSYC_TYPE_DICT:
+		if (verbose >= 2)
+		    printf("## DICT START\n");
+
+		psyc_parse_dict_state_init(&dstate);
+		psyc_parse_dict_buffer_set(&dstate, PSYC_S2ARG(*pvalue));
+
+		do {
+		    retl = psyc_parse_dict(&dstate, &type, &value);
+		    switch (retl) {
+		    case PSYC_PARSE_DICT_TYPE:
+			if (verbose >= 2)
+			    printf("## DICT TYPE: %.*s\n", (int)type.length, type.data);
+			break;
+		    case PSYC_PARSE_DICT_KEY_START:
+			retl = 0;
+		    case PSYC_PARSE_DICT_KEY:
+			if (verbose >= 2) {
+			    printf("{[%.*s]", (int)value.length, value.data);
+			    if (retl == PSYC_PARSE_DICT_KEY_START)
+				printf(" ...");
+			    printf("\n");
+			}
+			break;
+		    case PSYC_PARSE_DICT_KEY_CONT:
+			retl = 0;
+		    case PSYC_PARSE_DICT_KEY_END:
+			if (verbose >= 2) {
+			    printf("... [%.*s]", (int)value.length, value.data);
+			    if (retl == PSYC_PARSE_DICT_KEY_CONT)
+				printf(" ...");
+			    printf("\n");
+			}
+			break;
+		    case PSYC_PARSE_DICT_VALUE_START:
+		    case PSYC_PARSE_DICT_VALUE_LAST:
+			retl = 0;
+		    case PSYC_PARSE_DICT_VALUE:
+			if (verbose >= 2) {
+			    printf("}%.*s [%.*s]", (int)type.length, type.data,
+				   (int)value.length, value.data);
+			    if (retl == PSYC_PARSE_DICT_VALUE_START)
+				printf(" ...");
+			    printf("\n");
+			    if (ret == PSYC_PARSE_DICT_VALUE_LAST)
+				printf("## LAST VALUE\n");
+			}
+			break;
+		    case PSYC_PARSE_DICT_VALUE_CONT:
+			retl = 0;
+		    case PSYC_PARSE_DICT_VALUE_END:
+			if (verbose >= 2) {
+			    printf("... [%.*s]", (int)value.length, value.data);
+			    if (retl == PSYC_PARSE_DICT_VALUE_CONT)
+				printf(" ...");
+			    printf("\n");
+			}
+			break;
+		    case PSYC_PARSE_DICT_END:
+			retl = 0;
+			printf("## DICT END\n");
+			break;
+		    default:
+			printf("# Error while parsing dict: %i\n", retl);
+			ret = retl = -1;
+		    }
+		} while (retl > 0);
+		break;
+	    default:
+		break;
 	    }
 	}
-    }
-    while (ret > 0);
+    } while (ret > 0);
 
     if (progress)
 	r = write(1, " ", 1);

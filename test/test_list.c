@@ -17,21 +17,25 @@ main (int argc, char **argv)
 
     PsycParseListState listState;
     PsycList list_text, list_bin;
-    PsycString elems_text[NELEMS], elems_bin[NELEMS], elem;
+    PsycElem elems_text[NELEMS], elems_bin[NELEMS];
+    PsycString type, value;
     char buf_text[NELEMS * 200], buf_bin[NELEMS * 200], *elems[NELEMS], **elems2 = NULL;
 
     struct timeval start, end;
 
+    char *text = "1234567890abcdefghijklmnopqrstuvwxyz-._ "
+	"1234567890abcdefghijklmnopqrstuvwxyz-._ "
+	"1234567890abcdefghijklmnopqrstuvwxyz-._ "
+	"1234567890";
+    char *bin = "1234567890|abcdefghijklmnopqrstuvwxyz|_\n"
+	"1234567890|abcdefghijklmnopqrstuvwxyz|_\n"
+	"1234567890|abcdefghijklmnopqrstuvwxyz|_\n"
+	"1234567890";
+
     for (i=0; i<NELEMS; i++)
-	elems_text[i] = PSYC_C2STR("1234567890abcdefghijklmnopqrstuvwxyz-._ "
-				   "1234567890abcdefghijklmnopqrstuvwxyz-._ "
-				   "1234567890abcdefghijklmnopqrstuvwxyz-._ "
-				   "1234567890");
+	elems_text[i] = PSYC_ELEM_V(text, strlen(text));
     for (i=0; i<NELEMS; i++)
-	elems_bin[i] = PSYC_C2STR("1234567890|abcdefghijklmnopqrstuvwxyz|_\n"
-				  "1234567890|abcdefghijklmnopqrstuvwxyz|_\n"
-				  "1234567890|abcdefghijklmnopqrstuvwxyz|_\n"
-				  "1234567890");
+	elems_bin[i] = PSYC_ELEM_V(bin, strlen(bin));
 
     psyc_list_init(&list_text, elems_text, PSYC_NUM_ELEM(elems_text),
 		   PSYC_LIST_NO_LENGTH);
@@ -54,13 +58,14 @@ main (int argc, char **argv)
 	psyc_parse_list_buffer_set(&listState, buf_text, list_text.length);
 	i = 0;
 	do {
-	    ret = psyc_parse_list(&listState, &elem);
+	    ret = psyc_parse_list(&listState, &type, &value);
 	    switch (ret) {
 	    case PSYC_PARSE_LIST_END:
 		ret = 0;
 	    case PSYC_PARSE_LIST_ELEM:
 		if (verbose)
-		    printf("|%d: %.*s... (%ld)\n", i, 10, elem.data, elem.length);
+		    printf("|%ld:%.*s %.*s...\n", value.length,
+			   (int)type.length, type.data, 10, value.data);
 		//elems[i] = malloc(elem.length);
 		//memcpy(&elems[i++], elem.data, elem.length);
 		break;

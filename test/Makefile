@@ -3,7 +3,7 @@ DEBUG = 2
 CFLAGS = -I../include -I../src -Wall -std=c99 ${OPT}
 LDFLAGS = -L../lib
 LOADLIBES = -lpsyc -lm
-TARGETS = test_psyc test_psyc_speed test_parser test_match test_render test_text var_routing var_type uniform_parse test_list test_table test_packet_id method
+TARGETS = test_psyc test_psyc_speed test_parser test_match test_render test_text var_routing var_type uniform_parse test_packet_id test_index test_update method
 O = test.o
 WRAPPER =
 DIET = diet
@@ -47,10 +47,13 @@ test: ${TARGETS}
 	./test_text
 	./var_routing
 	./var_type
+	./method
 	./uniform_parse
-	./test_list
-	./test_table
+#	./test_list
+#	./test_table
 	./test_packet_id
+	./test_index
+	./test_update
 	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./test_psyc -f $$f | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
 	x=0; for f in packets/[0-9]*; do echo ">> $$f"; ./test_psyc -rf $$f | ${DIFF} -u $$f -; x=$$((x+$$?)); done; exit $$x
 

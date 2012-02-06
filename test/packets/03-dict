@@ -1,0 +1,11 @@
+=_context	psyc://foo/~bar
+
+=_dict	_type{4 key1}6 value1{key2} value2{key3}6 value3{key4} value4
+=_dict_example	{4 key1}=_type1:6 value1{key2}=_type2 value2{key3}6 value3{key4} value4
+=_struct_member	|=_nick|=_picture
+=_dict_owners	{psyc://example.net/~alice}{psyc://example.org/~bob}
+=_dict_members	{psyc://example.net/~alice}=_struct_member | alice| \o/{psyc://example.org/~bob}=_struct_member | bob| \oXo/
+=_dict_members	{25 psyc://example.net/~alice}=_struct_member:12 | alice| \o/{psyc://example.org/~bob}=_struct_member | bob| \oXo/
+=_dict_members	_struct_member{25 psyc://example.net/~alice}12 | alice| \o/{psyc://example.org/~bob} | bob| \oXo/
+_test_dict
+|

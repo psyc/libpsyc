@@ -19,7 +19,9 @@ test/test_strlen
 test/test_text
 test/test_table
 test/test_packet_id
-test/var_is_routing
+test/test_index
+test/test_update
+test/var_routing
 test/var_type
 test/uniform_parse
 

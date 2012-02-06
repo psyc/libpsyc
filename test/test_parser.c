@@ -12,7 +12,7 @@ main (int argc, char **argv)
     uint8_t verbose = argc > 2 && memchr(argv[2], (int)'v', strlen(argv[2]));
     int idx, ret;
     char buffer[2048], oper;
-    PsycString name, value, elem;
+    PsycString name, value, type;
     PsycParseState state;
     PsycParseListState listState;
 
@@ -62,12 +62,13 @@ main (int argc, char **argv)
 		psyc_parse_list_state_init(&listState);
 		psyc_parse_list_buffer_set(&listState, PSYC_S2ARG(value));
 
-		while ((ret = psyc_parse_list(&listState, &elem))) {
+		while ((ret = psyc_parse_list(&listState, &type, &value))) {
 		    switch (ret) {
 		    case PSYC_PARSE_LIST_END:
 		    case PSYC_PARSE_LIST_ELEM:
 			if (verbose)
-			    printf("|%.*s\n", (int)elem.length, elem.data);
+			    printf("|%.*s %.*s\n", (int)type.length, type.data,
+				   (int)value.length, value.data);
 			break;
 		    default:
 			printf("Error while parsing list: %i\n", ret);
