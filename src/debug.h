@@ -4,8 +4,10 @@
 #ifdef DEBUG
 # include <stdio.h>
 # define PP(args) printf args;
+# define ASSERT(cond) assert(cond)
 #else
 # define PP(args)
+# define ASSERT(cond)
 #endif
 
 #ifdef TEST

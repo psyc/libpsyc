@@ -15,31 +15,65 @@
 	return ret;							\
     }
 
+#define ADVANCE_STARTC_OR_RETURN(ret)					\
+    state->startc = state->cursor + 1;					\
+    if (++(state->cursor) >= state->buffer.length)			\
+	return ret;							\
+
 typedef enum {
     PARSE_ERROR = -1,
     PARSE_SUCCESS = 0,
     PARSE_INSUFFICIENT = 1,
-    PARSE_COMPLETE = 100,
-    PARSE_INCOMPLETE = 101,
+    PARSE_INCOMPLETE = 2,
 } ParseRC;
+
+typedef struct {
+    PsycString buffer;
+    size_t cursor;
+    size_t startc;
+} ParseState;
 
 /**
  * Parse variable name or method name.
+ *
  * It should contain one or more keyword characters.
+ *
  * @return PARSE_ERROR or PARSE_SUCCESS
  */
 static inline ParseRC
-parse_keyword (PsycParseState *state, PsycString *name)
+parse_keyword (ParseState *state, PsycString *name)
 {
     name->data = state->buffer.data + state->cursor;
     name->length = 0;
 
     while (psyc_is_kw_char(state->buffer.data[state->cursor])) {
 	name->length++;	// was a valid char, increase length
-	ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+	ADVANCE_CURSOR_OR_RETURN(PARSE_INSUFFICIENT);
     }
 
     return name->length > 0 ? PARSE_SUCCESS : PARSE_ERROR;
+}
+
+/**
+ * Parse length.
+ *
+ * @return PARSE_SUCCESS, PARSE_ERROR or PARSE_INSUFFICIENT
+ */
+static inline ParseRC
+parse_length (ParseState *state, size_t *len)
+{
+    ParseRC ret = PARSE_ERROR;
+    *len = 0;
+
+    if (psyc_is_numeric(state->buffer.data[state->cursor])) {
+	ret = PARSE_SUCCESS;
+	do {
+	    *len = 10 * *len + state->buffer.data[state->cursor] - '0';
+	    ADVANCE_CURSOR_OR_RETURN(PARSE_INSUFFICIENT);
+	} while (psyc_is_numeric(state->buffer.data[state->cursor]));
+    }
+
+    return ret;
 }
 
 /**
@@ -50,13 +84,12 @@ parse_keyword (PsycParseState *state, PsycString *name)
  * @param length Expected length of the data.
  * @param parsed Number of bytes parsed so far.
  *
- * @return PARSE_COMPLETE or PARSE_INCOMPLETE
+ * @return PARSE_SUCCESS or PARSE_INCOMPLETE
  */
 static inline ParseRC
-psyc_parse_binary_value (PsycParseState *state, PsycString *value,
-			 size_t *length, size_t *parsed)
+parse_binary (ParseState *state, size_t length, PsycString *value, size_t *parsed)
 {
-    size_t remaining = *length - *parsed;
+    size_t remaining = length - *parsed;
     value->data = state->buffer.data + state->cursor;
 
     if (state->cursor + remaining > state->buffer.length) {
@@ -70,9 +103,32 @@ psyc_parse_binary_value (PsycParseState *state, PsycString *value,
     value->length = remaining;
     state->cursor += remaining;
     *parsed += remaining;
-    assert(*parsed == *length);
+    ASSERT(*parsed == length);
 
-    return PARSE_COMPLETE;
+    return PARSE_SUCCESS;
+}
+
+/**
+ * Parse data until a given character is found.
+ *
+ * @param state  Parser state.
+ * @param value  Start & length of parsed data is saved here.
+ * @param end    Parse until this character is found.
+ * @param parsed Number of bytes parsed so far.
+ *
+ * @return PARSE_SUCCESS or PARSE_INSUFFICIENT
+ */
+static inline ParseRC
+parse_until (ParseState *state, const char end, PsycString *value)
+{
+    value->data = state->buffer.data + state->cursor;
+
+    while (state->buffer.data[state->cursor] != end) {
+	value->length++;
+	ADVANCE_CURSOR_OR_RETURN(PARSE_INSUFFICIENT);
+    }
+
+    return PARSE_SUCCESS;
 }
 
 /**
@@ -86,7 +142,7 @@ psyc_parse_modifier (PsycParseState *state, char *oper,
     *oper = *(state->buffer.data + state->cursor);
     ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
 
-    ParseRC ret = parse_keyword(state, name);
+    ParseRC ret = parse_keyword((ParseState*)state, name);
     if (ret == PARSE_ERROR)
 	return PSYC_PARSE_ERROR_MOD_NAME;
     else if (ret != PARSE_SUCCESS)
@@ -123,9 +179,7 @@ psyc_parse_modifier (PsycParseState *state, char *oper,
 	if (++(state->cursor) >= state->buffer.length)
 	    return length ? PARSE_INCOMPLETE : PARSE_SUCCESS; // if length=0 we're done
 
-	ret =
-	    psyc_parse_binary_value(state, value, &(state->valuelen),
-				    &(state->value_parsed));
+	ret = parse_binary((ParseState*)state, state->valuelen, value, &state->value_parsed);
 	if (ret == PARSE_INCOMPLETE)
 	    return ret;
 
@@ -244,8 +298,8 @@ psyc_parse (PsycParseState *state, char *oper,
     case PSYC_PART_CONTENT:
 	// In case of an incomplete binary variable resume parsing it.
 	if (state->value_parsed < state->valuelen) {
-	    ret = psyc_parse_binary_value(state, value, &(state->valuelen),
-					  &(state->value_parsed));
+	    ret = parse_binary((ParseState*)state, state->valuelen, value,
+			       &state->value_parsed);
 	    state->content_parsed += value->length;
 
 	    if (ret == PARSE_INCOMPLETE)
@@ -303,7 +357,7 @@ psyc_parse (PsycParseState *state, char *oper,
 
     case PSYC_PART_METHOD:
 	pos = state->cursor;
-	ret = parse_keyword(state, name);
+	ret = parse_keyword((ParseState*)state, name);
 
 	if (ret == PARSE_INSUFFICIENT)
 	    return ret;
@@ -345,8 +399,8 @@ psyc_parse (PsycParseState *state, char *oper,
 		    state->valuelen--; // \n at the end is not part of data
 	    }
 	    if (state->value_parsed < state->valuelen) {
-		ret = psyc_parse_binary_value(state, value, &(state->valuelen),
-					      &(state->value_parsed));
+		ret = parse_binary((ParseState*)state, state->valuelen, value,
+				   &state->value_parsed);
 		state->content_parsed += value->length;
 
 		if (ret == PARSE_INCOMPLETE)
@@ -422,191 +476,653 @@ psyc_parse (PsycParseState *state, char *oper,
     return PSYC_PARSE_ERROR; // should not be reached
 }
 
-/** List parser. */
+/**
+ * Parse list.
+ *
+ * list		= [ default-type ] *list-elem
+ * list-elem	= "|" ( type [ SP list-value ] / [ length ] [ ":" type ] [ SP *OCTET ] )
+ * list-value	= %x00-7B / %x7D-FF	; any byte except "|"
+ */
 #ifdef __INLINE_PSYC_PARSE
 static inline
 #endif
 PsycParseListRC
-psyc_parse_list (PsycParseListState *state, PsycString *elem)
+psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem)
 {
+    ParseRC ret;
+
     if (state->cursor >= state->buffer.length)
-	return PSYC_PARSE_LIST_INCOMPLETE;
+	return PSYC_PARSE_LIST_END;
 
     state->startc = state->cursor;
 
-    if (!state->type) {	// If type is not set we're at the start.
-	// First character is either | for text lists, or a number for binary lists
-	if (state->buffer.data[state->cursor] == '|') {
-	    state->type = PSYC_LIST_TEXT;
-	    state->cursor++;
-	} else if (psyc_is_numeric(state->buffer.data[state->cursor]))
-	    state->type = PSYC_LIST_BINARY;
-	else
-	    return PSYC_PARSE_LIST_ERROR_TYPE;
-    }
+    switch (state->part) {
+    case PSYC_LIST_PART_START:
+	type->length = elem->length = 0;
+	type->data = elem->data = NULL;
 
-    if (state->type == PSYC_LIST_TEXT) {
-	elem->data = state->buffer.data + state->cursor;
-	elem->length = 0;
+	state->part = PSYC_LIST_PART_TYPE;
+	// fall thru
 
-	if (state->cursor >= state->buffer.length)
+    case PSYC_LIST_PART_TYPE:
+	switch (parse_keyword((ParseState*)state, type)) {
+	case PARSE_SUCCESS: // end of keyword
+	    state->part = PSYC_LIST_PART_ELEM_START;
+	    return PSYC_PARSE_LIST_TYPE;
+	case PARSE_INSUFFICIENT: // end of buffer
 	    return PSYC_PARSE_LIST_END;
+	case PARSE_ERROR: // no keyword
+	    state->part = PSYC_LIST_PART_ELEM_START;
+	    break;
+	default: // should not be reached
+	    return PSYC_PARSE_LIST_ERROR;
+	}
+	// fall thru
 
-	if (state->term_set) {
-	    while (state->buffer.data[state->cursor] != '|') {
-		elem->length++;
-		if (state->buffer.data[state->cursor] == state->term)
-		    return PSYC_PARSE_LIST_END;
-		if (++(state->cursor) >= state->buffer.length)
-		    return PSYC_PARSE_LIST_END;
+    case PSYC_LIST_PART_ELEM_START:
+	if (state->buffer.data[state->cursor] != '|')
+	    return PSYC_PARSE_LIST_ERROR_ELEM_START;
+
+	type->length = elem->length = 0;
+	type->data = elem->data = NULL;
+
+	state->elem_parsed = 0;
+	state->elemlen_found = 0;
+
+	state->part = PSYC_LIST_PART_ELEM_LENGTH;
+	ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_LIST_ELEM_LAST);
+	// fall thru
+
+    case PSYC_LIST_PART_ELEM_TYPE:
+	if (state->buffer.data[state->cursor] == '=') {
+	    ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+
+	    switch (parse_keyword((ParseState*)state, type)) {
+	    case PARSE_SUCCESS:
+		switch (state->buffer.data[state->cursor]) {
+		case ':':
+		    state->part = PSYC_LIST_PART_ELEM_LENGTH;
+		    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_LIST_ELEM_LAST);
+		    break;
+		case ' ':
+		    state->part = PSYC_LIST_PART_ELEM;
+		    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_LIST_ELEM_LAST);
+		    goto PSYC_LIST_PART_ELEM;
+		case '|':
+		    state->part = PSYC_LIST_PART_ELEM_START;
+		    return PSYC_PARSE_LIST_ELEM;
+		    break;
+		default:
+		    return PSYC_PARSE_LIST_ERROR_ELEM_TYPE;
+		}
+		break;
+	    case PARSE_INSUFFICIENT: // end of buffer
+		return PSYC_PARSE_LIST_ELEM_LAST;
+	    case PARSE_ERROR:
+		return PSYC_PARSE_LIST_ERROR_ELEM_TYPE;
+	    default: // should not be reached
+		return PSYC_PARSE_LIST_ERROR;
+	    }
+	}
+	// fall thru
+
+    case PSYC_LIST_PART_ELEM_LENGTH:
+	switch (parse_length((ParseState*)state, &state->elemlen)) {
+	case PARSE_SUCCESS: // length is complete
+	    state->elemlen_found = 1;
+	    state->elem_parsed = 0;
+	    elem->length = state->elemlen;
+	    elem->data = NULL;
+	    break;
+	case PARSE_INSUFFICIENT: // length is incomplete
+	    return PSYC_PARSE_LIST_INSUFFICIENT;
+	case PARSE_ERROR: // no length
+	    break;
+	default: // should not be reached
+	    return PSYC_PARSE_LIST_ERROR;
+	}
+
+	switch (state->buffer.data[state->cursor]) {
+	case ' ':
+	    state->part = PSYC_LIST_PART_ELEM;
+	    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_LIST_ELEM_LAST);
+	    break;
+	case '|':
+	    state->part = PSYC_LIST_PART_ELEM_START;
+	    return PSYC_PARSE_LIST_ELEM;
+	default:
+	    return PSYC_PARSE_LIST_ERROR_ELEM_LENGTH;
+	}
+	// fall thru
+
+    case PSYC_LIST_PART_ELEM:
+    PSYC_LIST_PART_ELEM:
+	if (state->elemlen_found) {
+	    switch (parse_binary((ParseState*)state, state->elemlen, elem,
+				 &state->elem_parsed)) {
+	    case PARSE_SUCCESS:
+		if (elem->length == state->elem_parsed)
+		    ret = PSYC_PARSE_LIST_ELEM;
+		else
+		    ret = PSYC_PARSE_LIST_ELEM_END;
+		break;
+	    case PARSE_INCOMPLETE:
+		if (elem->length == state->elem_parsed)
+		    ret = PSYC_PARSE_LIST_ELEM_START;
+		else
+		    ret = PSYC_PARSE_LIST_ELEM_CONT;
+		break;
+	    default: // should not be reached
+		return PSYC_PARSE_LIST_ERROR;
 	    }
 	} else {
-	    while (state->buffer.data[state->cursor] != '|') {
-		elem->length++;
-		if (++(state->cursor) >= state->buffer.length)
-		    return PSYC_PARSE_LIST_END;
+	    switch (parse_until((ParseState*)state, '|', elem)) {
+	    case PARSE_SUCCESS:
+		ret = PSYC_PARSE_LIST_ELEM;
+		break;
+	    case PARSE_INSUFFICIENT:
+		return PSYC_PARSE_LIST_ELEM_LAST;
+	    default: // should not be reached
+		return PSYC_PARSE_LIST_ERROR;
 	    }
 	}
-	state->cursor++;
-	return PSYC_PARSE_LIST_ELEM;
-    } else { // binary list
-	if (!(state->elem_parsed < state->elemlen)) {
-	    // Element starts with a number.
-	    if (psyc_is_numeric(state->buffer.data[state->cursor])) {
-		do {
-		    state->elemlen =
-			10 * state->elemlen +
-			state->buffer.data[state->cursor] - '0';
-		    ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_LIST_INCOMPLETE);
-		} while (psyc_is_numeric(state->buffer.data[state->cursor]));
-	    } else
-		return PSYC_PARSE_LIST_ERROR_LEN;
 
-	    if (state->buffer.data[state->cursor] != ' ')
-		return PSYC_PARSE_LIST_ERROR_LEN;
-
-	    state->cursor++;
-	    elem->data = state->buffer.data + state->cursor;
-	    elem->length = 0;
-	    state->elem_parsed = 0;
-	}
-	// Start or resume parsing the binary data
-	if (state->elem_parsed < state->elemlen) {
-	    if (PARSE_INCOMPLETE == psyc_parse_binary_value((PsycParseState*)state,
-							    elem, &state->elemlen,
-							    &state->elem_parsed))
-		return PSYC_PARSE_LIST_INCOMPLETE;
-
-	    state->elemlen = 0;
-
-	    if (state->cursor >= state->buffer.length)
-		return PSYC_PARSE_LIST_END;
-
-	    if (state->buffer.data[state->cursor] != '|')
-		return PSYC_PARSE_LIST_ERROR_DELIM;
-
-	    state->cursor++;
-	    return PSYC_PARSE_LIST_ELEM;
-	}
+	state->part = PSYC_LIST_PART_ELEM_START;
+	state->startc = state->cursor;
+	return ret;
     }
 
     return PSYC_PARSE_LIST_ERROR; // should not be reached
 }
 
-PsycParseTableRC
-psyc_parse_table (PsycParseTableState *state, PsycString *elem)
+/**
+ * Parse dictionary.
+ *
+ * dict		= [ type ] *dict-item
+ * dict-item	= "{" ( dict-key / length SP OCTET) "}"
+ *                ( type [ SP dict-value ] / [ length ] [ ":" type ] [ SP *OCTET ] )
+ * dict-key	= %x00-7C / %x7E-FF	; any byte except "{"
+ * dict-value	= %x00-7A / %x7C-FF	; any byte except "}"
+ */
+PsycParseDictRC
+psyc_parse_dict (PsycParseDictState *state, PsycString *type, PsycString *elem)
 {
+    ParseRC ret;
+
     if (state->cursor >= state->buffer.length)
-	return PSYC_PARSE_TABLE_INCOMPLETE;
+	return PSYC_PARSE_DICT_END;
 
     state->startc = state->cursor;
 
     switch (state->part) {
-    case PSYC_TABLE_PART_START:
-	if (state->buffer.data[state->cursor] != '*') {
-	    state->part = PSYC_TABLE_PART_BODY_START;
-	    goto PSYC_TABLE_PART_BODY_START;
-	} else {
-	    state->part = PSYC_TABLE_PART_WIDTH;
-	    ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_TABLE_INCOMPLETE);
+    case PSYC_DICT_PART_START:
+	type->length = elem->length = 0;
+	type->data = elem->data = NULL;
+
+	state->part = PSYC_DICT_PART_TYPE;
+	// fall thru
+
+    case PSYC_DICT_PART_TYPE:
+	switch (parse_keyword((ParseState*)state, type)) {
+	case PARSE_SUCCESS: // end of keyword
+	    state->part = PSYC_DICT_PART_KEY_START;
+	    return PSYC_PARSE_DICT_TYPE;
+	case PARSE_INSUFFICIENT: // end of buffer
+	    return PSYC_PARSE_DICT_END;
+	case PARSE_ERROR: // no keyword
+	    state->part = PSYC_DICT_PART_KEY_START;
+	    break;
+	default: // should not be reached
+	    return PSYC_PARSE_DICT_ERROR;
 	}
 	// fall thru
 
-    case PSYC_TABLE_PART_WIDTH:
-	if (psyc_is_numeric(state->buffer.data[state->cursor])) {
-	    do {
-		state->width =
-		    10 * state->width + state->buffer.data[state->cursor] - '0';
-		ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_TABLE_INCOMPLETE);
-	    } while (psyc_is_numeric(state->buffer.data[state->cursor]));
-	} else
-	    return PSYC_PARSE_TABLE_ERROR_WIDTH;
+    case PSYC_DICT_PART_KEY_START:
+	if (state->buffer.data[state->cursor] != '{')
+	    return PSYC_PARSE_DICT_ERROR_KEY_START;
+
+	type->length = elem->length = 0;
+	type->data = elem->data = NULL;
+
+	state->elem_parsed = 0;
+	state->elemlen_found = 0;
+
+	state->part = PSYC_DICT_PART_KEY_LENGTH;
+	ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_DICT_INSUFFICIENT);
+	// fall thru
+
+    case PSYC_DICT_PART_KEY_LENGTH:
+	switch (parse_length((ParseState*)state, &state->elemlen)) {
+	case PARSE_SUCCESS: // length is complete
+	    state->elemlen_found = 1;
+	    state->elem_parsed = 0;
+	    elem->length = state->elemlen;
+	    elem->data = NULL;
+
+	    if (state->buffer.data[state->cursor] != ' ')
+		return PSYC_PARSE_DICT_ERROR_KEY_LENGTH;
+
+	    state->part = PSYC_DICT_PART_KEY;
+	    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+	    break;
+	case PARSE_INSUFFICIENT: // length is incomplete
+	    return PSYC_PARSE_DICT_INSUFFICIENT;
+	case PARSE_ERROR: // no length
+	    state->part = PSYC_DICT_PART_KEY;
+	    break;
+	default: // should not be reached
+	    return PSYC_PARSE_DICT_ERROR;
+	}
+	// fall thru
+
+    case PSYC_DICT_PART_KEY:
+	if (state->elemlen_found) {
+	    switch (parse_binary((ParseState*)state, state->elemlen, elem,
+				 &state->elem_parsed)) {
+	    case PARSE_SUCCESS:
+		if (elem->length == state->elem_parsed)
+		    ret = PSYC_PARSE_DICT_KEY;
+		else
+		    ret = PSYC_PARSE_DICT_KEY_END;
+		break;
+	    case PARSE_INCOMPLETE:
+		if (elem->length == state->elem_parsed)
+		    ret = PSYC_PARSE_DICT_KEY_START;
+		else
+		    ret = PSYC_PARSE_DICT_KEY_CONT;
+		break;
+	    default: // should not be reached
+		return PSYC_PARSE_DICT_ERROR;
+	    }
+	} else {
+	    switch (parse_until((ParseState*)state, '}', elem)) {
+	    case PARSE_SUCCESS:
+		ret = PSYC_PARSE_DICT_KEY;
+		break;
+	    case PARSE_INSUFFICIENT:
+		return PSYC_PARSE_DICT_INSUFFICIENT;
+	    default: // should not be reached
+		return PSYC_PARSE_DICT_ERROR;
+	    }
+	}
+
+	state->part = PSYC_DICT_PART_VALUE_START;
+	state->startc = state->cursor;
+	return ret;
+
+    case PSYC_DICT_PART_VALUE_START:
+	switch (state->buffer.data[state->cursor] != '}')
+	    return PSYC_PARSE_DICT_ERROR_VALUE_START;
+
+	type->length = elem->length = 0;
+	type->data = elem->data = NULL;
+
+	state->elem_parsed = 0;
+	state->elemlen_found = 0;
+
+	state->part = PSYC_DICT_PART_VALUE_TYPE;
+	ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_DICT_VALUE_LAST);
+	// fall thru
+
+    case PSYC_DICT_PART_VALUE_TYPE:
+	if (state->buffer.data[state->cursor] == '=') {
+	    ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+
+	    switch (parse_keyword((ParseState*)state, type)) {
+	    case PARSE_SUCCESS:
+		switch (state->buffer.data[state->cursor]) {
+		case ':':
+		    state->part = PSYC_DICT_PART_VALUE_LENGTH;
+		    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_DICT_VALUE_LAST);
+		    break;
+		case ' ':
+		    state->part = PSYC_DICT_PART_VALUE;
+		    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_DICT_VALUE_LAST);
+		    goto PSYC_DICT_PART_VALUE;
+		case '{':
+		    state->part = PSYC_DICT_PART_KEY_START;
+		    return PSYC_PARSE_DICT_VALUE;
+		    break;
+		default:
+		    return PSYC_PARSE_DICT_ERROR_VALUE_TYPE;
+		}
+		break;
+	    case PARSE_INSUFFICIENT: // end of buffer
+		return PSYC_PARSE_DICT_VALUE_LAST;
+	    case PARSE_ERROR:
+		return PSYC_PARSE_DICT_ERROR_VALUE_TYPE;
+	    default: // should not be reached
+		return PSYC_PARSE_DICT_ERROR;
+	    }
+	}
+	// fall thru
+
+    case PSYC_DICT_PART_VALUE_LENGTH:
+	switch (parse_length((ParseState*)state, &state->elemlen)) {
+	case PARSE_SUCCESS: // length is complete
+	    state->elemlen_found = 1;
+	    state->elem_parsed = 0;
+	    elem->length = state->elemlen;
+	    elem->data = NULL;
+	    break;
+	case PARSE_INSUFFICIENT: // length is incomplete
+	    return PSYC_PARSE_DICT_INSUFFICIENT;
+	case PARSE_ERROR: // no length
+	    break;
+	default: // should not be reached
+	    return PSYC_PARSE_DICT_ERROR;
+	}
 
 	switch (state->buffer.data[state->cursor]) {
-#ifdef PSYC_PARSE_TABLE_HEAD
-	case '|':
-	    state->part = PSYC_TABLE_PART_HEAD_START;
-	    break;
-#endif
 	case ' ':
-	    state->part = PSYC_TABLE_PART_BODY_START;
-	    state->cursor++;
+	    state->part = PSYC_DICT_PART_VALUE;
+	    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_DICT_VALUE_LAST);
+	    break;
+	case '{':
+	    state->part = PSYC_DICT_PART_KEY_START;
+	    return PSYC_PARSE_DICT_VALUE;
+	default:
+	    return PSYC_PARSE_DICT_ERROR_VALUE_LENGTH;
 	}
-
-	elem->length = state->width;
-	return PSYC_TABLE_PART_WIDTH;
-#ifdef PSYC_PARSE_TABLE_HEAD
-    case PSYC_TABLE_PART_HEAD_START:
-	psyc_parse_list_buffer_set(&state->list, state->buffer.data + state->cursor,
-				   state->buffer.length - state->cursor);
-	psyc_parse_list_term_set(&state->list, ' ');
-	state->part = PSYC_TABLE_PART_HEAD;
 	// fall thru
 
-    case PSYC_TABLE_PART_HEAD:
-	switch (psyc_parse_list(&state->list, elem)) {
-	case PSYC_PARSE_LIST_ELEM:
-	    if (state->elems == 0) {
-		state->elems++;
-		return PSYC_PARSE_TABLE_NAME_KEY;
-	    } else if (state->elems < state->width) {
-		state->elems++;
-		return PSYC_PARSE_TABLE_NAME_VALUE;
-	    } else // too many elements
-		return PSYC_PARSE_TABLE_ERROR_HEAD;
-
-	case PSYC_PARSE_LIST_END:
-	    if (state->elems != state->width)
-		return PSYC_PARSE_TABLE_ERROR_HEAD;
-
-	    state->part = PSYC_TABLE_PART_BODY_START;
-	    state->cursor += state->list.cursor + 1;
-	    psyc_parse_list_state_init(&state->list);
-	    return state->elems++ == 0
-		? PSYC_PARSE_TABLE_NAME_KEY : PSYC_PARSE_TABLE_NAME_VALUE;
-	default:
-	    return PSYC_PARSE_TABLE_ERROR_HEAD;
+    case PSYC_DICT_PART_VALUE:
+    PSYC_DICT_PART_VALUE:
+	if (state->elemlen_found) {
+	    switch (parse_binary((ParseState*)state, state->elemlen, elem,
+				 &state->elem_parsed)) {
+	    case PARSE_SUCCESS:
+		if (elem->length == state->elem_parsed)
+		    ret = PSYC_PARSE_DICT_VALUE;
+		else
+		    ret = PSYC_PARSE_DICT_VALUE_END;
+		break;
+	    case PARSE_INCOMPLETE:
+		if (elem->length == state->elem_parsed)
+		    ret = PSYC_PARSE_DICT_VALUE_START;
+		else
+		    ret = PSYC_PARSE_DICT_VALUE_CONT;
+		break;
+	    default: // should not be reached
+		return PSYC_PARSE_DICT_ERROR;
+	    }
+	} else {
+	    switch (parse_until((ParseState*)state, '{', elem)) {
+	    case PARSE_SUCCESS:
+		ret = PSYC_PARSE_DICT_VALUE;
+		break;
+	    case PARSE_INSUFFICIENT:
+		return PSYC_PARSE_DICT_VALUE_LAST;
+	    default: // should not be reached
+		return PSYC_PARSE_DICT_ERROR;
+	    }
 	}
-#endif
-    case PSYC_TABLE_PART_BODY_START:
-    PSYC_TABLE_PART_BODY_START:
-	psyc_parse_list_buffer_set(&state->list, state->buffer.data + state->cursor,
-				   state->buffer.length - state->cursor);
-	state->part = PSYC_TABLE_PART_BODY;
-	// fall thru
 
-    case PSYC_TABLE_PART_BODY:
-	switch (psyc_parse_list(&state->list, elem)) {
-	case PSYC_PARSE_LIST_ELEM:
-	    return state->elems++ % (state->width + 1) == 0
-		? PSYC_PARSE_TABLE_KEY : PSYC_PARSE_TABLE_VALUE;
-	case PSYC_PARSE_LIST_END:
-	    return state->elems++ % (state->width + 1) == 0
-		? PSYC_PARSE_TABLE_KEY_END : PSYC_PARSE_TABLE_VALUE_END;
-	default:
-	    return PSYC_PARSE_TABLE_ERROR_BODY;
-	}
+	state->part = PSYC_DICT_PART_KEY_START;
+	return ret;
     }
 
-    return PSYC_PARSE_LIST_ERROR; // should not be reached
+    return PSYC_PARSE_DICT_ERROR; // should not be reached
+}
+
+#ifdef __INLINE_PSYC_PARSE
+static inline
+#endif
+PsycParseIndexRC
+psyc_parse_index (PsycParseIndexState *state, PsycString *idx)
+{
+    ParseRC ret;
+
+    if (state->cursor >= state->buffer.length)
+	return PSYC_PARSE_INDEX_END;
+
+    state->startc = state->cursor;
+
+    switch (state->part) {
+    case PSYC_INDEX_PART_START:
+    case PSYC_INDEX_PART_TYPE:
+	idx->length = 0;
+	idx->data = NULL;
+
+	switch (state->buffer.data[state->cursor]) {
+	case '#':
+	    state->part = PSYC_INDEX_PART_LIST;
+	    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+	    goto PSYC_INDEX_PART_LIST;
+	case '.':
+	    state->part = PSYC_INDEX_PART_DICT;
+	    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+	    goto PSYC_INDEX_PART_STRUCT;
+	case '{':
+	    state->part = PSYC_INDEX_PART_DICT;
+	    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+	    goto PSYC_INDEX_PART_DICT_LENGTH;
+	default:
+	    return PSYC_PARSE_INDEX_ERROR_TYPE;
+	}
+
+    case PSYC_INDEX_PART_LIST:
+    PSYC_INDEX_PART_LIST:
+	switch (parse_length((ParseState*)state, &idx->length)) {
+	case PARSE_SUCCESS: // list index is complete
+	    state->part = PSYC_INDEX_PART_TYPE;
+	    return PSYC_PARSE_INDEX_LIST;
+	case PARSE_INSUFFICIENT: // list index at the end of buffer
+	    return PSYC_PARSE_INDEX_LIST_LAST;
+	case PARSE_ERROR: // no index
+	    return PSYC_PARSE_INDEX_ERROR_LIST;
+	default: // should not be reached
+	    return PSYC_PARSE_INDEX_ERROR;
+	}
+
+    case PSYC_INDEX_PART_STRUCT:
+    PSYC_INDEX_PART_STRUCT:
+	switch (parse_keyword((ParseState*)state, idx)) {
+	case PARSE_SUCCESS: // end of keyword
+	    state->part = PSYC_INDEX_PART_TYPE;
+	    return PSYC_PARSE_INDEX_STRUCT;
+	case PARSE_INSUFFICIENT: // end of buffer
+	    return PSYC_PARSE_INDEX_STRUCT_LAST;
+	case PARSE_ERROR: // no keyword
+	    return PSYC_PARSE_INDEX_ERROR_STRUCT;
+	default: // should not be reached
+	    return PSYC_PARSE_INDEX_ERROR;
+	}
+
+    case PSYC_INDEX_PART_DICT_LENGTH:
+    PSYC_INDEX_PART_DICT_LENGTH:
+	switch (parse_length((ParseState*)state, &state->elemlen)) {
+	case PARSE_SUCCESS: // length is complete
+	    state->elemlen_found = 1;
+	    state->elem_parsed = 0;
+	    idx->length = state->elemlen;
+	    idx->data = NULL;
+
+	    if (state->buffer.data[state->cursor] != ' ')
+		return PSYC_PARSE_INDEX_ERROR_DICT_LENGTH;
+
+	    state->part = PSYC_INDEX_PART_DICT;
+	    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_INSUFFICIENT);
+	    break;
+	case PARSE_INSUFFICIENT: // length is incomplete
+	    return PSYC_PARSE_DICT_INSUFFICIENT;
+	case PARSE_ERROR: // no length
+	    state->part = PSYC_INDEX_PART_DICT;
+	    break;
+	default: // should not be reached
+	    return PSYC_PARSE_INDEX_ERROR;
+	}
+	// fall thru
+
+    case PSYC_INDEX_PART_DICT:
+	if (state->elemlen_found) {
+	    switch (parse_binary((ParseState*)state, state->elemlen, idx,
+				 &state->elem_parsed)) {
+	    case PARSE_SUCCESS:
+		if (idx->length == state->elem_parsed)
+		    ret = PSYC_PARSE_INDEX_DICT;
+		else
+		    ret = PSYC_PARSE_INDEX_DICT_END;
+		break;
+	    case PARSE_INCOMPLETE:
+		if (idx->length == state->elem_parsed)
+		    ret = PSYC_PARSE_INDEX_DICT_START;
+		else
+		    ret = PSYC_PARSE_INDEX_DICT_CONT;
+		break;
+	    default: // should not be reached
+		return PSYC_PARSE_INDEX_ERROR_DICT;
+	    }
+	} else {
+	    switch (parse_until((ParseState*)state, '}', idx)) {
+	    case PARSE_SUCCESS:
+		ret = PSYC_PARSE_INDEX_DICT;
+		break;
+	    case PARSE_INSUFFICIENT:
+		return PSYC_PARSE_INDEX_INSUFFICIENT;
+	    default: // should not be reached
+		return PSYC_PARSE_INDEX_ERROR_DICT;
+	    }
+	}
+
+	state->part = PSYC_INDEX_PART_TYPE;
+	state->cursor++;
+	return ret;
+    }
+
+    return PSYC_PARSE_INDEX_ERROR; // should not be reached
+}
+
+#ifdef __INLINE_PSYC_PARSE
+static inline
+#endif
+PsycParseUpdateRC
+psyc_parse_update (PsycParseUpdateState *state, char *oper, PsycString *value)
+{
+    PsycParseIndexRC ret;
+
+    if (state->cursor >= state->buffer.length)
+	return PSYC_PARSE_UPDATE_END;
+
+    state->startc = state->cursor;
+
+    switch (state->part) {
+    case PSYC_UPDATE_PART_START:
+	value->length = 0;
+	value->data = NULL;
+	// fall thru
+
+    case PSYC_INDEX_PART_TYPE:
+    case PSYC_INDEX_PART_LIST:
+    case PSYC_INDEX_PART_STRUCT:
+    case PSYC_INDEX_PART_DICT_LENGTH:
+    case PSYC_INDEX_PART_DICT:
+	ret = psyc_parse_index((PsycParseIndexState*)state, value);
+
+	switch (ret) {
+	case PSYC_PARSE_INDEX_INSUFFICIENT:
+	case PSYC_PARSE_INDEX_LIST_LAST:
+	case PSYC_PARSE_INDEX_STRUCT_LAST:
+	case PSYC_PARSE_INDEX_END:
+	    return PSYC_PARSE_UPDATE_INSUFFICIENT;
+	case PSYC_PARSE_INDEX_ERROR_TYPE:
+	    if (state->buffer.data[state->cursor] != ' ')
+		return ret;
+	    state->part = PSYC_PARSE_UPDATE_TYPE;
+	    value->length = 0;
+	    value->data = NULL;
+	    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_UPDATE_INSUFFICIENT);
+	    break;
+	default:
+	    return ret;
+	}
+    case PSYC_UPDATE_PART_TYPE:
+	if (!psyc_is_oper(state->buffer.data[state->cursor]))
+	    return PSYC_PARSE_UPDATE_ERROR_OPER;
+
+	*oper = state->buffer.data[state->cursor];
+	ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_UPDATE_END);
+
+	switch (parse_keyword((ParseState*)state, value)) {
+	case PARSE_SUCCESS: // end of keyword
+	case PARSE_ERROR: // no keyword
+	    switch (state->buffer.data[state->cursor]) {
+	    case ':':
+		state->part = PSYC_UPDATE_PART_LENGTH;
+		break;
+	    case ' ':
+		state->part = PSYC_UPDATE_PART_VALUE;
+		break;
+	    default:
+		return PSYC_PARSE_UPDATE_ERROR_TYPE;
+	    }
+
+	    state->cursor++;
+	    return PSYC_PARSE_UPDATE_TYPE;
+	    break;
+	case PARSE_INSUFFICIENT: // end of buffer
+	    return PSYC_PARSE_UPDATE_TYPE_END;
+	default: // should not be reached
+	    return PSYC_PARSE_UPDATE_ERROR;
+	}
+	break;
+
+    case PSYC_UPDATE_PART_LENGTH:
+	switch (parse_length((ParseState*)state, &state->elemlen)) {
+	case PARSE_SUCCESS: // length is complete
+	    state->elemlen_found = 1;
+	    state->elem_parsed = 0;
+	    value->length = state->elemlen;
+	    value->data = NULL;
+
+	    if (state->buffer.data[state->cursor] != ' ')
+		return PSYC_PARSE_UPDATE_ERROR_LENGTH;
+
+	    state->part = PSYC_UPDATE_PART_VALUE;
+	    if (value->length == 0)
+		return PSYC_PARSE_UPDATE_END;
+	    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_UPDATE_INSUFFICIENT);
+	    break;
+	case PARSE_INSUFFICIENT: // length is incomplete
+	    if (value->length == 0)
+		return PSYC_PARSE_UPDATE_END;
+	    return PSYC_PARSE_UPDATE_INSUFFICIENT;
+	case PARSE_ERROR: // no length after :
+	    return PSYC_PARSE_UPDATE_ERROR_LENGTH;
+	default: // should not be reached
+	    return PSYC_PARSE_UPDATE_ERROR;
+	}
+	// fall thru
+
+    case PSYC_UPDATE_PART_VALUE:
+	if (state->elemlen_found) {
+	    switch (parse_binary((ParseState*)state, state->elemlen, value,
+				 &state->elem_parsed)) {
+	    case PARSE_SUCCESS:
+		if (value->length == state->elem_parsed)
+		    ret = PSYC_PARSE_UPDATE_VALUE;
+		else
+		    ret = PSYC_PARSE_UPDATE_VALUE_END;
+		break;
+	    case PARSE_INCOMPLETE:
+		if (value->length == state->elem_parsed)
+		    ret = PSYC_PARSE_UPDATE_VALUE_START;
+		else
+		    ret = PSYC_PARSE_UPDATE_VALUE_CONT;
+		break;
+	    default: // should not be reached
+		return PSYC_PARSE_UPDATE_ERROR_VALUE;
+	    }
+	} else {
+	    value->data = state->buffer.data + state->cursor;
+	    value->length = state->buffer.length - state->cursor;
+	    ret = PSYC_PARSE_UPDATE_VALUE;
+	}
+
+	state->part = PSYC_INDEX_PART_TYPE;
+	state->cursor++;
+	return ret;
+    }
+
+    return PSYC_PARSE_INDEX_ERROR; // should not be reached
 }

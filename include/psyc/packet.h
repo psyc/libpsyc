@@ -18,8 +18,52 @@
 
 #include <math.h>
 
-#include "syntax.h"
 #include "method.h"
+
+/**
+ * Maximum allowed content size without length.
+ * Parser stops after reaching this limit.
+ */
+#define PSYC_CONTENT_SIZE_MAX 512
+/**
+ * Content size after which a length is added when rendering.
+ */
+#ifndef PSYC_CONTENT_SIZE_THRESHOLD
+# define PSYC_CONTENT_SIZE_THRESHOLD 9
+#endif
+
+/**
+ * Maximum allowed modifier size without length.
+ * Parser stops after reaching this limit.
+ */
+#define PSYC_MODIFIER_SIZE_MAX 256
+/**
+ * Modifier size after which a length is added when rendering.
+ */
+#ifndef PSYC_MODIFIER_SIZE_THRESHOLD
+# define PSYC_MODIFIER_SIZE_THRESHOLD 9
+#endif
+
+/**
+ * Maximum allowed element size without length.
+ * Parser stops after reaching this limit.
+ */
+#define PSYC_ELEM_SIZE_MAX 128
+/**
+ * Element size after which a length is added when rendering.
+ */
+#ifndef PSYC_ELEM_SIZE_THRESHOLD
+# define PSYC_ELEM_SIZE_THRESHOLD 9
+#endif
+
+#define PSYC_PACKET_DELIMITER_CHAR '|'
+#define PSYC_PACKET_DELIMITER	   "\n|\n"
+
+#define PSYC_LIST_ELEM_START '|'
+#define PSYC_DICT_KEY_START '{'
+#define PSYC_DICT_KEY_END '}'
+#define PSYC_DICT_VALUE_START PSYC_DICT_KEY_END
+#define PSYC_DICT_VALUE_END PSYC_DICT_KEY_START
 
 /** Modifier flags. */
 typedef enum {
@@ -30,18 +74,18 @@ typedef enum {
     /// Modifier doesn't need length.
     PSYC_MODIFIER_NO_LENGTH = 2,
     /// Routing modifier, which implies that it doesn't need length.
-    PSYC_MODIFIER_ROUTING = 3,
+    PSYC_MODIFIER_ROUTING = 4,
 } PsycModifierFlag;
 
-/** List flags. */
+/** List/dict element flags. */
 typedef enum {
-    /// List needs to be checked if it needs length.
-    PSYC_LIST_CHECK_LENGTH = 0,
-    /// List needs length.
-    PSYC_LIST_NEED_LENGTH = 1,
-    /// List doesn't need length.
-    PSYC_LIST_NO_LENGTH = 2,
-} PsycListFlag;
+    /// Element needs to be checked if it needs length.
+    PSYC_ELEM_CHECK_LENGTH = 0,
+    /// Element needs length.
+    PSYC_ELEM_NEED_LENGTH = 1,
+    /// Element doesn't need length.
+    PSYC_ELEM_NO_LENGTH = 2,
+} PsycElemFlag;
 
 /** Packet flags. */
 typedef enum {
@@ -77,35 +121,90 @@ typedef enum {
     PSYC_PACKET_ID_ELEMS = 5,
 } PsycPacketId;
 
-/** Structure for a modifier. */
 typedef struct {
-    char oper;
+    PsycString type;
+    PsycString value;
+    size_t length;
+    PsycElemFlag flag;
+} PsycElem;
+
+#define PSYC_ELEM(typ, typlen, val, vallen, flg)	\
+    (PsycElem) {					\
+	.type = PSYC_STRING(typ, typlen),		\
+	.value = PSYC_STRING(val, vallen),		\
+	.flag = flg,					\
+     }
+#define PSYC_ELEM_TV(typ, typlen, val, vallen)		\
+    (PsycElem) {					\
+	.type = PSYC_STRING(typ, typlen),		\
+	.value = PSYC_STRING(val, vallen),		\
+     }
+#define PSYC_ELEM_VF(val, vallen, flg)			\
+    (PsycElem) {					\
+	.value = PSYC_STRING(val, vallen),		\
+	.flag = flg,					\
+    }
+#define PSYC_ELEM_V(val, vallen)			\
+    (PsycElem) {					\
+	.value = PSYC_STRING(val, vallen),		\
+    }
+
+/** Dict key */
+typedef struct {
+    PsycString value;
+    size_t length;
+    PsycElemFlag flag;
+} PsycDictKey;
+
+#define PSYC_DICT_KEY(k, klen, flg)			\
+    (PsycDictKey) {					\
+	.value = PSYC_STRING(k, klen),			\
+	.flag = flg,					\
+    }
+
+/** Dict key/value */
+typedef struct {
+    PsycElem value;
+    PsycDictKey key;
+} PsycDictElem;
+
+#define PSYC_DICT_ELEM(k, v)				\
+    (PsycDictElem) {					\
+	.key = k,					\
+	.value = v,					\
+    }
+
+/** Dictionary */
+typedef struct {
+    PsycString type;
+    PsycDictElem *elems;
+    size_t num_elems;
+    size_t length;
+} PsycDict;
+
+/** List */
+typedef struct {
+    PsycString type;
+    PsycElem *elems;
+    size_t num_elems;
+    size_t length;
+} PsycList;
+
+/** Modifier */
+typedef struct {
     PsycString name;
     PsycString value;
     PsycModifierFlag flag;
+    char oper;
 } PsycModifier;
 
-/** Structure for an entity or routing header. */
+/** Entity or routing header */
 typedef struct {
     size_t lines;
     PsycModifier *modifiers;
 } PsycHeader;
 
-/** Structure for a list. */
-typedef struct {
-    size_t num_elems;
-    PsycString *elems;
-    size_t length;
-    PsycListFlag flag;
-} PsycList;
-
-typedef struct {
-    PsycList *list;
-    size_t width;
-    size_t length;
-} PsycTable;
-
-/** Intermediate struct for a PSYC packet */
+/** Intermediate struct for a PSYC packet. */
 typedef struct {
     PsycHeader routing;		///< Routing header.
     PsycHeader entity;		///< Entity header.
@@ -135,16 +234,12 @@ psyc_num_length (size_t n)
 static inline PsycModifierFlag
 psyc_modifier_length_check (PsycModifier *m)
 {
-    PsycModifierFlag flag;
+    if (m->value.length > 0
+	&& (m->value.length > PSYC_MODIFIER_SIZE_THRESHOLD
+	    || memchr(m->value.data, (int) '\n', m->value.length)))
+	return PSYC_MODIFIER_NEED_LENGTH;
 
-    if (m->value.length > PSYC_MODIFIER_SIZE_THRESHOLD)
-	flag = PSYC_MODIFIER_NEED_LENGTH;
-    else if (memchr(m->value.data, (int) '\n', m->value.length))
-	flag = PSYC_MODIFIER_NEED_LENGTH;
-    else
-	flag = PSYC_MODIFIER_NO_LENGTH;
-
-    return flag;
+    return PSYC_MODIFIER_NO_LENGTH;
 }
 
 /** Initialize modifier */
@@ -153,32 +248,60 @@ psyc_modifier_init (PsycModifier *m, PsycOperator oper,
 		    char *name, size_t namelen,
 		    char *value, size_t valuelen, PsycModifierFlag flag)
 {
-    *m = (PsycModifier) {oper, {namelen, name}, {valuelen, value}, flag};
+    *m = (PsycModifier) {
+	.oper = oper,
+	.name = {namelen, name},
+	.value = {valuelen, value},
+	.flag = flag
+    };
 
     if (flag == PSYC_MODIFIER_CHECK_LENGTH) // find out if it needs a length
 	m->flag = psyc_modifier_length_check(m);
+    else if (flag & PSYC_MODIFIER_ROUTING)
+	m->flag |= PSYC_MODIFIER_NO_LENGTH;
 }
 
 /**
  * \internal
- * Get the total length of a modifier when rendered.
+ * Check if a list/dict element needs length.
+ */
+PsycElemFlag
+psyc_elem_length_check (PsycString *value, const char end);
+
+/**
+ * \internal
+ * Get the rendered length of a list/dict element.
+ */
+size_t
+psyc_elem_length (PsycElem *elem);
+
+/**
+ * \internal
+ * Get the rendered length of a dict key.
+ */
+size_t
+psyc_dict_key_length (PsycDictKey *elem);
+
+/**
+ * \internal
+ * Get the rendered length of a list.
+ */
+size_t
+psyc_list_length_set (PsycList *list);
+
+/**
+ * \internal
+ * Get the rendered length of a dict.
+ */
+size_t
+psyc_dict_length_set (PsycDict *dict);
+
+/**
+ * \internal
+ * Get the rendered length of a modifier.
  */
 size_t
 psyc_modifier_length (PsycModifier *m);
-
-/**
- * \internal
- * Check if a list needs length.
- */
-PsycListFlag
-psyc_list_length_check (PsycList *list);
-
-/**
- * \internal
- * Get the total length of a list when rendered.
- */
-PsycListFlag
-psyc_list_length (PsycList *list);
 
 /**
  * \internal
@@ -195,12 +318,11 @@ psyc_packet_length_set (PsycPacket *p);
 
 /** Initialize a list. */
 void
-psyc_list_init (PsycList *list, PsycString *elems, size_t num_elems,
-		PsycListFlag flag);
+psyc_list_init (PsycList *list, PsycElem *elems, size_t num_elems);
 
-/** Initialize a table. */
+/** Initialize a dict. */
 void
-psyc_table_init (PsycTable *table, size_t width, PsycList *list);
+psyc_dict_init (PsycDict *dict, PsycDictElem *elems, size_t num_elems);
 
 /** Initialize a packet. */
 void
@@ -218,10 +340,13 @@ psyc_packet_init_raw (PsycPacket *packet,
 		      char *content, size_t contentlen,
 		      PsycPacketFlag flag);
 
-/** Get the total length of a packet ID when rendered. */
-size_t
-psyc_packet_id_length (size_t contextlen, size_t sourcelen, size_t targetelen,
-		       size_t counterlen, size_t fragmentlen);
+void
+psyc_packet_id (PsycList *list, PsycElem *elems,
+		char *context, size_t contextlen,
+		char *source, size_t sourcelen,
+		char *target, size_t targetlen,
+		char *counter, size_t counterlen,
+		char *fragment, size_t fragmentlen); 
 
 /** @} */ // end of packet group
 

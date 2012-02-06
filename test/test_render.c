@@ -1,16 +1,15 @@
 #include <stdio.h>
 
 #include <lib.h>
-#include <psyc/render.h>
-#include <psyc/syntax.h>
+#include <psyc.h>
 
 #define myUNI	"psyc://10.100.1000/~ludwig"
 
 /* example renderer generating a presence packet */
 int
-testPresence (char *avail, int availlen,
-	      char *desc, int desclen,
-	      char *rendered, uint8_t verbose)
+test_presence (char *avail, int availlen,
+	       char *desc, int desclen,
+	       char *rendered, uint8_t verbose)
 {
     PsycModifier routing[1];
     psyc_modifier_init(&routing[0], PSYC_OPERATOR_SET,
@@ -42,7 +41,7 @@ testPresence (char *avail, int availlen,
 }
 
 int
-testList (const char *rendered, uint8_t verbose)
+test_list (const char *rendered, uint8_t verbose)
 {
     PsycModifier routing[2];
     psyc_modifier_init(&routing[0], PSYC_OPERATOR_SET,
@@ -52,23 +51,21 @@ testList (const char *rendered, uint8_t verbose)
 		       PSYC_C2ARG("_context"),
 		       PSYC_C2ARG(myUNI), PSYC_MODIFIER_ROUTING);
 
-    PsycString elems_text[] = {
-	PSYC_C2STR("foo"),
-	PSYC_C2STR("bar"),
-	PSYC_C2STR("baz"),
+    PsycElem elems_text[] = {
+	PSYC_ELEM_V("foo", 3),
+	PSYC_ELEM_V("bar", 3),
+	PSYC_ELEM_V("baz", 3),
     };
 
-    PsycString elems_bin[] = {
-	PSYC_C2STR("foo"),
-	PSYC_C2STR("b|r"),
-	PSYC_C2STR("baz\nqux"),
+    PsycElem elems_bin[] = {
+	PSYC_ELEM_V("foo", 3),
+	PSYC_ELEM_V("b|r", 3),
+	PSYC_ELEM_V("baz\nqux", 7),
     };
 
     PsycList list_text, list_bin;
-    psyc_list_init(&list_text, elems_text,
-		   PSYC_NUM_ELEM(elems_text), PSYC_LIST_CHECK_LENGTH);
-    psyc_list_init(&list_bin, elems_bin,
-		   PSYC_NUM_ELEM(elems_bin), PSYC_LIST_CHECK_LENGTH);
+    psyc_list_init(&list_text, elems_text, PSYC_NUM_ELEM(elems_text));
+    psyc_list_init(&list_bin, elems_bin, PSYC_NUM_ELEM(elems_bin));
 
     char buf_text[32], buf_bin[32];
     psyc_render_list(&list_text, buf_text, sizeof(buf_text));
@@ -77,10 +74,12 @@ testList (const char *rendered, uint8_t verbose)
     PsycModifier entity[2];
     psyc_modifier_init(&entity[0], PSYC_OPERATOR_SET,
 		       PSYC_C2ARG("_list_text"),
-		       buf_text, list_text.length, list_text.flag);
+		       buf_text, list_text.length,
+		       PSYC_MODIFIER_CHECK_LENGTH);
     psyc_modifier_init(&entity[1], PSYC_OPERATOR_SET,
 		       PSYC_C2ARG("_list_binary"),
-		       buf_bin, list_bin.length, list_bin.flag);
+		       buf_bin, list_bin.length,
+		       PSYC_MODIFIER_CHECK_LENGTH);
 
     PsycPacket packet;
     psyc_packet_init(&packet, routing, PSYC_NUM_ELEM(routing),
@@ -102,21 +101,21 @@ main (int argc, char **argv)
 {
     uint8_t verbose = argc > 1;
 
-    if (testPresence(PSYC_C2ARG("_here"), PSYC_C2ARG("I'm omnipresent right now"), "\
+    if (test_presence(PSYC_C2ARG("_here"), PSYC_C2ARG("I'm omnipresent right now"), "\
 :_context\t" myUNI "\n\
-\n\
+97\n\
 =_degree_availability\t_here\n\
-=_description_presence\tI'm omnipresent right now\n\
+=_description_presence 25\tI'm omnipresent right now\n\
 _notice_presence\n\
 |\n", verbose))
 	return 1;
 
-    if (testList("\
+    if (test_list("\
 :_source	psyc://10.100.1000/~ludwig\n\
 :_context	psyc://10.100.1000/~ludwig\n\
-85\n\
-:_list_text	|foo|bar|baz\n\
-:_list_binary 21	3 foo|3 b|r|7 baz\n\
+90\n\
+:_list_text 15	| foo| bar| baz\n\
+:_list_binary 20	| foo|3 b|r| baz\n\
 qux\n\
 _test_list\n\
 list test\n\

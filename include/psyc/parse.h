@@ -132,6 +132,10 @@ typedef enum {
  * @see psyc_parse()
  */
 typedef enum {
+    /// Error, no length is set for a modifier which is longer than PSYC_MODIFIER_SIZE_THRESHOLD.
+    PSYC_PARSE_ERROR_MOD_NO_LEN = -10,
+    /// Error, no length is set for the content but it is longer than PSYC_CONTENT_SIZE_THRESHOLD.
+    PSYC_PARSE_ERROR_NO_LEN = -9,
     /// Error, packet is not ending with a valid delimiter.
     PSYC_PARSE_ERROR_END = -8,
     /// Error, expected NL after the method.
@@ -197,106 +201,286 @@ typedef enum {
     PSYC_PARSE_COMPLETE = 13,
 } PsycParseRC;
 
+/// PSYC packet parts.
+typedef enum {
+    PSYC_PART_RESET = -1,
+    PSYC_PART_ROUTING = 0,
+    PSYC_PART_LENGTH = 1,
+    PSYC_PART_CONTENT = 2,
+    PSYC_PART_METHOD = 3,
+    PSYC_PART_DATA = 4,
+    PSYC_PART_END = 5,
+} PsycPart;
+
 /**
  * The return value definitions for the list parsing function.
  * @see psyc_parse_list()
  */
 typedef enum {
-    PSYC_PARSE_LIST_ERROR_DELIM = -4,
-    PSYC_PARSE_LIST_ERROR_LEN = -3,
+    /// Error, no length is set for an element which is longer than PSYC_ELEM_SIZE_THRESHOLD.
+    PSYC_PARSE_LIST_ERROR_ELEM_NO_LEN = -6,
+    PSYC_PARSE_LIST_ERROR_ELEM_LENGTH = -5,
+    PSYC_PARSE_LIST_ERROR_ELEM_TYPE = -4,
+    PSYC_PARSE_LIST_ERROR_ELEM_START = -3,
     PSYC_PARSE_LIST_ERROR_TYPE = -2,
     PSYC_PARSE_LIST_ERROR = -1,
-    /// Completed parsing a list element.
-    PSYC_PARSE_LIST_ELEM = 1,
     /// Reached end of buffer.
-    PSYC_PARSE_LIST_END = 2,
-    /// Binary list is incomplete.
-    PSYC_PARSE_LIST_INCOMPLETE = 3,
+    /// Buffer contains insufficient amount of data.
+    /// Fill another buffer and concatenate it with the end of the current buffer,
+    /// from the cursor position to the end.
+    PSYC_PARSE_LIST_INSUFFICIENT = 1,
+    /// Completed parsing the default type of the list.
+    PSYC_PARSE_LIST_TYPE = 2,
+    /// Start of an element is parsed but still not complete.
+    PSYC_PARSE_LIST_ELEM_START = 3,
+    /// Continuation of an incomplete element.
+    PSYC_PARSE_LIST_ELEM_CONT = 4,
+    /// Element parsing completed.
+    PSYC_PARSE_LIST_ELEM_END = 5,
+    /// Completed parsing a list element.
+    PSYC_PARSE_LIST_ELEM = 6,
+    /// Completed parsing the last element in the list.
+    PSYC_PARSE_LIST_ELEM_LAST = 7,
+    /// Reached end of buffer.
+    PSYC_PARSE_LIST_END = 8,
 } PsycParseListRC;
 
 typedef enum {
-    PSYC_PARSE_TABLE_ERROR_BODY = -5,
-    PSYC_PARSE_TABLE_ERROR_DELIM = -4,
-    PSYC_PARSE_TABLE_ERROR_HEAD = -3,
-    PSYC_PARSE_TABLE_ERROR_WIDTH = -2,
-    PSYC_PARSE_TABLE_ERROR = -1,
-    /// Completed parsing the width of the table.
-    PSYC_PARSE_TABLE_WIDTH = 1,
-#ifdef PSYC_PARSE_TABLE_HEAD
-    /// Completed parsing the name of the key column.
-    PSYC_PARSE_TABLE_NAME_KEY = 2,
-    /// Completed parsing the name of a value column.
-    PSYC_PARSE_TABLE_NAME_VALUE = 3,
-#endif
-    /// Completed parsing a key.
-    PSYC_PARSE_TABLE_KEY = 4,
-    /// Completed parsing a value.
-    PSYC_PARSE_TABLE_VALUE = 5,
-    /// Completed parsing a key and reached end of buffer.
-    PSYC_PARSE_TABLE_KEY_END = 6,
-    /// Completed parsing a value and reached end of buffer.
-    PSYC_PARSE_TABLE_VALUE_END = 7,
-    /// Binary table is incomplete.
-    PSYC_PARSE_TABLE_INCOMPLETE = 8,
-} PsycParseTableRC;
+    PSYC_LIST_PART_START = 0,
+    PSYC_LIST_PART_TYPE = 1,
+    PSYC_LIST_PART_ELEM_START = 2,
+    PSYC_LIST_PART_ELEM_TYPE = 3,
+    PSYC_LIST_PART_ELEM_LENGTH = 4,
+    PSYC_LIST_PART_ELEM = 5,
+} PsycListPart;
 
 typedef enum {
-    PSYC_TABLE_PART_START = 0,
-    PSYC_TABLE_PART_WIDTH = 1,
-#ifdef PSYC_PARSE_TABLE_HEAD
-    PSYC_TABLE_PART_HEAD_START = 2,
-    PSYC_TABLE_PART_HEAD = 3,
-#endif
-    PSYC_TABLE_PART_BODY_START = 4,
-    PSYC_TABLE_PART_BODY = 5,
-} PsycTablePart;
+    PSYC_PARSE_DICT_ERROR_VALUE = -9,
+    PSYC_PARSE_DICT_ERROR_VALUE_LENGTH = -8,
+    PSYC_PARSE_DICT_ERROR_VALUE_TYPE = -7,
+    PSYC_PARSE_DICT_ERROR_VALUE_START = -6,
+    PSYC_PARSE_DICT_ERROR_KEY = -5,
+    PSYC_PARSE_DICT_ERROR_KEY_LENGTH = -4,
+    PSYC_PARSE_DICT_ERROR_KEY_START = -3,
+    PSYC_PARSE_DICT_ERROR_TYPE = -2,
+    PSYC_PARSE_DICT_ERROR = -1,
+    /// Reached end of buffer.
+    /// Buffer contains insufficient amount of data.
+    /// Fill another buffer and concatenate it with the end of the current buffer,
+    /// from the cursor position to the end.
+    PSYC_PARSE_DICT_INSUFFICIENT = 1,
+    /// Completed parsing the default type of the dict.
+    PSYC_PARSE_DICT_TYPE = 2,
+    /// Start of a key is parsed but still not complete.
+    PSYC_PARSE_DICT_KEY_START = 3,
+    /// Continuation of an incomplete key.
+    PSYC_PARSE_DICT_KEY_CONT = 4,
+    /// Last continuation of a key.
+    PSYC_PARSE_DICT_KEY_END = 5,
+    /// Completed parsing a key in one go.
+    PSYC_PARSE_DICT_KEY = 6,
+    /// Start of a value is parsed but still not complete.
+    PSYC_PARSE_DICT_VALUE_START = 7,
+    /// Continuation of an incomplete value.
+    PSYC_PARSE_DICT_VALUE_CONT = 8,
+    /// Last continuation of a value.
+    PSYC_PARSE_DICT_VALUE_END = 9,
+    /// Completed parsing a value.
+    PSYC_PARSE_DICT_VALUE = 10,
+    /// Completed parsing the last value.
+    PSYC_PARSE_DICT_VALUE_LAST = 11,
+    /// Reached end of buffer.
+    PSYC_PARSE_DICT_END = 12,
+} PsycParseDictRC;
+
+typedef enum {
+    PSYC_DICT_PART_START = 0,
+    PSYC_DICT_PART_TYPE = 1,
+    PSYC_DICT_PART_KEY_START = 2,
+    PSYC_DICT_PART_KEY_LENGTH = 3,
+    PSYC_DICT_PART_KEY = 4,
+    PSYC_DICT_PART_VALUE_START = 5,
+    PSYC_DICT_PART_VALUE_TYPE = 6,
+    PSYC_DICT_PART_VALUE_LENGTH = 7,
+    PSYC_DICT_PART_VALUE = 8,
+} PsycDictPart;
+
+typedef enum {
+    PSYC_PARSE_INDEX_ERROR_DICT = -6,
+    PSYC_PARSE_INDEX_ERROR_DICT_LENGTH = -5,
+    PSYC_PARSE_INDEX_ERROR_STRUCT = -4,
+    PSYC_PARSE_INDEX_ERROR_LIST = -3,
+    PSYC_PARSE_INDEX_ERROR_TYPE = -2,
+    PSYC_PARSE_INDEX_ERROR = -1,
+    /// Reached end of buffer.
+    /// Buffer contains insufficient amount of data.
+    /// Fill another buffer and concatenate it with the end of the current buffer,
+    /// from the cursor position to the end.
+    PSYC_PARSE_INDEX_INSUFFICIENT = 1,
+    // Completed parsing a list index.
+    PSYC_PARSE_INDEX_LIST = 3,
+    // Completed parsing a list index at the end of the buffer.
+    PSYC_PARSE_INDEX_LIST_LAST = 4,
+    // Completed parsing a struct element name.
+    PSYC_PARSE_INDEX_STRUCT = 5,
+    // Completed parsing a struct element name at the end of the buffer.
+    PSYC_PARSE_INDEX_STRUCT_LAST = 6,
+    /// Start of a dict key is parsed but still not complete.
+    PSYC_PARSE_INDEX_DICT_START = 7,
+    /// Continuation of an incomplete dict key.
+    PSYC_PARSE_INDEX_DICT_CONT = 8,
+    /// Last continuation of a dict key.
+    PSYC_PARSE_INDEX_DICT_END = 9,
+    /// Completed parsing a dict key in one go.
+    PSYC_PARSE_INDEX_DICT = 10,
+    /// Reached end of buffer.
+    PSYC_PARSE_INDEX_END = 11,
+} PsycParseIndexRC;
+
+typedef enum {
+    PSYC_INDEX_PART_START = 0,
+    PSYC_INDEX_PART_TYPE = 1,
+    PSYC_INDEX_PART_LIST = 2,
+    PSYC_INDEX_PART_STRUCT = 3,
+    PSYC_INDEX_PART_DICT_LENGTH = 4,
+    PSYC_INDEX_PART_DICT = 5,
+} PsycIndexPart;
+
+typedef enum {
+    PSYC_PARSE_UPDATE_ERROR_VALUE = -24,
+    PSYC_PARSE_UPDATE_ERROR_LENGTH = -23,
+    PSYC_PARSE_UPDATE_ERROR_TYPE = -22,
+    PSYC_PARSE_UPDATE_ERROR_OPER = -21,
+    PSYC_PARSE_UPDATE_ERROR = -1,
+    /// Reached end of buffer.
+    /// Buffer contains insufficient amount of data.
+    /// Fill another buffer and concatenate it with the end of the current buffer,
+    /// from the cursor position to the end.
+    PSYC_PARSE_UPDATE_INSUFFICIENT = 1,
+
+    // Completed parsing a list index.
+    PSYC_PARSE_UPDATE_INDEX_LIST = 3,
+    // Completed parsing a struct element name.
+    PSYC_PARSE_UPDATE_INDEX_STRUCT = 5,
+    /// Start of a dict key is parsed but still not complete.
+    PSYC_PARSE_UPDATE_INDEX_DICT_START = 7,
+    /// Continuation of an incomplete dict key.
+    PSYC_PARSE_UPDATE_INDEX_DICT_CONT = 8,
+    /// Last continuation of a dict key.
+    PSYC_PARSE_UPDATE_INDEX_DICT_END = 9,
+    /// Completed parsing a dict key in one go.
+    PSYC_PARSE_UPDATE_INDEX_DICT = 10,
+
+    /// Completed parsing the type.
+    PSYC_PARSE_UPDATE_TYPE = 21,
+    /// Completed parsing the type and reached end of buffer.
+    PSYC_PARSE_UPDATE_TYPE_END = 22,
+    /// Start of the value is parsed but still not complete.
+    PSYC_PARSE_UPDATE_VALUE_START = 23,
+    /// Continuation of incomplete value.
+    PSYC_PARSE_UPDATE_VALUE_CONT = 24,
+    /// Last continuation of the value.
+    PSYC_PARSE_UPDATE_VALUE_END = 25,
+    /// Completed parsing the value in one go.
+    PSYC_PARSE_UPDATE_VALUE = 26,
+    /// Reached end of buffer.
+    PSYC_PARSE_UPDATE_END = 27,
+} PsycParseUpdateRC;
+
+typedef enum {
+    PSYC_UPDATE_PART_START = 0,
+
+    PSYC_UPDATE_INDEX_PART_TYPE = 1,
+    PSYC_UPDATE_INDEX_PART_LIST = 2,
+    PSYC_UPDATE_INDEX_PART_STRUCT = 3,
+    PSYC_UPDATE_INDEX_PART_DICT_LENGTH = 4,
+    PSYC_UPDATE_INDEX_PART_DICT = 5,
+
+    PSYC_UPDATE_PART_TYPE = 12,
+    PSYC_UPDATE_PART_LENGTH = 13,
+    PSYC_UPDATE_PART_VALUE = 14,
+} PsycUpdatePart;
 
 /**
  * Struct for keeping parser state.
  */
 typedef struct {
+    PsycString buffer;		///< Buffer with data to be parsed.
     size_t cursor;		///< Current position in buffer.
     size_t startc;		///< Position where the parsing would be resumed.
-    PsycString buffer;		///< Buffer with data to be parsed.
-    uint8_t flags;		///< Flags for the parser, see PsycParseFlag.
-    PsycPart part;		///< Part of the packet being parsed currently.
 
     size_t routinglen;		///< Length of routing part parsed so far.
-    size_t content_parsed;	///< Number of bytes parsed from the content so far.
     size_t contentlen;		///< Expected length of the content.
-    PsycBool contentlen_found;	///< Is there a length given for this packet?
-    size_t value_parsed;	///< Number of bytes parsed from the value so far.
+    size_t content_parsed;	///< Number of bytes parsed from the content so far.
     size_t valuelen;		///< Expected length of the value.
-    PsycBool valuelen_found;	///< Is there a length given for this modifier?
+    size_t value_parsed;	///< Number of bytes parsed from the value so far.
+
+    PsycPart part;		///< Part of the packet being parsed currently.
+    uint8_t flags;		///< Flags for the parser, see PsycParseFlag.
+    uint8_t contentlen_found;	///< Is there a length given for this packet?
+    uint8_t valuelen_found;	///< Is there a length given for this modifier?
 } PsycParseState;
 
 /**
  * Struct for keeping list parser state.
  */
 typedef struct {
+    PsycString buffer;		///< Buffer with data to be parsed.
     size_t cursor;		///< Current position in buffer.
     size_t startc;		///< Line start position.
-    PsycString buffer;		///< Buffer with data to be parsed.
-    PsycListType type;		///< List type.
-    char term;			///< Terminator character at the end.
-    uint8_t term_set;		///< Look for terminator.
 
-    size_t elem_parsed;		///< Number of bytes parsed from the elem so far.
+    PsycString type;		///< List type.
     size_t elemlen;		///< Expected length of the elem.
+    size_t elem_parsed;		///< Number of bytes parsed from the elem so far.
+
+    PsycListPart part;		///< Part of the list being parsed currently.
+    uint8_t elemlen_found;	///< Is there a length given for this element?
 } PsycParseListState;
 
 /**
- * Struct for keeping table parser state.
+ * Struct for keeping dict parser state.
  */
 typedef struct {
+    PsycString buffer;		///< Buffer with data to be parsed.
     size_t cursor;		///< Current position in buffer.
     size_t startc;		///< Line start position.
+
+    size_t elemlen;		///< Expected length of the key/value.
+    size_t elem_parsed;		///< Number of bytes parsed from the key/value so far.
+
+    PsycDictPart part;		///< Part of the dict being parsed currently.
+    uint8_t elemlen_found;	///< Is there a length given for this key/value?
+} PsycParseDictState;
+
+/**
+ * Struct for keeping index parser state.
+ */
+typedef struct {
     PsycString buffer;		///< Buffer with data to be parsed.
-    PsycTablePart part;		///< Table type.
-    size_t width;		///< Width of table.
-    size_t elems;               ///< Elems parsed so far in the table.
-    PsycParseListState list;
-} PsycParseTableState;
+    size_t cursor;		///< Current position in buffer.
+    size_t startc;		///< Position where the parsing would be resumed.
+
+    size_t elemlen;		///< Expected length of an element.
+    size_t elem_parsed;		///< Number of bytes parsed from the elem so far.
+
+    PsycIndexPart part;		///< Part of the packet being parsed currently.
+    uint8_t elemlen_found;	///< Is there a length given for this element?
+} PsycParseIndexState;
+
+/**
+ * Struct for keeping update modifier parser state.
+ */
+typedef struct {
+    PsycString buffer;		///< Buffer with data to be parsed.
+    size_t cursor;		///< Current position in buffer.
+    size_t startc;		///< Position where the parsing would be resumed.
+
+    size_t elemlen;		///< Expected length of an element.
+    size_t elem_parsed;		///< Number of bytes parsed from the elem so far.
+
+    PsycUpdatePart part;	///< Part of the packet being parsed currently.
+    uint8_t elemlen_found;	///< Is there a length given for this element?
+} PsycParseUpdateState;
 
 /**
  * Initializes the state struct.
@@ -339,7 +523,7 @@ psyc_parse_buffer_set (PsycParseState *state, const char *buffer, size_t length)
 }
 
 /**
- * Initializes the list state.
+ * Initializes the list parser state.
  */
 static inline void
 psyc_parse_list_state_init (PsycParseListState *state)
@@ -358,27 +542,60 @@ psyc_parse_list_buffer_set (PsycParseListState *state,
     state->cursor = 0;
 }
 
+/**
+ * Initializes the dict parser state.
+ */
 static inline void
-psyc_parse_list_term_set (PsycParseListState *state, char term)
+psyc_parse_dict_state_init (PsycParseDictState *state)
 {
-    state->term = term;
-    state->term_set = PSYC_TRUE;
+    memset(state, 0, sizeof(PsycParseDictState));
 }
 
 /**
- * Initializes the table state.
+ * Sets a new buffer in the dict parser state struct with data to be parsed.
  */
 static inline void
-psyc_parse_table_state_init (PsycParseTableState *state)
+psyc_parse_dict_buffer_set (PsycParseDictState *state,
+			     const char *buffer, size_t length)
 {
-    memset(state, 0, sizeof(PsycParseTableState));
+    state->buffer = (PsycString) {length, (char*)buffer};
+    state->cursor = 0;
 }
 
 /**
- * Sets a new buffer in the list parser state struct with data to be parsed.
+ * Initializes the index parser state.
  */
 static inline void
-psyc_parse_table_buffer_set (PsycParseTableState *state,
+psyc_parse_index_state_init (PsycParseIndexState *state)
+{
+    memset(state, 0, sizeof(PsycParseIndexState));
+}
+
+/**
+ * Sets a new buffer in the index parser state struct with data to be parsed.
+ */
+static inline void
+psyc_parse_index_buffer_set (PsycParseIndexState *state,
+			     const char *buffer, size_t length)
+{
+    state->buffer = (PsycString) {length, (char*)buffer};
+    state->cursor = 0;
+}
+
+/**
+ * Initializes the update modifier parser state.
+ */
+static inline void
+psyc_parse_update_state_init (PsycParseUpdateState *state)
+{
+    memset(state, 0, sizeof(PsycParseUpdateState));
+}
+
+/**
+ * Sets a new buffer in the update modifier parser state struct with data to be parsed.
+ */
+static inline void
+psyc_parse_update_buffer_set (PsycParseUpdateState *state,
 			     const char *buffer, size_t length)
 {
     state->buffer = (PsycString) {length, (char*)buffer};
@@ -471,10 +688,25 @@ psyc_parse (PsycParseState *state, char *oper,
 static inline
 #endif
 PsycParseListRC
-psyc_parse_list (PsycParseListState *state, PsycString *elem);
+psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem);
 
-PsycParseTableRC
-psyc_parse_table (PsycParseTableState *state, PsycString *elem);
+#ifdef __INLINE_PSYC_PARSE
+static inline
+#endif
+PsycParseDictRC
+psyc_parse_dict (PsycParseDictState *state, PsycString *type, PsycString *elem);
+
+#ifdef __INLINE_PSYC_PARSE
+static inline
+#endif
+PsycParseIndexRC
+psyc_parse_index (PsycParseIndexState *state, PsycString *idx);
+
+#ifdef __INLINE_PSYC_PARSE
+static inline
+#endif
+PsycParseUpdateRC
+psyc_parse_update (PsycParseUpdateState *state, char *oper, PsycString *value);
 
 static inline size_t
 psyc_parse_int (const char *value, size_t len, int64_t *n)
@@ -516,7 +748,7 @@ psyc_parse_uint (const char *value, size_t len, uint64_t *n)
 }
 
 static inline size_t
-psyc_parse_index (const char *value, size_t len, int64_t *n)
+psyc_parse_list_index (const char *value, size_t len, int64_t *n)
 {
     if (!value || len == 0 || value[0] != '#')
 	return 0;

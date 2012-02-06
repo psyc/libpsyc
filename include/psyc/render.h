@@ -51,6 +51,12 @@ static inline
 PsycRenderRC
 psyc_render (PsycPacket *packet, char *buffer, size_t buflen);
 
+PsycRenderRC
+psyc_render_elem (PsycElem *elem, char *buffer, size_t buflen);
+
+PsycRenderRC
+psyc_render_dict_key (PsycDictKey *elem, char *buffer, size_t buflen);
+
 /**
  * Render a PSYC list into a buffer.
  */
@@ -61,15 +67,7 @@ PsycRenderRC
 psyc_render_list (PsycList *list, char *buffer, size_t buflen);
 
 PsycRenderRC
-psyc_render_table (PsycTable *table, char *buffer, size_t buflen);
-
-PsycRenderRC
-psyc_render_packet_id (char *context, size_t contextlen,
-		       char *source, size_t sourcelen,
-		       char *target, size_t targetlen,
-		       char *counter, size_t counterlen,
-		       char *fragment, size_t fragmentlen,
-		       char *buffer, size_t buflen);
+psyc_render_dict (PsycDict *dict, char *buffer, size_t buflen);
 
 /** @} */ // end of render group
 

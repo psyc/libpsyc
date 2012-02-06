@@ -5,16 +5,17 @@
 #ifndef PSYC_VARIABLE_H
 #define PSYC_VARIABLE_H
 
+#include "match.h"
 #include "packet.h"
 
 /// Routing variables in alphabetical order.
-extern const PsycDictInt psyc_rvars[];
+extern const PsycMapInt psyc_rvars[];
 
 // Variable types in alphabetical order.
-extern const PsycDictInt psyc_var_types[];
+extern const PsycMapInt psyc_var_types[];
 
 /// Method names in alphabetical order.
-extern const PsycDictInt psyc_methods[];
+extern const PsycMapInt psyc_methods[];
 
 extern const size_t psyc_rvars_num;
 extern const size_t psyc_var_types_num;
@@ -38,13 +39,40 @@ typedef enum {
 } PsycRoutingVar;
 
 /**
+ * Variable types.
+ *
+ * This enum lists PSYC variable types that
+ * this library is capable of checking for
+ * validity. Other variable types are treated
+ * as opaque data.
+ */
+typedef enum {
+    PSYC_TYPE_UNKNOWN,
+    PSYC_TYPE_AMOUNT,
+    PSYC_TYPE_COLOR,
+    PSYC_TYPE_COUNTER,
+    PSYC_TYPE_DATE,
+    PSYC_TYPE_DEGREE,
+    PSYC_TYPE_DICT,
+    PSYC_TYPE_ENTITY,
+    PSYC_TYPE_FLAG,
+    PSYC_TYPE_LANGUAGE,
+    PSYC_TYPE_LIST,
+    PSYC_TYPE_NICK,
+    PSYC_TYPE_PAGE,
+    PSYC_TYPE_STRUCT,
+    PSYC_TYPE_TIME,
+    PSYC_TYPE_UNIFORM,
+} PsycType;
+
+/**
  * Look up routing variable.
  */
 static inline PsycRoutingVar
 psyc_var_routing (const char *name, size_t len)
 {
-    return (PsycRoutingVar) psyc_dict_lookup((PsycDict *)psyc_rvars,
-				       psyc_rvars_num, name, len, PSYC_NO);
+    return (PsycRoutingVar)
+	psyc_map_lookup((PsycMap*)psyc_rvars, psyc_rvars_num, name, len, PSYC_NO);
 }
 
 /**
@@ -53,8 +81,9 @@ psyc_var_routing (const char *name, size_t len)
 static inline PsycType
 psyc_var_type (const char *name, size_t len)
 {
-    return (PsycType) psyc_dict_lookup((PsycDict *)psyc_var_types,
-				       psyc_var_types_num, name, len, PSYC_YES);
+    return (PsycType)
+	psyc_map_lookup((PsycMap*)psyc_var_types, psyc_var_types_num,
+			name, len, PSYC_YES);
 }
 
 /**

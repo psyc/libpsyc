@@ -1,0 +1,7 @@
+:_source	psyc://foo/~bar
+:_target	psyc://bar/~baz
+
+=_list_foo	_test|3 foo|=_color:4 blue|=_nick bar
+=_list_bar	|3 foo|=_color:4 blue|=_nick bar
+_test
+|

@@ -1,73 +1,99 @@
 #include "lib.h"
-#include <psyc/syntax.h>
 #include <psyc/packet.h>
 
-inline PsycListFlag
-psyc_list_length_check (PsycList *list)
+inline PsycElemFlag
+psyc_elem_length_check (PsycString *value, const char end)
 {
-    PsycListFlag flag = PSYC_LIST_NO_LENGTH;
-    size_t i, length = 0;
+    if (value->length > PSYC_ELEM_SIZE_THRESHOLD
+	|| memchr(value->data, (int)end, value->length))
+	return PSYC_ELEM_NEED_LENGTH;
 
-    for (i = 0; i < list->num_elems; i++) {
-	PsycString *elem = &list->elems[i];
-	length += 1 + elem->length; // |elem
-	if (length > PSYC_MODIFIER_SIZE_THRESHOLD ||
-	    memchr(elem->data, (int) '|', elem->length) ||
-	    memchr(elem->data, (int) '\n', elem->length)) {
-	    flag = PSYC_LIST_NEED_LENGTH;
-	    break;
-	}
-    }
-
-    return flag;
+    return PSYC_ELEM_NO_LENGTH;;
 }
 
-inline PsycListFlag
-psyc_list_length (PsycList *list)
+inline size_t
+psyc_elem_length (PsycElem *elem)
 {
-    size_t i, length = 0;
+    return
+	(elem->type.length ? 1 + elem->type.length : 0)
+	+ (elem->value.length && elem->flag != PSYC_ELEM_NO_LENGTH
+	   ? (elem->type.length ? 1 : 0) + psyc_num_length(elem->value.length) : 0)
+	+ (elem->value.length ? 1 + elem->value.length : 0);
+}
 
-    if (list->flag == PSYC_LIST_NEED_LENGTH) {
-	for (i = 0; i < list->num_elems; i++) {
-	    if (i > 0)
-		length++;	// |
-	    length +=		// length SP elem
-		psyc_num_length(list->elems[i].length) + 1 + list->elems[i].length;
-	}
-    } else {
-	for (i = 0; i < list->num_elems; i++)
-	    length += 1 + list->elems[i].length; // |elem
+inline size_t
+psyc_dict_key_length (PsycDictKey *elem)
+{
+    return
+	(elem->flag != PSYC_ELEM_NO_LENGTH
+	 ? psyc_num_length(elem->value.length) : 0)
+	+ (elem->value.length ? 1 + elem->value.length : 0);
+}
+
+inline size_t
+psyc_list_length_set (PsycList *list)
+{
+    size_t i;
+    PsycElem *elem;
+
+    list->length = list->type.length;
+
+    for (i = 0; i < list->num_elems; i++) {
+	elem = &list->elems[i];
+	if (elem->flag == PSYC_ELEM_CHECK_LENGTH)
+	    elem->flag = psyc_elem_length_check(&elem->value, '|');
+	elem->length = psyc_elem_length(elem);
+	list->length += 1 + elem->length;
     }
 
-    return length;
+    return list->length;
+}
+
+inline size_t
+psyc_dict_length_set (PsycDict *dict)
+{
+    size_t i;
+    PsycDictKey *key;
+    PsycElem *value;
+
+    dict->length = dict->type.length;
+
+    for (i = 0; i < dict->num_elems; i++) {
+	key = &dict->elems[i].key;
+	value = &dict->elems[i].value;
+
+	if (key->flag == PSYC_ELEM_CHECK_LENGTH)
+	    key->flag = psyc_elem_length_check(&key->value, '}');
+	if (value->flag == PSYC_ELEM_CHECK_LENGTH)
+	    value->flag = psyc_elem_length_check(&value->value, '{');
+
+	key->length = psyc_dict_key_length(key);
+	value->length = psyc_elem_length(value);
+
+	dict->length += 1 + key->length + 1 + value->length;
+    }
+
+    return dict->length;
 }
 
 void
-psyc_list_init (PsycList *list, PsycString *elems, size_t num_elems,
-		PsycListFlag flag)
+psyc_list_init (PsycList *list, PsycElem *elems, size_t num_elems)
 {
     *list = (PsycList) {
 	.num_elems = num_elems,
 	.elems = elems,
-	.length = 0,
-	.flag = flag,
     };
-
-    if (flag == PSYC_LIST_CHECK_LENGTH) // check if list elements need length
-	list->flag = psyc_list_length_check(list);
-
-    list->length = psyc_list_length(list);
+    psyc_list_length_set(list);
 }
 
 void
-psyc_table_init (PsycTable *table, size_t width, PsycList *list)
+psyc_dict_init (PsycDict *dict, PsycDictElem *elems, size_t num_elems)
 {
-    *table = (PsycTable) {
-	.width = width,
-	.list = list,
+    *dict = (PsycDict) {
+	.num_elems = num_elems,
+	.elems = elems,
     };
-
-    table->length = (width > 0 ? psyc_num_length(width) + 2 : 0) + list->length;
+    psyc_dict_length_set(dict);
 }
 
 inline size_t
@@ -77,7 +103,10 @@ psyc_modifier_length (PsycModifier *m)
     if (m->name.length > 0)
 	length += m->name.length + 1 + m->value.length; // name\tvalue
 
-    if (m->flag == PSYC_MODIFIER_NEED_LENGTH) // add length of length if needed
+    // add length of length if needed
+    if (m->value.length
+	&& (m->flag & PSYC_MODIFIER_NEED_LENGTH
+	    || m->flag == PSYC_MODIFIER_CHECK_LENGTH))
 	length += psyc_num_length(m->value.length) + 1; // SP length
 
     return length;
@@ -96,7 +125,8 @@ psyc_packet_length_check (PsycPacket *p)
     // If any entity modifiers need length, it is possible they contain
     // a packet terminator, thus the content should have a length as well.
     for (i = 0; i < p->entity.lines; i++)
-	if (p->entity.modifiers[i].flag == PSYC_MODIFIER_NEED_LENGTH)
+	if (p->entity.modifiers[i].flag & PSYC_MODIFIER_NEED_LENGTH
+	    || p->entity.modifiers[i].flag == PSYC_MODIFIER_CHECK_LENGTH)
 	    return PSYC_PACKET_NEED_LENGTH;
 
     if (memmem(p->data.data, p->data.length, PSYC_C2ARG(PSYC_PACKET_DELIMITER)))
@@ -137,10 +167,11 @@ psyc_packet_length_set (PsycPacket *p)
     // set total length: routing-header content |\n
     p->length = p->routinglen + p->contentlen + 2;
 
-    if (p->contentlen > 0 || p->flag == PSYC_PACKET_NEED_LENGTH)
+    if (p->contentlen)
 	p->length++; // add \n at the start of the content part
 
-    if (p->flag == PSYC_PACKET_NEED_LENGTH) // add length of length if needed
+    // add length of length if needed
+    if (p->contentlen && !(p->flag & PSYC_PACKET_NO_LENGTH))
 	p->length += psyc_num_length(p->contentlen);
 
     return p->length;
@@ -198,9 +229,29 @@ psyc_packet_init_raw (PsycPacket *p,
     psyc_packet_length_set(p);
 }
 
-size_t
-psyc_packet_id_length (size_t contextlen, size_t sourcelen, size_t targetlen,
-		       size_t counterlen, size_t fragmentlen)
+void
+psyc_packet_id (PsycList *list, PsycElem *elems,
+		char *context, size_t contextlen,
+		char *source, size_t sourcelen,
+		char *target, size_t targetlen,
+		char *counter, size_t counterlen,
+		char *fragment, size_t fragmentlen)
 {
-    return contextlen + sourcelen + targetlen + counterlen + fragmentlen + 5;
+    if (contextlen)
+	elems[PSYC_PACKET_ID_CONTEXT] =
+	    PSYC_ELEM_VF(context, contextlen, PSYC_ELEM_NO_LENGTH);
+    if (sourcelen)
+	elems[PSYC_PACKET_ID_SOURCE] =
+	    PSYC_ELEM_VF(source, sourcelen, PSYC_ELEM_NO_LENGTH);
+    if (targetlen)
+	elems[PSYC_PACKET_ID_TARGET] =
+	    PSYC_ELEM_VF(target, targetlen, PSYC_ELEM_NO_LENGTH);
+    if (counterlen)
+	elems[PSYC_PACKET_ID_COUNTER] =
+	    PSYC_ELEM_VF(counter, counterlen, PSYC_ELEM_NO_LENGTH);
+    if (fragmentlen)
+	elems[PSYC_PACKET_ID_FRAGMENT] =
+	    PSYC_ELEM_VF(fragment, fragmentlen, PSYC_ELEM_NO_LENGTH);
+
+    psyc_list_init(list, elems, PSYC_PACKET_ID_ELEMS);
 }

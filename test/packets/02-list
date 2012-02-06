@@ -1,18 +1,17 @@
-=_source	psyc://foo/~bar
-:_target	psyc://bar/~baz
-=_list_foo	|foo|bar|baz
-:_tag	sch1828hu3r2cm
+=_context	psyc://foo/~bar
 
-=_foo	bar baz
-=_abc_def 11	ghi jkl
-
-xq
-=_list_bar 36	3 foo|3 bar|7 foo
-bar|11 foo
-bar
-baz
-:_foo_bar	yay
-_message_foo_bar
-ohai there!
-\o/
+=_list_xxx	|=_foo|=_bar|=_baz|4 abc
+=_list_foo	|=_foo|=_bar ||=_baz|
+=_list_foo	_test|3 foo|=_color:4 blue|=_nick bar
+=_list_bar 43	|3 foo|=_color:4 blue|=_nick bar|8 
+foo|bar
+=_list_bar 43	|3 foo|=_color:4 blue|=_nick bar|9 
+foo|bar
+=_list_a	_type| elem1| elem2| elem3
+=_list_b	|=_type1 elem1|=_type2 elem2|=_type3 elem3
+=_list_members	_uniform| psyc://example.net/~alice| psyc://example.org/~bob
+=_list_topic	|9 democracy|3 now
+=_list_c	| foo| bar|6 foobar|3 baz|=_int 234|=_time 1234
+=_list_foo	|=_int 234|=_time 1234|=_picture:3 \o/|7 \oXoXo/
+_test_list
 |
