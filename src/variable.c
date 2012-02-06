@@ -55,8 +55,8 @@ const PsycMapInt psyc_methods[] = {
     { PSYC_C2STRI("_echo_context_leave"),	PSYC_MC_ECHO_CONTEXT_LEAVE },
     { PSYC_C2STRI("_echo_hello"),		PSYC_MC_ECHO_HELLO },
     { PSYC_C2STRI("_echo"),			PSYC_MC_ECHO },
-    { PSYC_C2STRI("_failure_alias_nonexistant"),PSYC_MC_FAILURE_ALIAS_NONEXISTANT },
-    { PSYC_C2STRI("_failure_alias_unavailable"),PSYC_MC_FAILURE_ALIAS_UNAVAILABLE },
+    { PSYC_C2STRI("_failure_alias_nonexistant"),PSYC_MC_FAILURE_UNKNOWN_ALIAS },
+    { PSYC_C2STRI("_failure_alias_unavailable"),PSYC_MC_FAILURE_UNAVAILABLE_ALIAS },
     { PSYC_C2STRI("_failure"),			PSYC_MC_FAILURE },
     { PSYC_C2STRI("_info"),			PSYC_MC_INFO },
     { PSYC_C2STRI("_message_action"),		PSYC_MC_MESSAGE_ACTION },
@@ -109,8 +109,8 @@ psyc_method (char *method, size_t methodlen, PsycMethod *family, unsigned int *f
 	    | PSYC_METHOD_LOGGABLE;
 	break;
     case PSYC_MC_FAILURE:
-    case PSYC_MC_FAILURE_ALIAS_NONEXISTANT:
-    case PSYC_MC_FAILURE_ALIAS_UNAVAILABLE:
+    case PSYC_MC_FAILURE_UNKNOWN_ALIAS:
+    case PSYC_MC_FAILURE_UNAVAILABLE_ALIAS:
 	*family = PSYC_MC_FAILURE;
 	*flag = PSYC_METHOD_TEMPLATE | PSYC_METHOD_REPLY | PSYC_METHOD_VISIBLE
 	    | PSYC_METHOD_LOGGABLE;
