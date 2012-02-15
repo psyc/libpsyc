@@ -27,7 +27,7 @@ lib: $A ${SO}
 
 ${SO}: $O
 	@mkdir -p ../lib
-	${CC} ${CFLAGS} -shared -lm -o $@ $O
+	${CC} ${CFLAGS} -shared -o $@ $O -lm
 
 $A: $O
 	@mkdir -p ../lib
