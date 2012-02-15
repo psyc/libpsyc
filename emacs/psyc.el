@@ -41,7 +41,7 @@
  psyc-elem-name (concat psyc-elem-start "=" psyc-kw)
  psyc-elem-type (concat psyc-elem-start "=" psyc-types "\\b")
  psyc-elem-name-delim (concat psyc-elem-name "\\(:\\)") ;2
- psyc-elem-len (concat "\\(?:" psyc-elem-name-delim "\\)?" psyc-num) ;3
+ psyc-elem-len (concat psyc-elem-start "\\(?:=" psyc-kw ":\\)?" psyc-num) ;2
 
  psyc-update-op (concat "^@" psyc-kw psyc-mod-delim ".+ " psyc-op) ;3
  psyc-update-name (concat "^@" psyc-kw psyc-mod-delim ".+ "
@@ -91,7 +91,7 @@
    (,psyc-elem-name	. (1 font-lock-variable-name-face))
    (,psyc-elem-type	. (1 font-lock-type-face t))
    (,psyc-elem-name-delim . (2 font-lock-comment-face))
-   (,psyc-elem-len	. (3 font-lock-constant-face))
+   (,psyc-elem-len	. (2 font-lock-constant-face))
    (,psyc-elem-delim	. (0 font-lock-keyword-face))
 
    (,psyc-update-op	. (3 font-lock-preprocessor-face))

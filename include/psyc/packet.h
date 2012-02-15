@@ -198,6 +198,14 @@ typedef struct {
     char oper;
 } PsycModifier;
 
+#define PSYC_MODIFIER(op, nam, val, flg)	\
+    (PsycModifier) {				\
+	.oper = op,				\
+	.name = nam,				\
+	.value = val,				\
+	.flag = flg,				\
+    }
+
 /** Entity or routing header */
 typedef struct {
     size_t lines;

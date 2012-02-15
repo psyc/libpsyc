@@ -115,7 +115,7 @@ psyc_render_dict (PsycDict *dict, char *buffer, size_t buflen)
     return PSYC_RENDER_SUCCESS;
 }
 
-static inline size_t
+inline size_t
 psyc_render_modifier (PsycModifier *mod, char *buffer)
 {
     size_t cur = 0;
