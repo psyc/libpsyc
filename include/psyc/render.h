@@ -51,6 +51,9 @@ static inline
 PsycRenderRC
 psyc_render (PsycPacket *packet, char *buffer, size_t buflen);
 
+size_t
+psyc_render_modifier (PsycModifier *mod, char *buffer);
+
 PsycRenderRC
 psyc_render_elem (PsycElem *elem, char *buffer, size_t buflen);
 
