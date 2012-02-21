@@ -17,6 +17,14 @@
 #ifndef PSYC_H
 #define PSYC_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#if 0                           /* keep Emacsens' auto-indent happy */
+}
+#endif
+#endif
+
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
@@ -71,5 +79,12 @@ typedef struct {
 #include "psyc/render.h"
 #include "psyc/text.h"
 #include "psyc/uniform.h"
+
+#if 0                           /* keep Emacsens' auto-indent happy */
+{
+#endif
+#ifdef __cplusplus
+}
+#endif
 
 #endif

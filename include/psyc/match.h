@@ -45,8 +45,8 @@ psyc_map_lookup (const PsycMap *map, size_t size,
  * @see psyc_map_lookup
  */
 static inline intptr_t
-psyc_map_lookup_int (const PsycMapInt * map, size_t size,
-		      const char *key, size_t keylen, PsycBool inherit)
+psyc_map_lookup_int (const PsycMapInt *map, size_t size,
+		     const char *key, size_t keylen, PsycBool inherit)
 {
     return (intptr_t) psyc_map_lookup((PsycMap *) map, size, key, keylen, inherit);
 }

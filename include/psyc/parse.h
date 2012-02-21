@@ -611,7 +611,7 @@ psyc_parse_content_length (PsycParseState *state)
 static inline PsycBool
 psyc_parse_content_length_found (PsycParseState *state)
 {
-    return state->contentlen_found;
+    return (PsycBool) state->contentlen_found;
 }
 
 static inline size_t
@@ -623,7 +623,7 @@ psyc_parse_value_length (PsycParseState *state)
 static inline PsycBool
 psyc_parse_value_length_found (PsycParseState *state)
 {
-    return state->valuelen_found;
+    return (PsycBool) state->valuelen_found;
 }
 
 static inline size_t
