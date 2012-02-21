@@ -72,7 +72,8 @@ static inline PsycRoutingVar
 psyc_var_routing (const char *name, size_t len)
 {
     return (PsycRoutingVar)
-	psyc_map_lookup((PsycMap*)psyc_rvars, psyc_rvars_num, name, len, PSYC_NO);
+	psyc_map_lookup_int((PsycMapInt*)psyc_rvars, psyc_rvars_num, name, len,
+			    PSYC_NO);
 }
 
 /**
@@ -82,8 +83,8 @@ static inline PsycType
 psyc_var_type (const char *name, size_t len)
 {
     return (PsycType)
-	psyc_map_lookup((PsycMap*)psyc_var_types, psyc_var_types_num,
-			name, len, PSYC_YES);
+	psyc_map_lookup_int((PsycMapInt*)psyc_var_types, psyc_var_types_num,
+			    name, len, PSYC_YES);
 }
 
 /**

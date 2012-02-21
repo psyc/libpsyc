@@ -256,17 +256,15 @@ psyc_modifier_init (PsycModifier *m, PsycOperator oper,
 		    char *name, size_t namelen,
 		    char *value, size_t valuelen, PsycModifierFlag flag)
 {
-    *m = (PsycModifier) {
-	.oper = oper,
-	.name = {namelen, name},
-	.value = {valuelen, value},
-	.flag = flag
-    };
+    m->oper = oper;
+    m->name = (PsycString){namelen, name};
+    m->value = (PsycString){valuelen, value};
+    m->flag = flag;
 
     if (flag == PSYC_MODIFIER_CHECK_LENGTH) // find out if it needs a length
 	m->flag = psyc_modifier_length_check(m);
     else if (flag & PSYC_MODIFIER_ROUTING)
-	m->flag |= PSYC_MODIFIER_NO_LENGTH;
+	m->flag = (PsycModifierFlag)(m->flag | PSYC_MODIFIER_NO_LENGTH);
 }
 
 /**
