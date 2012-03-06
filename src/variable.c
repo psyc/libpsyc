@@ -68,6 +68,8 @@ const PsycMapInt psyc_methods[] = {
     { PSYC_C2STRI("_notice_context_leave"),	PSYC_MC_NOTICE_CONTEXT_LEAVE },
     { PSYC_C2STRI("_notice_friendship"),	PSYC_MC_NOTICE_FRIENDSHIP },
     { PSYC_C2STRI("_notice_link"),		PSYC_MC_NOTICE_LINK },
+    { PSYC_C2STRI("_notice_peer_connect"),	PSYC_MC_NOTICE_PEER_CONNECT },
+    { PSYC_C2STRI("_notice_peer_disconnect"),	PSYC_MC_NOTICE_PEER_DISCONNECT },
     { PSYC_C2STRI("_notice_set"),		PSYC_MC_NOTICE_SET },
     { PSYC_C2STRI("_notice_unlink"),		PSYC_MC_NOTICE_UNLINK },
     { PSYC_C2STRI("_notice"),			PSYC_MC_NOTICE },
