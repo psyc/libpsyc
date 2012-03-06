@@ -32,6 +32,8 @@ typedef enum {
     PSYC_MC_NOTICE_CONTEXT_LEAVE,
     PSYC_MC_NOTICE_FRIENDSHIP,
     PSYC_MC_NOTICE_LINK,
+    PSYC_MC_NOTICE_PEER_CONNECT,
+    PSYC_MC_NOTICE_PEER_DISCONNECT,
     PSYC_MC_NOTICE_SET,
     PSYC_MC_NOTICE_UNLINK,
     PSYC_MC_REQUEST,
@@ -70,6 +72,8 @@ typedef union PsycTemplates {
 	PsycString _notice_context_leave;
 	PsycString _notice_friendship;
 	PsycString _notice_link;
+	PsycString _notice_peer_connect;
+	PsycString _notice_peer_disconnect;
 	PsycString _notice_set;
 	PsycString _notice_unlink;
 	PsycString _request;
