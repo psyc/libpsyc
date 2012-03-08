@@ -13,16 +13,16 @@
      _("[_nick] is not an alias"),
 
 ._request_context_enter =
-     _("[_nick] asks for your permission to enter [_nick_place]"),
+     _("[_source] asks for your permission to enter [_context]"),
 ._echo_context_enter =
-     _("You enter [_nick_place]" ),
+     _("You enter [_source]" ),
 ._echo_context_leave =
-     _("You leave [_nick_place]"),
+     _("You leave [_source]"),
 
 ._notice_context_enter =
-     _("[_nick] enters [_nick_place]"),
+     _("[_source] enters [_context]"),
 ._notice_context_leave =
-     _("[_nick] leaves [_nick_place]"),
+     _("[_source] leaves [_context]"),
 
 ._echo_hello =
      _("Received hello of psyc://[_key_public]:g/"),
