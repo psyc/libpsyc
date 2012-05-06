@@ -97,11 +97,14 @@ for future projects:
 #+INCLUDE: packets/chat_msg.json src js
 #+INCLUDE: packets/chat_msg.psyc src psyc
 
-Why PSYC doesn't have an id? Because packet counting from contexts
-and circuits is automatic: The packet already has a number just by
-being there.
+# Why PSYC doesn't have an id? Because for most operations they aren't
+# needed: PSYC has automatic packet counting from contexts and circuits.
+# Therefore, the packet already has an id just by being there.
+# Should you want to tag a packet anyway, you can do so by adding a _tag.
+#
+# Update: XMPP doesn't *need* to have an id there, so we can just remove it.
 
-Also, PSYC by default doesn't mention a "resource" in XMPP terms,
+Little difference: PSYC by default doesn't mention a "resource" in XMPP terms,
 instead it allows for more addressing schemes than just PSYC.
 
 ** A new status updated activity
