@@ -1,0 +1,23 @@
+#+TITLE: libpsyc INSTALL file
+#+OPTIONS: toc:nil num:nil
+
+* Requirements
+
+libpsyc is currently known to compile under Linux and SunOS.
+It depends on no one.
+
+* Compiling libpsyc
+
+Type
+: make
+
+and you are done.
+
+Other possible targets include:
+
+: make install [prefix=/usr]  # install into prefix
+: make diet                   # compile with diet libc
+: make test                   # compile and run the tests
+: make doc                    # generate the API documentation (will be put in the doc folder)
+: make help                   # display the possible targets
+
