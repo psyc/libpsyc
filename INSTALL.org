@@ -11,13 +11,18 @@ It depends on no one.
 Type
 : make
 
-and you are done.
+* Installation
 
-Other possible targets include:
+So that other projects like psycd and psyced immediately
+find the library on compilation...
 
-: make install [prefix=/usr]  # install into prefix
-: make diet                   # compile with diet libc
-: make test                   # compile and run the tests
-: make doc                    # generate the API documentation (will be put in the doc folder)
-: make help                   # display the possible targets
+: [sudo] make install [prefix=/usr]	# install into prefix
+
+* Other possible targets include:
+
+: make help				# display the possible targets
+: make test				# compile and run the tests
+: make diet				# compile with diet libc
+: make doc				# generate the API documentation
+					# (will be put in the doc folder)
 
