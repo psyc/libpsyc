@@ -44,27 +44,29 @@ For more information see the API documentation at [[http://lib.psyc.eu/doc/]].
 : test/     # test sourcecodes and test input files
 : d/        # the D binding
 
-* Authors
-
-The library is being developed by
-
-- tg     -- psyc://psyced.org/~tg
-- lynx   -- psyc://psyced.org/~lynx
-- Marenz -- psyc://supraverse.net/~marenz
-
 * Contact
 
 If you created new bindings, patches or anything other that you think should go
 into the library, contact either anyone of us directly or just join the
-developement room at
+development room at
 
 - psyc://psyced.org/@welcome
 - irc://psyced.org/welcome
 - xmpp:*welcome@psyced.org
 
+* Authors
+
+This library is being developed by:
+- Carlo v. Loesch / lynX <psyc://psyced.org/~lynX>
+- Gabor X Toth / tg(x) <tg-x.net> <psyc://psyced.org/~tg>
+- Mathias L. Baumann / Marenz <psyc://supraverse.net/~marenz>
+
 * License
 
-This library is distributed under the AGPL license with a linking exception, see the LICENSE file for details.
+Unless indicated otherwise, all libpsyc source files use the AGPL with
+additional permissions to link libpsyc libraries with non-AGPL works; the full
+text of the license is located in the [[./COPYING][COPYING]] file with the linking exception at
+the end.
 
 * Style Wars
 
