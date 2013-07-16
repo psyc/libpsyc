@@ -1,6 +1,9 @@
 OPT = -O2
 DEBUG = 2
-CFLAGS = -I../include -I../src -Wall -std=c99 ${OPT}
+
+# compilation fails if -std=c99 is provided!?
+# (netdb.h refuses to export struct addrinfo)
+CFLAGS = -I../include -I../src -Wall ${OPT}
 LDFLAGS = -L../lib
 LOADLIBES = -lpsyc -lm
 TARGETS = test_psyc test_psyc_speed test_parser test_match test_render test_text var_routing var_type uniform_parse test_packet_id test_index test_update method
