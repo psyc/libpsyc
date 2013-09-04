@@ -46,8 +46,11 @@ For more information see the API documentation at [[http://lib.psyc.eu/doc/]].
 
 * Compiling libpsyc
 
-Type
+On GNU systems, type
 : make
+ 
+On other systems install GNU make, then type
+: gmake
 
 and you are done.
 Other possible targets include:
