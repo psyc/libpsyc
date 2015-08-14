@@ -10,11 +10,11 @@ INIT = (setq load-path (cons \"/usr/share/emacs/site-lisp/org-mode\" load-path) 
 #'
 ORG = benchmark.org
 
-html:
+it:
 	for f in ${ORG}; do \
 		emacs -Q --batch --eval \
 			"(progn ${INIT} (find-file \"$$f\") \
-			  (org-export-as-html-batch) (kill-buffer))"; \
+			  (org-html-export-to-html) (kill-buffer))"; \
 	done
 
 pdf:

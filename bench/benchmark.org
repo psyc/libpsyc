@@ -1,4 +1,5 @@
 #+TITLE: libpsyc Performance Benchmarks
+#+HTML: <style type="text/css"> body { padding: 44px; } </style>
 
 In this document we present the results of performance benchmarks
 of libpsyc compared to json-c, libjson-glib, rapidxml and libxml2.
