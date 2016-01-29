@@ -34,6 +34,8 @@ testdebug: debug
 test: all
 	${MAKE} -C test test nettest
 
+check: test
+
 bench: all
 	${MAKE} -C test bench
 
