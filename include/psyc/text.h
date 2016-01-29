@@ -125,7 +125,7 @@ psyc_text_state_init_custom (PsycTextState *state,
 			     char *tmpl, size_t tmplen,
 			     char *buffer, size_t buflen,
 			     char *ope, size_t opelen,
-			     char *clo, size_t cloelen)
+			     char *clo, size_t clolen)
 {
     state->cursor = 0;
     state->written = 0;
