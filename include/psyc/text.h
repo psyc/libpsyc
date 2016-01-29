@@ -101,14 +101,10 @@ psyc_text_state_init (PsycTextState *state,
 {
     state->cursor = 0;
     state->written = 0;
-    state->tmpl = (PsycString) {
-    tmplen, tmpl};
-    state->buffer = (PsycString) {
-    buflen, buffer};
-    state->open = (PsycString) {
-    1, "["};
-    state->close = (PsycString) {
-    1, "]"};
+    state->tmpl = (PsycString) { tmplen, tmpl };
+    state->buffer = (PsycString) { buflen, buffer };
+    state->open = (PsycString) { 1, "[" };
+    state->close = (PsycString) { 1, "]" };
 }
 
 /**
@@ -119,28 +115,24 @@ psyc_text_state_init (PsycTextState *state,
  * @param tmplen Length of input buffer.
  * @param buffer Output buffer where the rendered text is going to be written.
  * @param buflen Length of output buffer.
- * @param open Opening brace.
- * @param openlen Length of opening brace.
- * @param close Closing brace.
- * @param closelen Length of closing brace.
+ * @param ope Opening brace.
+ * @param opelen Length of opening brace.
+ * @param clo Closing brace.
+ * @param clolen Length of closing brace.
  */
 static inline void
 psyc_text_state_init_custom (PsycTextState *state,
 			     char *tmpl, size_t tmplen,
 			     char *buffer, size_t buflen,
-			     char *open, size_t openlen,
-			     char *close, size_t closelen)
+			     char *ope, size_t opelen,
+			     char *clo, size_t cloelen)
 {
     state->cursor = 0;
     state->written = 0;
-    state->tmpl = (PsycString) {
-    tmplen, tmpl};
-    state->buffer = (PsycString) {
-    buflen, buffer};
-    state->open = (PsycString) {
-    openlen, open};
-    state->close = (PsycString) {
-    closelen, close};
+    state->tmpl = (PsycString) { tmplen, tmpl };
+    state->buffer = (PsycString) { buflen, buffer };
+    state->open = (PsycString) { opelen, ope };
+    state->close = (PsycString) { clolen, clo };
 }
 
 /**
