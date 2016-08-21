@@ -112,7 +112,7 @@ psyc_uniform_parse (PsycUniform *uni, const char *buffer, size_t length);
  *
  * @return PsycEntityType on success, PSYC_ERROR on error.
  */
-static inline int
+inline int
 psyc_entity_type (char entity)
 {
     switch (entity) {

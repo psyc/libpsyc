@@ -64,7 +64,7 @@ psyc_map_lookup (const PsycMap *map, size_t size,
  * Look up value associated with a key in a map with integer values.
  * @see psyc_map_lookup
  */
-static inline intptr_t
+inline intptr_t
 psyc_map_lookup_int (const PsycMapInt *map, size_t size,
 		     const char *key, size_t keylen, PsycBool inherit)
 {

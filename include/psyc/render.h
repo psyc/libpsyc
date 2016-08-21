@@ -66,7 +66,7 @@ typedef enum {
  * @see psyc_packet_length_set()
  */
 #ifdef __INLINE_PSYC_RENDER
-static inline
+inline
 #endif
 PsycRenderRC
 psyc_render (PsycPacket *packet, char *buffer, size_t buflen);
@@ -84,7 +84,7 @@ psyc_render_dict_key (PsycDictKey *elem, char *buffer, size_t buflen);
  * Render a PSYC list into a buffer.
  */
 #ifdef __INLINE_PSYC_RENDER
-static inline
+inline
 #endif
 PsycRenderRC
 psyc_render_list (PsycList *list, char *buffer, size_t buflen);

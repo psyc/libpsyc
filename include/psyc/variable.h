@@ -88,7 +88,7 @@ typedef enum {
 /**
  * Look up routing variable.
  */
-static inline PsycRoutingVar
+inline PsycRoutingVar
 psyc_var_routing (const char *name, size_t len)
 {
     return (PsycRoutingVar)
@@ -99,7 +99,7 @@ psyc_var_routing (const char *name, size_t len)
 /**
  * Get the type of variable name.
  */
-static inline PsycType
+inline PsycType
 psyc_var_type (const char *name, size_t len)
 {
     return (PsycType)
@@ -110,7 +110,7 @@ psyc_var_type (const char *name, size_t len)
 /**
  * Is this a list variable name?
  */
-static inline PsycBool
+inline PsycBool
 psyc_var_is_list (const char *name, size_t len)
 {
     return len < 5 || memcmp(name, "_list", 5) != 0 || (len > 5 && name[5] != '_')

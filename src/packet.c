@@ -21,6 +21,17 @@
 #include "lib.h"
 #include <psyc/packet.h>
 
+extern inline size_t
+psyc_num_length (size_t n);
+
+extern inline PsycModifierFlag
+psyc_modifier_length_check (PsycModifier *m);
+
+extern inline void
+psyc_modifier_init (PsycModifier *m, PsycOperator oper,
+		    char *name, size_t namelen,
+		    char *value, size_t valuelen, PsycModifierFlag flag);
+
 inline PsycElemFlag
 psyc_elem_length_check (PsycString *value, const char end)
 {
