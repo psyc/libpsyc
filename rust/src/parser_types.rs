@@ -79,6 +79,7 @@ pub enum PsycParseFlag {
     PSYC_PARSE_START_AT_CONTENT = 2,
 }
 
+#[derive(Debug)]
 #[repr(C)]
 pub enum PsycParseRC {
     /// Error, no length is set for a modifier which is longer than PSYC_MODIFIER_SIZE_THRESHOLD.

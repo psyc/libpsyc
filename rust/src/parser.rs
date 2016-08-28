@@ -7,14 +7,14 @@ use std::os::raw::c_char;
 extern "C" {
     fn psyc_parse_state_init(state: *mut PsycParseState, flags: u8);
     fn psyc_parse_buffer_set(state: *mut PsycParseState, buffer: *const c_char, length: usize);
-    fn psyc_parse_list_state_init(state: *mut PsycParseState);
-    fn psyc_parse_list_buffer_set(state: *mut PsycParseState, buffer: *const c_char, length: usize);
-    fn psyc_parse_dict_state_init(state: *mut PsycParseState);
-    fn psyc_parse_dict_buffer_set(state: *mut PsycParseState, buffer: *const c_char, length: usize);
-    fn psyc_parse_index_state_init(state: *mut PsycParseState);
-    fn psyc_parse_index_buffer_set(state: *mut PsycParseState, buffer: *const c_char, length: usize);
-    fn psyc_parse_update_state_init(state: *mut PsycParseState);
-    fn psyc_parse_update_buffer_set(state: *mut PsycParseState, buffer: *const c_char, length: usize);
+    fn psyc_parse_list_state_init(state: *mut PsycParseListState);
+    fn psyc_parse_list_buffer_set(state: *mut PsycParseListState, buffer: *const c_char, length: usize);
+    fn psyc_parse_dict_state_init(state: *mut PsycParseDictState);
+    fn psyc_parse_dict_buffer_set(state: *mut PsycParseDictState, buffer: *const c_char, length: usize);
+    fn psyc_parse_index_state_init(state: *mut PsycParseIndexState);
+    fn psyc_parse_index_buffer_set(state: *mut PsycParseIndexState, buffer: *const c_char, length: usize);
+    fn psyc_parse_update_state_init(state: *mut PsycParseUpdateState);
+    fn psyc_parse_update_buffer_set(state: *mut PsycParseUpdateState, buffer: *const c_char, length: usize);
     fn psyc_parse_content_length(state: *mut PsycParseState) -> usize;
     fn psyc_parse_content_length_found(state: *mut PsycParseState) -> bool;
     fn psyc_parse_value_length(state: *mut PsycParseState) -> usize;
@@ -60,60 +60,65 @@ extern "C" {
     fn psyc_parse_keyword(data: *const c_char, len: usize) -> usize;
 }
 
-pub struct PsycParser {
-    state: PsycParseState
+pub struct PsycParser<'a> {
+    state: PsycParseState,
+    operator: char,
+    name: Option<&'a [u8]>,
+    buffer: Option<&'a [u8]>,
+    cursor: usize
 }
 
-pub struct PsycListParser {
-    state: PsycParseListState
-}
-
-pub struct PsycDictParser {
-    state: PsycParseDictState
-}
-
-pub struct PsycIndexParser {
-    state: PsycParseIndexState
-}
-
-pub struct PsycUpdateParser {
-    state: PsycParseUpdateState
-}
+//pub struct PsycListParser<'a> {
+//    state: PsycParseListState,
+//    parsed_list: Vec<Vec<u8>>,
+//    buffer: &'a [u8]
+//}
+//
+//pub struct PsycDictParser<'a> {
+//    state: PsycParseDictState,
+//    parsed_dict: Vec<(Vec<u8>, Vec<u8>)>,
+//    buffer: &'a [u8]
+//}
+//
+//// TODO: What data structures does the index parser need?
+//pub struct PsycIndexParser {
+//    state: PsycParseIndexState
+//}
+//
+//// TODO: what data structures does the update parser need?
+//pub struct PsycUpdateParser {
+//    state: PsycParseUpdateState
+//}
 
 #[derive(Debug, PartialEq)]
-pub enum PsycParserResult {
+pub enum PsycParserResult<'a> {
     StateSync,
     StateReset,
-    ParsingComplete,
+    Complete,
+    InsufficientData,
     RoutingModifier {
         operator: char,
-        name: String,
-        value: Vec<u8>
+        name: &'a [u8],
+        value: &'a [u8]
     },
     EntityModifier {
         operator: char,
-        name: String,
-        value: Vec<u8>
-    },
-    IncompleteEntityModifier {
-        operator: char,
-        name: String,
-        value: Vec<u8>,
-        cursor: usize
+        name: &'a [u8],
+        value: &'a [u8]
     },
     Body {
-        name: String,
-        value: Vec<u8>
-    },
-    IncompleteBody {
-        name: String,
-        value: Vec<u8>,
-        cursor: usize
-    },
-    InsufficientData {
-        cursor: usize
+        name: &'a [u8],
+        value: &'a [u8]
     },
 }
+
+//#[derive(Debug, PartialEq)]
+//pub enum PsycDictParserResult {
+//    InsufficientData,
+//    Dict {
+//        data: Vec<(&'a [u8], &'a[u8])>
+//    }
+//}
 
 #[repr(C)]
 #[derive(Debug, PartialEq)]
@@ -130,7 +135,7 @@ pub enum PsycParserError {
     GenericError = PsycParseRC::PSYC_PARSE_ERROR as _,
 }
 
-impl PsycParser {
+impl<'a> PsycParser<'a> {
     /// Create a PsycParser
     pub fn new() -> Self {
         let mut state: PsycParseState;
@@ -139,96 +144,41 @@ impl PsycParser {
             let state_ptr = &mut state as *mut PsycParseState;
             psyc_parse_state_init(state_ptr, PsycParseFlag::PSYC_PARSE_ALL as u8)
         }
-        PsycParser{state: state}
+        PsycParser{
+            state: state,
+            operator: '\0',
+            name: None,
+            buffer: None,
+            cursor: 0
+        }
     }
 
     /// Set a buffer of raw bytes for parsing
-    pub fn set_buffer(&mut self, buffer: &[u8]) {
+    pub fn set_buffer(&mut self, buffer: &'a [u8]) {
+        self.buffer = Some(buffer);
         let state_ptr = &mut self.state as *mut PsycParseState;
-        let buffer_ptr = &buffer[0] as *const u8 as *const c_char;
+        let buffer_ptr = &buffer[self.cursor] as *const u8 as *const c_char;
         unsafe {
-            psyc_parse_buffer_set(state_ptr, buffer_ptr, buffer.len())
+            psyc_parse_buffer_set(state_ptr, buffer_ptr, buffer.len() - self.cursor)
         }
     }
 
     /// Parse the buffer previously set by set_buffer. Call repeatedly until the
-    /// result is PsycParserResult::ParsingComplete or a PsycParserError.
-    pub fn parse(&mut self) -> Result<PsycParserResult, PsycParserError> {
+    /// result is PsycParserResult::Complete or a PsycParserError.
+    pub fn parse(&mut self)
+                 -> Result<PsycParserResult, PsycParserError> {
         let state_ptr = &mut self.state as *mut PsycParseState;
-        let mut operator: char;
         let mut name: PsycString;
         let mut value: PsycString;
         unsafe {
-            operator = mem::uninitialized();
             name = mem::uninitialized();
             value = mem::uninitialized();
-            let operator_ptr = &mut operator as *mut char as *mut c_char;
+            let operator_ptr = &mut self.operator as *mut char as *mut c_char;
             let name_ptr = &mut name as *mut PsycString;
             let value_ptr = &mut value as *mut PsycString;
             let parse_result = psyc_parse(state_ptr, operator_ptr, name_ptr, value_ptr);
+            self.cursor = self.cursor + psyc_parse_cursor(state_ptr);
             match parse_result {
-                PsycParseRC::PSYC_PARSE_INSUFFICIENT => {
-                    let result =
-                    PsycParserResult::InsufficientData {
-                        cursor: psyc_parse_cursor(state_ptr)
-                    };
-                    Ok(result)
-                },
-
-                PsycParseRC::PSYC_PARSE_ROUTING => {
-                    let result =
-                    PsycParserResult::RoutingModifier {
-                        operator: operator,
-                        name: Self::cstring_to_string(name.data, name.length),
-                        value: Self::cstring_to_bytes(value.data, value.length)
-                    };
-                    Ok(result)
-                },
-
-                PsycParseRC::PSYC_PARSE_ENTITY |
-                PsycParseRC::PSYC_PARSE_ENTITY_END => {
-                    let result =
-                    PsycParserResult::EntityModifier {
-                        operator: operator,
-                        name: Self::cstring_to_string(name.data, name.length), 
-                        value: Self::cstring_to_bytes(value.data, value.length)
-                    };
-                    Ok(result)
-                },
-
-                PsycParseRC::PSYC_PARSE_ENTITY_START |
-                PsycParseRC::PSYC_PARSE_ENTITY_CONT => {
-                    let result =
-                    PsycParserResult::IncompleteEntityModifier {
-                        operator: operator,
-                        name: Self::cstring_to_string(name.data, name.length),
-                        value: Self::cstring_to_bytes(value.data, value.length),
-                        cursor: psyc_parse_cursor(state_ptr)
-                    };
-                    Ok(result)
-                },
-
-                PsycParseRC::PSYC_PARSE_BODY |
-                PsycParseRC::PSYC_PARSE_BODY_END => {
-                    let result = 
-                    PsycParserResult::Body {
-                        name: Self::cstring_to_string(name.data, name.length), 
-                        value: Self::cstring_to_bytes(value.data, value.length)
-                    };
-                    Ok(result)
-                },
-
-                PsycParseRC::PSYC_PARSE_BODY_START |
-                PsycParseRC::PSYC_PARSE_BODY_CONT => {
-                    let result =
-                    PsycParserResult::IncompleteBody {
-                        name: Self::cstring_to_string(name.data, name.length),
-                        value: Self::cstring_to_bytes(value.data, value.length),
-                        cursor: psyc_parse_cursor(state_ptr)
-                    };
-                    Ok(result)
-                },
-
                 PsycParseRC::PSYC_PARSE_STATE_RESYNC =>
                     Ok(PsycParserResult::StateSync),
 
@@ -236,19 +186,69 @@ impl PsycParser {
                     Ok(PsycParserResult::StateReset),
 
                 PsycParseRC::PSYC_PARSE_COMPLETE =>
-                    Ok(PsycParserResult::ParsingComplete),
+                    Ok(PsycParserResult::Complete),
+
+                PsycParseRC::PSYC_PARSE_ROUTING => {
+                    let result = PsycParserResult::RoutingModifier {
+                        operator: self.operator,
+                        name: Self::cstring_to_slice(name.data, name.length),
+                        value: Self::cstring_to_slice(value.data, value.length)
+                    };
+                    Ok(result)
+                },
+
+                PsycParseRC::PSYC_PARSE_ENTITY => {
+                    let result = PsycParserResult::EntityModifier {
+                        operator: self.operator,
+                        name: Self::cstring_to_slice(name.data, name.length),
+                        value: Self::cstring_to_slice(value.data, value.length)
+                    };
+                    Ok(result)
+                },
+
+                PsycParseRC::PSYC_PARSE_BODY => {
+                    let result = PsycParserResult::Body {
+                        name: Self::cstring_to_slice(name.data, name.length),
+                        value: Self::cstring_to_slice(value.data, value.length)
+                    };
+                    Ok(result)
+                },
+
+                PsycParseRC::PSYC_PARSE_ENTITY_START |
+                PsycParseRC::PSYC_PARSE_BODY_START => {
+                    self.name = Some(Self::cstring_to_slice(name.data, name.length));
+                    Ok(PsycParserResult::InsufficientData)
+                },
+
+                PsycParseRC::PSYC_PARSE_ENTITY_END => {
+                    let result = PsycParserResult::EntityModifier {
+                        operator: self.operator,
+                        name: self.name.unwrap(),
+                        value: Self::cstring_to_slice(value.data, value.length)
+                    };
+                    Ok(result)
+                },
+
+                PsycParseRC::PSYC_PARSE_BODY_END => {
+                    let result = PsycParserResult::Body {
+                        name: self.name.unwrap(),
+                        value: Self::cstring_to_slice(value.data, value.length)
+                    };
+                    Ok(result)
+                },
+
+                PsycParseRC::PSYC_PARSE_INSUFFICIENT |
+                PsycParseRC::PSYC_PARSE_ENTITY_CONT |
+                PsycParseRC::PSYC_PARSE_BODY_CONT => {
+                    Ok(PsycParserResult::InsufficientData)
+                },
 
                 _error => Err(mem::transmute(_error)),
             }
         }
     }
 
-    unsafe fn cstring_to_string(cstring: *const c_char, length: usize) -> String {
-        let vec = Self::cstring_to_bytes(cstring, length);
-        String::from_utf8(vec).unwrap()
-    }
-
-    unsafe fn cstring_to_bytes(cstring: *const c_char, length: usize) -> Vec<u8> {
-        slice::from_raw_parts(cstring as *const u8, length).to_vec()
+    unsafe fn cstring_to_slice(cstring: *const c_char, length: usize) -> &'a [u8] {
+        slice::from_raw_parts(cstring as *const u8, length)
     }
 }
