@@ -166,7 +166,7 @@ impl<'a> PsycParser<'a> {
     /// Parse the buffer previously set by set_buffer. Call repeatedly until the
     /// result is PsycParserResult::Complete or a PsycParserError.
     pub fn parse(&mut self)
-                 -> Result<PsycParserResult, PsycParserError> {
+                 -> Result<PsycParserResult<'a>, PsycParserError> {
         let state_ptr = &mut self.state as *mut PsycParseState;
         let mut name: PsycString;
         let mut value: PsycString;
