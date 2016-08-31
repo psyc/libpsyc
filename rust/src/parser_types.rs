@@ -26,7 +26,7 @@ pub struct PsycParseState {
 #[repr(C)]
 pub struct PsycParseListState {
     buffer: PsycString,
-    cursor: usize,
+    pub cursor: usize,
     startc: usize,
     list_type: PsycString,
     elemlen: usize,
@@ -38,7 +38,7 @@ pub struct PsycParseListState {
 #[repr(C)]
 pub struct PsycParseDictState {
     buffer: PsycString,
-    cursor: usize,
+    pub cursor: usize,
     startc: usize,
     elemlen: usize,
     elem_parsed: usize,
@@ -49,7 +49,7 @@ pub struct PsycParseDictState {
 #[repr(C)]
 pub struct PsycParseIndexState { 
     buffer: PsycString,
-    cursor: usize,
+    pub cursor: usize,
     startc: usize,
     elemlen: usize,
     elem_parsed: usize,
@@ -60,7 +60,7 @@ pub struct PsycParseIndexState {
 #[repr(C)]
 pub struct PsycParseUpdateState {
     buffer: PsycString,
-    cursor: usize,
+    pub cursor: usize,
     startc: usize,
     elemlen: usize,
     elem_parsed: usize,
@@ -181,6 +181,7 @@ pub enum PsycParseListRC {
     PSYC_PARSE_LIST_END = 8,
 }
 
+#[derive(Debug)]
 #[repr(C)]
 pub enum PsycParseDictRC {
     PSYC_PARSE_DICT_ERROR_VALUE = -9,
