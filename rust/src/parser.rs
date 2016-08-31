@@ -70,13 +70,11 @@ pub struct PsycParser {
 //    buffer: &'a [u8]
 //}
 //
-pub struct PsycDictParser<'a> {
-    state: PsycParseDictState,
-    parsed_key: Option<&'a [u8]>,
-    parsed_dict: Vec<(&'a [u8], &'a [u8])>,
-    buffer: Option<&'a [u8]>,
-    cursor: usize
-}
+//pub struct PsycDictParser<'a> {
+//    state: PsycParseDictState,
+//    parsed_key: Option<&'a [u8]>,
+//    cursor: usize
+//}
 //
 //// TODO: What data structures does the index parser need?
 //pub struct PsycIndexParser {
@@ -112,7 +110,9 @@ pub enum PsycParserResult<'a> {
     EntityModifierCont {
         value_part: &'a [u8]
     },
-    EntityModifierEnd,
+    EntityModifierEnd {
+        value_part: &'a [u8]
+    },
     Body {
         name: &'a [u8],
         value: &'a [u8]
@@ -124,7 +124,9 @@ pub enum PsycParserResult<'a> {
     BodyCont {
         value_part: &'a [u8]
     },
-    BodyEnd
+    BodyEnd {
+        value_part: &'a [u8]
+    }
 }
 
 //#[derive(Debug, PartialEq)]
@@ -145,23 +147,25 @@ pub enum PsycParserResult<'a> {
 //    }
 //}
 //
-//#[derive(Debug, PartialEq)]
-//pub enum PsycDictParserResult<'a> {
-//    Complete,
-//    InsufficientData,
-//    DictEntry {
-//        key: &'a [u8],
-//        value: &'a [u8]
-//    },
-//    DictEntryStart {
-//        key: &'a [u8],
-//        value_part: &'a [u8]
-//    },
-//    DictEntryCont {
-//        value_part: &'a [u8]
-//    },
-//    DictEntryEnd
-//}
+#[derive(Debug, PartialEq)]
+pub enum PsycDictParserResult<'a> {
+    Complete,
+    InsufficientData,
+    DictEntry {
+        key: &'a [u8],
+        value: &'a [u8]
+    },
+    DictEntryStart {
+        key: &'a [u8],
+        value_part: &'a [u8]
+    },
+    DictEntryCont {
+        value_part: &'a [u8]
+    },
+    DictEntryEnd {
+        value_part: &'a [u8]
+    }
+}
 
 #[repr(C)]
 #[derive(Debug, PartialEq)]
@@ -279,8 +283,12 @@ impl PsycParser {
                     Ok(result)
                 },
 
-                PsycParseRC::PSYC_PARSE_ENTITY_END =>
-                    Ok(PsycParserResult::EntityModifierEnd),
+                PsycParseRC::PSYC_PARSE_ENTITY_END => {
+                    let result = PsycParserResult::EntityModifierEnd {
+                        value_part: util::cstring_to_slice(value.data, value.length)
+                    };
+                    Ok(result)
+                }
 
                 PsycParseRC::PSYC_PARSE_BODY => {
                     let result = PsycParserResult::Body {
@@ -304,8 +312,12 @@ impl PsycParser {
                     Ok(result)
                 },
 
-                PsycParseRC::PSYC_PARSE_BODY_END =>
-                    Ok(PsycParserResult::BodyEnd),
+                PsycParseRC::PSYC_PARSE_BODY_END => {
+                    let result = PsycParserResult::BodyEnd {
+                        value_part: util::cstring_to_slice(value.data, value.length)
+                    };
+                    Ok(result)
+                }
 
                 _error => Err(mem::transmute(_error)),
             }
