@@ -29,14 +29,14 @@ fn test_insufficient() {
     let expected = vec![PsycParserResult::InsufficientData,
                         PsycParserResult::RoutingModifier {
                             operator: ':',
-                            name: "_target".as_bytes(),
-                            value: "psyc://ve.symlynx.com/@blog".as_bytes()
+                            name: b"_target",
+                            value: b"psyc://ve.symlynx.com/@blog"
                         },
                         PsycParserResult::InsufficientData,
                         PsycParserResult::EntityModifier{
                             operator: ':', 
-                            name: "_nick".as_bytes(),
-                            value: "lurchi".as_bytes(),
+                            name: b"_nick",
+                            value: b"lurchi"
                         },
                         PsycParserResult::Complete];
  
