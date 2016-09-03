@@ -25,7 +25,7 @@ pub struct PsycParseState {
 
 #[repr(C)]
 pub struct PsycParseListState {
-    buffer: PsycString,
+    pub buffer: PsycString,
     pub cursor: usize,
     startc: usize,
     list_type: PsycString,
@@ -37,7 +37,7 @@ pub struct PsycParseListState {
 
 #[repr(C)]
 pub struct PsycParseDictState {
-    buffer: PsycString,
+    pub buffer: PsycString,
     pub cursor: usize,
     startc: usize,
     elemlen: usize,
@@ -151,6 +151,7 @@ pub enum PsycParseRC {
     PSYC_PARSE_COMPLETE = 13,
 }
 
+#[derive(Debug)]
 #[repr(C)]
 pub enum PsycParseListRC {
     /// Error, no length is set for an element which is longer than PSYC_ELEM_SIZE_THRESHOLD.

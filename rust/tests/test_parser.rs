@@ -22,6 +22,43 @@ fn test_parse() {
 }
 
 #[test]
+fn test_empty() {
+    let test_data = "".to_string().into_bytes();
+
+    let mut parser = PsycParser::new();
+
+    parser.set_buffer(&test_data);
+
+    // FIXME: InsufficientData or Complete?
+    assert_eq!(parser.parse().unwrap(), PsycParserResult::InsufficientData);
+}
+
+#[test]
+fn test_incomplete() {
+    let test_data1 = ":_target\tpsyc://ve.symlynx.com/@blog\n\n:_nick 6\t".to_string().into_bytes();
+
+    let test_data2 = "lurchi".to_string().into_bytes();
+
+    let expected = vec![PsycParserResult::EntityModifierStart {
+                            operator: ':',
+                            name: b"_nick",
+                            value_part: b""
+                        },
+                        PsycParserResult::EntityModifierEnd {
+                            value_part: b"lurchi"
+                        }];
+
+    let mut parser = PsycParser::new();
+
+    parser.set_buffer(&test_data1);
+    let _ = parser.parse();
+    assert_eq!(parser.parse().unwrap(), expected[0]);
+
+    parser.set_buffer(&test_data2);
+    assert_eq!(parser.parse().unwrap(), expected[1]);
+}
+
+#[test]
 fn test_insufficient() {
     let mut test_data1 = ":_target\tpsyc://ve.symlynx.com/@blog\n\n:_nick".to_string().into_bytes();
     let mut test_data2 = "\tlurchi\n|\n".to_string().into_bytes();
