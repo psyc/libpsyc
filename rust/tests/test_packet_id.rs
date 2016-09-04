@@ -33,9 +33,17 @@ fn test_packet_id() {
         fragment: None
     };
 
-    assert_eq!(packet.packet_id(), expected_id);
+    let packet_id = packet.packet_id();
+
+    assert_eq!(packet_id, expected_id);
 
     let expected_rendered = b"|| psyc://ve.symlynx.com/~alice| psyc://ve.symlynx.com/~bob| 42|";
 
-   assert_eq!(packet.packet_id().render(), expected_rendered.to_vec());
+    let rendered_id = packet_id.render();
+
+   assert_eq!(rendered_id, expected_rendered.to_vec());
+
+   let parsed_id = PacketId::from_bytes(&rendered_id);
+
+   assert_eq!(parsed_id.unwrap(), packet_id);
 }
