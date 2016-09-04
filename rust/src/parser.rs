@@ -9,20 +9,8 @@ extern "C" {
     fn psyc_parse_buffer_set(state: *mut PsycParseState, buffer: *const c_char, length: usize);
     fn psyc_parse_list_state_init(state: *mut PsycParseListState);
     fn psyc_parse_list_buffer_set(state: *mut PsycParseListState, buffer: *const c_char, length: usize);
-    fn psyc_parse_dict_state_init(state: *mut PsycParseDictState);
-    fn psyc_parse_dict_buffer_set(state: *mut PsycParseDictState, buffer: *const c_char, length: usize);
-    fn psyc_parse_index_state_init(state: *mut PsycParseIndexState);
-    fn psyc_parse_index_buffer_set(state: *mut PsycParseIndexState, buffer: *const c_char, length: usize);
-    fn psyc_parse_update_state_init(state: *mut PsycParseUpdateState);
-    fn psyc_parse_update_buffer_set(state: *mut PsycParseUpdateState, buffer: *const c_char, length: usize);
-    fn psyc_parse_content_length(state: *mut PsycParseState) -> usize;
-    fn psyc_parse_content_length_found(state: *mut PsycParseState) -> bool;
-    fn psyc_parse_value_length(state: *mut PsycParseState) -> usize;
-    fn psyc_parse_value_length_found(state: *mut PsycParseState) -> bool;
     fn psyc_parse_cursor(state: *const PsycParseState) -> usize;
-    fn psyc_parse_buffer_length(state: *const PsycParseState) -> usize;
     fn psyc_parse_remaining_length(state: *const PsycParseState) -> usize;
-    fn psyc_parse_remaining_buffer(state: *const PsycParseState) -> *const c_char;
     fn psyc_parse(state: *mut PsycParseState,
                   oper: *mut c_char,
                   name: *mut PsycString,
@@ -33,31 +21,6 @@ extern "C" {
                        list_type: *mut PsycString,
                        elem: *mut PsycString)
                        -> PsycParseListRC;
-
-    fn psyc_parse_dict(state: *mut PsycParseDictState,
-                       dict_type: *mut PsycString,
-                       elem: *mut PsycString)
-                       -> PsycParseDictRC;
-
-    fn psyc_parse_index(state: *mut PsycParseIndexState,
-                        idx: *mut PsycString)
-                        -> PsycParseIndexRC;
-
-    fn psyc_parse_update(state: *mut PsycParseUpdateState,
-                         oper: *mut c_char,
-                         value: *mut PsycString)
-                         -> PsycParseUpdateRC;
-
-    fn psyc_parse_uint(value: *const c_char, len: usize, n: *mut u64) -> usize;
-    fn psyc_parse_list_index(value: *const c_char, len: usize, n: *mut i64) -> usize;
-    fn psyc_is_oper(g: c_char) -> bool;
-    fn psyc_is_numeric(c: c_char) -> bool;
-    fn psyc_is_alpha(c: c_char) -> bool;
-    fn psyc_is_alpha_numeric(c: c_char) -> bool;
-    fn psyc_is_kw_char(c: c_char) -> bool;
-    fn psyc_is_name_char(c: c_char) -> bool;
-    fn psyc_is_host_char(c: c_char) -> bool;
-    fn psyc_parse_keyword(data: *const c_char, len: usize) -> usize;
 }
 
 pub struct PsycParser {
@@ -67,22 +30,6 @@ pub struct PsycParser {
 pub struct PsycListParser {
     state: PsycParseListState
 }
-
-//pub struct PsycDictParser<'b> {
-//    state: PsycParseDictState,
-//    parsed_key: Option<&'b [u8]>,
-//    cursor: usize
-//}
-//
-//// TODO: What data structures does the index parser need?
-//pub struct PsycIndexParser {
-//    state: PsycParseIndexState
-//}
-//
-//// TODO: what data structures does the update parser need?
-//pub struct PsycUpdateParser {
-//    state: PsycParseUpdateState
-//}
 
 #[derive(Debug, PartialEq)]
 pub enum PsycParserResult<'a> {
@@ -145,26 +92,6 @@ pub enum PsycListParserResult<'a> {
     }
 }
 
-//#[derive(Debug, PartialEq)]
-//pub enum PsycDictParserResult<'a> {
-//    Complete,
-//    InsufficientData,
-//    DictEntry {
-//        key: &'a [u8],
-//        value: &'a [u8]
-//    },
-//    DictEntryStart {
-//        key: &'a [u8],
-//        value_part: &'a [u8]
-//    },
-//    DictEntryCont {
-//        value_part: &'a [u8]
-//    },
-//    DictEntryEnd {
-//        value_part: &'a [u8]
-//    }
-//}
-
 #[repr(C)]
 #[derive(Debug, PartialEq)]
 pub enum PsycParserError {
@@ -190,21 +117,6 @@ pub enum PsycListParserError {
     InvalidType = PsycParseListRC::PSYC_PARSE_LIST_ERROR_TYPE as _,
     GenericError = PsycParseListRC::PSYC_PARSE_LIST_ERROR as _,
 }
-
-//#[repr(C)]
-//#[derive(Debug, PartialEq)]
-//pub enum PsycDictParserError {
-//    InvalidValue = PsycParseDictRC::PSYC_PARSE_DICT_ERROR_VALUE as _,
-//    InvalidValueLength = PsycParseDictRC::PSYC_PARSE_DICT_ERROR_VALUE_LENGTH as _,
-//    InvalidValueType = PsycParseDictRC::PSYC_PARSE_DICT_ERROR_VALUE_TYPE as _,
-//    InvalidValueStart = PsycParseDictRC::PSYC_PARSE_DICT_ERROR_VALUE_START as _,
-//    InvalidKey = PsycParseDictRC::PSYC_PARSE_DICT_ERROR_KEY as _,
-//    InvalidKeyLength = PsycParseDictRC::PSYC_PARSE_DICT_ERROR_KEY_LENGTH as _,
-//    InvalidKeyStart = PsycParseDictRC::PSYC_PARSE_DICT_ERROR_KEY_START as _,
-//    InvalidKeyType = PsycParseDictRC::PSYC_PARSE_DICT_ERROR_TYPE as _,
-//    GenericError = PsycParseDictRC::PSYC_PARSE_DICT_ERROR as _,
-//    NoBuffer
-//}
 
 impl PsycParser {
     /// Create a PsycParser
@@ -429,143 +341,6 @@ impl Parser for PsycListParser {
         self.state.buffer.length - self.state.cursor
     }
 }
-
-//impl<'b> PsycDictParser<'b> {
-//    /// Create a PsycDictParser
-//    pub fn new() -> Self {
-//        let mut state: PsycParseDictState;
-//        unsafe {
-//            state = mem::uninitialized();
-//            let state_ptr = &mut state as *mut PsycParseDictState;
-//            psyc_parse_dict_state_init(state_ptr)
-//        }
-//        PsycDictParser {
-//            state: state,
-//            parsed_key: None,
-//            cursor: 0
-//        }
-//    }
-//
-//    /// Parse the buffer previously set by set_buffer. Call repeatedly until the
-//    /// result is PsycDictParserResult::Complete or a PsycDictParserError
-//    pub fn parse<'a>(&mut self, buffer: &'a [u8])
-//                     -> Result<PsycDictParserResult<'a>, PsycDictParserError> {
-//        let state_ptr = &mut self.state as *mut PsycParseDictState;
-//        let buffer_ptr = buffer.as_ptr() as *const c_char;
-//        let mut list_type: PsycString;
-//        let mut element: PsycString;
-//        unsafe {
-//            if buffer_ptr != self.state.buffer.data ||
-//               buffer.len() != self.state.buffer.length {
-//                psyc_parse_dict_buffer_set(state_ptr, buffer_ptr, buffer.len())
-//            }
-//            list_type = mem::uninitialized();
-//            element = mem::uninitialized();
-//            let list_type_ptr = &mut list_type as *mut PsycString;
-//            let element_ptr = &mut element as *mut PsycString;
-//            loop {
-//                let parse_result = psyc_parse_dict(state_ptr, list_type_ptr, element_ptr);
-//                println!("parse_result: {:?}", parse_result);
-//                println!("cursor: {}", self.state.cursor);
-//                self.cursor = self.state.cursor;
-//                match parse_result {
-//                    PsycParseDictRC::PSYC_PARSE_DICT_END =>
-//                        return Ok(PsycDictParserResult::Complete),
-//
-//                    PsycParseDictRC::PSYC_PARSE_DICT_INSUFFICIENT =>
-//                        return Ok(PsycDictParserResult::InsufficientData),
-//
-//                    PsycParseDictRC::PSYC_PARSE_DICT_KEY => {
-//                        let key = util::cstring_to_slice(element.data, element.length);
-//                        self.parsed_key = Some(key) 
-//                    },
-//
-//                    PsycParseDictRC::PSYC_PARSE_DICT_KEY_START => {
-//                        self.cursor = element.data as usize -
-//                                      buffer_ptr as usize;
-//                        return Ok(PsycDictParserResult::InsufficientData)
-//                    },
-//
-//                    PsycParseDictRC::PSYC_PARSE_DICT_KEY_CONT => {
-//                        return Ok(PsycDictParserResult::InsufficientData)
-//                    },
-//
-//                    PsycParseDictRC::PSYC_PARSE_DICT_KEY_END => {
-//                        let end_index = self.cursor + element.length;
-//                        let key = &buffer[self.cursor .. end_index];
-//                        self.parsed_key = Some(key)
-//                    },
-//
-//                    //PsycParseDictRC::PSYC_PARSE_DICT_VALUE => {
-//                    //    let result = PsycDictParserResult::DictEntry {
-//                    //        key: self.parsed_key.unwrap(),
-//                    //        value: util::cstring_to_slice(element.data, element.length)
-//                    //    };
-//                    //    return Ok(result)
-//                    //},
-//
-//                    PsycParseDictRC::PSYC_PARSE_DICT_VALUE |
-//                    PsycParseDictRC::PSYC_PARSE_DICT_VALUE_LAST => {
-//                        //let result: PsycDictParserResult;
-//                        //// FIXME: workaround
-//                        //if ! self.finished {
-//                        //    result = PsycDictParserResult::DictEntry {
-//                        //        key: self.parsed_key.unwrap(),
-//                        //        value: util::cstring_to_slice(element.data, element.length)
-//                        //    };
-//                        //    self.finished = true
-//                        //} else {
-//                        //    result = PsycDictParserResult::Complete;
-//                        //}
-//                        let result = PsycDictParserResult::DictEntry {
-//                            key: self.parsed_key.unwrap(),
-//                            value: util::cstring_to_slice(element.data, element.length)
-//                        };
-//                        return Ok(result)
-//                    },
-//
-//                    PsycParseDictRC::PSYC_PARSE_DICT_VALUE_START => {
-//                        let result = PsycDictParserResult::DictEntryStart {
-//                            key: self.parsed_key.unwrap(),
-//                            value_part: util::cstring_to_slice(element.data, element.length)
-//                        };
-//                        return Ok(result)
-//                    },
-//
-//                    PsycParseDictRC::PSYC_PARSE_DICT_VALUE_CONT => {
-//                        let result = PsycDictParserResult::DictEntryCont {
-//                            value_part: util::cstring_to_slice(element.data, element.length)
-//                        };
-//                        return Ok(result)
-//                    },
-//
-//                    PsycParseDictRC::PSYC_PARSE_DICT_VALUE_END => {
-//                        let result = PsycDictParserResult::DictEntryEnd {
-//                            value_part: util::cstring_to_slice(element.data, element.length)
-//                        };
-//                        return Ok(result)
-//                    },
-//
-//                    PsycParseDictRC::PSYC_PARSE_DICT_TYPE => (),
-//                    
-//                    _error => {
-//                        return Err(mem::transmute(_error))
-//                    },
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//impl<'a, 'b> Parser<'a> for PsycDictParser<'b> {
-//    fn unparsed_position(&self) -> usize {
-//        self.cursor
-//    }
-//
-//    fn unparsed_length(&self) -> usize {
-//        self.state.buffer.length - self.cursor
-//    }
-//}
 
 pub trait Parser {
     /// copies the remaining unparsed bytes to the beginning of the given buffer.

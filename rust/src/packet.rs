@@ -18,14 +18,11 @@ extern "C" {
 
     fn psyc_elem_length_check(value: *const PsycString, end: c_char) -> PsycElemFlag;
     fn psyc_elem_length(elem: *const PsycElem) -> usize;
-    fn psyc_dict_key_length(elem: *const PsycDictKey) -> usize;
     fn psyc_list_length_set(list: *mut RawPsycList) -> usize;
-    fn psyc_dict_length_set(dict: *mut RawPsycDict) -> usize;
     fn psyc_modifier_length(m: *const RawPsycModifier) -> usize;
     fn psyc_packet_length_check(p: *const RawPsycPacket) -> PsycPacketFlag;
     fn psyc_packet_length_set(p: *mut RawPsycPacket) -> usize;
     fn psyc_list_init(list: *mut RawPsycList, elems: *const PsycElem, num_elems: usize);
-    fn psyc_dict_init(dict: *mut RawPsycDict, elems: *const PsycDictElem, num_elems: usize);
     fn psyc_packet_init(packet: *mut RawPsycPacket,
                         routing: *const RawPsycModifier,
                         routinglen: usize,
@@ -62,17 +59,11 @@ extern "C" {
     fn psyc_render(packet: *const RawPsycPacket, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
     fn psyc_render_modifier(modifier: *const RawPsycModifier, buffer: *mut c_char) -> usize;
     fn psyc_render_elem(elem: *const PsycElem, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
-    fn psyc_render_dict_key(elem: *const PsycDictKey, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
     fn psyc_render_list(list: *const RawPsycList, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
-    fn psyc_render_dict(dict: *const RawPsycDict, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
 }
 
 pub struct PsycList {
     rendered_list: Vec<u8>
-}
-
-pub struct PsycDict {
-    rendered_dict: Vec<u8>
 }
 
 pub struct PsycModifier<'a> {
@@ -128,39 +119,6 @@ impl PsycList {
     }
 }
 
-impl PsycDict {
-    /// Construct a PsycDict from a list of key value pairs
-    pub fn new(dict: &[(&[u8], &[u8])]) -> Self {
-        let mut psyc_dict: RawPsycDict;
-        let elements: Vec<PsycDictElem>;
-        let mut buffer: Vec<u8>;
-        unsafe {
-            psyc_dict = mem::uninitialized();
-            let psyc_dict_ptr = &mut psyc_dict as *mut RawPsycDict;
-            elements = dict.iter().map(|e| make_psyc_dict_elem(e)).collect();
-            let elements_ptr = elements.as_ptr() as *const PsycDictElem;
-            psyc_dict_init(psyc_dict_ptr, elements_ptr, dict.len());
-            buffer = Vec::with_capacity(psyc_dict.length);
-            buffer.set_len(psyc_dict.length);
-            let buffer_ptr = buffer.as_ptr() as *mut c_char;
-            let _ = psyc_render_dict(psyc_dict_ptr, buffer_ptr, psyc_dict.length);
-        }
-        PsycDict{
-            rendered_dict: buffer
-        }
-    }
-
-    /// Construct a PsycDict from a list of key / value string pairs (comfort
-    /// function)
-    pub fn from_strings(dict: &[(&str, &str)]) -> Self {
-        let kv_list_slices: Vec<(&[u8], &[u8])> = dict.iter().map(|e| {
-            let &(k, v) = e;
-            (k.as_bytes(), v.as_bytes())
-        }).collect();
-        Self::new(&kv_list_slices)
-    }
-}
-
 impl<'a> PsycModifier<'a> {
     /// construct a PsycModifier
     pub fn new(operator: PsycOperator, name: &'a str, value: &'a [u8]) -> Self {
@@ -190,20 +148,6 @@ impl<'a> PsycModifier<'a> {
             operator: operator
         }
     }
-
-    /// construct a PsycModifier with a dictionary value (comfort function)
-    pub fn with_dict_value(operator: PsycOperator,
-                           name: &'a str,
-                           value: &'a PsycDict)
-                           -> Self {
-        PsycModifier {
-            name: name,
-            value: &value.rendered_dict,
-            operator: operator
-        }
-    }
-
-
 }
 
 impl<'a> PsycPacket<'a> {
@@ -325,23 +269,5 @@ unsafe fn make_psyc_elem(list_element: &[u8]) -> PsycElem {
         value: PsycString {length: list_element.len(), data: list_element_ptr},
         length: 0,
         flag: PsycElemFlag::PSYC_ELEM_CHECK_LENGTH
-    }
-}
-
-unsafe fn make_psyc_dict_elem(dict_element: &(&[u8], &[u8])) -> PsycDictElem {
-    let &(key, value) = dict_element;
-    let key_ptr = key.as_ptr() as *const c_char;
-    let psyc_dict_elem_value = make_psyc_elem(value);
-    let psyc_dict_elem_key = PsycDictKey {
-        value: PsycString {
-            length: key.len(),
-            data: key_ptr
-        },
-        length: 0,
-        flag: PsycElemFlag::PSYC_ELEM_CHECK_LENGTH
-    };
-    PsycDictElem {
-        value: psyc_dict_elem_value,
-        key: psyc_dict_elem_key
     }
 }
