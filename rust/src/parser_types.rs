@@ -9,7 +9,7 @@ enum PsycUpdatePart { }
 
 #[repr(C)]
 pub struct PsycParseState {
-    buffer: PsycString,
+    pub buffer: PsycString,
     cursor: usize,
     startc: usize,
     routinglen: usize,

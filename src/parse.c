@@ -1094,127 +1094,128 @@ psyc_parse_update (PsycParseUpdateState *state, char *oper, PsycString *value)
 {
     PsycParseIndexRC ret;
 
-    if (state->cursor >= state->buffer.length)
-	return PSYC_PARSE_UPDATE_END;
+    if (state->cursor >= state->buffer.length) {
+	    return PSYC_PARSE_UPDATE_END;
+    }
 
     state->startc = state->cursor;
 
     switch (state->part) {
-    case PSYC_UPDATE_PART_START:
-	value->length = 0;
-	value->data = NULL;
-	// fall thru
+        case PSYC_UPDATE_PART_START:
+	        value->length = 0;
+	        value->data = NULL;
+	    // fall thru
 
-    case PSYC_INDEX_PART_TYPE:
-    case PSYC_INDEX_PART_LIST:
-    case PSYC_INDEX_PART_STRUCT:
-    case PSYC_INDEX_PART_DICT_LENGTH:
-    case PSYC_INDEX_PART_DICT:
-	ret = psyc_parse_index((PsycParseIndexState*)state, value);
+        case PSYC_INDEX_PART_TYPE:
+        case PSYC_INDEX_PART_LIST:
+        case PSYC_INDEX_PART_STRUCT:
+        case PSYC_INDEX_PART_DICT_LENGTH:
+        case PSYC_INDEX_PART_DICT:
+	        ret = psyc_parse_index((PsycParseIndexState*)state, value);
 
-	switch (ret) {
-	case PSYC_PARSE_INDEX_INSUFFICIENT:
-	case PSYC_PARSE_INDEX_LIST_LAST:
-	case PSYC_PARSE_INDEX_STRUCT_LAST:
-	case PSYC_PARSE_INDEX_END:
-	    return PSYC_PARSE_UPDATE_INSUFFICIENT;
-	case PSYC_PARSE_INDEX_ERROR_TYPE:
-	    if (state->buffer.data[state->cursor] != ' ')
-		return ret;
-	    state->part = PSYC_PARSE_UPDATE_TYPE;
-	    value->length = 0;
-	    value->data = NULL;
-	    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_UPDATE_INSUFFICIENT);
-	    break;
-	default:
-	    return ret;
-	}
-    case PSYC_UPDATE_PART_TYPE:
-	if (!psyc_is_oper(state->buffer.data[state->cursor]))
-	    return PSYC_PARSE_UPDATE_ERROR_OPER;
+	        switch (ret) {
+	            case PSYC_PARSE_INDEX_INSUFFICIENT:
+	            case PSYC_PARSE_INDEX_LIST_LAST:
+	            case PSYC_PARSE_INDEX_STRUCT_LAST:
+	            case PSYC_PARSE_INDEX_END:
+	                return PSYC_PARSE_UPDATE_INSUFFICIENT;
+	            case PSYC_PARSE_INDEX_ERROR_TYPE:
+	                if (state->buffer.data[state->cursor] != ' ')
+	            	return ret;
+	                state->part = PSYC_PARSE_UPDATE_TYPE;
+	                value->length = 0;
+	                value->data = NULL;
+	                ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_UPDATE_INSUFFICIENT);
+	                break;
+	            default:
+	                return ret;
+	        }
+        case PSYC_UPDATE_PART_TYPE:
+	        if (!psyc_is_oper(state->buffer.data[state->cursor]))
+	            return PSYC_PARSE_UPDATE_ERROR_OPER;
 
-	*oper = state->buffer.data[state->cursor];
-	ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_UPDATE_END);
+	        *oper = state->buffer.data[state->cursor];
+	        ADVANCE_CURSOR_OR_RETURN(PSYC_PARSE_UPDATE_END);
 
-	switch (parse_keyword((ParseState*)state, value)) {
-	case PARSE_SUCCESS: // end of keyword
-	case PARSE_ERROR: // no keyword
-	    switch (state->buffer.data[state->cursor]) {
-	    case ':':
-		state->part = PSYC_UPDATE_PART_LENGTH;
-		break;
-	    case ' ':
-		state->part = PSYC_UPDATE_PART_VALUE;
-		break;
-	    default:
-		return PSYC_PARSE_UPDATE_ERROR_TYPE;
-	    }
+	        switch (parse_keyword((ParseState*)state, value)) {
+	        case PARSE_SUCCESS: // end of keyword
+	        case PARSE_ERROR: // no keyword
+	            switch (state->buffer.data[state->cursor]) {
+	            case ':':
+	        	state->part = PSYC_UPDATE_PART_LENGTH;
+	        	break;
+	            case ' ':
+	        	state->part = PSYC_UPDATE_PART_VALUE;
+	        	break;
+	            default:
+	        	return PSYC_PARSE_UPDATE_ERROR_TYPE;
+	            }
 
-	    state->cursor++;
-	    return PSYC_PARSE_UPDATE_TYPE;
-	    break;
-	case PARSE_INSUFFICIENT: // end of buffer
-	    return PSYC_PARSE_UPDATE_TYPE_END;
-	default: // should not be reached
-	    return PSYC_PARSE_UPDATE_ERROR;
-	}
-	break;
+	            state->cursor++;
+	            return PSYC_PARSE_UPDATE_TYPE;
+	            break;
+	        case PARSE_INSUFFICIENT: // end of buffer
+	            return PSYC_PARSE_UPDATE_TYPE_END;
+	        default: // should not be reached
+	            return PSYC_PARSE_UPDATE_ERROR;
+	        }
+	        break;
 
-    case PSYC_UPDATE_PART_LENGTH:
-	switch (parse_length((ParseState*)state, &state->elemlen)) {
-	case PARSE_SUCCESS: // length is complete
-	    state->elemlen_found = 1;
-	    state->elem_parsed = 0;
-	    value->length = state->elemlen;
-	    value->data = NULL;
+        case PSYC_UPDATE_PART_LENGTH:
+	        switch (parse_length((ParseState*)state, &state->elemlen)) {
+	            case PARSE_SUCCESS: // length is complete
+	                state->elemlen_found = 1;
+	                state->elem_parsed = 0;
+	                value->length = state->elemlen;
+	                value->data = NULL;
 
-	    if (state->buffer.data[state->cursor] != ' ')
-		return PSYC_PARSE_UPDATE_ERROR_LENGTH;
+	                if (state->buffer.data[state->cursor] != ' ')
+	            	return PSYC_PARSE_UPDATE_ERROR_LENGTH;
 
-	    state->part = PSYC_UPDATE_PART_VALUE;
-	    if (value->length == 0)
-		return PSYC_PARSE_UPDATE_END;
-	    ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_UPDATE_INSUFFICIENT);
-	    break;
-	case PARSE_INSUFFICIENT: // length is incomplete
-	    if (value->length == 0)
-		return PSYC_PARSE_UPDATE_END;
-	    return PSYC_PARSE_UPDATE_INSUFFICIENT;
-	case PARSE_ERROR: // no length after :
-	    return PSYC_PARSE_UPDATE_ERROR_LENGTH;
-	default: // should not be reached
-	    return PSYC_PARSE_UPDATE_ERROR;
-	}
-	// fall thru
+	                state->part = PSYC_UPDATE_PART_VALUE;
+	                if (value->length == 0)
+	            	return PSYC_PARSE_UPDATE_END;
+	                ADVANCE_STARTC_OR_RETURN(PSYC_PARSE_UPDATE_INSUFFICIENT);
+	                break;
+	            case PARSE_INSUFFICIENT: // length is incomplete
+	                if (value->length == 0)
+	            	return PSYC_PARSE_UPDATE_END;
+	                return PSYC_PARSE_UPDATE_INSUFFICIENT;
+	            case PARSE_ERROR: // no length after :
+	                return PSYC_PARSE_UPDATE_ERROR_LENGTH;
+	            default: // should not be reached
+	                return PSYC_PARSE_UPDATE_ERROR;
+	        }
+	    // fall thru
 
-    case PSYC_UPDATE_PART_VALUE:
-	if (state->elemlen_found) {
-	    switch (parse_binary((ParseState*)state, state->elemlen, value,
-				 &state->elem_parsed)) {
-	    case PARSE_SUCCESS:
-		if (value->length == state->elem_parsed)
-		    ret = PSYC_PARSE_UPDATE_VALUE;
-		else
-		    ret = PSYC_PARSE_UPDATE_VALUE_END;
-		break;
-	    case PARSE_INCOMPLETE:
-		if (value->length == state->elem_parsed)
-		    ret = PSYC_PARSE_UPDATE_VALUE_START;
-		else
-		    ret = PSYC_PARSE_UPDATE_VALUE_CONT;
-		break;
-	    default: // should not be reached
-		return PSYC_PARSE_UPDATE_ERROR_VALUE;
-	    }
-	} else {
-	    value->data = state->buffer.data + state->cursor;
-	    value->length = state->buffer.length - state->cursor;
-	    ret = PSYC_PARSE_UPDATE_VALUE;
-	}
+        case PSYC_UPDATE_PART_VALUE:
+	        if (state->elemlen_found) {
+	            switch (parse_binary((ParseState*)state, state->elemlen, value,
+	        			 &state->elem_parsed)) {
+	            case PARSE_SUCCESS:
+	        	if (value->length == state->elem_parsed)
+	        	    ret = PSYC_PARSE_UPDATE_VALUE;
+	        	else
+	        	    ret = PSYC_PARSE_UPDATE_VALUE_END;
+	        	break;
+	            case PARSE_INCOMPLETE:
+	        	if (value->length == state->elem_parsed)
+	        	    ret = PSYC_PARSE_UPDATE_VALUE_START;
+	        	else
+	        	    ret = PSYC_PARSE_UPDATE_VALUE_CONT;
+	        	break;
+	            default: // should not be reached
+	        	return PSYC_PARSE_UPDATE_ERROR_VALUE;
+	            }
+	        } else {
+	            value->data = state->buffer.data + state->cursor;
+	            value->length = state->buffer.length - state->cursor;
+	            ret = PSYC_PARSE_UPDATE_VALUE;
+	        }
 
-	state->part = PSYC_INDEX_PART_TYPE;
-	state->cursor++;
-	return ret;
+	        state->part = PSYC_INDEX_PART_TYPE;
+	        state->cursor++;
+	        return ret;
     }
 
     return PSYC_PARSE_INDEX_ERROR; // should not be reached

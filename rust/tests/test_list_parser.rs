@@ -21,12 +21,12 @@ fn test_parse() {
 
     let mut parser = PsycListParser::new();
 
-    parser.set_buffer(&test_data);
+    //parser.set_buffer(&test_data);
 
-    assert_eq!(parser.parse().unwrap(), expected1);
-    assert_eq!(parser.parse().unwrap(), expected2);
-    assert_eq!(parser.parse().unwrap(), expected3);
-    assert_eq!(parser.parse().unwrap(), expected4);
+    assert_eq!(parser.parse(&test_data).unwrap(), expected1);
+    assert_eq!(parser.parse(&test_data).unwrap(), expected2);
+    assert_eq!(parser.parse(&test_data).unwrap(), expected3);
+    assert_eq!(parser.parse(&test_data).unwrap(), expected4);
 }
 
 #[test]
@@ -35,9 +35,9 @@ fn test_empty() {
 
     let mut parser = PsycListParser::new();
 
-    parser.set_buffer(&test_data);
+    //parser.set_buffer(&test_data);
 
-    assert_eq!(parser.parse().unwrap(), PsycListParserResult::Complete);
+    assert_eq!(parser.parse(&test_data).unwrap(), PsycListParserResult::Complete);
 }
 
 #[test]
@@ -57,13 +57,13 @@ fn test_incomplete() {
 
     let mut parser = PsycListParser::new();
 
-    parser.set_buffer(&test_data1);
-    assert_eq!(parser.parse().unwrap(), expected[0]);
+    //parser.set_buffer(&test_data1);
+    assert_eq!(parser.parse(&test_data1).unwrap(), expected[0]);
 
-    parser.set_buffer(&test_data2);
-    assert_eq!(parser.parse().unwrap(), expected[1]);
+    //parser.set_buffer(&test_data2);
+    assert_eq!(parser.parse(&test_data2).unwrap(), expected[1]);
 
-    assert_eq!(parser.parse().unwrap(), expected[2]);
+    assert_eq!(parser.parse(&test_data2).unwrap(), expected[2]);
 }
 
 #[test]
@@ -78,13 +78,13 @@ fn test_insufficient() {
 
     let mut parser = PsycListParser::new();
 
-    parser.set_buffer(&test_data1);
+    //parser.set_buffer(&test_data1);
 
-    assert_eq!(parser.parse().unwrap(), expected[0]);
+    assert_eq!(parser.parse(&test_data1).unwrap(), expected[0]);
 
     let unparsed_length = parser.copy_unparsed_into_buffer(&mut test_data1);
     test_data1.resize(unparsed_length, 0);
     test_data1.append(&mut test_data2);
-    parser.set_buffer(&test_data1);
-    assert_eq!(parser.parse().unwrap(), expected[1]);
+    //parser.set_buffer(&test_data1);
+    assert_eq!(parser.parse(&test_data1).unwrap(), expected[1]);
 }
