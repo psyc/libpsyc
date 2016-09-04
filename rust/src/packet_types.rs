@@ -62,6 +62,14 @@ pub enum PsycPacketId {
 }
 
 #[repr(C)]
+pub struct PsycElem {
+    pub elem_type: PsycString,
+    pub value: PsycString,
+    pub length: usize,
+    pub flag: PsycElemFlag
+}
+
+#[repr(C)]
 pub struct RawPsycList {
     list_type: PsycString,
     elems: *const PsycElem,
@@ -108,6 +116,3 @@ pub enum PsycRenderRC {
     /// Packet is rendered successfully in the buffer.
     PSYC_RENDER_SUCCESS = 0,
 }
-
-
-
