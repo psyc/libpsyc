@@ -41,6 +41,19 @@ fn test_empty() {
 }
 
 #[test]
+fn test_empty_element() {
+    let test_data = "|".to_string().into_bytes();
+
+    let mut parser = PsycListParser::new();
+
+    let expected = PsycListParserResult::ListElement {
+        value: b""
+    };
+
+    assert_eq!(parser.parse(&test_data).unwrap(), expected);
+}
+
+#[test]
 fn test_incomplete() {
     let test_data1 = "|8 element".to_string().into_bytes();
     let test_data2 = "1| element2|".to_string().into_bytes();

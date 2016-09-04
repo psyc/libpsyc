@@ -31,16 +31,16 @@ pub struct PacketId<'a> {
 
 impl<'a> PacketId<'a> {
     pub fn from_bytes(bytes: &'a [u8]) -> Option<Self> {
-        let mut parsed: Vec<Option<&'a [u8]>> = vec![None; 5];
+        let mut parsed: Vec<Option<&'a [u8]>> = Vec::with_capacity(5);
         let mut parser = PsycListParser::new();
-        let mut parsing_error = false;
-        for slice in &mut parsed {
+        for _i in 0..5 {
             match parser.parse(bytes) {
-                Ok(PsycListParserResult::ListElement {value: v}) => *slice = Some(v),
-                _ => parsing_error = true
+                Ok(PsycListParserResult::ListElement {value: b""}) => parsed.push(None),
+                Ok(PsycListParserResult::ListElement {value: v}) => parsed.push(Some(v)),
+                _ => break
             }
         }
-        if parsing_error {
+        if parsed.len() < 5 {
             None
         } else {
             let result = PacketId {
