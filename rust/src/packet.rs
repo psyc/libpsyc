@@ -1,5 +1,7 @@
 use types::*;
 use packet_types::*;
+use packet_id::*;
+use util;
 use std::mem;
 use std::ptr;
 use std::os::raw::c_char;
@@ -41,25 +43,11 @@ extern "C" {
                             content: *const c_char,
                             contentlen: usize,
                             flag: PsycPacketFlag);
-
-    fn psyc_packet_id(list: *mut RawPsycList,
-                      elems: *mut PsycElem,
-                      context: *const c_char,
-                      contextlen: usize,
-                      source: *const c_char,
-                      sourcelen: usize,
-                      target: *const c_char,
-                      targetlen: usize,
-                      counter: *const c_char,
-                      counterlen: usize,
-                      fragment: *const c_char,
-                      fragmentlen: usize);
-    
+   
     /// functions from render.h
     fn psyc_render(packet: *const RawPsycPacket, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
     fn psyc_render_modifier(modifier: *const RawPsycModifier, buffer: *mut c_char) -> usize;
     fn psyc_render_elem(elem: *const PsycElem, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
-    fn psyc_render_list(list: *const RawPsycList, buffer: *mut c_char, buflen: usize) -> PsycRenderRC;
 }
 
 pub struct PsycList {
@@ -95,17 +83,14 @@ impl PsycList {
     pub fn new(list: &[&[u8]]) -> Self {
         let mut psyc_list: RawPsycList;
         let elements: Vec<PsycElem>;
-        let mut buffer: Vec<u8>;
+        let buffer: Vec<u8>;
         unsafe {
             psyc_list = mem::uninitialized();
             let psyc_list_ptr = &mut psyc_list as *mut RawPsycList;
             elements = list.iter().map(|e| make_psyc_elem(&e)).collect();
             let elements_ptr = elements.as_ptr() as *const PsycElem;
             psyc_list_init(psyc_list_ptr, elements_ptr, list.len());
-            buffer = Vec::with_capacity(psyc_list.length);
-            buffer.set_len(psyc_list.length);
-            let buffer_ptr = buffer.as_ptr() as *mut c_char;
-            let _ = psyc_render_list(psyc_list_ptr, buffer_ptr, psyc_list.length);
+            buffer = util::render_list(&psyc_list)
         }
         PsycList {
             rendered_list: buffer
@@ -238,6 +223,29 @@ impl<'a> PsycPacket<'a> {
                 PsycRenderRC::PSYC_RENDER_SUCCESS => Ok(buffer),
                 _error => Err(mem::transmute(_error))
             }
+        }
+    }
+
+    /// get the packet id
+    pub fn packet_id(&self) -> PacketId<'a> {
+        let get_value = |modifier: Option<&PsycModifier<'a>>| {
+            match modifier {
+                None => None,
+                Some(m) => Some(m.value)
+            }
+        };
+
+        let context = self.routing_modifiers.iter().find(|&r| r.name == "_context");
+        let source = self.routing_modifiers.iter().find(|&r| r.name == "_source");
+        let target = self.routing_modifiers.iter().find(|&r| r.name == "_target");
+        let counter = self.routing_modifiers.iter().find(|&r| r.name == "_counter");
+
+        PacketId {
+            context: get_value(context),
+            source: get_value(source),
+            target: get_value(target),
+            counter: get_value(counter),
+            fragment: None
         }
     }
 

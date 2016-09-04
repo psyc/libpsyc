@@ -283,8 +283,6 @@ impl PsycListParser {
             let element_ptr = &mut element as *mut PsycString;
             loop {
                 let parse_result = psyc_parse_list(state_ptr, list_type_ptr, element_ptr);
-                println!("parse_result: {:?}", parse_result);
-                println!("cursor: {}", self.state.cursor);
                 match parse_result {
                     PsycParseListRC::PSYC_PARSE_LIST_END =>
                         return Ok(PsycListParserResult::Complete),
