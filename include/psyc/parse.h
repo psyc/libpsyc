@@ -688,7 +688,7 @@ psyc_parse_remaining_buffer (PsycParseState *state)
  *              in case of the body it will point to the data.
  */
 #ifdef __INLINE_PSYC_PARSE
-inline
+extern inline
 #endif
 PsycParseRC
 psyc_parse (PsycParseState *state, char *oper,
@@ -706,25 +706,25 @@ psyc_parse (PsycParseState *state, char *oper,
  * @param elem It will point to the next element in the list.
  */
 #ifdef __INLINE_PSYC_PARSE
-inline
+extern inline
 #endif
 PsycParseListRC
 psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem);
 
 #ifdef __INLINE_PSYC_PARSE
-inline
+extern inline
 #endif
 PsycParseDictRC
 psyc_parse_dict (PsycParseDictState *state, PsycString *type, PsycString *elem);
 
 #ifdef __INLINE_PSYC_PARSE
-inline
+extern inline
 #endif
 PsycParseIndexRC
 psyc_parse_index (PsycParseIndexState *state, PsycString *idx);
 
 #ifdef __INLINE_PSYC_PARSE
-inline
+extern inline
 #endif
 PsycParseUpdateRC
 psyc_parse_update (PsycParseUpdateState *state, char *oper, PsycString *value);
