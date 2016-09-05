@@ -706,6 +706,7 @@ psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem)
 		ret = PSYC_PARSE_LIST_ELEM;
 		break;
 	    case PARSE_INSUFFICIENT:
+                state->cursor = state->buffer.length;
 		return PSYC_PARSE_LIST_ELEM_LAST;
 	    default: // should not be reached
 		return PSYC_PARSE_LIST_ERROR;
