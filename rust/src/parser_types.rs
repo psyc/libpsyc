@@ -36,39 +36,6 @@ pub struct PsycParseListState {
 }
 
 #[repr(C)]
-pub struct PsycParseDictState {
-    pub buffer: PsycString,
-    pub cursor: usize,
-    startc: usize,
-    elemlen: usize,
-    elem_parsed: usize,
-    part: PsycDictPart,
-    elemlen_found: u8
-}
-
-#[repr(C)]
-pub struct PsycParseIndexState { 
-    buffer: PsycString,
-    pub cursor: usize,
-    startc: usize,
-    elemlen: usize,
-    elem_parsed: usize,
-    part: PsycIndexPart,
-    elemlen_found: u8
-}
-
-#[repr(C)]
-pub struct PsycParseUpdateState {
-    buffer: PsycString,
-    pub cursor: usize,
-    startc: usize,
-    elemlen: usize,
-    elem_parsed: usize,
-    part: PsycUpdatePart,
-    elemlen_found: u8
-}
-
-#[repr(C)]
 pub enum PsycParseFlag {
     /// Default Flag. Parse everything.
     PSYC_PARSE_ALL = 0,
