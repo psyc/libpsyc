@@ -683,14 +683,12 @@ psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem)
 	    switch (parse_binary((ParseState*)state, state->elemlen, elem,
 				 &state->elem_parsed)) {
 	    case PARSE_SUCCESS:
-	        state->part = PSYC_LIST_PART_ELEM_START;
 		if (elem->length == state->elem_parsed)
 		    ret = PSYC_PARSE_LIST_ELEM;
 		else
 		    ret = PSYC_PARSE_LIST_ELEM_END;
 		break;
 	    case PARSE_INCOMPLETE:
-                state->part = PSYC_LIST_PART_ELEM;
 		if (elem->length == state->elem_parsed)
 		    ret = PSYC_PARSE_LIST_ELEM_START;
 		else
@@ -702,7 +700,6 @@ psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem)
 	} else {
 	    switch (parse_until((ParseState*)state, '|', elem)) {
 	    case PARSE_SUCCESS:
-	        state->part = PSYC_LIST_PART_ELEM_START;
 		ret = PSYC_PARSE_LIST_ELEM;
 		break;
 	    case PARSE_INSUFFICIENT:
@@ -713,6 +710,7 @@ psyc_parse_list (PsycParseListState *state, PsycString *type, PsycString *elem)
 	    }
 	}
 
+	state->part = PSYC_LIST_PART_ELEM_START;
 	state->startc = state->cursor;
 	return ret;
     }
@@ -920,7 +918,6 @@ psyc_parse_dict (PsycParseDictState *state, PsycString *type, PsycString *elem)
 	    switch (parse_binary((ParseState*)state, state->elemlen, elem,
 				 &state->elem_parsed)) {
 	    case PARSE_SUCCESS:
-	    state->part = PSYC_DICT_PART_KEY_START;
 		if (elem->length == state->elem_parsed)
 		    ret = PSYC_PARSE_DICT_VALUE;
 		else
@@ -938,7 +935,6 @@ psyc_parse_dict (PsycParseDictState *state, PsycString *type, PsycString *elem)
 	} else {
 	    switch (parse_until((ParseState*)state, '{', elem)) {
 	    case PARSE_SUCCESS:
-	    state->part = PSYC_DICT_PART_KEY_START;
 		ret = PSYC_PARSE_DICT_VALUE;
 		break;
 	    case PARSE_INSUFFICIENT:
@@ -948,7 +944,7 @@ psyc_parse_dict (PsycParseDictState *state, PsycString *type, PsycString *elem)
 	    }
 	}
 
-	//state->part = PSYC_DICT_PART_KEY_START;
+	state->part = PSYC_DICT_PART_KEY_START;
 	return ret;
     }
 
