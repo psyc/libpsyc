@@ -33,6 +33,16 @@ pub enum PsycPacketFlag {
     PSYC_PACKET_NO_LENGTH = 2,
 }
 
+#[repr(C)]
+pub enum PsycPacketId {
+    PSYC_PACKET_ID_CONTEXT = 0,
+    PSYC_PACKET_ID_SOURCE = 1,
+    PSYC_PACKET_ID_TARGET = 2,
+    PSYC_PACKET_ID_COUNTER = 3,
+    PSYC_PACKET_ID_FRAGMENT = 4,
+    PSYC_PACKET_ID_ELEMS = 5,
+}
+
 #[derive(Copy, Clone)]
 #[repr(C)]
 pub enum PsycOperator {
@@ -49,16 +59,6 @@ pub enum PsycStateOp {
     PSYC_STATE_NOOP = 0,
     PSYC_STATE_RESET = '=' as _,
     PSYC_STATE_RESYNC = '?' as _,
-}
-
-#[repr(C)]
-pub enum PsycPacketId {
-    PSYC_PACKET_ID_CONTEXT = 0,
-    PSYC_PACKET_ID_SOURCE = 1,
-    PSYC_PACKET_ID_TARGET = 2,
-    PSYC_PACKET_ID_COUNTER = 3,
-    PSYC_PACKET_ID_FRAGMENT = 4,
-    PSYC_PACKET_ID_ELEMS = 5,
 }
 
 #[repr(C)]

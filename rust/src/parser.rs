@@ -300,21 +300,24 @@ impl PsycListParser {
 
                     PsycParseListRC::PSYC_PARSE_LIST_ELEM_START => {
                         let result = PsycListParserResult::ListElementStart {
-                            value_part: util::cstring_to_slice(element.data, element.length)
+                            value_part: util::cstring_to_slice(element.data,
+                                                               element.length)
                         };
                         return Ok(result)
                     },
 
                     PsycParseListRC::PSYC_PARSE_LIST_ELEM_CONT => {
                         let result = PsycListParserResult::ListElementCont {
-                            value_part: util::cstring_to_slice(element.data, element.length)
+                            value_part: util::cstring_to_slice(element.data,
+                                                               element.length)
                         };
                         return Ok(result)
                     },
 
                     PsycParseListRC::PSYC_PARSE_LIST_ELEM_END => {
                         let result = PsycListParserResult::ListElementEnd {
-                            value_part: util::cstring_to_slice(element.data, element.length)
+                            value_part: util::cstring_to_slice(element.data,
+                                                               element.length)
                         };
                         return Ok(result)
                     },
