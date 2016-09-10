@@ -184,7 +184,7 @@ psyc_uniform_parse (PsycUniform *uni, const char *buffer, size_t length)
 	}
 
 	if (uni->resource.length)
-	    uni->nick = PSYC_STRING(uni->resource.data + 1, uni->resource.length);
+	    uni->nick = PSYC_STRING(uni->resource.data + 1, uni->resource.length - 1);
 
     } else
 	return PSYC_PARSE_UNIFORM_INVALID_SCHEME;
