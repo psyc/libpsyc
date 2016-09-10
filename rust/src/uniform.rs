@@ -1,3 +1,4 @@
+use types::PsycRC;
 use uniform_types::*;
 use std::os::raw::c_char;
 use std::os::raw::c_int;
@@ -10,8 +11,11 @@ extern "C" {
                           buffer: *const c_char,
                           length: usize)
                           -> c_int;
+
+    fn psyc_entity_type(entity: c_char) -> c_int;
 }
 
+#[derive(Debug)]
 pub struct Uniform<'a> {
     uniform: PsycUniform,
     phantom: PhantomData<&'a Vec<u8>>
@@ -47,14 +51,45 @@ impl<'a> Uniform<'a> {
         self.uniform.valid
     }
 
-    pub fn scheme(&self) -> PsycScheme {
-        self.uniform.uniform_type
+    pub fn entity(&self) -> PsycEntity<'a> {
+        match self.resource() {
+            "" => PsycEntity::Root,
+            _resource => unsafe {
+                let type_specifier = *self.uniform.resource.data;
+                let entity_type_int = psyc_entity_type(type_specifier);
+                if entity_type_int == PsycRC::PSYC_ERROR as c_int {
+                    return PsycEntity::Unknown {
+                        object: self.resource(),
+                        channel: self.channel()
+                    }
+                }
+
+                let entity_type: PsycEntityType = mem::transmute(entity_type_int);
+
+                match entity_type {
+                    PsycEntityType::PSYC_ENTITY_PERSON => PsycEntity::Person {
+                        name: self.nick(),
+                        channel: self.channel()
+                    },
+
+                    PsycEntityType::PSYC_ENTITY_PLACE => PsycEntity::Place {
+                        name: self.nick(),
+                        channel: self.channel()
+                    },
+
+                    PsycEntityType::PSYC_ENTITY_SERVICE => PsycEntity::Service {
+                        name: self.nick(),
+                        channel: self.channel()
+                    },
+                    
+                    PsycEntityType::PSYC_ENTITY_ROOT => PsycEntity::Root
+                }
+            }
+        }
     }
 
-    pub fn name(&self) -> &'a str {
-        unsafe {
-            util::cstring_to_str(self.uniform.user.data, self.uniform.user.length)
-        }
+    pub fn scheme(&self) -> PsycScheme {
+        self.uniform.uniform_type
     }
 
     pub fn password(&self) -> &'a str {
@@ -114,12 +149,6 @@ impl<'a> Uniform<'a> {
         }
     }
 
-    pub fn channel(&self) -> &'a str {
-        unsafe {
-            util::cstring_to_str(self.uniform.channel.data, self.uniform.channel.length)
-        }
-    }
-
     pub fn full(&self) -> &'a str {
         unsafe {
             util::cstring_to_str(self.uniform.full.data, self.uniform.full.length)
@@ -138,21 +167,22 @@ impl<'a> Uniform<'a> {
         }
     }
 
-    pub fn entity(&self) -> &'a str {
-        unsafe {
-            util::cstring_to_str(self.uniform.entity.data, self.uniform.entity.length)
-        }
-    }
-
     pub fn path(&self) -> &'a str {
         unsafe {
             util::cstring_to_str(self.uniform.path.data, self.uniform.path.length)
         }
     }
 
-    pub fn nick(&self) -> &'a str {
+    /* private functions */
+    fn nick(&self) -> &'a str {
         unsafe {
             util::cstring_to_str(self.uniform.nick.data, self.uniform.nick.length)
+        }
+    }
+
+    fn channel(&self) -> &'a str {
+        unsafe {
+            util::cstring_to_str(self.uniform.channel.data, self.uniform.channel.length)
         }
     }
 }

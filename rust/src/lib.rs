@@ -13,4 +13,5 @@ pub use parser::*;
 pub use packet::*;
 pub use packet_id::*;
 pub use uniform::*;
+pub use uniform_types::{UniformParseError, PsycScheme, PsycEntity};
 pub use packet_types::{PsycOperator, PsycStateOp};

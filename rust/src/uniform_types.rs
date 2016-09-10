@@ -1,6 +1,28 @@
 use types::*;
 
+#[derive(Debug, PartialEq)]
+pub enum PsycEntity<'a> {
+    Root,
+    Person {
+        name: &'a str,
+        channel: &'a str
+    },
+    Place {
+        name: &'a str,
+        channel: &'a str
+    },
+    Service {
+        name: &'a str,
+        channel: &'a str
+    },
+    Unknown {
+        object: &'a str,
+        channel: &'a str
+    }
+}
+
 #[derive(Clone, Copy)]
+#[derive(Debug, PartialEq)]
 #[repr(C)]
 pub enum PsycScheme {
     PSYC_SCHEME_PSYC = 0,
@@ -17,6 +39,7 @@ pub enum PsycEntityType {
     PSYC_ENTITY_SERVICE = '$' as _
 }
 
+#[derive(Debug, PartialEq)]
 #[repr(C)]
 pub enum PsycTransport {
     PSYC_TRANSPORT_TCP = 'c' as _,
@@ -25,6 +48,7 @@ pub enum PsycTransport {
     PSYC_TRANSPORT_GNUNET = 'g' as _,
 }
 
+#[derive(Debug, PartialEq)]
 #[repr(C)]
 pub enum UniformParseError {
     PSYC_PARSE_UNIFORM_INVALID_SLASHES = -7,
@@ -36,7 +60,7 @@ pub enum UniformParseError {
     PSYC_PARSE_UNIFORM_INVALID_SCHEME = -1,
 }
 
-#[derive(Clone)]
+#[derive(Debug)]
 #[repr(C)]
 pub struct PsycUniform {
     pub valid: bool,
