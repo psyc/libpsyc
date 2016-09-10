@@ -59,18 +59,18 @@ pub enum PsycParserResult<'a> {
         value_part: &'a [u8]
     },
     Body {
-        name: &'a [u8],
-        value: &'a [u8]
+        method: &'a [u8],
+        data: &'a [u8]
     },
     BodyStart {
-        name: &'a [u8],
-        value_part: &'a [u8]
+        method: &'a [u8],
+        data_part: &'a [u8]
     },
     BodyCont {
-        value_part: &'a [u8]
+        data_part: &'a [u8]
     },
     BodyEnd {
-        value_part: &'a [u8]
+        data_part: &'a [u8]
     }
 }
 
@@ -207,29 +207,29 @@ impl PsycParser {
 
                 PsycParseRC::PSYC_PARSE_BODY => {
                     let result = PsycParserResult::Body {
-                        name: util::cstring_to_slice(name.data, name.length),
-                        value: util::cstring_to_slice(value.data, value.length)
+                        method: util::cstring_to_slice(name.data, name.length),
+                        data: util::cstring_to_slice(value.data, value.length)
                     };
                     Ok(result)
                 },
 
                 PsycParseRC::PSYC_PARSE_BODY_START => {
                     let result = PsycParserResult::BodyStart {
-                        name: util::cstring_to_slice(name.data, name.length),
-                        value_part: util::cstring_to_slice(value.data, value.length)
+                        method: util::cstring_to_slice(name.data, name.length),
+                        data_part: util::cstring_to_slice(value.data, value.length)
                     };
                     Ok(result)
                 },
                 PsycParseRC::PSYC_PARSE_BODY_CONT => {
                     let result = PsycParserResult::BodyCont {
-                        value_part: util::cstring_to_slice(value.data, value.length)
+                        data_part: util::cstring_to_slice(value.data, value.length)
                     };
                     Ok(result)
                 },
 
                 PsycParseRC::PSYC_PARSE_BODY_END => {
                     let result = PsycParserResult::BodyEnd {
-                        value_part: util::cstring_to_slice(value.data, value.length)
+                        data_part: util::cstring_to_slice(value.data, value.length)
                     };
                     Ok(result)
                 }
