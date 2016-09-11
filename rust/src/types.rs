@@ -7,6 +7,12 @@ pub enum PsycRC {
     PSYC_ERROR = -1,
 }
 
+#[repr(C)]
+pub enum PsycBool {
+    PSYC_FALSE = 0,
+    PSYC_TRUE = 1,
+}
+
 #[derive(Debug)]
 #[repr(C)]
 pub struct PsycString {
@@ -14,4 +20,11 @@ pub struct PsycString {
     pub data: *const c_char
 }
 
-
+impl PsycBool {
+    pub fn to_bool(self) -> bool {
+        match self {
+            PsycBool::PSYC_FALSE => false,
+            PsycBool::PSYC_TRUE => true
+        }
+    }
+}

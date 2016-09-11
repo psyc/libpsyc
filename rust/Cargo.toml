@@ -4,3 +4,6 @@ version = "1.0.0"
 links = "psyc"
 build = "build.rs"
 description = "rust bindings for libpsyc"
+
+[dependencies]
+bitflags = "0.7.0"
