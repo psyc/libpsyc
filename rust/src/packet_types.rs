@@ -116,3 +116,11 @@ pub enum PsycRenderRC {
     /// Packet is rendered successfully in the buffer.
     PSYC_RENDER_SUCCESS = 0,
 }
+
+#[repr(C)]
+#[derive(Debug, PartialEq)]
+pub enum PacketRenderError {
+    MethodMissing = PsycRenderRC::PSYC_RENDER_ERROR_METHOD_MISSING as _,
+    ModifierNameMissing = PsycRenderRC::PSYC_RENDER_ERROR_MODIFIER_NAME_MISSING as _,
+    GenericError = PsycRenderRC::PSYC_RENDER_ERROR as _
+}

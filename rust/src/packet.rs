@@ -1,6 +1,6 @@
-use types::*;
+use types::PsycString;
 use packet_types::*;
-use packet_id::*;
+use packet_id::PacketId;
 use util;
 use std::mem;
 use std::ptr;
@@ -68,14 +68,6 @@ pub struct PsycPacket<'a> {
     raw_entity_modifiers: Vec<RawPsycModifier>,
     method: &'a str,
     body: &'a [u8]
-}
-
-#[repr(C)]
-#[derive(Debug, PartialEq)]
-pub enum PsycRenderError {
-    MethodMissing = PsycRenderRC::PSYC_RENDER_ERROR_METHOD_MISSING as _,
-    ModifierNameMissing = PsycRenderRC::PSYC_RENDER_ERROR_MODIFIER_NAME_MISSING as _,
-    GenericError = PsycRenderRC::PSYC_RENDER_ERROR as _
 }
 
 impl PsycList {
@@ -212,7 +204,7 @@ impl<'a> PsycPacket<'a> {
     }
 
     ///
-    pub fn render(&self) -> Result<Vec<u8>, PsycRenderError> {
+    pub fn render(&self) -> Result<Vec<u8>, PacketRenderError> {
         let raw_packet_ptr = & self.raw_packet as *const RawPsycPacket;
         let mut buffer = Vec::with_capacity(self.length());
         let buffer_ptr = buffer.as_mut_ptr() as *mut c_char;

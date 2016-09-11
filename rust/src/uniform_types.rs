@@ -1,4 +1,4 @@
-use types::*;
+use types::PsycString;
 
 #[derive(Debug, PartialEq)]
 pub enum PsycEntity<'a> {

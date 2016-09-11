@@ -1,5 +1,5 @@
 #![allow(non_camel_case_types)]
-use types::*;
+use types::PsycString;
 
 enum PsycPart { }
 enum PsycListPart { }
@@ -265,6 +265,89 @@ pub enum PsycParseUpdateRC {
     PSYC_PARSE_UPDATE_END = 27,
 }
 
+#[derive(Debug, PartialEq)]
+pub enum PsycParserResult<'a> {
+    StateSync,
+    StateReset,
+    Complete,
+    InsufficientData,
+    RoutingModifier {
+        operator: char,
+        name: &'a [u8],
+        value: &'a [u8]
+    },
+    EntityModifier {
+        operator: char,
+        name: &'a [u8],
+        value: &'a [u8]
+    },
+    EntityModifierStart {
+        operator: char,
+        name: &'a [u8],
+        value_part: &'a [u8]
+    },
+    EntityModifierCont {
+        value_part: &'a [u8]
+    },
+    EntityModifierEnd {
+        value_part: &'a [u8]
+    },
+    Body {
+        method: &'a [u8],
+        data: &'a [u8]
+    },
+    BodyStart {
+        method: &'a [u8],
+        data_part: &'a [u8]
+    },
+    BodyCont {
+        data_part: &'a [u8]
+    },
+    BodyEnd {
+        data_part: &'a [u8]
+    }
+}
 
+#[derive(Debug, PartialEq)]
+pub enum PsycListParserResult<'a> {
+    Complete,
+    InsufficientData,
+    ListElement {
+        value: &'a [u8]
+    },
+    ListElementStart {
+        value_part: &'a [u8]
+    },
+    ListElementCont {
+        value_part: &'a [u8]
+    },
+    ListElementEnd {
+        value_part: &'a [u8]
+    }
+}
 
+#[repr(C)]
+#[derive(Debug, PartialEq)]
+pub enum PsycParserError {
+    NoModifierLength = PsycParseRC::PSYC_PARSE_ERROR_MOD_NO_LEN as _,
+    NoContentLength = PsycParseRC::PSYC_PARSE_ERROR_NO_LEN as _,
+    NoEndDelimiter = PsycParseRC::PSYC_PARSE_ERROR_END as _,
+    NoNewlineAfterMethod = PsycParseRC::PSYC_PARSE_ERROR_METHOD as _,
+    NoNewlineAfterModifier = PsycParseRC::PSYC_PARSE_ERROR_MOD_NL as _,
+    InvalidModifierLength = PsycParseRC::PSYC_PARSE_ERROR_MOD_LEN as _,
+    NoTabBeforeModifierValue = PsycParseRC::PSYC_PARSE_ERROR_MOD_TAB as _,
+    NoModifierName = PsycParseRC::PSYC_PARSE_ERROR_MOD_NAME as _,
+    NoNewlineAfterContentLength = PsycParseRC::PSYC_PARSE_ERROR_LENGTH as _,
+    GenericError = PsycParseRC::PSYC_PARSE_ERROR as _,
+}
 
+#[repr(C)]
+#[derive(Debug, PartialEq)]
+pub enum PsycListParserError {
+    NoElementLength = PsycParseListRC::PSYC_PARSE_LIST_ERROR_ELEM_NO_LEN as _,
+    InvalidElementLength = PsycParseListRC::PSYC_PARSE_LIST_ERROR_ELEM_LENGTH as _,
+    InvalidElementType = PsycParseListRC::PSYC_PARSE_LIST_ERROR_ELEM_TYPE as _,
+    InvalidElementStart = PsycParseListRC::PSYC_PARSE_LIST_ERROR_ELEM_START as _,
+    InvalidType = PsycParseListRC::PSYC_PARSE_LIST_ERROR_TYPE as _,
+    GenericError = PsycParseListRC::PSYC_PARSE_LIST_ERROR as _,
+}

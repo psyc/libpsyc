@@ -1,5 +1,5 @@
 extern crate psyc;
-use psyc::parser::*;
+use psyc::*;
 
 #[test]
 fn test_parse() {

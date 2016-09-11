@@ -10,7 +10,6 @@ bitflags! {
     }
 }
 
-
 #[repr(C)]
 #[derive(Debug, PartialEq)]
 pub enum PsycMethod {

@@ -1,5 +1,6 @@
 use packet_types::{RawPsycList, PsycElem};
-use parser::{PsycListParser, PsycListParserResult};
+use parser::PsycListParser;
+use parser_types::PsycListParserResult;
 use util;
 use std::mem;
 use std::ptr;
