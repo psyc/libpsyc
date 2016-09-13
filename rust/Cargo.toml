@@ -6,4 +6,4 @@ build = "build.rs"
 description = "rust bindings for libpsyc"
 
 [dependencies]
-bitflags = "0.7.0"
+bitflags = { path = "third_party/bitflags", version = "0.7.0" }
