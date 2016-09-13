@@ -6,6 +6,7 @@ mod keyword;
 mod method_types;
 mod packet_types;
 mod parser_types;
+mod text_types;
 mod types;
 mod uniform_types;
 mod util;
@@ -14,6 +15,7 @@ pub mod method;
 pub mod parser;
 pub mod packet;
 pub mod packet_id;
+pub mod text;
 pub mod uniform;
 pub mod variable;
 
@@ -26,6 +28,8 @@ pub use parser_types::{PsycParserResult, PsycListParserResult, PsycParserError, 
 pub use packet::{PsycList, PsycModifier, PsycPacket};
 pub use packet_id::PacketId;
 pub use packet_types::PacketRenderError;
+pub use text::Text;
+pub use text_types::SubstitutionResult;
 pub use uniform::Uniform;
 pub use uniform_types::{UniformParseError, PsycScheme, PsycEntity};
 pub use packet_types::{PsycOperator, PsycStateOp};

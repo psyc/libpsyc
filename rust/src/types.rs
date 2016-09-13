@@ -20,6 +20,13 @@ pub struct PsycString {
     pub data: *const c_char
 }
 
+//#[derive(Debug)]
+//#[repr(C)]
+//pub struct MutablePsycString {
+//    pub length: usize,
+//    pub data: *mut c_char
+//}
+
 impl PsycBool {
     pub fn to_bool(self) -> bool {
         match self {
