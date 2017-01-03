@@ -86,3 +86,32 @@ fn test_insufficient() {
     assert_eq!(parser.parse(&test_data1).unwrap(), expected[3]);
     assert_eq!(parser.parse(&test_data1).unwrap(), expected[4]);
 }
+
+#[test]
+fn test_multiple() {
+    let test_data = b":_target\tpsyc://ve.symlynx.com/@blog\n\n?\n|\n:_target\tpsyc://ve.symlynx.com/@blog\n\n_test_method\n|\n";
+
+    let expected = vec![PsycParserResult::RoutingModifier {
+                            operator: ':',
+                            name: b"_target",
+                            value: b"psyc://ve.symlynx.com/@blog"
+                        },
+                        PsycParserResult::StateSync,
+                        PsycParserResult::Complete,
+                        PsycParserResult::RoutingModifier {
+                            operator: ':',
+                            name: b"_target",
+                            value: b"psyc://ve.symlynx.com/@blog"
+                        },
+                        PsycParserResult::Body {
+                            method: b"_test_method",
+                            data: b""
+                        },
+                        PsycParserResult::Complete];
+
+    let mut parser = PsycParser::new();
+
+    for e in expected {
+        assert_eq!(parser.parse(test_data).unwrap(), e);
+    }
+}
