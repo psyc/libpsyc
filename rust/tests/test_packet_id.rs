@@ -5,13 +5,13 @@ use psyc::*;
 #[test]
 fn test_packet_id() {
     let routing_modifiers = vec![PsycModifier::new(PsycOperator::PSYC_OPERATOR_SET,
-                                                   "_source",
+                                                   b"_source",
                                                    b"psyc://ve.symlynx.com/~alice"),
                                  PsycModifier::new(PsycOperator::PSYC_OPERATOR_SET,
-                                                   "_target",
+                                                   b"_target",
                                                    b"psyc://ve.symlynx.com/~bob"),
                                  PsycModifier::new(PsycOperator::PSYC_OPERATOR_SET,
-                                                   "_counter",
+                                                   b"_counter",
                                                    b"42")];
 
     let entity_modifiers = vec![];
@@ -20,7 +20,7 @@ fn test_packet_id() {
 
     let packet = PsycPacket::new(&routing_modifiers,
                                  &entity_modifiers,
-                                 "",
+                                 b"",
                                  &data,
                                  PsycStateOp::PSYC_STATE_NOOP);
 

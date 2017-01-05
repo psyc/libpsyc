@@ -55,7 +55,7 @@ pub struct PsycList {
 }
 
 pub struct PsycModifier<'a> {
-    name: &'a str,
+    name: &'a [u8],
     value: &'a [u8],
     operator: PsycOperator,
 }
@@ -66,7 +66,7 @@ pub struct PsycPacket<'a> {
     entity_modifiers: &'a [PsycModifier<'a>],
     raw_routing_modifiers: Vec<RawPsycModifier>,
     raw_entity_modifiers: Vec<RawPsycModifier>,
-    method: &'a str,
+    method: &'a [u8],
     body: &'a [u8]
 }
 
@@ -98,25 +98,25 @@ impl PsycList {
 
 impl<'a> PsycModifier<'a> {
     /// construct a PsycModifier
-    pub fn new(operator: PsycOperator, name: &'a str, value: &'a [u8]) -> Self {
+    pub fn new(operator: PsycOperator, name: &'a [u8], value: &'a [u8]) -> Self {
         PsycModifier {name: name, value: value, operator: operator}
     }
 
     /// construct a PsycModifier with string value (comfort function)
     pub fn with_string_value(operator: PsycOperator,
-                             name: &'a str,
-                             value: &'a str)
+                             name: &'a [u8],
+                             value: &'a [u8])
                              -> Self {
         PsycModifier {
             name: name,
-            value: value.as_bytes(),
+            value: value,
             operator: operator
         }
     }
 
     /// construct a PsycModifier with list value
     pub fn with_list_value(operator: PsycOperator,
-                          name: &'a str,
+                          name: &'a [u8],
                           value: &'a PsycList)
                           -> Self {
         PsycModifier {
@@ -131,7 +131,7 @@ impl<'a> PsycPacket<'a> {
     ///
     pub fn new(routing_modifiers: &'a [PsycModifier],
                entity_modifiers: &'a [PsycModifier],
-               method: &'a str,
+               method: &'a [u8],
                data: &'a [u8],
                state_operator: PsycStateOp)
                -> Self {
@@ -193,7 +193,7 @@ impl<'a> PsycPacket<'a> {
             entity_modifiers: &[],
             raw_routing_modifiers: raw_routing_modifiers,
             raw_entity_modifiers: vec![],
-            method: "",
+            method: b"",
             body: content
         }
     }
@@ -227,10 +227,10 @@ impl<'a> PsycPacket<'a> {
             }
         };
 
-        let context = self.routing_modifiers.iter().find(|&r| r.name == "_context");
-        let source = self.routing_modifiers.iter().find(|&r| r.name == "_source");
-        let target = self.routing_modifiers.iter().find(|&r| r.name == "_target");
-        let counter = self.routing_modifiers.iter().find(|&r| r.name == "_counter");
+        let context = self.routing_modifiers.iter().find(|&r| r.name == b"_context");
+        let source = self.routing_modifiers.iter().find(|&r| r.name == b"_source");
+        let target = self.routing_modifiers.iter().find(|&r| r.name == b"_target");
+        let counter = self.routing_modifiers.iter().find(|&r| r.name == b"_counter");
 
         PacketId {
             context: get_value(context),
