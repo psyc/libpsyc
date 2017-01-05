@@ -6,7 +6,7 @@ fn test_parse() {
     let test_data = ":_target\tpsyc://ve.symlynx.com/@blog\n\n?\n|\n".to_string().into_bytes();
 
     let expected = vec![PsycParserResult::RoutingModifier{
-                            operator: ':', 
+                            operator: PsycOperator::PSYC_OPERATOR_SET, 
                             name: "_target".as_bytes(),
                             value: "psyc://ve.symlynx.com/@blog".as_bytes(),
                         },
@@ -35,7 +35,7 @@ fn test_incomplete() {
     let test_data2 = "lurchi".to_string().into_bytes();
 
     let expected = vec![PsycParserResult::EntityModifierStart {
-                            operator: ':',
+                            operator: PsycOperator::PSYC_OPERATOR_SET,
                             name: b"_nick",
                             value_part: b""
                         },
@@ -58,13 +58,13 @@ fn test_insufficient() {
 
     let expected = vec![PsycParserResult::InsufficientData,
                         PsycParserResult::RoutingModifier {
-                            operator: ':',
+                            operator: PsycOperator::PSYC_OPERATOR_SET,
                             name: b"_target",
                             value: b"psyc://ve.symlynx.com/@blog"
                         },
                         PsycParserResult::InsufficientData,
                         PsycParserResult::EntityModifier{
-                            operator: ':', 
+                            operator: PsycOperator::PSYC_OPERATOR_SET, 
                             name: b"_nick",
                             value: b"lurchi"
                         },
@@ -92,14 +92,14 @@ fn test_multiple() {
     let test_data = b":_target\tpsyc://ve.symlynx.com/@blog\n\n?\n|\n:_target\tpsyc://ve.symlynx.com/@blog\n\n_test_method\n|\n";
 
     let expected = vec![PsycParserResult::RoutingModifier {
-                            operator: ':',
+                            operator: PsycOperator::PSYC_OPERATOR_SET,
                             name: b"_target",
                             value: b"psyc://ve.symlynx.com/@blog"
                         },
                         PsycParserResult::StateSync,
                         PsycParserResult::Complete,
                         PsycParserResult::RoutingModifier {
-                            operator: ':',
+                            operator: PsycOperator::PSYC_OPERATOR_SET,
                             name: b"_target",
                             value: b"psyc://ve.symlynx.com/@blog"
                         },

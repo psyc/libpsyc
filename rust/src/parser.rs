@@ -1,4 +1,4 @@
-use types::PsycString;
+use types::{PsycString, PsycOperator};
 use parser_types::*;
 use util;
 use std::mem;
@@ -50,7 +50,7 @@ impl PsycParser {
     pub fn parse<'a>(&mut self, buffer: &'a [u8]) -> Result<PsycParserResult<'a>, PsycParserError> {
         let state_ptr = &mut self.state as *mut PsycParseState;
         let buffer_ptr = buffer.as_ptr() as *const c_char;
-        let mut operator = '\0';
+        let mut operator = PsycOperator::PSYC_OPERATOR_SET;
         let mut name: PsycString;
         let mut value: PsycString;
         unsafe {
@@ -60,7 +60,7 @@ impl PsycParser {
             }
             name = mem::uninitialized();
             value = mem::uninitialized();
-            let operator_ptr = &mut operator as *mut char as *mut c_char;
+            let operator_ptr = &mut operator as *mut PsycOperator as *mut c_char;
             let name_ptr = &mut name as *mut PsycString;
             let value_ptr = &mut value as *mut PsycString;
             let parse_result = psyc_parse(state_ptr, operator_ptr, name_ptr, value_ptr);

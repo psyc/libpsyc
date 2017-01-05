@@ -32,6 +32,6 @@ pub use text::Text;
 pub use text_types::SubstitutionResult;
 pub use uniform::Uniform;
 pub use uniform_types::{UniformParseError, PsycScheme, PsycEntity};
-pub use packet_types::{PsycOperator, PsycStateOp};
+pub use types::{PsycOperator, PsycStateOp};
 pub use variable::{RoutingVariable, EntityVariable, Variable};
 pub use variable_types::{PsycRoutingVar, PsycType};

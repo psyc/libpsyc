@@ -1,5 +1,5 @@
 #![allow(non_camel_case_types)]
-use types::PsycString;
+use types::{PsycString, PsycOperator};
 
 enum PsycPart { }
 enum PsycListPart { }
@@ -272,17 +272,17 @@ pub enum PsycParserResult<'a> {
     Complete,
     InsufficientData,
     RoutingModifier {
-        operator: char,
+        operator: PsycOperator,
         name: &'a [u8],
         value: &'a [u8]
     },
     EntityModifier {
-        operator: char,
+        operator: PsycOperator,
         name: &'a [u8],
         value: &'a [u8]
     },
     EntityModifierStart {
-        operator: char,
+        operator: PsycOperator,
         name: &'a [u8],
         value_part: &'a [u8]
     },

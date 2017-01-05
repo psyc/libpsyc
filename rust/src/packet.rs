@@ -1,4 +1,4 @@
-use types::PsycString;
+use types::{PsycString, PsycOperator, PsycStateOp};
 use packet_types::*;
 use packet_id::PacketId;
 use util;

@@ -43,24 +43,6 @@ pub enum PsycPacketId {
     PSYC_PACKET_ID_ELEMS = 5,
 }
 
-#[derive(Copy, Clone)]
-#[repr(C)]
-pub enum PsycOperator {
-    PSYC_OPERATOR_SET = ':' as _,
-    PSYC_OPERATOR_ASSIGN = '=' as _,
-    PSYC_OPERATOR_AUGMENT = '+' as _,
-    PSYC_OPERATOR_DIMINISH = '-' as _,
-    PSYC_OPERATOR_UPDATE = '@' as _,
-    PSYC_OPERATOR_QUERY = '?' as _,
-}
-
-#[repr(C)]
-pub enum PsycStateOp {
-    PSYC_STATE_NOOP = 0,
-    PSYC_STATE_RESET = '=' as _,
-    PSYC_STATE_RESYNC = '?' as _,
-}
-
 #[repr(C)]
 pub struct PsycElem {
     pub elem_type: PsycString,
