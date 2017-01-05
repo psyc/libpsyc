@@ -85,9 +85,11 @@ psyc_render_list (PsycList *list, char *buffer, size_t buflen)
 {
     size_t i, cur = 0;
 
+    ASSERT(NULL != list);
     if (list->length > buflen) // return error if list doesn't fit in buffer
 	return PSYC_RENDER_ERROR;
 
+    ASSERT(NULL != buffer);
     if (list->type.length) {
 	memcpy(buffer + cur, PSYC_S2ARG(list->type));
 	cur += list->type.length;
