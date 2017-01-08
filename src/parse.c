@@ -119,7 +119,7 @@ psyc_parse_remaining_buffer (PsycParseState *state);
  *
  * @return PARSE_ERROR or PARSE_SUCCESS
  */
-inline ParseRC
+static inline ParseRC
 parse_keyword (ParseState *state, PsycString *name)
 {
     name->data = state->buffer.data + state->cursor;
@@ -138,7 +138,7 @@ parse_keyword (ParseState *state, PsycString *name)
  *
  * @return PARSE_SUCCESS, PARSE_ERROR or PARSE_INSUFFICIENT
  */
-inline ParseRC
+static inline ParseRC
 parse_length (ParseState *state, size_t *len)
 {
     ParseRC ret = PARSE_ERROR;
@@ -165,7 +165,7 @@ parse_length (ParseState *state, size_t *len)
  *
  * @return PARSE_SUCCESS or PARSE_INCOMPLETE
  */
-inline ParseRC
+static inline ParseRC
 parse_binary (ParseState *state, size_t length, PsycString *value, size_t *parsed)
 {
     size_t remaining = length - *parsed;
@@ -197,7 +197,7 @@ parse_binary (ParseState *state, size_t length, PsycString *value, size_t *parse
  *
  * @return PARSE_SUCCESS or PARSE_INSUFFICIENT
  */
-inline ParseRC
+static inline ParseRC
 parse_until (ParseState *state, const char end, PsycString *value)
 {
     value->data = state->buffer.data + state->cursor;
